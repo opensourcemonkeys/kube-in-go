@@ -1,22 +1,28 @@
-import {Component, useState} from 'react';
+import {Component, useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import SideMenu from '../../components/menu';
 import { Greet } from '../../../wailsjs/go/main/App';
+import { models } from '../../../wailsjs/go/models';
 
 function Appmain() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e: any) => setName(e.target.value);
-    const updateResultText = (result: string) => setResultText(result);
+    const [resultText, setResultText] = useState<models.PodInfo>();
+    const updateResultText = (result: models.PodInfo) => setResultText(result);
     const navigate = useNavigate();
     const goInfo = () => {
         navigate("/info");
     };
 
     function greet() {
-        Greet(name).then(updateResultText);
+        Greet().then((result) => {
+            result.forEach(res => {
+                updateResultText(res)
+            })
+        });
     }
 
+    useEffect(() => {
+    greet()
+  }, []);
     return (
         <div id="appmain">
 
@@ -26,7 +32,7 @@ function Appmain() {
             </div>
            
             <div className="col-9">
-                <div className="text-center p-3 border-round-sm bg-primary font-bold">9asdasd</div>
+                <div className="text-center p-3 border-round-sm bg-primary font-bold">{resultText?.name}</div>
             </div>
 
         </div>

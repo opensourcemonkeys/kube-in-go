@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"kube-ins/internal/models"
 )
 
 // App struct
@@ -22,6 +22,14 @@ func (a *App) startup(ctx context.Context) {
 }
 
 // Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, Hello ", name)
+func (a *App) Greet() []models.PodInfo {
+	var podInfoList []models.PodInfo
+	var podInfo1, podInfo2 models.PodInfo
+	podInfoName1 := "Name 1"
+	podInfo1.Name = podInfoName1
+	podInfoName2 := "Name 2"
+	podInfo2.Name = podInfoName2
+
+	podInfoList = append(podInfoList, podInfo1, podInfo2)
+	return podInfoList
 }

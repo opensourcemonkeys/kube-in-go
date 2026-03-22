@@ -10,7 +10,7 @@ function App() {
     const updateResultText = (result: string) => setResultText(result);
 
     function greet() {
-        Greet(name).then(updateResultText);
+     
     }
 
     return (
