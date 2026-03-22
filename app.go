@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"kube-ins/internal/models"
+	"kube-ins/internal/services"
 )
 
 // App struct
@@ -23,13 +25,16 @@ func (a *App) startup(ctx context.Context) {
 
 // Greet returns a greeting for the given name
 func (a *App) Greet() []models.PodInfo {
-	var podInfoList []models.PodInfo
-	var podInfo1, podInfo2 models.PodInfo
-	podInfoName1 := "Name 1"
-	podInfo1.Name = podInfoName1
-	podInfoName2 := "Name 2"
-	podInfo2.Name = podInfoName2
 
-	podInfoList = append(podInfoList, podInfo1, podInfo2)
-	return podInfoList
+	var podInfo1 models.PodInfo
+	podInfo1.Name = "Name 1"
+	client, err := services.NewK8sClient()
+	if err != nil {
+		fmt.Println(err)
+	}
+	podItem, err := client.GetPods("")
+	if err != nil {
+		fmt.Println(err)
+	}
+	return podItem
 }
