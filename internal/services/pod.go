@@ -23,6 +23,23 @@ func (k *K8sClient) GetPods(namespace string) ([]models.PodInfo, error) {
 	return podInfos, nil
 }
 
+func (k *K8sClient) GetPod(namespace, name string) (*models.PodInfo, error) {
+	if namespace == "" {
+		return nil, errors.New("namespace is required")
+	}
+	if name == "" {
+		return nil, errors.New("pod name is required")
+	}
+
+	pod, err := k.clientset.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	podInfo := podToInfo(*pod)
+	return &podInfo, nil
+}
+
 func (k *K8sClient) CreatePod(namespace string, pod *corev1.Pod) (*models.PodInfo, error) {
 	if pod == nil {
 		return nil, errors.New("pod cannot be nil")
