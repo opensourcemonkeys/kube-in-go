@@ -1,13 +1,10 @@
 package services
 
 import (
-	"context"
-	"kube-ins/internal/models"
 	"log"
 	"os"
 	"path/filepath"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -56,23 +53,4 @@ func getK8sConfig() (*rest.Config, error) {
 	}
 
 	return config, nil
-}
-
-func (k *K8sClient) GetPods(namespace string) ([]models.PodInfo, error) {
-	pods, err := k.clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	var podInfos []models.PodInfo
-	for _, pod := range pods.Items {
-		podInfo := models.PodInfo{
-			Name:      pod.Name,
-			Namespace: pod.Namespace,
-			Status:    string(pod.Status.Phase),
-			CreatedAt: pod.CreationTimestamp.Time,
-		}
-		podInfos = append(podInfos, podInfo)
-	}
-	return podInfos, nil
 }
