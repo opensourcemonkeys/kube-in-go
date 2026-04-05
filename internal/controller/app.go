@@ -25,3 +25,7 @@ func (a *App) Startup(ctx context.Context) {
 func (a *App) GetPods() []models.PodInfo {
 	return bussiness.GetPods()
 }
+
+func (a *App) DeletePod(name string, namespace string) error {
+	return bussiness.DeletePod(name, namespace)
+}

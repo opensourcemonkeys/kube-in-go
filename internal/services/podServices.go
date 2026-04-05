@@ -2,6 +2,7 @@ package services_k8sclient
 
 import (
 	"context"
+	"fmt"
 	"kube-ins/internal/models"
 
 	corev1 "k8s.io/api/core/v1"
@@ -22,6 +23,14 @@ func GetPods(namespace string, repoK8sClient *kubernetes.Clientset) ([]models.Po
 	}
 
 	return podInfos, nil
+}
+
+func DeletePod(namespace string, name string, repoK8sClient *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return fmt.Errorf("namespace and pod name are required")
+	}
+
+	return repoK8sClient.CoreV1().Pods(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func podToInfo(pod corev1.Pod) models.PodInfo {

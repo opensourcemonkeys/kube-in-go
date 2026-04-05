@@ -20,3 +20,12 @@ func GetPods() []models.PodInfo {
 	}
 	return podItem
 }
+
+func DeletePod(name string, namespace string) error {
+	client, err := repository.NewK8sClient()
+	if err != nil {
+		return err
+	}
+
+	return services.DeletePod(namespace, name, client)
+}
