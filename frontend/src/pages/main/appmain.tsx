@@ -10,7 +10,7 @@ function Appmain() {
                 </div>
 
                 <div className="col-9">
-                    <h2 className="mb-3">Pod List</h2>
+                  
                     <DataTableComponent />
                 </div>
             </div>

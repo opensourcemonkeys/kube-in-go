@@ -2,8 +2,6 @@ package controller_app
 
 import (
 	"context"
-	bussiness "kube-ins/internal/business"
-	"kube-ins/internal/models"
 )
 
 // App struct
@@ -20,12 +18,4 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
-}
-
-func (a *App) GetPods() []models.PodInfo {
-	return bussiness.GetPods()
-}
-
-func (a *App) DeletePod(name string, namespace string) error {
-	return bussiness.DeletePod(name, namespace)
 }

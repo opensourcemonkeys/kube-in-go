@@ -5,7 +5,7 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import {  GetPods } from '../../../wailsjs/go/controller_app/App';
+import {  GetPods , DeletePod  } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 
 const getStatusSeverity = (status: string) => {
@@ -74,16 +74,16 @@ export default function DataTableComponent() {
                 await DeletePod(pod.name, pod.namespace);
                 toast.current?.show({
                     severity: 'success',
-                    summary: 'Pod silindi',
-                    detail: `${pod.namespace}/${pod.name} silindi`,
+                    summary: 'Deleted successfully',
+                    detail: `${pod.namespace}/${pod.name} deleted`,
                     life: 2500,
                 });
             } catch (error) {
                 console.error(`Failed to delete pod ${pod.namespace}/${pod.name}:`, error);
                 toast.current?.show({
                     severity: 'error',
-                    summary: 'Silme başarısız',
-                    detail: `${pod.namespace}/${pod.name} silinemedi`,
+                    summary: 'Delete failed',
+                    detail: `${pod.namespace}/${pod.name} could not be deleted`,
                     life: 3500,
                 });
             }
@@ -98,14 +98,14 @@ export default function DataTableComponent() {
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
             <Button
-                label="Vazgeç"
+                label="Cancel"
                 icon="pi pi-times"
                 text
                 onClick={() => setDeleteDialogVisible(false)}
                 disabled={deleting}
             />
             <Button
-                label="Sil"
+                label="Delete"
                 icon="pi pi-trash"
                 severity="danger"
                 onClick={handleDeleteSelected}
@@ -114,35 +114,51 @@ export default function DataTableComponent() {
         </div>
     );
 
+    const tableHeader = (
+        <div className="flex justify-content-between align-items-center gap-3 flex-wrap">
+            <h3 className="m-0">Pod List</h3>
+
+            <Button
+                label="Delete Selected"
+                icon="pi pi-trash"
+                severity="danger"
+                onClick={openDeleteDialog}
+                disabled={selectedPods.length === 0 || deleting}
+            />
+        </div>
+    );
+
     return (
         <div className="card">
             <Toast ref={toast} position="top-right" />
 
-            <div className="flex justify-content-between align-items-center mb-3">
-                <h3 className="m-0">Pod List</h3>
-                <Button
-                    label="Seçilenleri Sil"
-                    icon="pi pi-trash"
-                    severity="danger"
-                    onClick={openDeleteDialog}
-                    disabled={selectedPods.length === 0 || deleting}
-                />
-            </div>
-
             <DataTable
                 value={pods}
                 dataKey="name"
+                header={tableHeader}
                 selectionMode="multiple"
                 selection={selectedPods}
                 onSelectionChange={(e) => setSelectedPods(Array.isArray(e.value) ? e.value : [])}
                 stripedRows
                 showGridlines
+                resizableColumns
+                scrollHeight="90vh"
                 responsiveLayout="scroll"
                 emptyMessage="No pods found"
+                
+                style={{ minWidth: '50rem' }}
             >
                 <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
-                <Column field="name" header="Name" sortable />
-                <Column field="namespace" header="Namespace" sortable />
+                <Column
+                    field="name"
+                    header="Name"
+                    sortable
+                />
+                <Column
+                    field="namespace"
+                    header="Namespace"
+                    sortable
+                />
                 <Column
                     field="status"
                     header="Status"
@@ -151,16 +167,11 @@ export default function DataTableComponent() {
                         <Tag value={rowData.status} severity={getStatusSeverity(rowData.status)} />
                     )}
                 />
-                <Column
-                    field="created_at"
-                    header="Created At"
-                    sortable
-                    body={(rowData: models.PodInfo) => formatCreatedAt(rowData.created_at)}
-                />
+
             </DataTable>
 
             <Dialog
-                header="Pod silme onayı"
+                header="Delete Pod Confirmation"
                 visible={deleteDialogVisible}
                 style={{ width: '30rem' }}
                 modal
@@ -171,7 +182,8 @@ export default function DataTableComponent() {
                     }
                 }}
             >
-                <p className="m-0 mb-3">Seçilen pod kayıtları silinsin mi?</p>
+         
+                <p className="m-0 mb-3">Do you want to delete the selected pod records?</p>
                 <ul className="m-0 pl-3">
                     {selectedPods.map((pod) => (
                         <li key={`${pod.namespace}-${pod.name}`}>
