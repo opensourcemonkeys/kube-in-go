@@ -1,4 +1,4 @@
-package services_k8sclient
+package repository_k8sclient
 
 import (
 	"log"
