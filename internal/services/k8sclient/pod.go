@@ -1,4 +1,4 @@
-package services
+package services_k8sclient
 
 import (
 	"context"
@@ -97,7 +97,22 @@ func podToInfo(pod corev1.Pod) models.PodInfo {
 	return models.PodInfo{
 		Name:      pod.Name,
 		Namespace: pod.Namespace,
-		Status:    string(pod.Status.Phase),
+		Status:    getPodStatus(pod),
 		CreatedAt: pod.CreationTimestamp.Time,
+	}
+}
+
+func getPodStatus(pod corev1.Pod) models.PodStatus {
+	if pod.DeletionTimestamp != nil {
+		return models.PodStatusTerminating
+	}
+
+	switch pod.Status.Phase {
+	case corev1.PodRunning:
+		return models.PodStatusRunning
+	case corev1.PodPending:
+		return models.PodStatusPending
+	default:
+		return models.PodStatus(pod.Status.Phase)
 	}
 }

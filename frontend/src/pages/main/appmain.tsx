@@ -1,7 +1,7 @@
 import { Component, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import SideMenu from '../../components/menu';
-import { Greet } from '../../../wailsjs/go/main/App';
+import { GetPods } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import ListBoxComponent from '../../components/listbox';
 
@@ -15,9 +15,9 @@ function Appmain() {
 
     function greet() {
         let fetchedData: [string, string][] =[];
-        Greet().then((items)=>{
+        GetPods().then((items:any)=>{
             
-            items.forEach(element => {
+            items.forEach((element:any) => {
                 let fetchedItem: [string, string]=["",""]
                 console.log(element.name)
                 fetchedItem[0]=element.name

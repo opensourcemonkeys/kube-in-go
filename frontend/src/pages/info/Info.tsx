@@ -1,7 +1,6 @@
 import {useState} from 'react';
 import logo from './assets/images/logo-universal.png';
 import './Info.css';
-import {Greet} from "../../../wailsjs/go/main/App";
 
 function App() {
     const [resultText, setResultText] = useState("Please enter your name below 👇");
