@@ -10,8 +10,6 @@ import (
 // GetPods exposes pod data to the Wails app context.
 func GetPods() []models.PodInfo {
 
-	var podInfo1 models.PodInfo
-	podInfo1.Name = "Name 1"
 	client, err := repository.NewK8sClient()
 	if err != nil {
 		fmt.Println(err)

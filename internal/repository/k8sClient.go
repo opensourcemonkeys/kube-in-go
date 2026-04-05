@@ -10,11 +10,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-type K8sClient struct {
-	clientset *kubernetes.Clientset
-}
-
-func NewK8sClient() (*K8sClient, error) {
+func NewK8sClient() (*kubernetes.Clientset, error) {
 	config, err := getK8sConfig()
 	if err != nil {
 		return nil, err
@@ -24,10 +20,7 @@ func NewK8sClient() (*K8sClient, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	return &K8sClient{
-		clientset: clientset,
-	}, nil
+	return clientset, err
 }
 
 func getK8sConfig() (*rest.Config, error) {

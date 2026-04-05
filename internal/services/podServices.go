@@ -4,16 +4,13 @@ import (
 	"context"
 	"kube-ins/internal/models"
 
-	repository_k8sclient "kube-ins/internal/repository"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 )
 
-func GetPods(namespace string, repoK8sClient *repository_k8sclient.K8sClient) ([]models.PodInfo, error) {
-	if repoK8sClient != nil {
+func GetPods(namespace string, repoK8sClient *kubernetes.Clientset) ([]models.PodInfo, error) {
 
-	}
 	pods, err := repoK8sClient.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
