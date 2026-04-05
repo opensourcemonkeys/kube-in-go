@@ -2,6 +2,8 @@ import React from 'react'
 import {createRoot} from 'react-dom/client'
 import './style.css'
 import '/node_modules/primeflex/primeflex.css'
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 
 import Info from './pages/info/Info'
 
