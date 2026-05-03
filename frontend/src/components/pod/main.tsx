@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import YamlViewDialog from '../shared/YamlViewDialog';
 import {  GetPods , DeletePod, GetPodYaml  } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 
@@ -164,22 +165,12 @@ export default function DataTableComponent() {
                 showGridlines
                 resizableColumns
                 scrollHeight="90vh"
-                responsiveLayout="scroll"
                 emptyMessage="No pods found"
-                
                 style={{ minWidth: '50rem' }}
             >
                 <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
-                <Column
-                    field="name"
-                    header="Name"
-                    sortable
-                />
-                <Column
-                    field="namespace"
-                    header="Namespace"
-                    sortable
-                />
+                <Column field="name" header="Name" sortable />
+                <Column field="namespace" header="Namespace" sortable />
                 <Column
                     field="status"
                     header="Status"
@@ -188,7 +179,6 @@ export default function DataTableComponent() {
                         <Tag value={rowData.status} severity={getStatusSeverity(rowData.status)} />
                     )}
                 />
-
             </DataTable>
 
             <Dialog
@@ -203,7 +193,6 @@ export default function DataTableComponent() {
                     }
                 }}
             >
-         
                 <p className="m-0 mb-3">Do you want to delete the selected pod records?</p>
                 <ul className="m-0 pl-3">
                     {selectedPods.map((pod) => (
@@ -214,19 +203,12 @@ export default function DataTableComponent() {
                 </ul>
             </Dialog>
 
-            <Dialog
-                header={`Pod YAML: ${currentPodNamespace}/${currentPodName}`}
+            <YamlViewDialog
                 visible={detailsDialogVisible}
-                style={{ width: '60rem' }}
-                modal
+                title={`Pod YAML: ${currentPodNamespace}/${currentPodName}`}
+                yaml={currentPodYaml}
                 onHide={() => setDetailsDialogVisible(false)}
-            >
-                <div className="surface-100 p-3" style={{ minHeight: '20rem', overflow: 'auto' }}>
-                    <pre className="m-0" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'monospace' }}>
-                        {currentPodYaml}
-                    </pre>
-                </div>
-            </Dialog>
+            />
         </div>
     );
 }

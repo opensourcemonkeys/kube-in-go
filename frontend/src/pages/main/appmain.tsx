@@ -1,5 +1,6 @@
 import SideMenu from '../../components/menu/menu';
 import DataTableComponent from '../../components/pod/main';
+import DeploymentListComponent from '../../components/deployment/main';
 import { useSearchParams } from 'react-router-dom';
 
 function Appmain() {
@@ -36,6 +37,10 @@ function Appmain() {
     const renderContent = () => {
         if (currentView === 'pods') {
             return <DataTableComponent />;
+        }
+
+        if (currentView === 'deployments') {
+            return <DeploymentListComponent />;
         }
 
         return (
