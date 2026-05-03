@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/outfit": "^5.2.8",
     "@monaco-editor/react": "^4.7.0",
+    "dockview": "^6.0.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.7",

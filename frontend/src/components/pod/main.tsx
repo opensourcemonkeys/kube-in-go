@@ -5,29 +5,21 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import YamlViewDialog from '../shared/YamlViewDialog';
-import {  GetPods , DeletePod, GetPodYaml  } from '../../../wailsjs/go/controller_app/App';
+import { GetPods, DeletePod } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-
+import { useTabContext } from '../../contexts/TabContext';
 
 const getStatusSeverity = (status: string) => {
     switch (status) {
-        case 'Running':
-            return 'success';
-        case 'Pending':
-            return 'warning';
-        case 'Terminating':
-            return 'danger';
-        default:
-            return 'info';
+        case 'Running':   return 'success';
+        case 'Pending':   return 'warning';
+        case 'Terminating': return 'danger';
+        default:          return 'info';
     }
 };
 
 const formatCreatedAt = (value: any) => {
-    if (!value) {
-        return '-';
-    }
-
+    if (!value) return '-';
     const parsedDate = new Date(value);
     return Number.isNaN(parsedDate.getTime()) ? String(value) : parsedDate.toLocaleString();
 };
@@ -36,12 +28,9 @@ export default function DataTableComponent() {
     const [pods, setPods] = useState<models.PodInfo[]>([]);
     const [selectedPods, setSelectedPods] = useState<models.PodInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-    const [detailsDialogVisible, setDetailsDialogVisible] = useState(false);
-    const [currentPodYaml, setCurrentPodYaml] = useState('');
-    const [currentPodName, setCurrentPodName] = useState('');
-    const [currentPodNamespace, setCurrentPodNamespace] = useState('');
     const [deleting, setDeleting] = useState(false);
     const toast = useRef<Toast | null>(null);
+    const { openYamlPanel } = useTabContext();
 
     const loadPods = async () => {
         try {
@@ -56,26 +45,20 @@ export default function DataTableComponent() {
     useEffect(() => {
         loadPods();
         const intervalId = window.setInterval(loadPods, 2000);
-
         return () => window.clearInterval(intervalId);
     }, []);
 
     const openDeleteDialog = () => {
-        if (selectedPods.length > 0) {
-            setDeleteDialogVisible(true);
-        }
+        if (selectedPods.length > 0) setDeleteDialogVisible(true);
     };
 
     const handleDeleteSelected = async () => {
-        if (selectedPods.length === 0) {
-            setDeleteDialogVisible(false);
-            return;
-        }
+        if (selectedPods.length === 0) { setDeleteDialogVisible(false); return; }
 
         setDeleting(true);
-        const podsToDelete = [...selectedPods];
+        const toDelete = [...selectedPods];
 
-        for (const pod of podsToDelete) {
+        for (const pod of toDelete) {
             try {
                 await DeletePod(pod.name, pod.namespace);
                 toast.current?.show({
@@ -84,8 +67,7 @@ export default function DataTableComponent() {
                     detail: `${pod.namespace}/${pod.name} deleted`,
                     life: 2500,
                 });
-            } catch (error) {
-                console.error(`Failed to delete pod ${pod.namespace}/${pod.name}:`, error);
+            } catch {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Delete failed',
@@ -101,50 +83,32 @@ export default function DataTableComponent() {
         await loadPods();
     };
 
-    const openPodDetails = async (pod: models.PodInfo) => {
-        setCurrentPodName(pod.name);
-        setCurrentPodNamespace(pod.namespace);
-        setCurrentPodYaml('Loading...');
-        setDetailsDialogVisible(true);
-
-        try {
-            const yaml = await GetPodYaml(pod.name, pod.namespace);
-            setCurrentPodYaml(yaml || 'No YAML available');
-        } catch (error) {
-            console.error(`Failed to load YAML for pod ${pod.namespace}/${pod.name}:`, error);
-            setCurrentPodYaml('Failed to load pod YAML.');
-        }
+    const handleRowDoubleClick = (pod: models.PodInfo) => {
+        openYamlPanel({
+            resourceKind: 'pod',
+            name: pod.name,
+            namespace: pod.namespace,
+            referencePanel: 'pods',
+        });
     };
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button
-                label="Cancel"
-                icon="pi pi-times"
-                text
-                onClick={() => setDeleteDialogVisible(false)}
-                disabled={deleting}
-            />
-            <Button
-                label="Delete"
-                icon="pi pi-trash"
-                severity="danger"
-                onClick={handleDeleteSelected}
-                loading={deleting}
-            />
+            <Button label="Cancel" icon="pi pi-times" text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
     const tableHeader = (
-        <div className="flex justify-content-between align-items-center gap-3 flex-wrap">
-            <h3 className="m-0">Pod List</h3>
-
+        <div className="flex justify-content-between align-items-center gap-2" style={{ overflow: 'hidden' }}>
+            <h3 className="m-0" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>Pod List</h3>
             <Button
                 label="Delete Selected"
                 icon="pi pi-trash"
                 severity="danger"
                 onClick={openDeleteDialog}
                 disabled={selectedPods.length === 0 || deleting}
+                style={{ flexShrink: 0 }}
             />
         </div>
     );
@@ -160,7 +124,7 @@ export default function DataTableComponent() {
                 selectionMode="multiple"
                 selection={selectedPods}
                 onSelectionChange={(e) => setSelectedPods(Array.isArray(e.value) ? e.value : [])}
-                onRowDoubleClick={(e: any) => openPodDetails(e.data as models.PodInfo)}
+                onRowDoubleClick={(e: any) => handleRowDoubleClick(e.data as models.PodInfo)}
                 stripedRows
                 showGridlines
                 resizableColumns
@@ -187,28 +151,15 @@ export default function DataTableComponent() {
                 style={{ width: '30rem' }}
                 modal
                 footer={deleteDialogFooter}
-                onHide={() => {
-                    if (!deleting) {
-                        setDeleteDialogVisible(false);
-                    }
-                }}
+                onHide={() => { if (!deleting) setDeleteDialogVisible(false); }}
             >
                 <p className="m-0 mb-3">Do you want to delete the selected pod records?</p>
                 <ul className="m-0 pl-3">
                     {selectedPods.map((pod) => (
-                        <li key={`${pod.namespace}-${pod.name}`}>
-                            {pod.namespace}/{pod.name}
-                        </li>
+                        <li key={`${pod.namespace}-${pod.name}`}>{pod.namespace}/{pod.name}</li>
                     ))}
                 </ul>
             </Dialog>
-
-            <YamlViewDialog
-                visible={detailsDialogVisible}
-                title={`Pod YAML: ${currentPodNamespace}/${currentPodName}`}
-                yaml={currentPodYaml}
-                onHide={() => setDetailsDialogVisible(false)}
-            />
         </div>
     );
 }

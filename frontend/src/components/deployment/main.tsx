@@ -5,9 +5,9 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import YamlViewDialog from '../shared/YamlViewDialog';
-import { GetDeployments, DeleteDeployment, GetDeploymentYaml, UpdateDeploymentYaml } from '../../../wailsjs/go/controller_app/App';
+import { GetDeployments, DeleteDeployment } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+import { useTabContext } from '../../contexts/TabContext';
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -20,13 +20,9 @@ export default function DeploymentListComponent() {
     const [deployments, setDeployments] = useState<models.DeploymentInfo[]>([]);
     const [selectedDeployments, setSelectedDeployments] = useState<models.DeploymentInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-    const [yamlDialogVisible, setYamlDialogVisible] = useState(false);
-    const [currentYaml, setCurrentYaml] = useState('');
-    const [currentName, setCurrentName] = useState('');
-    const [currentNamespace, setCurrentNamespace] = useState('');
     const [deleting, setDeleting] = useState(false);
-    const [saving, setSaving] = useState(false);
     const toast = useRef<Toast | null>(null);
+    const { openYamlPanel } = useTabContext();
 
     const loadDeployments = async () => {
         try {
@@ -45,16 +41,11 @@ export default function DeploymentListComponent() {
     }, []);
 
     const openDeleteDialog = () => {
-        if (selectedDeployments.length > 0) {
-            setDeleteDialogVisible(true);
-        }
+        if (selectedDeployments.length > 0) setDeleteDialogVisible(true);
     };
 
     const handleDeleteSelected = async () => {
-        if (selectedDeployments.length === 0) {
-            setDeleteDialogVisible(false);
-            return;
-        }
+        if (selectedDeployments.length === 0) { setDeleteDialogVisible(false); return; }
 
         setDeleting(true);
         const toDelete = [...selectedDeployments];
@@ -68,8 +59,7 @@ export default function DeploymentListComponent() {
                     detail: `${dep.namespace}/${dep.name} deleted`,
                     life: 2500,
                 });
-            } catch (error) {
-                console.error(`Failed to delete deployment ${dep.namespace}/${dep.name}:`, error);
+            } catch {
                 toast.current?.show({
                     severity: 'error',
                     summary: 'Delete failed',
@@ -85,74 +75,32 @@ export default function DeploymentListComponent() {
         await loadDeployments();
     };
 
-    const openYamlDialog = async (dep: models.DeploymentInfo) => {
-        setCurrentName(dep.name);
-        setCurrentNamespace(dep.namespace);
-        setCurrentYaml('Loading...');
-        setYamlDialogVisible(true);
-
-        try {
-            const yaml = await GetDeploymentYaml(dep.name, dep.namespace);
-            setCurrentYaml(yaml || 'No YAML available');
-        } catch (error) {
-            console.error(`Failed to load YAML for deployment ${dep.namespace}/${dep.name}:`, error);
-            setCurrentYaml('Failed to load deployment YAML.');
-        }
-    };
-
-    const handleSaveYaml = async (yaml: string) => {
-        setSaving(true);
-        try {
-            await UpdateDeploymentYaml(currentName, currentNamespace, yaml);
-            setCurrentYaml(yaml);
-            toast.current?.show({
-                severity: 'success',
-                summary: 'Updated successfully',
-                detail: `${currentNamespace}/${currentName} updated`,
-                life: 2500,
-            });
-            await loadDeployments();
-        } catch (error) {
-            console.error(`Failed to update deployment ${currentNamespace}/${currentName}:`, error);
-            toast.current?.show({
-                severity: 'error',
-                summary: 'Update failed',
-                detail: `${currentNamespace}/${currentName} could not be updated`,
-                life: 3500,
-            });
-        } finally {
-            setSaving(false);
-        }
+    const handleRowDoubleClick = (dep: models.DeploymentInfo) => {
+        openYamlPanel({
+            resourceKind: 'deployment',
+            name: dep.name,
+            namespace: dep.namespace,
+            referencePanel: 'deployments',
+        });
     };
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button
-                label="Cancel"
-                icon="pi pi-times"
-                text
-                onClick={() => setDeleteDialogVisible(false)}
-                disabled={deleting}
-            />
-            <Button
-                label="Delete"
-                icon="pi pi-trash"
-                severity="danger"
-                onClick={handleDeleteSelected}
-                loading={deleting}
-            />
+            <Button label="Cancel" icon="pi pi-times" text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
     const tableHeader = (
-        <div className="flex justify-content-between align-items-center gap-3 flex-wrap">
-            <h3 className="m-0">Deployment List</h3>
+        <div className="flex justify-content-between align-items-center gap-2" style={{ overflow: 'hidden' }}>
+            <h3 className="m-0" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>Deployment List</h3>
             <Button
                 label="Delete Selected"
                 icon="pi pi-trash"
                 severity="danger"
                 onClick={openDeleteDialog}
                 disabled={selectedDeployments.length === 0 || deleting}
+                style={{ flexShrink: 0 }}
             />
         </div>
     );
@@ -168,7 +116,7 @@ export default function DeploymentListComponent() {
                 selectionMode="multiple"
                 selection={selectedDeployments}
                 onSelectionChange={(e) => setSelectedDeployments(Array.isArray(e.value) ? e.value : [])}
-                onRowDoubleClick={(e: any) => openYamlDialog(e.data as models.DeploymentInfo)}
+                onRowDoubleClick={(e: any) => handleRowDoubleClick(e.data as models.DeploymentInfo)}
                 stripedRows
                 showGridlines
                 resizableColumns
@@ -198,31 +146,15 @@ export default function DeploymentListComponent() {
                 style={{ width: '30rem' }}
                 modal
                 footer={deleteDialogFooter}
-                onHide={() => {
-                    if (!deleting) {
-                        setDeleteDialogVisible(false);
-                    }
-                }}
+                onHide={() => { if (!deleting) setDeleteDialogVisible(false); }}
             >
                 <p className="m-0 mb-3">Do you want to delete the selected deployment records?</p>
                 <ul className="m-0 pl-3">
                     {selectedDeployments.map((dep) => (
-                        <li key={`${dep.namespace}-${dep.name}`}>
-                            {dep.namespace}/{dep.name}
-                        </li>
+                        <li key={`${dep.namespace}-${dep.name}`}>{dep.namespace}/{dep.name}</li>
                     ))}
                 </ul>
             </Dialog>
-
-            <YamlViewDialog
-                visible={yamlDialogVisible}
-                title={`Deployment YAML: ${currentNamespace}/${currentName}`}
-                yaml={currentYaml}
-                editable
-                saving={saving}
-                onSave={handleSaveYaml}
-                onHide={() => setYamlDialogVisible(false)}
-            />
         </div>
     );
 }

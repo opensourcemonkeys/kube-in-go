@@ -1,19 +1,17 @@
-
 import { useEffect, useState } from 'react';
 import { PanelMenu } from 'primereact/panelmenu';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getMenuItems, viewGroupMap } from './menuItems';
+import { useTabContext } from '../../contexts/TabContext';
 
 const MENU_STATE_KEY = 'kube-panelmenu-state';
 
 export default function SideMenu() {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const activeView = searchParams.get('view') ?? 'pods';
-    const items = getMenuItems(navigate, activeView);
+    const { openTab } = useTabContext();
+    const [activeView, setActiveView] = useState('pods');
+    const items = getMenuItems(openTab, setActiveView, activeView);
+
     const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>(() => {
         const defaultGroup = viewGroupMap[activeView] ?? 'workloads';
-
         try {
             const saved = JSON.parse(localStorage.getItem(MENU_STATE_KEY) ?? '{}');
             return Object.keys(saved).length > 0 ? saved : { [defaultGroup]: true };
@@ -24,7 +22,6 @@ export default function SideMenu() {
 
     useEffect(() => {
         const activeGroup = viewGroupMap[activeView] ?? 'workloads';
-
         setExpandedKeys((prev) => {
             const nextValue = { ...prev, [activeGroup]: true };
             localStorage.setItem(MENU_STATE_KEY, JSON.stringify(nextValue));
@@ -50,5 +47,3 @@ export default function SideMenu() {
         </div>
     );
 }
-
-        

@@ -12,13 +12,17 @@ const container = document.getElementById('root')
 const root = createRoot(container!)
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
+import '/node_modules/@fontsource/outfit/latin-300.css';
+import '/node_modules/@fontsource/outfit/latin-400.css';
+import '/node_modules/@fontsource/outfit/latin-600.css';
+import './theme-monolith.css';
 
 // root.render(
 //     <React.StrictMode>
 //         <App/>
 //     </React.StrictMode>
 // )
-import { PrimeReactProvider, PrimeReactContext } from 'primereact/api';
+import { PrimeReactProvider } from 'primereact/api';
 import Appmain from './pages/main/appmain'
 
 root.render(

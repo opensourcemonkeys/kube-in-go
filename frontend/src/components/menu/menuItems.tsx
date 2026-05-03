@@ -1,5 +1,5 @@
 import { MenuItem } from 'primereact/menuitem';
-import { NavigateFunction } from 'react-router-dom';
+import { TabDef } from '../../contexts/TabContext';
 
 export type PanelMenuItem = MenuItem & { key?: string };
 
@@ -34,29 +34,40 @@ const createItem = (
     label: string,
     icon: string,
     view: string,
-    navigate: NavigateFunction,
+    openTab: (def: TabDef) => void,
+    setActiveView: (v: string) => void,
     activeView: string
 ): MenuItem => ({
     label,
     icon,
-    command: () => navigate(`/?view=${view}`),
+    command: () => {
+        setActiveView(view);
+        openTab({ view, title: label, icon });
+    },
     className: activeView === view ? 'text-primary font-semibold' : undefined,
 });
 
-export function getMenuItems(navigate: NavigateFunction, activeView: string): PanelMenuItem[] {
+export function getMenuItems(
+    openTab: (def: TabDef) => void,
+    setActiveView: (v: string) => void,
+    activeView: string
+): PanelMenuItem[] {
+    const item = (label: string, icon: string, view: string) =>
+        createItem(label, icon, view, openTab, setActiveView, activeView);
+
     return [
         {
             key: 'workloads',
             label: 'Workloads',
             icon: 'pi pi-box',
             items: [
-                createItem('Pods', 'pi pi-box', 'pods', navigate, activeView),
-                createItem('Deployments', 'pi pi-clone', 'deployments', navigate, activeView),
-                createItem('StatefulSets', 'pi pi-database', 'statefulsets', navigate, activeView),
-                createItem('ReplicaSets', 'pi pi-copy', 'replicasets', navigate, activeView),
-                createItem('DaemonSets', 'pi pi-desktop', 'daemonsets', navigate, activeView),
-                createItem('Jobs', 'pi pi-play-circle', 'jobs', navigate, activeView),
-                createItem('CronJobs', 'pi pi-clock', 'cronjobs', navigate, activeView),
+                item('Pods', 'pi pi-box', 'pods'),
+                item('Deployments', 'pi pi-clone', 'deployments'),
+                item('StatefulSets', 'pi pi-database', 'statefulsets'),
+                item('ReplicaSets', 'pi pi-copy', 'replicasets'),
+                item('DaemonSets', 'pi pi-desktop', 'daemonsets'),
+                item('Jobs', 'pi pi-play-circle', 'jobs'),
+                item('CronJobs', 'pi pi-clock', 'cronjobs'),
             ],
         },
         {
@@ -64,10 +75,10 @@ export function getMenuItems(navigate: NavigateFunction, activeView: string): Pa
             label: 'Networking',
             icon: 'pi pi-globe',
             items: [
-                createItem('Services', 'pi pi-directions-alt', 'services', navigate, activeView),
-                createItem('Ingresses', 'pi pi-globe', 'ingresses', navigate, activeView),
-                createItem('Endpoints', 'pi pi-share-alt', 'endpoints', navigate, activeView),
-                createItem('Network Policies', 'pi pi-shield', 'networkpolicies', navigate, activeView),
+                item('Services', 'pi pi-directions-alt', 'services'),
+                item('Ingresses', 'pi pi-globe', 'ingresses'),
+                item('Endpoints', 'pi pi-share-alt', 'endpoints'),
+                item('Network Policies', 'pi pi-shield', 'networkpolicies'),
             ],
         },
         {
@@ -75,11 +86,11 @@ export function getMenuItems(navigate: NavigateFunction, activeView: string): Pa
             label: 'Config & Security',
             icon: 'pi pi-key',
             items: [
-                createItem('ConfigMaps', 'pi pi-file-edit', 'configmaps', navigate, activeView),
-                createItem('Secrets', 'pi pi-key', 'secrets', navigate, activeView),
-                createItem('Service Accounts', 'pi pi-id-card', 'serviceaccounts', navigate, activeView),
-                createItem('Roles', 'pi pi-lock', 'roles', navigate, activeView),
-                createItem('Role Bindings', 'pi pi-link', 'rolebindings', navigate, activeView),
+                item('ConfigMaps', 'pi pi-file-edit', 'configmaps'),
+                item('Secrets', 'pi pi-key', 'secrets'),
+                item('Service Accounts', 'pi pi-id-card', 'serviceaccounts'),
+                item('Roles', 'pi pi-lock', 'roles'),
+                item('Role Bindings', 'pi pi-link', 'rolebindings'),
             ],
         },
         {
@@ -87,9 +98,9 @@ export function getMenuItems(navigate: NavigateFunction, activeView: string): Pa
             label: 'Storage',
             icon: 'pi pi-folder',
             items: [
-                createItem('Persistent Volumes', 'pi pi-folder', 'persistentvolumes', navigate, activeView),
-                createItem('Volume Claims', 'pi pi-inbox', 'persistentvolumeclaims', navigate, activeView),
-                createItem('Storage Classes', 'pi pi-briefcase', 'storageclasses', navigate, activeView),
+                item('Persistent Volumes', 'pi pi-folder', 'persistentvolumes'),
+                item('Volume Claims', 'pi pi-inbox', 'persistentvolumeclaims'),
+                item('Storage Classes', 'pi pi-briefcase', 'storageclasses'),
             ],
         },
         {
@@ -97,11 +108,11 @@ export function getMenuItems(navigate: NavigateFunction, activeView: string): Pa
             label: 'Cluster',
             icon: 'pi pi-server',
             items: [
-                createItem('Nodes', 'pi pi-server', 'nodes', navigate, activeView),
-                createItem('Namespaces', 'pi pi-sitemap', 'namespaces', navigate, activeView),
-                createItem('Events', 'pi pi-bell', 'events', navigate, activeView),
-                createItem('Resource Quotas', 'pi pi-chart-bar', 'resourcequotas', navigate, activeView),
-                createItem('Limit Ranges', 'pi pi-sliders-h', 'limitranges', navigate, activeView),
+                item('Nodes', 'pi pi-server', 'nodes'),
+                item('Namespaces', 'pi pi-sitemap', 'namespaces'),
+                item('Events', 'pi pi-bell', 'events'),
+                item('Resource Quotas', 'pi pi-chart-bar', 'resourcequotas'),
+                item('Limit Ranges', 'pi pi-sliders-h', 'limitranges'),
             ],
         },
     ];
