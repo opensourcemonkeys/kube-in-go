@@ -8,6 +8,7 @@ import { Toast } from 'primereact/toast';
 import {  GetPods , DeletePod, GetPodYaml  } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 
+
 const getStatusSeverity = (status: string) => {
     switch (status) {
         case 'Running':
