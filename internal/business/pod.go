@@ -29,3 +29,12 @@ func DeletePod(name string, namespace string) error {
 
 	return services.DeletePod(namespace, name, client)
 }
+
+func GetPodYaml(name string, namespace string) (string, error) {
+	client, err := repository.NewK8sClient()
+	if err != nil {
+		return "", err
+	}
+
+	return services.GetPodYaml(namespace, name, client)
+}

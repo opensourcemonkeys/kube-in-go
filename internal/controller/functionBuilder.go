@@ -12,3 +12,7 @@ func (a *App) GetPods() []models.PodInfo {
 func (a *App) DeletePod(name string, namespace string) error {
 	return bussiness.DeletePod(name, namespace)
 }
+
+func (a *App) GetPodYaml(name string, namespace string) (string, error) {
+	return bussiness.GetPodYaml(name, namespace)
+}

@@ -5,7 +5,7 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import {  GetPods , DeletePod  } from '../../../wailsjs/go/controller_app/App';
+import {  GetPods , DeletePod, GetPodYaml  } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 
 const getStatusSeverity = (status: string) => {
@@ -34,6 +34,10 @@ export default function DataTableComponent() {
     const [pods, setPods] = useState<models.PodInfo[]>([]);
     const [selectedPods, setSelectedPods] = useState<models.PodInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+    const [detailsDialogVisible, setDetailsDialogVisible] = useState(false);
+    const [currentPodYaml, setCurrentPodYaml] = useState('');
+    const [currentPodName, setCurrentPodName] = useState('');
+    const [currentPodNamespace, setCurrentPodNamespace] = useState('');
     const [deleting, setDeleting] = useState(false);
     const toast = useRef<Toast | null>(null);
 
@@ -95,6 +99,21 @@ export default function DataTableComponent() {
         await loadPods();
     };
 
+    const openPodDetails = async (pod: models.PodInfo) => {
+        setCurrentPodName(pod.name);
+        setCurrentPodNamespace(pod.namespace);
+        setCurrentPodYaml('Loading...');
+        setDetailsDialogVisible(true);
+
+        try {
+            const yaml = await GetPodYaml(pod.name, pod.namespace);
+            setCurrentPodYaml(yaml || 'No YAML available');
+        } catch (error) {
+            console.error(`Failed to load YAML for pod ${pod.namespace}/${pod.name}:`, error);
+            setCurrentPodYaml('Failed to load pod YAML.');
+        }
+    };
+
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
             <Button
@@ -139,6 +158,7 @@ export default function DataTableComponent() {
                 selectionMode="multiple"
                 selection={selectedPods}
                 onSelectionChange={(e) => setSelectedPods(Array.isArray(e.value) ? e.value : [])}
+                onRowDoubleClick={(e: any) => openPodDetails(e.data as models.PodInfo)}
                 stripedRows
                 showGridlines
                 resizableColumns
@@ -191,6 +211,20 @@ export default function DataTableComponent() {
                         </li>
                     ))}
                 </ul>
+            </Dialog>
+
+            <Dialog
+                header={`Pod YAML: ${currentPodNamespace}/${currentPodName}`}
+                visible={detailsDialogVisible}
+                style={{ width: '60rem' }}
+                modal
+                onHide={() => setDetailsDialogVisible(false)}
+            >
+                <div className="surface-100 p-3" style={{ minHeight: '20rem', overflow: 'auto' }}>
+                    <pre className="m-0" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'monospace' }}>
+                        {currentPodYaml}
+                    </pre>
+                </div>
             </Dialog>
         </div>
     );

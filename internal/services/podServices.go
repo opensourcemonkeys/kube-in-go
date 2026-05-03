@@ -8,6 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/yaml"
 )
 
 func GetPods(namespace string, repoK8sClient *kubernetes.Clientset) ([]models.PodInfo, error) {
@@ -31,6 +32,24 @@ func DeletePod(namespace string, name string, repoK8sClient *kubernetes.Clientse
 	}
 
 	return repoK8sClient.CoreV1().Pods(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+}
+
+func GetPodYaml(namespace string, name string, repoK8sClient *kubernetes.Clientset) (string, error) {
+	if namespace == "" || name == "" {
+		return "", fmt.Errorf("namespace and pod name are required")
+	}
+
+	pod, err := repoK8sClient.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+
+	yamlBytes, err := yaml.Marshal(pod)
+	if err != nil {
+		return "", err
+	}
+
+	return string(yamlBytes), nil
 }
 
 func podToInfo(pod corev1.Pod) models.PodInfo {
