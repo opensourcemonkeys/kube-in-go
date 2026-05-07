@@ -1,3 +1,11 @@
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=opensourcemonkeys_kube-in-go&metric=code_smells&token=9517aa0dd09f9e60df2e574263790002b60845f6)](https://sonarcloud.io/summary/new_code?id=opensourcemonkeys_kube-in-go)
+
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=opensourcemonkeys_kube-in-go&metric=reliability_rating&token=9517aa0dd09f9e60df2e574263790002b60845f6)](https://sonarcloud.io/summary/new_code?id=opensourcemonkeys_kube-in-go)
+
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=opensourcemonkeys_kube-in-go&metric=security_rating&token=9517aa0dd09f9e60df2e574263790002b60845f6)](https://sonarcloud.io/summary/new_code?id=opensourcemonkeys_kube-in-go)
+
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=opensourcemonkeys_kube-in-go&metric=vulnerabilities&token=9517aa0dd09f9e60df2e574263790002b60845f6)](https://sonarcloud.io/summary/new_code?id=opensourcemonkeys_kube-in-go)
+
 # README
 
 ## About
