@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
+import { MONOLITH_THEME, registerMonolithTheme } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
@@ -14,7 +15,7 @@ interface YamlEditorPanelParams {
 
 const editable = (kind: string) => kind === 'deployment';
 
-export default function YamlEditorPanel({ params, api }: IDockviewPanelProps<YamlEditorPanelParams>) {
+export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
     const [yaml, setYaml] = useState('Loading...');
     const [originalYaml, setOriginalYaml] = useState('');
@@ -84,20 +85,16 @@ export default function YamlEditorPanel({ params, api }: IDockviewPanelProps<Yam
         setDirty(false);
     };
 
-    const handleClose = () => {
-        api.close();
-    };
-
     return (
-        <div className="yaml-editor-panel">
+        <div className="yaml-editor-panel flex flex-column h-full">
             <Toast ref={toast} position="top-right" />
 
-            <div className="yaml-editor-toolbar">
-                <span className="yaml-editor-toolbar__label">
-                    <i className="pi pi-file-edit" style={{ marginRight: 6 }} />
+            <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
+                <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
+                    <i className="pi pi-file-edit" />
                     {namespace}/{name}
                 </span>
-                <div className="yaml-editor-toolbar__actions">
+                <div className="flex align-items-center gap-1 flex-shrink-0">
                     {editable(resourceKind) && (
                         <>
                             <Button
@@ -118,24 +115,17 @@ export default function YamlEditorPanel({ params, api }: IDockviewPanelProps<Yam
                             />
                         </>
                     )}
-                    <Button
-                        icon="pi pi-times"
-                        text
-                        size="small"
-                        severity="secondary"
-                        onClick={handleClose}
-                        style={{ marginLeft: 4 }}
-                    />
                 </div>
             </div>
 
-            <div className="yaml-editor-content">
+            <div className="flex-1 overflow-hidden min-h-0">
                 <Editor
                     height="100%"
                     defaultLanguage="yaml"
                     language="yaml"
                     value={yaml}
-                    theme="vs-dark"
+                    theme={MONOLITH_THEME}
+                    beforeMount={registerMonolithTheme}
                     onMount={handleMount}
                     onChange={handleChange}
                     options={{

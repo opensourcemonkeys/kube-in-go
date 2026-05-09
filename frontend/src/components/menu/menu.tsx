@@ -6,9 +6,9 @@ import { useTabContext } from '../../contexts/TabContext';
 const MENU_STATE_KEY = 'kube-panelmenu-state';
 
 export default function SideMenu() {
-    const { openTab, openTerminal } = useTabContext();
+    const { openTab, openTerminal, openApplyYaml } = useTabContext();
     const [activeView, setActiveView] = useState('pods');
-    const items = getMenuItems(openTab, openTerminal, setActiveView, activeView);
+    const items = getMenuItems(openTab, setActiveView, activeView);
 
     const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>(() => {
         const defaultGroup = viewGroupMap[activeView] ?? 'workloads';
@@ -37,6 +37,16 @@ export default function SideMenu() {
 
     return (
         <div className="card justify-content-center">
+            <div className="menu-actions flex gap-2">
+                <button className="menu-action-btn" onClick={openApplyYaml} title="YAML Editor">
+                    <i className="pi pi-upload" />
+                    <span>YAML Editor</span>
+                </button>
+                <button className="menu-action-btn" onClick={openTerminal} title="New Terminal">
+                    <i className="pi pi-terminal" />
+                    <span>Terminal</span>
+                </button>
+            </div>
             <PanelMenu
                 model={items}
                 className="w-full"

@@ -5,17 +5,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
 import { ApplyYaml } from '../../../wailsjs/go/controller_app/App';
-
-const PLACEHOLDER = `# Paste your Kubernetes YAML here and click Apply
-# Example:
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: my-config
-  namespace: default
-data:
-  key: value
-`;
+import { MONOLITH_THEME, registerMonolithTheme } from '../../lib/monacoTheme';
 
 export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string, never>>) {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -71,15 +61,15 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
     };
 
     return (
-        <div className="yaml-editor-panel">
+        <div className="yaml-editor-panel flex flex-column h-full">
             <Toast ref={toast} position="top-right" />
 
-            <div className="yaml-editor-toolbar">
-                <span className="yaml-editor-toolbar__label">
-                    <i className="pi pi-upload" style={{ marginRight: 6 }} />
-                    Apply YAML
+            <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
+                <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
+                    <i className="pi pi-upload" />
+                    YAML Editor
                 </span>
-                <div className="yaml-editor-toolbar__actions">
+                <div className="flex align-items-center gap-1 flex-shrink-0">
                     <Button
                         label="Clear"
                         icon="pi pi-trash"
@@ -99,14 +89,15 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                 </div>
             </div>
 
-            <div className="yaml-editor-content" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="flex flex-column flex-1 overflow-hidden min-h-0">
                 <div style={{ flex: output ? '0 0 60%' : '1', minHeight: 0 }}>
                     <Editor
                         height="100%"
                         defaultLanguage="yaml"
                         language="yaml"
-                        defaultValue={PLACEHOLDER}
-                        theme="vs-dark"
+                        defaultValue=""
+                        theme={MONOLITH_THEME}
+                        beforeMount={registerMonolithTheme}
                         onMount={handleMount}
                         options={{
                             minimap: { enabled: false },

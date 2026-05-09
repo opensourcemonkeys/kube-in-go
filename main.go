@@ -13,11 +13,12 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-func main() {
-	// Create an instance of the app structure
-	app := app_controller.NewApp()
+//go:embed build/appicon.png
+var trayIcon []byte
 
-	// Create application with options
+func main() {
+	app := app_controller.NewApp(trayIcon)
+
 	err := wails.Run(&options.App{
 		Title:     "kube-ins",
 		Width:     1024,
@@ -28,6 +29,7 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 6, G: 14, B: 32, A: 1},
 		OnStartup:        app.Startup,
+		OnBeforeClose:    app.BeforeClose,
 		Linux: &linux.Options{
 			WebviewGpuPolicy: linux.WebviewGpuPolicyAlways,
 		},

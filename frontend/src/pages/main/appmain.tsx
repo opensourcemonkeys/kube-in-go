@@ -6,13 +6,20 @@ import { TabProvider } from '../../contexts/TabContext';
 function Appmain() {
     return (
         <TabProvider>
-            <div id="appmain">
+            <div className="flex flex-column h-full overflow-hidden">
                 <TitleBar />
-                <div className="appmain-body">
-                    <div className="appmain-sidebar">
+                <div className="flex flex-1 overflow-hidden min-h-0">
+                    <div
+                        className="flex-shrink-0 overflow-y-auto overflow-x-hidden"
+                        style={{
+                            width: '240px',
+                            background: 'var(--monolith-container-low)',
+                            borderRight: '1px solid var(--surface-border)',
+                        }}
+                    >
                         <SideMenu />
                     </div>
-                    <div className="appmain-workspace">
+                    <div className="flex-1 overflow-hidden" style={{ minWidth: 0 }}>
                         <DockviewContainer />
                     </div>
                 </div>

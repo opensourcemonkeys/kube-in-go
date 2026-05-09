@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { DataTable } from 'primereact/datatable';
+import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import { FilterMatchMode } from 'primereact/api';
 import { GetDeployments, DeleteDeployment } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
@@ -16,11 +17,18 @@ const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning
     return 'warning';
 };
 
+const defaultFilters: DataTableFilterMeta = {
+    name:           { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace:      { value: null, matchMode: FilterMatchMode.CONTAINS },
+    replicas:       { value: null, matchMode: FilterMatchMode.EQUALS },
+};
+
 export default function DeploymentListComponent() {
     const [deployments, setDeployments] = useState<models.DeploymentInfo[]>([]);
     const [selectedDeployments, setSelectedDeployments] = useState<models.DeploymentInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
 
@@ -94,14 +102,23 @@ export default function DeploymentListComponent() {
     const tableHeader = (
         <div className="flex justify-content-between align-items-center gap-2" style={{ overflow: 'hidden' }}>
             <h3 className="m-0" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>Deployment List</h3>
-            <Button
-                label="Delete Selected"
-                icon="pi pi-trash"
-                severity="danger"
-                onClick={openDeleteDialog}
-                disabled={selectedDeployments.length === 0 || deleting}
-                style={{ flexShrink: 0 }}
-            />
+            <div className="flex gap-2" style={{ flexShrink: 0 }}>
+                <Button
+                    icon="pi pi-filter-slash"
+                    text
+                    severity="secondary"
+                    onClick={() => setFilters(defaultFilters)}
+                    tooltip="Clear filters"
+                    tooltipOptions={{ position: 'left' }}
+                />
+                <Button
+                    label="Delete Selected"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    onClick={openDeleteDialog}
+                    disabled={selectedDeployments.length === 0 || deleting}
+                />
+            </div>
         </div>
     );
 
@@ -117,21 +134,47 @@ export default function DeploymentListComponent() {
                 selection={selectedDeployments}
                 onSelectionChange={(e) => setSelectedDeployments(Array.isArray(e.value) ? e.value : [])}
                 onRowDoubleClick={(e: any) => handleRowDoubleClick(e.data as models.DeploymentInfo)}
+                filters={filters}
+                onFilter={(e) => setFilters(e.filters)}
+                filterDisplay="row"
                 stripedRows
                 showGridlines
                 resizableColumns
                 scrollable
                 scrollHeight="flex"
                 emptyMessage="No deployments found"
-                style={{ minWidth: '50rem' }}
             >
-                <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
-                <Column field="name" header="Name" sortable />
-                <Column field="namespace" header="Namespace" sortable />
+                <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
+                <Column
+                    field="name"
+                    header="Name"
+                    sortable
+                    filter
+                    filterField="name"
+                    filterPlaceholder="Search name"
+                    showFilterMenu={false}
+                    style={{ minWidth: '14rem' }}
+                />
+                <Column
+                    field="namespace"
+                    header="Namespace"
+                    sortable
+                    filter
+                    filterField="namespace"
+                    filterPlaceholder="Search namespace"
+                    showFilterMenu={false}
+                    style={{ minWidth: '10rem' }}
+                />
                 <Column
                     header="Replicas"
                     sortable
-                    sortField="ready_replicas"
+                    sortField="replicas"
+                    filter
+                    filterField="replicas"
+                    filterPlaceholder="Total replicas"
+                    showFilterMenu={false}
+                    dataType="numeric"
+                    style={{ minWidth: '9rem' }}
                     body={(rowData: models.DeploymentInfo) => (
                         <Tag
                             value={`${rowData.ready_replicas} / ${rowData.replicas}`}

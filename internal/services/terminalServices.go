@@ -23,8 +23,10 @@ func CreateTerminalSession(id string, onOutput func(data string)) error {
 	termMu.Lock()
 	defer termMu.Unlock()
 
-	if _, exists := termSessions[id]; exists {
-		return fmt.Errorf("terminal session %s already exists", id)
+	if existing, exists := termSessions[id]; exists {
+		delete(termSessions, id)
+		_ = existing.cmd.Process.Kill()
+		_ = existing.ptmx.Close()
 	}
 
 	shell := os.Getenv("SHELL")

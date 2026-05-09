@@ -85,7 +85,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
 
         terminalCounterRef.current += 1;
         const n = terminalCounterRef.current;
-        const sessionId = `terminal-${n}`;
+        const sessionId = `terminal-${n}-${Date.now()}`;
 
         api.addPanel({
             id: sessionId,
@@ -105,7 +105,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel({
             id: `apply-yaml-${n}`,
             component: 'applyYaml',
-            title: n === 1 ? 'Apply YAML' : `Apply YAML ${n}`,
+            title: n === 1 ? 'YAML Editor' : `YAML Editor ${n}`,
             params: {},
         });
     }, []);
