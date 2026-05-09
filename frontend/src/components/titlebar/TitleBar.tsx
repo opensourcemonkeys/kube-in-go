@@ -4,9 +4,11 @@ import {
     WindowToggleMaximise,
     Quit,
 } from '../../../wailsjs/runtime/runtime';
+import { useTabContext } from '../../contexts/TabContext';
 
 function TitleBar() {
     const [maximised, setMaximised] = useState(false);
+    const { openTerminal, openApplyYaml } = useTabContext();
 
     const handleMaximise = () => {
         WindowToggleMaximise();
@@ -27,6 +29,16 @@ function TitleBar() {
                     <circle cx="8" cy="8" r="2" fill="#69daff" />
                 </svg>
                 <span className="tb-title">kube-ins</span>
+            </div>
+
+            {/* Action buttons */}
+            <div className="tb-actions">
+                <button className="tb-action-btn" onClick={openApplyYaml} title="Apply YAML">
+                    <i className="pi pi-upload" />
+                </button>
+                <button className="tb-action-btn" onClick={openTerminal} title="New Terminal">
+                    <i className="pi pi-terminal" />
+                </button>
             </div>
 
             {/* Window controls */}

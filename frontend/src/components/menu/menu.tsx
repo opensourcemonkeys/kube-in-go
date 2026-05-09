@@ -6,9 +6,9 @@ import { useTabContext } from '../../contexts/TabContext';
 const MENU_STATE_KEY = 'kube-panelmenu-state';
 
 export default function SideMenu() {
-    const { openTab } = useTabContext();
+    const { openTab, openTerminal } = useTabContext();
     const [activeView, setActiveView] = useState('pods');
-    const items = getMenuItems(openTab, setActiveView, activeView);
+    const items = getMenuItems(openTab, openTerminal, setActiveView, activeView);
 
     const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>(() => {
         const defaultGroup = viewGroupMap[activeView] ?? 'workloads';

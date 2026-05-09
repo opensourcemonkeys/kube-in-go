@@ -106,7 +106,7 @@ export default function DeploymentListComponent() {
     );
 
     return (
-        <div className="card">
+        <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toast} position="top-right" />
 
             <DataTable
@@ -120,7 +120,8 @@ export default function DeploymentListComponent() {
                 stripedRows
                 showGridlines
                 resizableColumns
-                scrollHeight="90vh"
+                scrollable
+                scrollHeight="flex"
                 emptyMessage="No deployments found"
                 style={{ minWidth: '50rem' }}
             >

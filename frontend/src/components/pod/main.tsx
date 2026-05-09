@@ -114,7 +114,7 @@ export default function DataTableComponent() {
     );
 
     return (
-        <div className="card">
+        <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toast} position="top-right" />
 
             <DataTable
@@ -128,7 +128,8 @@ export default function DataTableComponent() {
                 stripedRows
                 showGridlines
                 resizableColumns
-                scrollHeight="90vh"
+                scrollable
+                scrollHeight="flex"
                 emptyMessage="No pods found"
                 style={{ minWidth: '50rem' }}
             >

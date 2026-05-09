@@ -49,6 +49,7 @@ const createItem = (
 
 export function getMenuItems(
     openTab: (def: TabDef) => void,
+    openTerminal: () => void,
     setActiveView: (v: string) => void,
     activeView: string
 ): PanelMenuItem[] {
@@ -113,6 +114,18 @@ export function getMenuItems(
                 item('Events', 'pi pi-bell', 'events'),
                 item('Resource Quotas', 'pi pi-chart-bar', 'resourcequotas'),
                 item('Limit Ranges', 'pi pi-sliders-h', 'limitranges'),
+            ],
+        },
+        {
+            key: 'terminal',
+            label: 'Terminal',
+            icon: 'pi pi-terminal',
+            items: [
+                {
+                    label: 'New Terminal',
+                    icon: 'pi pi-plus',
+                    command: () => openTerminal(),
+                },
             ],
         },
     ];

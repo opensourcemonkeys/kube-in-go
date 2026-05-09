@@ -511,6 +511,43 @@ h1, h2, h3, h4, h5, h6,
   text-transform: uppercase;
 }
 
+/* Action icon buttons (terminal, apply yaml) — must opt-out of drag */
+.tb-actions {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 2px;
+  padding-right: 10px;
+  --wails-draggable: no-drag;
+}
+
+.tb-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 24px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #6d758c;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  outline: none;
+}
+
+.tb-action-btn i {
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.tb-action-btn:hover {
+  background: rgba(105, 218, 255, 0.08);
+  border-color: rgba(105, 218, 255, 0.18);
+  color: #69daff;
+}
+
 /* Window control buttons — must opt-out of drag */
 .tb-controls {
   display: flex;
@@ -588,34 +625,34 @@ h1, h2, h3, h4, h5, h6,
 /* ── Dockview — Monolith Theme ────────────────────────────── */
 .dockview-theme-monolith {
   --dv-background-color:                              #060e20;
-  --dv-separator-handle-background-color:             #40485d;
-  --dv-separator-handle-hover-background-color:       #69daff;
   --dv-paneview-header-border-color:                  rgba(64,72,93,0.20);
 
   /* Tab bar */
   --dv-tabs-and-actions-container-background-color:   #0a1425;
   --dv-tabs-and-actions-container-height:             36px;
-  --dv-tab-height:                                    36px;
 
   /* Inactive tab */
-  --dv-tab-background-color:                          transparent;
-  --dv-tab-color:                                     #a3aac4;
-  --dv-tab-border-color:                              transparent;
+  --dv-activegroup-hiddenpanel-tab-background-color:  transparent;
+  --dv-activegroup-hiddenpanel-tab-color:             #a3aac4;
+  --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-inactivegroup-hiddenpanel-tab-color:            #a3aac4;
 
   /* Active tab — group focused */
   --dv-activegroup-visiblepanel-tab-background-color: #0f1930;
   --dv-activegroup-visiblepanel-tab-color:            #69daff;
-  --dv-activegroup-hiddenpanel-tab-background-color:  transparent;
-  --dv-activegroup-hiddenpanel-tab-color:             #a3aac4;
 
   /* Active tab — group not focused */
   --dv-inactivegroup-visiblepanel-tab-background-color: #0f1930;
   --dv-inactivegroup-visiblepanel-tab-color:            #dee5ff;
-  --dv-inactivegroup-hiddenpanel-tab-background-color:  transparent;
-  --dv-inactivegroup-hiddenpanel-tab-color:             #a3aac4;
 
   /* Panel content area */
   --dv-group-view-background-color:                   #0f1930;
+
+  /* Resize sash — invisible until hovered */
+  --dv-sash-color:                                    transparent;
+  --dv-active-sash-color:                             rgba(105,218,255,0.25);
+  --dv-active-sash-transition-delay:                  0.1s;
+  --dv-active-sash-transition-duration:               0.15s;
 
   /* Drop overlay */
   --dv-drag-over-background-color:                    rgba(105,218,255,0.08);
@@ -625,8 +662,8 @@ h1, h2, h3, h4, h5, h6,
   --dv-floating-box-shadow: 0 8px 40px rgba(222,229,255,0.08);
 }
 
-/* Tab font & spacing */
-.dockview-theme-monolith .tab {
+/* Tab font & spacing (dockview v6 class names) */
+.dockview-theme-monolith .dv-default-tab {
   font-family: 'Outfit', 'Inter var', sans-serif;
   font-size: 0.8125rem;
   padding: 0 14px;
@@ -634,22 +671,20 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* Active tab indicator line */
-.dockview-theme-monolith .active-tab {
+.dockview-theme-monolith .dv-tab.dv-active-tab {
   border-bottom: 2px solid #69daff !important;
 }
 
-/* Content panel padding */
-.dockview-theme-monolith .content-container {
+/* Content panel */
+.dockview-theme-monolith .dv-content-container {
   background: #0f1930;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* Resize handle */
-.dockview-theme-monolith .sash {
+/* Resize sash hit area */
+.dockview-theme-monolith .dv-sash {
   background: transparent;
-  transition: background 0.15s;
-}
-.dockview-theme-monolith .sash:hover {
-  background: rgba(105,218,255,0.15);
 }
 
 /* ── YAML Editor Panel ────────────────────────────────────── */

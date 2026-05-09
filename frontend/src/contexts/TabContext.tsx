@@ -46,12 +46,16 @@ interface TabContextValue {
     registerApi: (api: DockviewApi) => void;
     openTab: (def: TabDef) => void;
     openYamlPanel: (def: YamlPanelDef) => void;
+    openTerminal: () => void;
+    openApplyYaml: () => void;
 }
 
 const TabContext = createContext<TabContextValue | null>(null);
 
 export function TabProvider({ children }: { children: React.ReactNode }) {
     const apiRef = useRef<DockviewApi | null>(null);
+    const terminalCounterRef = useRef(0);
+    const applyYamlCounterRef = useRef(0);
 
     const registerApi = useCallback((api: DockviewApi) => {
         apiRef.current = api;
@@ -72,6 +76,37 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             component: 'view',
             title: def.title,
             params: { view: def.view, icon: def.icon ?? '' },
+        });
+    }, []);
+
+    const openTerminal = useCallback(() => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        terminalCounterRef.current += 1;
+        const n = terminalCounterRef.current;
+        const sessionId = `terminal-${n}`;
+
+        api.addPanel({
+            id: sessionId,
+            component: 'terminal',
+            title: `Terminal ${n}`,
+            params: { sessionId },
+        });
+    }, []);
+
+    const openApplyYaml = useCallback(() => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        applyYamlCounterRef.current += 1;
+        const n = applyYamlCounterRef.current;
+
+        api.addPanel({
+            id: `apply-yaml-${n}`,
+            component: 'applyYaml',
+            title: n === 1 ? 'Apply YAML' : `Apply YAML ${n}`,
+            params: {},
         });
     }, []);
 
@@ -105,7 +140,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openTerminal, openApplyYaml }}>
             {children}
         </TabContext.Provider>
     );

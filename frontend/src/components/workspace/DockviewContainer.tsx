@@ -3,10 +3,14 @@ import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
 import ViewPanel from './ViewPanel';
 import YamlEditorPanel from './YamlEditorPanel';
+import TerminalPanel from '../terminal/TerminalPanel';
+import ApplyYamlPanel from './ApplyYamlPanel';
 
 const components = {
     view: ViewPanel,
     yamlEditor: YamlEditorPanel,
+    terminal: TerminalPanel,
+    applyYaml: ApplyYamlPanel,
 };
 
 export default function DockviewContainer() {
