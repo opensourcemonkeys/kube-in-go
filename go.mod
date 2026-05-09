@@ -3,7 +3,6 @@ module kube-ins
 go 1.24.0
 
 require (
-	fyne.io/systray v1.12.1
 	github.com/creack/pty v1.1.24
 	github.com/wailsapp/wails/v2 v2.12.0
 	k8s.io/api v0.34.0
