@@ -42,10 +42,18 @@ export interface YamlPanelDef {
     referencePanel: string;
 }
 
+export interface LogPanelDef {
+    resourceKind: 'pod' | 'deployment';
+    name: string;
+    namespace: string;
+    referencePanel: string;
+}
+
 interface TabContextValue {
     registerApi: (api: DockviewApi) => void;
     openTab: (def: TabDef) => void;
     openYamlPanel: (def: YamlPanelDef) => void;
+    openLogPanel: (def: LogPanelDef) => void;
     openTerminal: () => void;
     openApplyYaml: () => void;
 }
@@ -110,6 +118,35 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         });
     }, []);
 
+    const openLogPanel = useCallback((def: LogPanelDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `log:${def.resourceKind}:${def.namespace}/${def.name}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const addOptions: any = {
+            id: panelId,
+            component: 'logViewer',
+            title: `Logs • ${def.namespace}/${def.name}`,
+            params: {
+                resourceKind: def.resourceKind,
+                name: def.name,
+                namespace: def.namespace,
+            },
+        };
+
+        if (api.getPanel(def.referencePanel)) {
+            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
+        }
+
+        api.addPanel(addOptions);
+    }, []);
+
     const openYamlPanel = useCallback((def: YamlPanelDef) => {
         const api = apiRef.current;
         if (!api) return;
@@ -140,7 +177,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openTerminal, openApplyYaml }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openTerminal, openApplyYaml }}>
             {children}
         </TabContext.Provider>
     );

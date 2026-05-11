@@ -30,7 +30,7 @@ export default function DeploymentListComponent() {
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
-    const { openYamlPanel } = useTabContext();
+    const { openYamlPanel, openLogPanel } = useTabContext();
 
     const loadDeployments = async () => {
         try {
@@ -124,7 +124,7 @@ export default function DeploymentListComponent() {
 
     return (
         <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="top-right" />
+            <Toast ref={toast} position="bottom-right" />
 
             <DataTable
                 value={deployments}
@@ -179,6 +179,26 @@ export default function DeploymentListComponent() {
                         <Tag
                             value={`${rowData.ready_replicas} / ${rowData.replicas}`}
                             severity={getReplicasSeverity(rowData.ready_replicas, rowData.replicas)}
+                        />
+                    )}
+                />
+                <Column
+                    header=""
+                    style={{ width: '4rem', textAlign: 'center' }}
+                    body={(rowData: models.DeploymentInfo) => (
+                        <Button
+                            icon="pi pi-file-word"
+                            text
+                            size="small"
+                            severity="secondary"
+                            tooltip="View Logs"
+                            tooltipOptions={{ position: 'left' }}
+                            onClick={() => openLogPanel({
+                                resourceKind: 'deployment',
+                                name: rowData.name,
+                                namespace: rowData.namespace,
+                                referencePanel: 'deployments',
+                            })}
                         />
                     )}
                 />

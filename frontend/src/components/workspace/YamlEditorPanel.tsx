@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
-import { MONOLITH_THEME, registerMonolithTheme } from '../../lib/monacoTheme';
+import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
@@ -87,7 +87,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
 
     return (
         <div className="yaml-editor-panel flex flex-column h-full">
-            <Toast ref={toast} position="top-right" />
+            <Toast ref={toast} position="bottom-right" />
 
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
@@ -125,7 +125,6 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     language="yaml"
                     value={yaml}
                     theme={MONOLITH_THEME}
-                    beforeMount={registerMonolithTheme}
                     onMount={handleMount}
                     onChange={handleChange}
                     options={{

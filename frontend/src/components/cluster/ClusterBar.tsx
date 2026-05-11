@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Dropdown } from 'primereact/dropdown';
-import { Button } from 'primereact/button';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { useTabContext } from '../../contexts/TabContext';
@@ -60,6 +59,13 @@ export default function ClusterBar() {
                         className="cluster-bar__dropdown"
                         emptyMessage="Henüz cluster yok"
                     />
+                    <button
+                        className="cluster-bar__edit-btn"
+                        onClick={openAdd}
+                        title="Cluster Ekle"
+                    >
+                        <i className="pi pi-plus" />
+                    </button>
                     {activeCluster && (
                         <button
                             className="cluster-bar__edit-btn"
@@ -99,14 +105,6 @@ export default function ClusterBar() {
                         <span>Terminal</span>
                     </button>
                 </div>
-
-                <Button
-                    label="Cluster Ekle"
-                    icon="pi pi-plus"
-                    size="small"
-                    className="cluster-bar__add-btn"
-                    onClick={openAdd}
-                />
             </div>
 
             {modalOpen && (

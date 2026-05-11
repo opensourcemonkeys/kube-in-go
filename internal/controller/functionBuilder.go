@@ -84,3 +84,21 @@ func (a *App) GetActiveCluster() string {
 func (a *App) CheckClusterConnection() error {
 	return bussiness.CheckClusterConnection()
 }
+
+func (a *App) GetPodContainers(name string, namespace string) ([]string, error) {
+	return bussiness.GetPodContainers(name, namespace)
+}
+
+func (a *App) GetDeploymentPods(name string, namespace string) ([]string, error) {
+	return bussiness.GetDeploymentPods(name, namespace)
+}
+
+func (a *App) StartLogStream(sessionId string, podName string, namespace string, container string) error {
+	return bussiness.StartLogStream(sessionId, podName, namespace, container, func(data string) {
+		runtime.EventsEmit(a.ctx, "log:output:"+sessionId, data)
+	})
+}
+
+func (a *App) StopLogStream(sessionId string) {
+	bussiness.StopLogStream(sessionId)
+}

@@ -13,20 +13,32 @@ function Appmain() {
                     <TitleBar />
                     <ClusterBar />
                     <div className="flex flex-1 overflow-hidden min-h-0">
+                        {/* Resource Explorer Sidebar */}
                         <div
                             className="flex-shrink-0 overflow-y-auto overflow-x-hidden"
                             style={{
                                 width: '240px',
                                 background: 'var(--monolith-container-low)',
                                 borderRight: '1px solid var(--surface-border)',
+                                display: 'flex',
+                                flexDirection: 'column',
                             }}
                         >
                             <SideMenu />
                         </div>
+
+                        {/* Main Workspace */}
                         <div className="flex-1 overflow-hidden" style={{ minWidth: 0 }}>
                             <DockviewContainer />
                         </div>
                     </div>
+
+                    {/* Status Bar */}
+                    <footer className="app-footer">
+                        <span className="app-footer__status">
+                            kube-ins
+                        </span>
+                    </footer>
                 </div>
             </TabProvider>
         </ClusterProvider>

@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
 import { ApplyYaml } from '../../../wailsjs/go/controller_app/App';
-import { MONOLITH_THEME, registerMonolithTheme } from '../../lib/monacoTheme';
+import { MONOLITH_THEME } from '../../lib/monacoTheme';
 
 export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string, never>>) {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -62,7 +62,7 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
 
     return (
         <div className="yaml-editor-panel flex flex-column h-full">
-            <Toast ref={toast} position="top-right" />
+            <Toast ref={toast} position="bottom-right" />
 
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
@@ -97,7 +97,6 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                         language="yaml"
                         defaultValue=""
                         theme={MONOLITH_THEME}
-                        beforeMount={registerMonolithTheme}
                         onMount={handleMount}
                         options={{
                             minimap: { enabled: false },
@@ -115,12 +114,12 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                     <div
                         style={{
                             flex: '0 0 40%',
-                            borderTop: '1px solid rgba(64,72,93,0.3)',
-                            background: '#060e20',
+                            borderTop: '1px solid var(--surface-border)',
+                            background: 'var(--monolith-base)',
                             padding: '10px 14px',
-                            fontFamily: '"Cascadia Code", "Fira Code", monospace',
+                            fontFamily: 'var(--font-family-mono)',
                             fontSize: 12,
-                            color: '#9bffce',
+                            color: 'var(--monolith-tertiary)',
                             whiteSpace: 'pre-wrap',
                             overflowY: 'auto',
                         }}

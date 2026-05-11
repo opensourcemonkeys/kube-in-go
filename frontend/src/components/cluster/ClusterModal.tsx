@@ -59,7 +59,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
 
     return (
         <div className="cluster-modal-overlay" onClick={handleOverlayClick}>
-            <Toast ref={toast} position="top-right" />
+            <Toast ref={toast} position="bottom-right" />
             <div className="cluster-modal">
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">

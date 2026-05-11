@@ -32,7 +32,7 @@ export default function DataTableComponent() {
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
-    const { openYamlPanel } = useTabContext();
+    const { openYamlPanel, openLogPanel } = useTabContext();
 
     const loadPods = async () => {
         try {
@@ -126,7 +126,7 @@ export default function DataTableComponent() {
 
     return (
         <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="top-right" />
+            <Toast ref={toast} position="bottom-right" />
 
             <DataTable
                 value={pods}
@@ -178,6 +178,26 @@ export default function DataTableComponent() {
                     style={{ minWidth: '9rem' }}
                     body={(rowData: models.PodInfo) => (
                         <Tag value={rowData.status} severity={getStatusSeverity(rowData.status)} />
+                    )}
+                />
+                <Column
+                    header=""
+                    style={{ width: '4rem', textAlign: 'center' }}
+                    body={(rowData: models.PodInfo) => (
+                        <Button
+                            icon="pi pi-file-word"
+                            text
+                            size="small"
+                            severity="secondary"
+                            tooltip="View Logs"
+                            tooltipOptions={{ position: 'left' }}
+                            onClick={() => openLogPanel({
+                                resourceKind: 'pod',
+                                name: rowData.name,
+                                namespace: rowData.namespace,
+                                referencePanel: 'pods',
+                            })}
+                        />
                     )}
                 />
             </DataTable>

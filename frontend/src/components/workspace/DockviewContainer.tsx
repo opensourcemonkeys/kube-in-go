@@ -5,12 +5,14 @@ import ViewPanel from './ViewPanel';
 import YamlEditorPanel from './YamlEditorPanel';
 import TerminalPanel from '../terminal/TerminalPanel';
 import ApplyYamlPanel from './ApplyYamlPanel';
+import LogViewerPanel from '../logs/LogViewerPanel';
 
 const components = {
     view: ViewPanel,
     yamlEditor: YamlEditorPanel,
     terminal: TerminalPanel,
     applyYaml: ApplyYamlPanel,
+    logViewer: LogViewerPanel,
 };
 
 export default function DockviewContainer() {

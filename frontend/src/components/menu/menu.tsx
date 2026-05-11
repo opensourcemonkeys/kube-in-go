@@ -8,7 +8,12 @@ const MENU_STATE_KEY = 'kube-panelmenu-state';
 export default function SideMenu() {
     const { openTab } = useTabContext();
     const [activeView, setActiveView] = useState('pods');
-    const items = getMenuItems(openTab, setActiveView, activeView);
+
+    const handleViewChange = (view: string) => {
+        setActiveView(view);
+    };
+
+    const items = getMenuItems(openTab, handleViewChange, activeView);
 
     const [expandedKeys, setExpandedKeys] = useState<Record<string, boolean>>(() => {
         const defaultGroup = viewGroupMap[activeView] ?? 'workloads';
@@ -22,17 +27,17 @@ export default function SideMenu() {
 
     useEffect(() => {
         const activeGroup = viewGroupMap[activeView] ?? 'workloads';
-        setExpandedKeys((prev) => {
-            const nextValue = { ...prev, [activeGroup]: true };
-            localStorage.setItem(MENU_STATE_KEY, JSON.stringify(nextValue));
-            return nextValue;
+        setExpandedKeys(prev => {
+            const next = { ...prev, [activeGroup]: true };
+            localStorage.setItem(MENU_STATE_KEY, JSON.stringify(next));
+            return next;
         });
     }, [activeView]);
 
     const handleExpandedKeysChange = (value: Record<string, boolean>) => {
-        const nextValue = value ?? {};
-        setExpandedKeys(nextValue);
-        localStorage.setItem(MENU_STATE_KEY, JSON.stringify(nextValue));
+        const next = value ?? {};
+        setExpandedKeys(next);
+        localStorage.setItem(MENU_STATE_KEY, JSON.stringify(next));
     };
 
     return (
