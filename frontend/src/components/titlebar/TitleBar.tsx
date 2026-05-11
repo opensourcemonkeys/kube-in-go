@@ -33,7 +33,7 @@ function TitleBar() {
 
             {/* Action buttons */}
             <div className="tb-actions">
-                <button className="tb-action-btn" onClick={openApplyYaml} title="Apply YAML">
+                <button className="tb-action-btn" onClick={openApplyYaml} title="YAML Editor">
                     <i className="pi pi-upload" />
                 </button>
                 <button className="tb-action-btn" onClick={openTerminal} title="New Terminal">

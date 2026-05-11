@@ -1,0 +1,124 @@
+import { useEffect, useRef, useState } from 'react';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
+import { SaveCluster, GetClusterContent } from '../../../wailsjs/go/controller_app/App';
+
+interface Props {
+    editingName: string | null;
+    onClose: () => void;
+    onSaved: (name: string) => void;
+}
+
+export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
+    const [name, setName] = useState('');
+    const [content, setContent] = useState('');
+    const [saving, setSaving] = useState(false);
+    const toast = useRef<Toast | null>(null);
+
+    useEffect(() => {
+        if (editingName) {
+            setName(editingName);
+            GetClusterContent(editingName)
+                .then(setContent)
+                .catch(() => {});
+        } else {
+            setName('');
+            setContent('');
+        }
+    }, [editingName]);
+
+    const handleSave = async () => {
+        if (!name.trim()) {
+            toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Config adı gerekli', life: 2500 });
+            return;
+        }
+        if (!content.trim()) {
+            toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Kubeconfig içeriği gerekli', life: 2500 });
+            return;
+        }
+        setSaving(true);
+        try {
+            await SaveCluster(name.trim(), content);
+            onSaved(name.trim());
+        } catch (err: unknown) {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Kayıt hatası',
+                detail: String(err),
+                life: 4000,
+            });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) onClose();
+    };
+
+    return (
+        <div className="cluster-modal-overlay" onClick={handleOverlayClick}>
+            <Toast ref={toast} position="top-right" />
+            <div className="cluster-modal">
+                <div className="cluster-modal__header">
+                    <div className="cluster-modal__header-title">
+                        <i className="pi pi-server" style={{ color: 'var(--monolith-primary)', fontSize: 16 }} />
+                        <span>{editingName ? 'Cluster Düzenle' : 'Cluster Ekle'}</span>
+                    </div>
+                    <button className="cluster-modal__close" onClick={onClose} title="Kapat">
+                        <i className="pi pi-times" />
+                    </button>
+                </div>
+
+                <div className="cluster-modal__body">
+                    <div className="cluster-modal__field">
+                        <label className="cluster-modal__label">Config Adı</label>
+                        <InputText
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            placeholder="örn: production, staging, local"
+                            disabled={!!editingName}
+                            className="w-full"
+                            autoFocus={!editingName}
+                        />
+                        {editingName && (
+                            <small style={{ color: 'var(--monolith-on-surface-var)', fontSize: 11 }}>
+                                Mevcut config adı değiştirilemez
+                            </small>
+                        )}
+                    </div>
+
+                    <div className="cluster-modal__field cluster-modal__field--grow">
+                        <label className="cluster-modal__label">Kubeconfig İçeriği</label>
+                        <textarea
+                            className="cluster-modal__textarea"
+                            value={content}
+                            onChange={e => setContent(e.target.value)}
+                            placeholder="Kubeconfig YAML içeriğini buraya yapıştırın..."
+                            spellCheck={false}
+                            autoFocus={!!editingName}
+                        />
+                    </div>
+                </div>
+
+                <div className="cluster-modal__footer">
+                    <Button
+                        label="İptal"
+                        icon="pi pi-times"
+                        text
+                        severity="secondary"
+                        onClick={onClose}
+                        disabled={saving}
+                    />
+                    <Button
+                        label="Kaydet"
+                        icon="pi pi-check"
+                        loading={saving}
+                        onClick={handleSave}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}

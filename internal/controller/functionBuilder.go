@@ -56,3 +56,31 @@ func (a *App) CloseTerminalSession(id string) error {
 func (a *App) ApplyYaml(yamlContent string) (string, error) {
 	return bussiness.ApplyYaml(yamlContent)
 }
+
+func (a *App) ListClusters() ([]string, error) {
+	return bussiness.ListClusters()
+}
+
+func (a *App) SaveCluster(name string, content string) error {
+	return bussiness.SaveCluster(name, content)
+}
+
+func (a *App) GetClusterContent(name string) (string, error) {
+	return bussiness.GetClusterContent(name)
+}
+
+func (a *App) DeleteCluster(name string) error {
+	return bussiness.DeleteCluster(name)
+}
+
+func (a *App) SetActiveCluster(name string) error {
+	return bussiness.SetActiveCluster(name)
+}
+
+func (a *App) GetActiveCluster() string {
+	return bussiness.GetActiveCluster()
+}
+
+func (a *App) CheckClusterConnection() error {
+	return bussiness.CheckClusterConnection()
+}

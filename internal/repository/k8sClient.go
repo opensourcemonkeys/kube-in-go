@@ -10,6 +10,12 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+var activeKubeconfigPath string
+
+func SetActiveKubeconfig(path string) {
+	activeKubeconfigPath = path
+}
+
 func NewK8sClient() (*kubernetes.Clientset, error) {
 	config, err := getK8sConfig()
 	if err != nil {
@@ -24,6 +30,15 @@ func NewK8sClient() (*kubernetes.Clientset, error) {
 }
 
 func getK8sConfig() (*rest.Config, error) {
+	// Use explicitly selected cluster config first
+	if activeKubeconfigPath != "" {
+		config, err := clientcmd.BuildConfigFromFlags("", activeKubeconfigPath)
+		if err != nil {
+			log.Printf("Failed to load active kubeconfig from %s: %v", activeKubeconfigPath, err)
+			return nil, err
+		}
+		return config, nil
+	}
 
 	config, err := rest.InClusterConfig()
 	if err == nil {
