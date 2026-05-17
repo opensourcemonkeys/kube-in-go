@@ -1,6 +1,9 @@
 import { IDockviewPanelProps } from 'dockview';
 import DataTableComponent from '../pod/main';
 import DeploymentListComponent from '../deployment/main';
+import StatefulSetListComponent from '../statefulset/main';
+import ReplicaSetListComponent from '../replicaset/main';
+import DaemonSetListComponent from '../daemonset/main';
 import NetworkPolicyListComponent from '../networkpolicy/main';
 
 interface ViewPanelParams {
@@ -39,6 +42,9 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
 
     if (view === 'pods') return <DataTableComponent />;
     if (view === 'deployments') return <DeploymentListComponent />;
+    if (view === 'statefulsets') return <StatefulSetListComponent />;
+    if (view === 'replicasets') return <ReplicaSetListComponent />;
+    if (view === 'daemonsets') return <DaemonSetListComponent />;
     if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
 
     return (

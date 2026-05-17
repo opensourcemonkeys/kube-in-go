@@ -5,15 +5,21 @@ import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
-import { GetPodYaml, GetDeploymentYaml, UpdateDeploymentYaml } from '../../../wailsjs/go/controller_app/App';
+import {
+    GetPodYaml,
+    GetDeploymentYaml, UpdateDeploymentYaml,
+    GetStatefulSetYaml, UpdateStatefulSetYaml,
+    GetReplicaSetYaml, UpdateReplicaSetYaml,
+    GetDaemonSetYaml, UpdateDaemonSetYaml,
+} from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => kind === 'deployment';
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -32,6 +38,12 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetPodYaml(name, namespace);
                 } else if (resourceKind === 'deployment') {
                     result = await GetDeploymentYaml(name, namespace);
+                } else if (resourceKind === 'statefulset') {
+                    result = await GetStatefulSetYaml(name, namespace);
+                } else if (resourceKind === 'replicaset') {
+                    result = await GetReplicaSetYaml(name, namespace);
+                } else if (resourceKind === 'daemonset') {
+                    result = await GetDaemonSetYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -58,6 +70,12 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
         try {
             if (resourceKind === 'deployment') {
                 await UpdateDeploymentYaml(name, namespace, value);
+            } else if (resourceKind === 'statefulset') {
+                await UpdateStatefulSetYaml(name, namespace, value);
+            } else if (resourceKind === 'replicaset') {
+                await UpdateReplicaSetYaml(name, namespace, value);
+            } else if (resourceKind === 'daemonset') {
+                await UpdateDaemonSetYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

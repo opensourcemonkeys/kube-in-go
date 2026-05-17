@@ -35,6 +35,54 @@ func (a *App) UpdateDeploymentYaml(name string, namespace string, yamlContent st
 	return bussiness.UpdateDeploymentYaml(name, namespace, yamlContent)
 }
 
+func (a *App) GetStatefulSets() []models.StatefulSetInfo {
+	return bussiness.GetStatefulSets()
+}
+
+func (a *App) DeleteStatefulSet(name string, namespace string) error {
+	return bussiness.DeleteStatefulSet(name, namespace)
+}
+
+func (a *App) GetStatefulSetYaml(name string, namespace string) (string, error) {
+	return bussiness.GetStatefulSetYaml(name, namespace)
+}
+
+func (a *App) UpdateStatefulSetYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateStatefulSetYaml(name, namespace, yamlContent)
+}
+
+func (a *App) GetReplicaSets() []models.ReplicaSetInfo {
+	return bussiness.GetReplicaSets()
+}
+
+func (a *App) DeleteReplicaSet(name string, namespace string) error {
+	return bussiness.DeleteReplicaSet(name, namespace)
+}
+
+func (a *App) GetReplicaSetYaml(name string, namespace string) (string, error) {
+	return bussiness.GetReplicaSetYaml(name, namespace)
+}
+
+func (a *App) UpdateReplicaSetYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateReplicaSetYaml(name, namespace, yamlContent)
+}
+
+func (a *App) GetDaemonSets() []models.DaemonSetInfo {
+	return bussiness.GetDaemonSets()
+}
+
+func (a *App) DeleteDaemonSet(name string, namespace string) error {
+	return bussiness.DeleteDaemonSet(name, namespace)
+}
+
+func (a *App) GetDaemonSetYaml(name string, namespace string) (string, error) {
+	return bussiness.GetDaemonSetYaml(name, namespace)
+}
+
+func (a *App) UpdateDaemonSetYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateDaemonSetYaml(name, namespace, yamlContent)
+}
+
 func (a *App) CreateTerminalSession(id string) error {
 	return bussiness.CreateTerminalSession(id, func(data string) {
 		runtime.EventsEmit(a.ctx, "terminal:output:"+id, data)
