@@ -7,7 +7,7 @@ import ClusterModal from './ClusterModal';
 
 export default function ClusterBar() {
     const { clusters, activeCluster, loaded, connectionError, refreshClusters, selectCluster } = useClusterContext();
-    const { openTerminal, openApplyYaml } = useTabContext();
+    const { openTerminal, openApplyYaml, openClusterResourceView } = useTabContext();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCluster, setEditingCluster] = useState<string | null>(null);
     const initialCheckDone = useRef(false);
@@ -67,13 +67,22 @@ export default function ClusterBar() {
                         <i className="pi pi-plus" />
                     </button>
                     {activeCluster && (
-                        <button
-                            className="cluster-bar__edit-btn"
-                            onClick={openEdit}
-                            title="Cluster düzenle"
-                        >
-                            <i className="pi pi-pencil" />
-                        </button>
+                        <>
+                            <button
+                                className="cluster-bar__edit-btn"
+                                onClick={openEdit}
+                                title="Cluster düzenle"
+                            >
+                                <i className="pi pi-pencil" />
+                            </button>
+                            <button
+                                className="cluster-bar__edit-btn"
+                                onClick={openClusterResourceView}
+                                title="Resource Graph"
+                            >
+                                <i className="pi pi-sitemap" />
+                            </button>
+                        </>
                     )}
                     {connectionError && (
                         <>

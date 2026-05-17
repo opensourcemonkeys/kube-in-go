@@ -1,6 +1,7 @@
 import { IDockviewPanelProps } from 'dockview';
 import DataTableComponent from '../pod/main';
 import DeploymentListComponent from '../deployment/main';
+import NetworkPolicyListComponent from '../networkpolicy/main';
 
 interface ViewPanelParams {
     view: string;
@@ -38,6 +39,7 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
 
     if (view === 'pods') return <DataTableComponent />;
     if (view === 'deployments') return <DeploymentListComponent />;
+    if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
 
     return (
         <div className="card p-4">

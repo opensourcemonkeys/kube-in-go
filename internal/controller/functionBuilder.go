@@ -53,6 +53,30 @@ func (a *App) CloseTerminalSession(id string) error {
 	return bussiness.CloseTerminalSession(id)
 }
 
+func (a *App) GetNetworkPolicies() []models.NetworkPolicyInfo {
+	return bussiness.GetNetworkPolicies()
+}
+
+func (a *App) DeleteNetworkPolicy(name string, namespace string) error {
+	return bussiness.DeleteNetworkPolicy(name, namespace)
+}
+
+func (a *App) GetNetworkPolicyYaml(name string, namespace string) (string, error) {
+	return bussiness.GetNetworkPolicyYaml(name, namespace)
+}
+
+func (a *App) UpdateNetworkPolicyYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateNetworkPolicyYaml(name, namespace, yamlContent)
+}
+
+func (a *App) GetNetworkPolicyDetail(name string, namespace string) (*models.NetworkPolicyDetail, error) {
+	return bussiness.GetNetworkPolicyDetail(name, namespace)
+}
+
+func (a *App) ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyDetail, error) {
+	return bussiness.ParseNetworkPolicyYaml(yamlContent)
+}
+
 func (a *App) ApplyYaml(yamlContent string) (string, error) {
 	return bussiness.ApplyYaml(yamlContent)
 }
@@ -83,6 +107,10 @@ func (a *App) GetActiveCluster() string {
 
 func (a *App) CheckClusterConnection() error {
 	return bussiness.CheckClusterConnection()
+}
+
+func (a *App) GetClusterGraph() (*models.ClusterGraph, error) {
+	return bussiness.GetClusterGraph()
 }
 
 func (a *App) GetPodContainers(name string, namespace string) ([]string, error) {

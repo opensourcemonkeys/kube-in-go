@@ -49,13 +49,21 @@ export interface LogPanelDef {
     referencePanel: string;
 }
 
+export interface PolicyViewerDef {
+    name: string;
+    namespace: string;
+    referencePanel: string;
+}
+
 interface TabContextValue {
     registerApi: (api: DockviewApi) => void;
     openTab: (def: TabDef) => void;
     openYamlPanel: (def: YamlPanelDef) => void;
     openLogPanel: (def: LogPanelDef) => void;
+    openPolicyViewer: (def: PolicyViewerDef) => void;
     openTerminal: () => void;
     openApplyYaml: () => void;
+    openClusterResourceView: () => void;
 }
 
 const TabContext = createContext<TabContextValue | null>(null);
@@ -147,6 +155,50 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel(addOptions);
     }, []);
 
+    const openPolicyViewer = useCallback((def: PolicyViewerDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `policy:${def.namespace}/${def.name}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const addOptions: any = {
+            id: panelId,
+            component: 'policyViewer',
+            title: `Policy • ${def.namespace}/${def.name}`,
+            params: { name: def.name, namespace: def.namespace },
+        };
+
+        if (api.getPanel(def.referencePanel)) {
+            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
+        }
+
+        api.addPanel(addOptions);
+    }, []);
+
+    const openClusterResourceView = useCallback(() => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = 'cluster-resource-view';
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        api.addPanel({
+            id: panelId,
+            component: 'clusterResource',
+            title: 'Resource Graph',
+            params: {},
+        });
+    }, []);
+
     const openYamlPanel = useCallback((def: YamlPanelDef) => {
         const api = apiRef.current;
         if (!api) return;
@@ -177,7 +229,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openTerminal, openApplyYaml }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openPolicyViewer, openTerminal, openApplyYaml, openClusterResourceView }}>
             {children}
         </TabContext.Provider>
     );

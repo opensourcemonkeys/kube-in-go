@@ -1,0 +1,411 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { IDockviewPanelProps } from 'dockview';
+import ReactFlow, {
+    Background,
+    Controls,
+    MiniMap,
+    Node,
+    Edge,
+    MarkerType,
+    BackgroundVariant,
+    Handle,
+    Position,
+    NodeProps,
+    ReactFlowInstance,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { GetClusterGraph } from '../../../wailsjs/go/controller_app/App';
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface ResourceNode {
+    id: string;
+    kind: string;
+    name: string;
+    namespace: string;
+    labels: Record<string, string>;
+    selector?: Record<string, string>;
+    status?: string;
+}
+
+interface ClusterGraph {
+    nodes: ResourceNode[];
+    edges: Array<{ id: string; source: string; target: string; kind: string }>;
+}
+
+// ── Kind config ───────────────────────────────────────────────────────────────
+
+const KIND_CONFIG: Record<string, { color: string; icon: string; column: number }> = {
+    Ingress:     { color: '#ef4444', icon: 'pi-globe',    column: 0 },
+    Service:     { color: '#f97316', icon: 'pi-sitemap',  column: 1 },
+    Deployment:  { color: '#10b981', icon: 'pi-layers',   column: 2 },
+    StatefulSet: { color: '#8b5cf6', icon: 'pi-database', column: 2 },
+    DaemonSet:   { color: '#f59e0b', icon: 'pi-server',   column: 2 },
+    ReplicaSet:  { color: '#06b6d4', icon: 'pi-copy',     column: 3 },
+    Pod:         { color: '#3b82f6', icon: 'pi-box',      column: 4 },
+};
+
+const NODE_W = 220;
+const NODE_H = 80;
+const NODE_UNIT_X = NODE_W + 20;   // horizontal step between sibling nodes = 240
+const SECTION_GAP_X = 60;          // extra horizontal gap between deployment groups
+
+// Y position of each kind row (top-to-bottom flow)
+const ROW_Y: Record<string, number> = {
+    Ingress:     0,
+    Service:     200,
+    Deployment:  400,
+    StatefulSet: 400,
+    DaemonSet:   400,
+    ReplicaSet:  600,
+    Pod:         800,
+};
+
+// ── Status color ──────────────────────────────────────────────────────────────
+
+function statusColor(kind: string, status?: string): string {
+    if (!status) return '#64748b';
+    if (kind === 'Pod') {
+        if (status === 'Running') return '#22c55e';
+        if (status === 'Pending') return '#f59e0b';
+        if (status === 'Terminating') return '#ef4444';
+        return '#ef4444';
+    }
+    if (status.includes('/')) {
+        const [ready, total] = status.split('/').map(Number);
+        if (ready === total && total > 0) return '#22c55e';
+        if (ready > 0) return '#f59e0b';
+        return '#ef4444';
+    }
+    return '#64748b';
+}
+
+// ── Custom node ───────────────────────────────────────────────────────────────
+
+function K8sNode({ data }: NodeProps<ResourceNode>) {
+    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', icon: 'pi-box', column: 5 };
+    const sc = statusColor(data.kind, data.status);
+
+    return (
+        <div style={{
+            border: `2px solid ${cfg.color}`,
+            borderRadius: 8,
+            background: '#131c2e',
+            padding: '7px 12px',
+            width: NODE_W,
+            minHeight: NODE_H,
+            fontFamily: 'var(--font-family)',
+            boxSizing: 'border-box',
+        }}>
+            <Handle type="target" position={Position.Top}
+                style={{ background: cfg.color, width: 8, height: 8 }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
+                <i className={`pi ${cfg.icon}`} style={{ color: cfg.color, fontSize: 11 }} />
+                <span style={{ color: cfg.color, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {data.kind}
+                </span>
+                {data.status && (
+                    <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 3, fontSize: 10, color: sc }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc, display: 'inline-block', flexShrink: 0 }} />
+                        {data.status}
+                    </span>
+                )}
+            </div>
+            <div style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {data.name}
+            </div>
+            <div style={{ color: '#475569', fontSize: 11, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {data.namespace}
+            </div>
+
+            <Handle type="source" position={Position.Bottom}
+                style={{ background: cfg.color, width: 8, height: 8 }} />
+        </div>
+    );
+}
+
+const nodeTypes = { k8sNode: K8sNode };
+
+// ── Top-to-bottom hierarchical layout ────────────────────────────────────────
+
+function buildFlow(graph: ClusterGraph): { nodes: Node[]; edges: Edge[] } {
+    // Owner-reference edges: parent → child
+    const ownerChildren = new Map<string, string[]>();
+    const ownerParent   = new Map<string, string>();
+    for (const e of graph.edges) {
+        if (e.kind !== 'owner') continue;
+        if (!ownerChildren.has(e.source)) ownerChildren.set(e.source, []);
+        ownerChildren.get(e.source)!.push(e.target);
+        if (!ownerParent.has(e.target)) ownerParent.set(e.target, e.source);
+    }
+
+    const nodeById = new Map(graph.nodes.map(n => [n.id, n]));
+    const positions = new Map<string, { x: number; y: number }>();
+    let cursor = 0; // horizontal cursor
+
+    const alpha = (a: ResourceNode, b: ResourceNode) =>
+        a.namespace.localeCompare(b.namespace) || a.name.localeCompare(b.name);
+
+    // Place a pod → returns its X center
+    function placePod(id: string): number {
+        const x = cursor;
+        positions.set(id, { x, y: ROW_Y['Pod'] });
+        cursor += NODE_UNIT_X;
+        return x;
+    }
+
+    // Place a ReplicaSet (or StatefulSet/DaemonSet leaf) + its pods → returns X center
+    function placeRs(id: string, kind: string): number {
+        const podIds = (ownerChildren.get(id) ?? [])
+            .filter(cid => nodeById.get(cid)?.kind === 'Pod');
+        if (podIds.length === 0) {
+            const x = cursor;
+            positions.set(id, { x, y: ROW_Y[kind] ?? ROW_Y['ReplicaSet'] });
+            cursor += NODE_UNIT_X;
+            return x;
+        }
+        const left = cursor;
+        podIds.forEach(pid => placePod(pid));
+        const centerX = (left + cursor - NODE_UNIT_X) / 2;
+        positions.set(id, { x: centerX, y: ROW_Y[kind] ?? ROW_Y['ReplicaSet'] });
+        return centerX;
+    }
+
+    // Place a Deployment + its ReplicaSets + pods → returns X center
+    function placeDeployment(id: string, kind: string): number {
+        const childIds = ownerChildren.get(id) ?? [];
+        if (childIds.length === 0) {
+            const x = cursor;
+            positions.set(id, { x, y: ROW_Y[kind] ?? ROW_Y['Deployment'] });
+            cursor += NODE_UNIT_X;
+            return x;
+        }
+        const left = cursor;
+        childIds.forEach(cid => {
+            const child = nodeById.get(cid);
+            if (child) placeRs(cid, child.kind);
+        });
+        const centerX = (left + cursor - NODE_UNIT_X) / 2;
+        positions.set(id, { x: centerX, y: ROW_Y[kind] ?? ROW_Y['Deployment'] });
+        return centerX;
+    }
+
+    // 1. Top-level controllers: Deployment / StatefulSet / DaemonSet
+    const controllers = graph.nodes
+        .filter(n => ['Deployment', 'StatefulSet', 'DaemonSet'].includes(n.kind) && !ownerParent.has(n.id))
+        .sort(alpha);
+    for (const ctrl of controllers) {
+        placeDeployment(ctrl.id, ctrl.kind);
+        cursor += SECTION_GAP_X;
+    }
+
+    // 2. Orphan ReplicaSets (no Deployment parent)
+    const orphanRs = graph.nodes
+        .filter(n => n.kind === 'ReplicaSet' && !ownerParent.has(n.id))
+        .sort(alpha);
+    for (const rs of orphanRs) {
+        placeRs(rs.id, 'ReplicaSet');
+    }
+    if (orphanRs.length) cursor += SECTION_GAP_X;
+
+    // 3. Orphan Pods (no owner at all)
+    graph.nodes
+        .filter(n => n.kind === 'Pod' && !ownerParent.has(n.id))
+        .sort(alpha)
+        .forEach(pod => {
+            positions.set(pod.id, { x: cursor, y: ROW_Y['Pod'] });
+            cursor += NODE_UNIT_X;
+        });
+
+    // 4. Services — center horizontally on average X of their selected pods
+    const selectorEdges = graph.edges.filter(e => e.kind === 'selector');
+    const usedSvcX = new Set<number>();
+
+    graph.nodes.filter(n => n.kind === 'Service').sort(alpha).forEach(svc => {
+        const podXs = selectorEdges
+            .filter(e => e.source === svc.id)
+            .map(e => positions.get(e.target)?.x)
+            .filter((x): x is number => x !== undefined);
+
+        let svcX = podXs.length
+            ? podXs.reduce((s, x) => s + x, 0) / podXs.length
+            : (cursor += NODE_UNIT_X, cursor - NODE_UNIT_X);
+
+        let slot = Math.round(svcX / 10) * 10;
+        while (usedSvcX.has(slot)) { slot += NODE_UNIT_X; svcX = slot; }
+        usedSvcX.add(slot);
+        positions.set(svc.id, { x: svcX, y: ROW_Y['Service'] });
+    });
+
+    // 5. Ingresses — center on average X of their target services
+    const ingressEdges = graph.edges.filter(e => e.kind === 'ingress');
+    const usedIngX = new Set<number>();
+
+    graph.nodes.filter(n => n.kind === 'Ingress').sort(alpha).forEach(ing => {
+        const svcXs = ingressEdges
+            .filter(e => e.source === ing.id)
+            .map(e => positions.get(e.target)?.x)
+            .filter((x): x is number => x !== undefined);
+
+        let ingX = svcXs.length
+            ? svcXs.reduce((s, x) => s + x, 0) / svcXs.length
+            : (cursor += NODE_UNIT_X, cursor - NODE_UNIT_X);
+
+        let slot = Math.round(ingX / 10) * 10;
+        while (usedIngX.has(slot)) { slot += NODE_UNIT_X; ingX = slot; }
+        usedIngX.add(slot);
+        positions.set(ing.id, { x: ingX, y: ROW_Y['Ingress'] });
+    });
+
+    // ── Build ReactFlow nodes ──────────────────────────────────────────────────
+    const nodes: Node[] = graph.nodes.map(n => ({
+        id: n.id,
+        type: 'k8sNode',
+        position: positions.get(n.id) ?? { x: cursor, y: ROW_Y[n.kind] ?? 1000 },
+        data: n,
+    }));
+
+    // ── Build ReactFlow edges (smoothstep avoids straight-line stacking) ───────
+    const edges: Edge[] = graph.edges.map(e => {
+        const isSelector = e.kind === 'selector';
+        const isIngress  = e.kind === 'ingress';
+        const color = isSelector ? '#3b82f6' : isIngress ? '#f97316' : '#475569';
+        return {
+            id: e.id,
+            source: e.source,
+            target: e.target,
+            type: 'smoothstep',
+            animated: isSelector,
+            style: {
+                stroke: color,
+                strokeWidth: 1.5,
+                strokeDasharray: isSelector ? '6 3' : undefined,
+            },
+            markerEnd: { type: MarkerType.ArrowClosed, color, width: 14, height: 14 },
+        };
+    });
+
+    return { nodes, edges };
+}
+
+// ── Panel ─────────────────────────────────────────────────────────────────────
+
+export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>) {
+    const [nodes, setNodes] = useState<Node[]>([]);
+    const [edges, setEdges] = useState<Edge[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const rfRef = useRef<ReactFlowInstance | null>(null);
+
+    const load = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const raw: any = await GetClusterGraph();
+            const graph: ClusterGraph = raw;
+            const { nodes: n, edges: e } = buildFlow(graph);
+            setNodes(n);
+            setEdges(e);
+            setTimeout(() => rfRef.current?.fitView({ padding: 0.15 }), 120);
+        } catch (err: any) {
+            setError(err?.message ?? String(err));
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => { load(); }, [load]);
+
+    return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--monolith-base, #0d1117)' }}>
+
+            {/* Toolbar */}
+            <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
+                <span className="yaml-editor-toolbar__label flex align-items-center gap-2">
+                    <i className="pi pi-sitemap" />
+                    Cluster Resource Graph
+                </span>
+                <div className="flex align-items-center gap-2">
+                    {loading && <i className="pi pi-spin pi-spinner" style={{ fontSize: 14, color: 'var(--text-color-secondary)' }} />}
+                    <button
+                        className="cluster-bar__edit-btn"
+                        onClick={load}
+                        disabled={loading}
+                        title="Refresh"
+                    >
+                        <i className="pi pi-refresh" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Legend */}
+            <div style={{
+                display: 'flex', gap: 16, padding: '5px 14px', flexShrink: 0,
+                flexWrap: 'wrap', borderBottom: '1px solid var(--surface-border)',
+                background: 'var(--monolith-panel, #1a1f2e)',
+            }}>
+                {Object.entries(KIND_CONFIG).map(([kind, cfg]) => (
+                    <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: cfg.color }}>
+                        <i className={`pi ${cfg.icon}`} style={{ fontSize: 11 }} />
+                        {kind}
+                    </span>
+                ))}
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: '#64748b' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 24, height: 2, background: '#334155', display: 'inline-block' }} />
+                        owner
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 24, height: 2, background: '#3b82f6', display: 'inline-block', borderTop: '2px dashed #3b82f6' }} />
+                        selector
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ width: 24, height: 2, background: '#f97316', display: 'inline-block' }} />
+                        ingress
+                    </span>
+                </span>
+            </div>
+
+            {/* Flow canvas */}
+            <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                {error ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: '#ef4444' }}>
+                        <i className="pi pi-exclamation-triangle" style={{ fontSize: 32 }} />
+                        <span style={{ fontSize: 13 }}>{error}</span>
+                        <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
+                            <i className="pi pi-refresh" /> Retry
+                        </button>
+                    </div>
+                ) : (
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        nodeTypes={nodeTypes}
+                        fitView
+                        fitViewOptions={{ padding: 0.15 }}
+                        nodesDraggable
+                        nodesConnectable={false}
+                        elementsSelectable
+                        onInit={inst => { rfRef.current = inst; }}
+                        style={{ background: 'var(--monolith-base, #0d1117)' }}
+                    >
+                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
+                        <Controls style={{
+                            background: 'var(--monolith-panel, #1a1f2e)',
+                            border: '1px solid var(--surface-border)',
+                            borderRadius: 8,
+                        }} />
+                        <MiniMap
+                            style={{
+                                background: 'var(--monolith-panel, #1a1f2e)',
+                                border: '1px solid var(--surface-border)',
+                            }}
+                            nodeColor={n => KIND_CONFIG[n.data?.kind]?.color ?? '#6b7280'}
+                        />
+                    </ReactFlow>
+                )}
+            </div>
+        </div>
+    );
+}

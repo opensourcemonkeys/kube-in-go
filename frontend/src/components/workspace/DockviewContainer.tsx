@@ -6,6 +6,8 @@ import YamlEditorPanel from './YamlEditorPanel';
 import TerminalPanel from '../terminal/TerminalPanel';
 import ApplyYamlPanel from './ApplyYamlPanel';
 import LogViewerPanel from '../logs/LogViewerPanel';
+import PolicyViewerPanel from '../networkpolicy/PolicyViewerPanel';
+import ClusterResourcePanel from '../clusterresource/ClusterResourcePanel';
 
 const components = {
     view: ViewPanel,
@@ -13,6 +15,8 @@ const components = {
     terminal: TerminalPanel,
     applyYaml: ApplyYamlPanel,
     logViewer: LogViewerPanel,
+    policyViewer: PolicyViewerPanel,
+    clusterResource: ClusterResourcePanel,
 };
 
 export default function DockviewContainer() {
