@@ -138,12 +138,11 @@ export default function DaemonSetListComponent() {
                     style={{ width: '4rem', textAlign: 'center' }}
                     body={(row: models.DaemonSetInfo) => (
                         <Button
-                            icon="pi pi-file-word"
+                            icon="pi pi-list"
                             text
                             size="small"
                             severity="secondary"
-                            tooltip="View Logs"
-                            tooltipOptions={{ position: 'left' }}
+                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
                             onClick={() => openLogPanel({ resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel: 'daemonsets' })}
                         />
                     )}
