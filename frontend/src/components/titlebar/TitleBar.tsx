@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import logoImg from '../../assets/icon/logo.png';
 import {
     WindowMinimise,
     WindowToggleMaximise,
@@ -17,15 +18,7 @@ function TitleBar() {
         <div className="tb-root">
             {/* Draggable region */}
             <div className="tb-drag" onDoubleClick={handleMaximise}>
-                <svg className="tb-logo" viewBox="0 0 16 16" fill="none">
-                    <polygon
-                        points="8,1 14.9,5 14.9,11 8,15 1.1,11 1.1,5"
-                        stroke="#69daff"
-                        strokeWidth="1.5"
-                        fill="rgba(105,218,255,0.08)"
-                    />
-                    <circle cx="8" cy="8" r="2" fill="#69daff" />
-                </svg>
+                <img className="tb-logo" src={logoImg} alt="kube-ins" />
                 <span className="tb-title">kube-ins</span>
             </div>
 

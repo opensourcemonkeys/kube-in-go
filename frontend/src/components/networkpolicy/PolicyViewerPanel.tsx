@@ -8,6 +8,11 @@ import ReactFlow, {
     Edge,
     MarkerType,
     BackgroundVariant,
+    Handle,
+    Position,
+    NodeProps,
+    useNodesState,
+    useEdgesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Editor, { OnMount } from '@monaco-editor/react';
@@ -32,7 +37,7 @@ const NODE_POLICY: React.CSSProperties = {
     padding: '10px 16px',
     color: 'var(--text-color, #e2e8f0)',
     fontFamily: 'var(--font-family)',
-    minWidth: 200,
+    width: 220,
     textAlign: 'center',
 };
 
@@ -77,10 +82,25 @@ const NODE_PODS: React.CSSProperties = {
     padding: '8px 14px',
     color: '#86efac',
     fontFamily: 'var(--font-family)',
-    minWidth: 180,
+    width: 220,
     textAlign: 'center',
     fontSize: 12,
 };
+
+// ── Custom policy node (left target + right source + bottom source) ───────────
+
+function PolicyNodeComponent({ data }: NodeProps) {
+    return (
+        <>
+            <Handle type="target" position={Position.Left} id="left" style={{ background: '#6366f1', borderColor: '#6366f1' }} />
+            {data.label}
+            <Handle type="source" position={Position.Right} id="right" style={{ background: '#6366f1', borderColor: '#6366f1' }} />
+            <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: '#22c55e', borderColor: '#22c55e' }} />
+        </>
+    );
+}
+
+const NODE_TYPES = { policyNode: PolicyNodeComponent };
 
 // ── Graph builder ─────────────────────────────────────────────────────────────
 
@@ -93,6 +113,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
 
     nodes.push({
         id: 'policy',
+        type: 'policyNode',
         position: { x: cx, y: cy },
         data: {
             label: (
@@ -128,6 +149,8 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
 
     nodes.push({
         id: 'pods',
+        type: 'output',
+        targetPosition: Position.Top,
         position: { x: cx, y: cy + 180 },
         data: {
             label: (
@@ -147,6 +170,8 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
         id: 'policy-pods',
         source: 'policy',
         target: 'pods',
+        sourceHandle: 'bottom',
+        type: 'straight',
         animated: true,
         style: { stroke: '#22c55e', strokeDasharray: '4 3' },
         markerEnd: { type: MarkerType.ArrowClosed, color: '#22c55e' },
@@ -160,6 +185,8 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
     if (policyTypes.includes('Ingress') && ingress.length === 0) {
         nodes.push({
             id: 'deny-ingress',
+            type: 'input',
+            sourcePosition: Position.Right,
             position: { x: cx - 370, y: cy },
             data: {
                 label: (
@@ -178,6 +205,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             id: 'deny-ingress-edge',
             source: 'deny-ingress',
             target: 'policy',
+            targetHandle: 'left',
             animated: false,
             style: { stroke: '#ef4444', strokeDasharray: '6 3' },
             markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
@@ -191,7 +219,9 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
     if (policyTypes.includes('Egress') && egress.length === 0) {
         nodes.push({
             id: 'deny-egress',
-            position: { x: cx + 280, y: cy },
+            type: 'output',
+            targetPosition: Position.Left,
+            position: { x: cx + 410, y: cy },
             data: {
                 label: (
                     <div>
@@ -209,6 +239,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             id: 'deny-egress-edge',
             source: 'policy',
             target: 'deny-egress',
+            sourceHandle: 'right',
             animated: false,
             style: { stroke: '#ef4444', strokeDasharray: '6 3' },
             markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
@@ -225,6 +256,8 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
         const ports = (rule.ports ?? []).join(', ') || 'all ports';
         nodes.push({
             id: nodeId,
+            type: 'input',
+            sourcePosition: Position.Right,
             position: { x: cx - 370, y: ingressStartY + i * 130 },
             data: {
                 label: (
@@ -257,9 +290,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             id: `ingress-edge-${i}`,
             source: nodeId,
             target: 'policy',
-            label: ports !== 'all ports' ? ports : undefined,
-            labelStyle: { fill: '#93c5fd', fontSize: 10 },
-            labelBgStyle: { fill: '#0f172a', opacity: 0.8 },
+            targetHandle: 'left',
             animated: true,
             style: { stroke: '#3b82f6' },
             markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
@@ -273,7 +304,9 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
         const ports = (rule.ports ?? []).join(', ') || 'all ports';
         nodes.push({
             id: nodeId,
-            position: { x: cx + 280, y: egressStartY + i * 130 },
+            type: 'output',
+            targetPosition: Position.Left,
+            position: { x: cx + 410, y: egressStartY + i * 130 },
             data: {
                 label: (
                     <div>
@@ -305,9 +338,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             id: `egress-edge-${i}`,
             source: 'policy',
             target: nodeId,
-            label: ports !== 'all ports' ? ports : undefined,
-            labelStyle: { fill: '#fcd34d', fontSize: 10 },
-            labelBgStyle: { fill: '#0f172a', opacity: 0.8 },
+            sourceHandle: 'right',
             animated: true,
             style: { stroke: '#f59e0b' },
             markerEnd: { type: MarkerType.ArrowClosed, color: '#f59e0b' },
@@ -326,8 +357,8 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
     const isDragging = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [nodes, setNodes] = useState<Node[]>([]);
-    const [edges, setEdges] = useState<Edge[]>([]);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
     const [graphLoading, setGraphLoading] = useState(true);
 
     const [yaml, setYaml] = useState('Loading...');
@@ -484,6 +515,9 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
+                        nodeTypes={NODE_TYPES}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
                         fitView
                         fitViewOptions={{ padding: 0.3 }}
                         nodesDraggable
