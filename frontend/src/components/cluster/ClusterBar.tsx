@@ -55,14 +55,14 @@ export default function ClusterBar() {
                         value={activeCluster || null}
                         options={clusters}
                         onChange={e => selectCluster(e.value)}
-                        placeholder="Cluster seç..."
+                        placeholder="Select cluster..."
                         className="cluster-bar__dropdown"
-                        emptyMessage="Henüz cluster yok"
+                        emptyMessage="No clusters yet"
                     />
                     <button
                         className="cluster-bar__edit-btn"
                         onClick={openAdd}
-                        title="Cluster Ekle"
+                        title="Add Cluster"
                     >
                         <i className="pi pi-plus" />
                     </button>
@@ -71,7 +71,7 @@ export default function ClusterBar() {
                             <button
                                 className="cluster-bar__edit-btn"
                                 onClick={openEdit}
-                                title="Cluster düzenle"
+                                title="Edit cluster"
                             >
                                 <i className="pi pi-pencil" />
                             </button>
@@ -89,14 +89,14 @@ export default function ClusterBar() {
                             <button
                                 className="cluster-bar__warn-btn"
                                 onClick={e => errorPanelRef.current?.toggle(e)}
-                                title="Bağlantı hatası"
+                                title="Connection error"
                             >
                                 <i className="pi pi-exclamation-triangle" />
                             </button>
                             <OverlayPanel ref={errorPanelRef} className="cluster-error-panel">
                                 <div className="cluster-error-panel__header">
                                     <i className="pi pi-exclamation-triangle cluster-error-panel__icon" />
-                                    <span>Bağlantı Hatası</span>
+                                    <span>Connection Error</span>
                                 </div>
                                 <pre className="cluster-error-panel__detail">{connectionError}</pre>
                             </OverlayPanel>

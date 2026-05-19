@@ -33,12 +33,12 @@ function Appmain() {
                         </div>
                     </div>
 
-                    {/* Status Bar */}
-                    <footer className="app-footer">
+                    {/* Status Bar - TODO: implement as feature */}
+                    {/* <footer className="app-footer">
                         <span className="app-footer__status">
                             kube-ins
                         </span>
-                    </footer>
+                    </footer> */}
                 </div>
             </TabProvider>
         </ClusterProvider>

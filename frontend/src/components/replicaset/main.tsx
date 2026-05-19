@@ -30,7 +30,7 @@ export default function ReplicaSetListComponent() {
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
-    const { openYamlPanel } = useTabContext();
+    const { openYamlPanel, openLogPanel } = useTabContext();
 
     const load = async () => {
         try {
@@ -130,7 +130,22 @@ export default function ReplicaSetListComponent() {
                     sortField="available_replicas"
                     style={{ minWidth: '8rem' }}
                     body={(row: models.ReplicaSetInfo) => (
-                        <Tag value={`${row.available_replicas} avail`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />
+                        <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />
+                    )}
+                />
+                <Column
+                    header=""
+                    style={{ width: '4rem', textAlign: 'center' }}
+                    body={(row: models.ReplicaSetInfo) => (
+                        <Button
+                            icon="pi pi-file-word"
+                            text
+                            size="small"
+                            severity="secondary"
+                            tooltip="View Logs"
+                            tooltipOptions={{ position: 'left' }}
+                            onClick={() => openLogPanel({ resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel: 'replicasets' })}
+                        />
                     )}
                 />
             </DataTable>

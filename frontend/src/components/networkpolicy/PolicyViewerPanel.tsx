@@ -406,7 +406,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                 setNodes(n);
                 setEdges(e);
             } catch {
-                // YAML henüz geçerli değil, graph'ı güncelleme
+                // YAML not yet valid, skip graph update
             }
         }, 600);
     };

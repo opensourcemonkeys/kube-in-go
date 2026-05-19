@@ -11,15 +11,17 @@ import {
     GetStatefulSetYaml, UpdateStatefulSetYaml,
     GetReplicaSetYaml, UpdateReplicaSetYaml,
     GetDaemonSetYaml, UpdateDaemonSetYaml,
+    GetJobYaml,
+    GetCronJobYaml, UpdateCronJobYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -44,6 +46,10 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetReplicaSetYaml(name, namespace);
                 } else if (resourceKind === 'daemonset') {
                     result = await GetDaemonSetYaml(name, namespace);
+                } else if (resourceKind === 'job') {
+                    result = await GetJobYaml(name, namespace);
+                } else if (resourceKind === 'cronjob') {
+                    result = await GetCronJobYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -76,6 +82,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateReplicaSetYaml(name, namespace, value);
             } else if (resourceKind === 'daemonset') {
                 await UpdateDaemonSetYaml(name, namespace, value);
+            } else if (resourceKind === 'cronjob') {
+                await UpdateCronJobYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

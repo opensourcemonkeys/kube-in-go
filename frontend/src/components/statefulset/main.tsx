@@ -30,7 +30,7 @@ export default function StatefulSetListComponent() {
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
-    const { openYamlPanel } = useTabContext();
+    const { openYamlPanel, openLogPanel } = useTabContext();
 
     const load = async () => {
         try {
@@ -130,7 +130,25 @@ export default function StatefulSetListComponent() {
                     sortField="updated_replicas"
                     style={{ minWidth: '8rem' }}
                     body={(row: models.StatefulSetInfo) => (
-                        <Tag value={`${row.current_replicas} cur / ${row.updated_replicas} upd`} severity="secondary" />
+                        <Tag
+                            value={`${row.current_replicas} current / ${row.updated_replicas} updated`}
+                            severity={row.current_replicas === row.updated_replicas ? 'success' : 'warning'}
+                        />
+                    )}
+                />
+                <Column
+                    header=""
+                    style={{ width: '4rem', textAlign: 'center' }}
+                    body={(row: models.StatefulSetInfo) => (
+                        <Button
+                            icon="pi pi-file-word"
+                            text
+                            size="small"
+                            severity="secondary"
+                            tooltip="View Logs"
+                            tooltipOptions={{ position: 'left' }}
+                            onClick={() => openLogPanel({ resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel: 'statefulsets' })}
+                        />
                     )}
                 />
             </DataTable>

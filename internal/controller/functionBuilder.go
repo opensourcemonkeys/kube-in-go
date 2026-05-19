@@ -83,6 +83,34 @@ func (a *App) UpdateDaemonSetYaml(name string, namespace string, yamlContent str
 	return bussiness.UpdateDaemonSetYaml(name, namespace, yamlContent)
 }
 
+func (a *App) GetJobs() []models.JobInfo {
+	return bussiness.GetJobs()
+}
+
+func (a *App) DeleteJob(name string, namespace string) error {
+	return bussiness.DeleteJob(name, namespace)
+}
+
+func (a *App) GetJobYaml(name string, namespace string) (string, error) {
+	return bussiness.GetJobYaml(name, namespace)
+}
+
+func (a *App) GetCronJobs() []models.CronJobInfo {
+	return bussiness.GetCronJobs()
+}
+
+func (a *App) DeleteCronJob(name string, namespace string) error {
+	return bussiness.DeleteCronJob(name, namespace)
+}
+
+func (a *App) GetCronJobYaml(name string, namespace string) (string, error) {
+	return bussiness.GetCronJobYaml(name, namespace)
+}
+
+func (a *App) UpdateCronJobYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateCronJobYaml(name, namespace, yamlContent)
+}
+
 func (a *App) CreateTerminalSession(id string) error {
 	return bussiness.CreateTerminalSession(id, func(data string) {
 		runtime.EventsEmit(a.ctx, "terminal:output:"+id, data)
@@ -167,6 +195,26 @@ func (a *App) GetPodContainers(name string, namespace string) ([]string, error) 
 
 func (a *App) GetDeploymentPods(name string, namespace string) ([]string, error) {
 	return bussiness.GetDeploymentPods(name, namespace)
+}
+
+func (a *App) GetStatefulSetPods(name string, namespace string) ([]string, error) {
+	return bussiness.GetStatefulSetPods(name, namespace)
+}
+
+func (a *App) GetReplicaSetPods(name string, namespace string) ([]string, error) {
+	return bussiness.GetReplicaSetPods(name, namespace)
+}
+
+func (a *App) GetDaemonSetPods(name string, namespace string) ([]string, error) {
+	return bussiness.GetDaemonSetPods(name, namespace)
+}
+
+func (a *App) GetJobPods(name string, namespace string) ([]string, error) {
+	return bussiness.GetJobPods(name, namespace)
+}
+
+func (a *App) GetCronJobPods(name string, namespace string) ([]string, error) {
+	return bussiness.GetCronJobPods(name, namespace)
 }
 
 func (a *App) StartLogStream(sessionId string, podName string, namespace string, container string) error {

@@ -4,6 +4,8 @@ import DeploymentListComponent from '../deployment/main';
 import StatefulSetListComponent from '../statefulset/main';
 import ReplicaSetListComponent from '../replicaset/main';
 import DaemonSetListComponent from '../daemonset/main';
+import JobListComponent from '../job/main';
+import CronJobListComponent from '../cronjob/main';
 import NetworkPolicyListComponent from '../networkpolicy/main';
 
 interface ViewPanelParams {
@@ -45,6 +47,8 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'statefulsets') return <StatefulSetListComponent />;
     if (view === 'replicasets') return <ReplicaSetListComponent />;
     if (view === 'daemonsets') return <DaemonSetListComponent />;
+    if (view === 'jobs') return <JobListComponent />;
+    if (view === 'cronjobs') return <CronJobListComponent />;
     if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
 
     return (

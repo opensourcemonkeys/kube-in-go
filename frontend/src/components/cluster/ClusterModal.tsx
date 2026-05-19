@@ -30,11 +30,11 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
 
     const handleSave = async () => {
         if (!name.trim()) {
-            toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Config adı gerekli', life: 2500 });
+            toast.current?.show({ severity: 'warn', summary: 'Error', detail: 'Config name is required', life: 2500 });
             return;
         }
         if (!content.trim()) {
-            toast.current?.show({ severity: 'warn', summary: 'Hata', detail: 'Kubeconfig içeriği gerekli', life: 2500 });
+            toast.current?.show({ severity: 'warn', summary: 'Error', detail: 'Kubeconfig content is required', life: 2500 });
             return;
         }
         setSaving(true);
@@ -44,7 +44,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
         } catch (err: unknown) {
             toast.current?.show({
                 severity: 'error',
-                summary: 'Kayıt hatası',
+                summary: 'Save failed',
                 detail: String(err),
                 life: 4000,
             });
@@ -64,38 +64,38 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
                         <i className="pi pi-server" style={{ color: 'var(--monolith-primary)', fontSize: 16 }} />
-                        <span>{editingName ? 'Cluster Düzenle' : 'Cluster Ekle'}</span>
+                        <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
                     </div>
-                    <button className="cluster-modal__close" onClick={onClose} title="Kapat">
+                    <button className="cluster-modal__close" onClick={onClose} title="Close">
                         <i className="pi pi-times" />
                     </button>
                 </div>
 
                 <div className="cluster-modal__body">
                     <div className="cluster-modal__field">
-                        <label className="cluster-modal__label">Config Adı</label>
+                        <label className="cluster-modal__label">Config Name</label>
                         <InputText
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            placeholder="örn: production, staging, local"
+                            placeholder="e.g. production, staging, local"
                             disabled={!!editingName}
                             className="w-full"
                             autoFocus={!editingName}
                         />
                         {editingName && (
                             <small style={{ color: 'var(--monolith-on-surface-var)', fontSize: 11 }}>
-                                Mevcut config adı değiştirilemez
+                                Config name cannot be changed
                             </small>
                         )}
                     </div>
 
                     <div className="cluster-modal__field cluster-modal__field--grow">
-                        <label className="cluster-modal__label">Kubeconfig İçeriği</label>
+                        <label className="cluster-modal__label">Kubeconfig Content</label>
                         <textarea
                             className="cluster-modal__textarea"
                             value={content}
                             onChange={e => setContent(e.target.value)}
-                            placeholder="Kubeconfig YAML içeriğini buraya yapıştırın..."
+                            placeholder="Paste your kubeconfig YAML content here..."
                             spellCheck={false}
                             autoFocus={!!editingName}
                         />
@@ -104,7 +104,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
 
                 <div className="cluster-modal__footer">
                     <Button
-                        label="İptal"
+                        label="Cancel"
                         icon="pi pi-times"
                         text
                         severity="secondary"
@@ -112,7 +112,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                         disabled={saving}
                     />
                     <Button
-                        label="Kaydet"
+                        label="Save"
                         icon="pi pi-check"
                         loading={saving}
                         onClick={handleSave}

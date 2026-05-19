@@ -29,10 +29,10 @@ debugger
                 className="w-full md:w-14rem"
             />
 
-            {/* Seçilen değeri kontrol etmek istersen: */}
+            {/* To inspect selected value: */}
             {selectedItems && (
                 <div style={{ marginTop: '10px' }}>
-                    Seçilen Kod: <b>{selectedItems.code}</b>
+                    Selected Code: <b>{selectedItems.code}</b>
                 </div>
             )}
         </div>

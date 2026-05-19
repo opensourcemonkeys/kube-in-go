@@ -41,22 +41,97 @@ func GetDeploymentPods(namespace, name string, client *kubernetes.Clientset) ([]
 	if dep.Spec.Selector == nil {
 		return nil, fmt.Errorf("deployment %s/%s has no selector", namespace, name)
 	}
-	var parts []string
-	for k, v := range dep.Spec.Selector.MatchLabels {
-		parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+	return podsByLabelSelector(namespace, dep.Spec.Selector.MatchLabels, client)
+}
+
+func GetStatefulSetPods(namespace, name string, client *kubernetes.Clientset) ([]string, error) {
+	ss, err := client.AppsV1().StatefulSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
 	}
-	labelSelector := strings.Join(parts, ",")
+	if ss.Spec.Selector == nil {
+		return nil, fmt.Errorf("statefulset %s/%s has no selector", namespace, name)
+	}
+	return podsByLabelSelector(namespace, ss.Spec.Selector.MatchLabels, client)
+}
+
+func GetReplicaSetPods(namespace, name string, client *kubernetes.Clientset) ([]string, error) {
+	rs, err := client.AppsV1().ReplicaSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if rs.Spec.Selector == nil {
+		return nil, fmt.Errorf("replicaset %s/%s has no selector", namespace, name)
+	}
+	return podsByLabelSelector(namespace, rs.Spec.Selector.MatchLabels, client)
+}
+
+func GetDaemonSetPods(namespace, name string, client *kubernetes.Clientset) ([]string, error) {
+	ds, err := client.AppsV1().DaemonSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if ds.Spec.Selector == nil {
+		return nil, fmt.Errorf("daemonset %s/%s has no selector", namespace, name)
+	}
+	return podsByLabelSelector(namespace, ds.Spec.Selector.MatchLabels, client)
+}
+
+func GetJobPods(namespace, name string, client *kubernetes.Clientset) ([]string, error) {
 	pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
-		LabelSelector: labelSelector,
+		LabelSelector: "batch.kubernetes.io/job-name=" + name,
 	})
 	if err != nil {
 		return nil, err
 	}
-	podNames := make([]string, 0, len(pods.Items))
+	names := make([]string, 0, len(pods.Items))
 	for _, p := range pods.Items {
-		podNames = append(podNames, p.Name)
+		names = append(names, p.Name)
+	}
+	return names, nil
+}
+
+func GetCronJobPods(namespace, name string, client *kubernetes.Clientset) ([]string, error) {
+	jobs, err := client.BatchV1().Jobs(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	var podNames []string
+	for _, job := range jobs.Items {
+		for _, ref := range job.OwnerReferences {
+			if ref.Kind == "CronJob" && ref.Name == name {
+				jobPods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+					LabelSelector: "batch.kubernetes.io/job-name=" + job.Name,
+				})
+				if err != nil {
+					break
+				}
+				for _, p := range jobPods.Items {
+					podNames = append(podNames, p.Name)
+				}
+				break
+			}
+		}
 	}
 	return podNames, nil
+}
+
+func podsByLabelSelector(namespace string, matchLabels map[string]string, client *kubernetes.Clientset) ([]string, error) {
+	var parts []string
+	for k, v := range matchLabels {
+		parts = append(parts, fmt.Sprintf("%s=%s", k, v))
+	}
+	pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+		LabelSelector: strings.Join(parts, ","),
+	})
+	if err != nil {
+		return nil, err
+	}
+	names := make([]string, 0, len(pods.Items))
+	for _, p := range pods.Items {
+		names = append(names, p.Name)
+	}
+	return names, nil
 }
 
 func StartLogStream(sessionId, namespace, podName, container string, client *kubernetes.Clientset, onData func(string)) error {

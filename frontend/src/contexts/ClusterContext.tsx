@@ -47,7 +47,7 @@ export function ClusterProvider({ children }: { children: React.ReactNode }) {
         init();
     }, [refreshClusters]);
 
-    // Bağlantı sağlık kontrolü — aktif cluster varsa periyodik ping
+    // Connection health check — periodic ping if active cluster is set
     useEffect(() => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);

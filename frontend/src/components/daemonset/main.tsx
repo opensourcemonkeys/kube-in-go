@@ -29,7 +29,7 @@ export default function DaemonSetListComponent() {
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
-    const { openYamlPanel } = useTabContext();
+    const { openYamlPanel, openLogPanel } = useTabContext();
 
     const load = async () => {
         try {
@@ -128,8 +128,23 @@ export default function DaemonSetListComponent() {
                     style={{ minWidth: '12rem' }}
                     body={(row: models.DaemonSetInfo) => (
                         <Tag
-                            value={`${row.current_number_scheduled} cur / ${row.number_available} avail`}
+                            value={`${row.current_number_scheduled} current / ${row.number_available} available`}
                             severity={row.number_available === row.desired_number_scheduled ? 'success' : 'warning'}
+                        />
+                    )}
+                />
+                <Column
+                    header=""
+                    style={{ width: '4rem', textAlign: 'center' }}
+                    body={(row: models.DaemonSetInfo) => (
+                        <Button
+                            icon="pi pi-file-word"
+                            text
+                            size="small"
+                            severity="secondary"
+                            tooltip="View Logs"
+                            tooltipOptions={{ position: 'left' }}
+                            onClick={() => openLogPanel({ resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel: 'daemonsets' })}
                         />
                     )}
                 />

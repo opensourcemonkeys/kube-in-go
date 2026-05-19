@@ -6,14 +6,33 @@ import { EventsOn } from '../../../wailsjs/runtime/runtime';
 import {
     GetPodContainers,
     GetDeploymentPods,
+    GetStatefulSetPods,
+    GetReplicaSetPods,
+    GetDaemonSetPods,
+    GetJobPods,
+    GetCronJobPods,
     StartLogStream,
     StopLogStream,
 } from '../../../wailsjs/go/controller_app/App';
 
+export type WorkloadKind = 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob';
+
 export interface LogViewerPanelParams {
-    resourceKind: 'pod' | 'deployment';
+    resourceKind: WorkloadKind;
     name: string;
     namespace: string;
+}
+
+async function fetchPodsForKind(kind: WorkloadKind, name: string, namespace: string): Promise<string[]> {
+    switch (kind) {
+        case 'deployment':   return GetDeploymentPods(name, namespace);
+        case 'statefulset':  return GetStatefulSetPods(name, namespace);
+        case 'replicaset':   return GetReplicaSetPods(name, namespace);
+        case 'daemonset':    return GetDaemonSetPods(name, namespace);
+        case 'job':          return GetJobPods(name, namespace);
+        case 'cronjob':      return GetCronJobPods(name, namespace);
+        default:             return [];
+    }
 }
 
 const ALL_CONTAINERS = '';
@@ -49,18 +68,18 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
         sessionIdsRef.current = [];
     }, []);
 
-    // Load pods list for deployments; for pods use the name directly
+    // For pods use the name directly; for other workloads fetch pod list
     useEffect(() => {
-        if (resourceKind === 'deployment') {
-            GetDeploymentPods(name, namespace)
+        if (resourceKind === 'pod') {
+            setSelectedPod(name);
+        } else {
+            fetchPodsForKind(resourceKind, name, namespace)
                 .then(podNames => {
                     setPods(podNames);
                     if (podNames.length > 0) setSelectedPod(podNames[0]);
                     else setSelectedPod('');
                 })
                 .catch(() => setPods([]));
-        } else {
-            setSelectedPod(name);
         }
     }, [resourceKind, name, namespace]);
 
@@ -120,7 +139,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
                 <i className="pi pi-align-left" style={{ fontSize: '0.8rem' }} />
                 <span className="log-viewer-toolbar__label">Logs</span>
 
-                {resourceKind === 'deployment' && pods.length > 0 && (
+                {resourceKind !== 'pod' && pods.length > 0 && (
                     <Dropdown
                         value={selectedPod}
                         options={pods}
