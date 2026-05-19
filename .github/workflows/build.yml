@@ -31,20 +31,36 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build wails
-        uses: dAppServer/wails-build-action@v2.2
-        id: build
+      # 1. Install Go Lang
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          build-name: ${{ matrix.build.name }}
-          build-platform: ${{ matrix.build.platform }}
-          package: false
           go-version: '1.24'
 
+      # 2. Install Node.js (Required by Wails frontend)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Install Wails CLI dependencies on Linux (required for compilation)
+      - name: Install Linux Dependencies
+        if: matrix.build.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev
+
+      # 4. Install Wails CLI
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      # 5. Run the actual compilation safely without packaging wrappers
+      - name: Build Binary
+        run: wails build -platform ${{ matrix.build.platform }} -clean
+
+      # 6. Upload cleanly using official v4 uploader
       - name: Upload Binaries (v4 Fix)
         uses: actions/upload-artifact@v4
         with:
-          # Creates clean individual zip folders per platform (e.g. App-windows-amd64)
           name: ${{ matrix.build.name }}-${{ matrix.build.platform }}
-          # Points directly to Wails' default compilation output directory
           path: build/bin/
-          
