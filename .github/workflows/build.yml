@@ -70,6 +70,9 @@ jobs:
           path: dist/
           merge-multiple: false
 
+      - name: Make Linux Binary Executable
+        run: chmod +x dist/kube-ins-linux-amd64/kube-ins
+
       - name: Package Artifacts into ZIPs
         run: |
           cd dist
