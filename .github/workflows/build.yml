@@ -14,13 +14,13 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: 'App'
+          - name: 'App-linux-amd64'
             platform: 'linux/amd64'
             os: 'ubuntu-latest'
-          - name: 'App'
+          - name: 'App-windows-amd64'
             platform: 'windows/amd64'
             os: 'windows-latest'
-          - name: 'App'
+          - name: 'App-darwin-universal'
             platform: 'darwin/universal'
             os: 'macos-latest'
 
@@ -62,5 +62,5 @@ jobs:
       - name: Upload Binaries (v4 Fix)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.build.name }}-${{ matrix.build.platform }}
+          name: ${{ matrix.build.name }}
           path: build/bin/
