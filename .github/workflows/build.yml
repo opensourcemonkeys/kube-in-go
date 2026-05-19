@@ -39,3 +39,12 @@ jobs:
           build-platform: ${{ matrix.build.platform }}
           package: false
           go-version: '1.24'
+
+      - name: Upload Binaries (v4 Fix)
+        uses: actions/upload-artifact@v4
+        with:
+          # Creates clean individual zip folders per platform (e.g. App-windows-amd64)
+          name: ${{ matrix.build.name }}-${{ matrix.build.platform }}
+          # Points directly to Wails' default compilation output directory
+          path: build/bin/
+          
