@@ -17,12 +17,15 @@ jobs:
           - name: 'App-linux-amd64'
             platform: 'linux/amd64'
             os: 'ubuntu-22.04'
+            artifact_path: 'build/bin/*'
           - name: 'App-windows-amd64'
             platform: 'windows/amd64'
             os: 'windows-latest'
+            artifact_path: 'build/bin/*'
           - name: 'App-darwin-universal'
             platform: 'darwin/universal'
             os: 'macos-latest'
+            artifact_path: 'build/bin/*.dmg'
 
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -50,14 +53,20 @@ jobs:
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-      - name: Build Binary
-        run: wails build -platform ${{ matrix.build.platform }} -clean
+      - name: Build Binary & Package
+        run: |
+          if [ "${{ matrix.build.os }}" = "macos-latest" ]; then
+            wails build -platform ${{ matrix.build.platform }} -clean -package
+          else
+            wails build -platform ${{ matrix.build.platform }} -clean
+          fi
+        shell: bash
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.build.name }}
-          path: build/bin/
+          path: ${{ matrix.build.artifact_path }}
 
   release:
     runs-on: ubuntu-latest
@@ -71,12 +80,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: dist/
-          merge-multiple: false
+          merge-multiple: true
 
       - name: Create Release and Upload Artifacts
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
           body_path: CHANGELOG.md
-          working_directory: dist
-          files: "**/*"
+          files: "dist/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
