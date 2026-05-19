@@ -72,14 +72,14 @@ jobs:
         with:
           path: dist/
 
-      - name: Create Release
-        uses: Roang-zero1/github-create-release-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload Release Artifacts
         uses: Roang-zero1/github-upload-release-artifacts-action@v2
         with:
           args: dist/
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        uses: Roang-zero1/github-create-release-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
