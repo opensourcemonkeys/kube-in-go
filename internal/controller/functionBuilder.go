@@ -226,3 +226,27 @@ func (a *App) StartLogStream(sessionId string, podName string, namespace string,
 func (a *App) StopLogStream(sessionId string) {
 	bussiness.StopLogStream(sessionId)
 }
+
+func (a *App) GetAIConfig() (models.AIConfig, error) {
+	return bussiness.GetAIConfig()
+}
+
+func (a *App) SaveAIConfig(cfg models.AIConfig) error {
+	return bussiness.SaveAIConfig(cfg)
+}
+
+func (a *App) AskAssistant(message string, history []models.ChatMessage) (string, error) {
+	return bussiness.AskAssistant(message, history)
+}
+
+func (a *App) GetChatHistory() ([]models.ChatMessage, error) {
+	return bussiness.GetChatHistory()
+}
+
+func (a *App) SaveChatHistory(history []models.ChatMessage) error {
+	return bussiness.SaveChatHistory(history)
+}
+
+func (a *App) ClearChatHistory() error {
+	return bussiness.ClearChatHistory()
+}

@@ -2,6 +2,7 @@ import SideMenu from '../../components/menu/menu';
 import TitleBar from '../../components/titlebar/TitleBar';
 import DockviewContainer from '../../components/workspace/DockviewContainer';
 import ClusterBar from '../../components/cluster/ClusterBar';
+import AssistantPanel from '../../components/assistant/AssistantPanel';
 import { TabProvider } from '../../contexts/TabContext';
 import { ClusterProvider } from '../../contexts/ClusterContext';
 
@@ -40,6 +41,7 @@ function Appmain() {
                         </span>
                     </footer> */}
                 </div>
+                <AssistantPanel />
             </TabProvider>
         </ClusterProvider>
     );
