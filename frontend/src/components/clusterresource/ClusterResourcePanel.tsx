@@ -323,7 +323,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             {/* Toolbar */}
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-2">
-                    <i className="pi pi-sitemap" />
+                    <i className="pi pi-sitemap" />{' '}
                     Cluster Resource Graph
                 </span>
                 <div className="flex align-items-center gap-2">
@@ -347,21 +347,21 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             }}>
                 {Object.entries(KIND_CONFIG).map(([kind, cfg]) => (
                     <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: cfg.color }}>
-                        <i className={`pi ${cfg.icon}`} style={{ fontSize: 11 }} />
+                        <i className={`pi ${cfg.icon}`} style={{ fontSize: 11 }} />{' '}
                         {kind}
                     </span>
                 ))}
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: '#64748b' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#334155', display: 'inline-block' }} />
+                        <span style={{ width: 24, height: 2, background: '#334155', display: 'inline-block' }} />{' '}
                         owner
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#3b82f6', display: 'inline-block', borderTop: '2px dashed #3b82f6' }} />
+                        <span style={{ width: 24, height: 2, background: '#3b82f6', display: 'inline-block', borderTop: '2px dashed #3b82f6' }} />{' '}
                         selector
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#f97316', display: 'inline-block' }} />
+                        <span style={{ width: 24, height: 2, background: '#f97316', display: 'inline-block' }} />{' '}
                         ingress
                     </span>
                 </span>

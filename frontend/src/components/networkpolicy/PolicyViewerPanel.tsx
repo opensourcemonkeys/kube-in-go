@@ -156,7 +156,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             label: (
                 <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                        <i className="pi pi-box" style={{ marginRight: 6 }} />
+                        <i className="pi pi-box" style={{ marginRight: 6 }} />{' '}
                         Affected Pods
                     </div>
                     <div style={{ fontSize: 11 }}>{detail.pod_selector || '<all pods>'}</div>
@@ -192,7 +192,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <i className="pi pi-ban" style={{ marginRight: 6, color: '#ef4444' }} />
+                            <i className="pi pi-ban" style={{ marginRight: 6, color: '#ef4444' }} />{' '}
                             Deny All Ingress
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>All incoming traffic blocked</div>
@@ -226,7 +226,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <i className="pi pi-ban" style={{ marginRight: 6, color: '#ef4444' }} />
+                            <i className="pi pi-ban" style={{ marginRight: 6, color: '#ef4444' }} />{' '}
                             Deny All Egress
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>All outgoing traffic blocked</div>
@@ -263,7 +263,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                            <i className="pi pi-arrow-right" style={{ marginRight: 6 }} />
+                            <i className="pi pi-arrow-right" style={{ marginRight: 6 }} />{' '}
                             Ingress Rule {i + 1}
                         </div>
                         <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
@@ -274,7 +274,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
-                                        <i className="pi pi-ban" style={{ marginRight: 3, fontSize: 9 }} />
+                                        <i className="pi pi-ban" style={{ marginRight: 3, fontSize: 9 }} />{' '}
                                         except: {exc}
                                     </div>
                                 ))}
@@ -311,7 +311,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                            <i className="pi pi-arrow-left" style={{ marginRight: 6 }} />
+                            <i className="pi pi-arrow-left" style={{ marginRight: 6 }} />{' '}
                             Egress Rule {i + 1}
                         </div>
                         <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
@@ -322,7 +322,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
-                                        <i className="pi pi-ban" style={{ marginRight: 3, fontSize: 9 }} />
+                                        <i className="pi pi-ban" style={{ marginRight: 3, fontSize: 9 }} />{' '}
                                         except: {exc}
                                     </div>
                                 ))}
