@@ -98,22 +98,29 @@ func GetCronJobPods(namespace, name string, client *kubernetes.Clientset) ([]str
 	}
 	var podNames []string
 	for _, job := range jobs.Items {
-		for _, ref := range job.OwnerReferences {
-			if ref.Kind == "CronJob" && ref.Name == name {
-				jobPods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
-					LabelSelector: "batch.kubernetes.io/job-name=" + job.Name,
-				})
-				if err != nil {
-					break
-				}
-				for _, p := range jobPods.Items {
-					podNames = append(podNames, p.Name)
-				}
-				break
-			}
+		if !ownedByCronJob(job.OwnerReferences, name) {
+			continue
+		}
+		jobPods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+			LabelSelector: "batch.kubernetes.io/job-name=" + job.Name,
+		})
+		if err != nil {
+			continue
+		}
+		for _, p := range jobPods.Items {
+			podNames = append(podNames, p.Name)
 		}
 	}
 	return podNames, nil
+}
+
+func ownedByCronJob(refs []metav1.OwnerReference, cronJobName string) bool {
+	for _, ref := range refs {
+		if ref.Kind == "CronJob" && ref.Name == cronJobName {
+			return true
+		}
+	}
+	return false
 }
 
 func podsByLabelSelector(namespace string, matchLabels map[string]string, client *kubernetes.Clientset) ([]string, error) {
