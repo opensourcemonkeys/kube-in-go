@@ -71,6 +71,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                 role="dialog"
                 aria-modal="true"
                 aria-label={editingName ? 'Edit Cluster' : 'Add Cluster'}
+                tabIndex={-1}
                 onKeyDown={handleKeyDown}
             >
                 <div className="cluster-modal__header">
