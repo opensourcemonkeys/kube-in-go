@@ -26,14 +26,14 @@ func GetDeployments(namespace string, client *kubernetes.Clientset) ([]models.De
 
 func DeleteDeployment(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and deployment name are required")
+		return errNamespaceDeploymentRequired
 	}
 	return client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func GetDeploymentYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and deployment name are required")
+		return "", errNamespaceDeploymentRequired
 	}
 	d, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -48,7 +48,7 @@ func GetDeploymentYaml(namespace, name string, client *kubernetes.Clientset) (st
 
 func UpdateDeploymentYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and deployment name are required")
+		return errNamespaceDeploymentRequired
 	}
 
 	var deployment appsv1.Deployment
