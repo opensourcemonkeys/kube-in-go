@@ -137,7 +137,7 @@ export default function AssistantPanel() {
 
     const renderContent = (content: string) => {
         const parts = content.split(/(```[\s\S]*?```|`[^`]+`)/g).map((value, i) => ({
-            id: `${i}-${value.length}-${value.charCodeAt(0) || 0}`,
+            id: `${i}-${value.length}-${value.codePointAt(0) ?? 0}`,
             value,
         }));
         return parts.map(({ id, value }) => {
