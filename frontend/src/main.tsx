@@ -1,7 +1,7 @@
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import './style.css'
-import '/node_modules/primeflex/primeflex.css'
+import 'primeflex/primeflex.css'
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
@@ -12,10 +12,10 @@ const container = document.getElementById('root')
 const root = createRoot(container!)
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
-import '/node_modules/@fontsource/geist/400.css';
-import '/node_modules/@fontsource/geist/600.css';
-import '/node_modules/@fontsource/geist/700.css';
-import '/node_modules/@fontsource/jetbrains-mono/400.css';
+import '@fontsource/geist/400.css';
+import '@fontsource/geist/600.css';
+import '@fontsource/geist/700.css';
+import '@fontsource/jetbrains-mono/400.css';
 import './theme-monolith.css';
 
 // root.render(
