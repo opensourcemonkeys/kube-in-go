@@ -555,11 +555,9 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
             </div>
 
             {/* Divider */}
-            <div
-                role="separator"
+            <button
+                type="button"
                 aria-label="Resize divider"
-                aria-orientation="horizontal"
-                tabIndex={0}
                 onMouseDown={handleDividerMouseDown}
                 onKeyDown={handleDividerKeyDown}
                 style={{
@@ -571,10 +569,13 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                     alignItems: 'center',
                     justifyContent: 'center',
                     userSelect: 'none',
+                    border: 'none',
+                    padding: 0,
+                    width: '100%',
                 }}
             >
                 <div style={{ width: 40, height: 3, borderRadius: 2, background: 'var(--surface-400, #4a5568)' }} />
-            </div>
+            </button>
 
             {/* Bottom: YAML Editor */}
             <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
