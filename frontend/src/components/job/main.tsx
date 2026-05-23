@@ -8,7 +8,33 @@ import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetJobs, DeleteJob } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-import { useTabContext } from '../../contexts/TabContext';
+import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
+
+function JobStatusBody({ row }: { row: models.JobInfo }) {
+    return <Tag value={row.status} severity={getStatusSeverity(row.status)} />;
+}
+
+function JobCompletionsBody({ row }: { row: models.JobInfo }) {
+    return (
+        <Tag
+            value={`${row.succeeded} / ${row.completions}`}
+            severity={getCompletionSeverity(row.succeeded, row.completions, row.failed)}
+        />
+    );
+}
+
+function JobActionsBody({ row, onOpenLog }: { row: models.JobInfo; onOpenLog: (def: LogPanelDef) => void }) {
+    return (
+        <Button
+            icon="pi pi-list"
+            text
+            size="small"
+            severity="secondary"
+            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+            onClick={() => onOpenLog({ resourceKind: 'job', name: row.name, namespace: row.namespace, referencePanel: 'jobs' })}
+        />
+    );
+}
 
 const getStatusSeverity = (status: string): 'success' | 'warning' | 'danger' | 'info' | 'secondary' => {
     switch (status) {
@@ -183,21 +209,14 @@ export default function JobListComponent() {
                     filterPlaceholder="Search status"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
-                    body={(row: models.JobInfo) => (
-                        <Tag value={row.status} severity={getStatusSeverity(row.status)} />
-                    )}
+                    body={(row: models.JobInfo) => <JobStatusBody row={row} />}
                 />
                 <Column
                     header="Completions"
                     sortable
                     sortField="succeeded"
                     style={{ minWidth: '10rem' }}
-                    body={(row: models.JobInfo) => (
-                        <Tag
-                            value={`${row.succeeded} / ${row.completions}`}
-                            severity={getCompletionSeverity(row.succeeded, row.completions, row.failed)}
-                        />
-                    )}
+                    body={(row: models.JobInfo) => <JobCompletionsBody row={row} />}
                 />
                 <Column
                     field="active"
@@ -209,16 +228,7 @@ export default function JobListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.JobInfo) => (
-                        <Button
-                            icon="pi pi-list"
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({ resourceKind: 'job', name: row.name, namespace: row.namespace, referencePanel: 'jobs' })}
-                        />
-                    )}
+                    body={(row: models.JobInfo) => <JobActionsBody row={row} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

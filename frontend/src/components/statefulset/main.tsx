@@ -8,7 +8,33 @@ import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetStatefulSets, DeleteStatefulSet } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-import { useTabContext } from '../../contexts/TabContext';
+import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
+
+function StatefulSetReplicasBody({ row }: { row: models.StatefulSetInfo }) {
+    return <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />;
+}
+
+function StatefulSetUpdatedBody({ row }: { row: models.StatefulSetInfo }) {
+    return (
+        <Tag
+            value={`${row.current_replicas} current / ${row.updated_replicas} updated`}
+            severity={row.current_replicas === row.updated_replicas ? 'success' : 'warning'}
+        />
+    );
+}
+
+function StatefulSetActionsBody({ row, onOpenLog }: { row: models.StatefulSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
+    return (
+        <Button
+            icon="pi pi-list"
+            text
+            size="small"
+            severity="secondary"
+            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+            onClick={() => onOpenLog({ resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel: 'statefulsets' })}
+        />
+    );
+}
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -120,35 +146,19 @@ export default function StatefulSetListComponent() {
                     showFilterMenu={false}
                     dataType="numeric"
                     style={{ minWidth: '9rem' }}
-                    body={(row: models.StatefulSetInfo) => (
-                        <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />
-                    )}
+                    body={(row: models.StatefulSetInfo) => <StatefulSetReplicasBody row={row} />}
                 />
                 <Column
                     header="Updated"
                     sortable
                     sortField="updated_replicas"
                     style={{ minWidth: '8rem' }}
-                    body={(row: models.StatefulSetInfo) => (
-                        <Tag
-                            value={`${row.current_replicas} current / ${row.updated_replicas} updated`}
-                            severity={row.current_replicas === row.updated_replicas ? 'success' : 'warning'}
-                        />
-                    )}
+                    body={(row: models.StatefulSetInfo) => <StatefulSetUpdatedBody row={row} />}
                 />
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.StatefulSetInfo) => (
-                        <Button
-                            icon="pi pi-list"
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({ resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel: 'statefulsets' })}
-                        />
-                    )}
+                    body={(row: models.StatefulSetInfo) => <StatefulSetActionsBody row={row} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

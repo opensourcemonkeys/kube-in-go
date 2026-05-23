@@ -8,7 +8,29 @@ import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetCronJobs, DeleteCronJob } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-import { useTabContext } from '../../contexts/TabContext';
+import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
+
+function CronJobStatusBody({ row }: { row: models.CronJobInfo }) {
+    return (
+        <Tag
+            value={row.suspend ? 'Suspended' : 'Active'}
+            severity={row.suspend ? 'warning' : 'success'}
+        />
+    );
+}
+
+function CronJobActionsBody({ row, onOpenLog }: { row: models.CronJobInfo; onOpenLog: (def: LogPanelDef) => void }) {
+    return (
+        <Button
+            icon="pi pi-list"
+            text
+            size="small"
+            severity="secondary"
+            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+            onClick={() => onOpenLog({ resourceKind: 'cronjob', name: row.name, namespace: row.namespace, referencePanel: 'cronjobs' })}
+        />
+    );
+}
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -173,12 +195,7 @@ export default function CronJobListComponent() {
                     sortable
                     sortField="suspend"
                     style={{ minWidth: '8rem' }}
-                    body={(row: models.CronJobInfo) => (
-                        <Tag
-                            value={row.suspend ? 'Suspended' : 'Active'}
-                            severity={row.suspend ? 'warning' : 'success'}
-                        />
-                    )}
+                    body={(row: models.CronJobInfo) => <CronJobStatusBody row={row} />}
                 />
                 <Column
                     field="active_count"
@@ -190,16 +207,7 @@ export default function CronJobListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.CronJobInfo) => (
-                        <Button
-                            icon="pi pi-list"
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({ resourceKind: 'cronjob', name: row.name, namespace: row.namespace, referencePanel: 'cronjobs' })}
-                        />
-                    )}
+                    body={(row: models.CronJobInfo) => <CronJobActionsBody row={row} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

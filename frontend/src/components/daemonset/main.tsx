@@ -8,7 +8,38 @@ import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetDaemonSets, DeleteDaemonSet } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-import { useTabContext } from '../../contexts/TabContext';
+import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
+
+function DaemonSetDesiredBody({ row }: { row: models.DaemonSetInfo }) {
+    return (
+        <Tag
+            value={`${row.number_ready} / ${row.desired_number_scheduled}`}
+            severity={getReadySeverity(row.number_ready, row.desired_number_scheduled)}
+        />
+    );
+}
+
+function DaemonSetCurrentBody({ row }: { row: models.DaemonSetInfo }) {
+    return (
+        <Tag
+            value={`${row.current_number_scheduled} current / ${row.number_available} available`}
+            severity={row.number_available === row.desired_number_scheduled ? 'success' : 'warning'}
+        />
+    );
+}
+
+function DaemonSetActionsBody({ row, onOpenLog }: { row: models.DaemonSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
+    return (
+        <Button
+            icon="pi pi-list"
+            text
+            size="small"
+            severity="secondary"
+            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+            onClick={() => onOpenLog({ resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel: 'daemonsets' })}
+        />
+    );
+}
 
 const getReadySeverity = (ready: number, desired: number): 'success' | 'warning' | 'danger' => {
     if (desired === 0) return 'warning';
@@ -114,38 +145,19 @@ export default function DaemonSetListComponent() {
                     sortable
                     sortField="desired_number_scheduled"
                     style={{ minWidth: '11rem' }}
-                    body={(row: models.DaemonSetInfo) => (
-                        <Tag
-                            value={`${row.number_ready} / ${row.desired_number_scheduled}`}
-                            severity={getReadySeverity(row.number_ready, row.desired_number_scheduled)}
-                        />
-                    )}
+                    body={(row: models.DaemonSetInfo) => <DaemonSetDesiredBody row={row} />}
                 />
                 <Column
                     header="Current / Available"
                     sortable
                     sortField="current_number_scheduled"
                     style={{ minWidth: '12rem' }}
-                    body={(row: models.DaemonSetInfo) => (
-                        <Tag
-                            value={`${row.current_number_scheduled} current / ${row.number_available} available`}
-                            severity={row.number_available === row.desired_number_scheduled ? 'success' : 'warning'}
-                        />
-                    )}
+                    body={(row: models.DaemonSetInfo) => <DaemonSetCurrentBody row={row} />}
                 />
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.DaemonSetInfo) => (
-                        <Button
-                            icon="pi pi-list"
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({ resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel: 'daemonsets' })}
-                        />
-                    )}
+                    body={(row: models.DaemonSetInfo) => <DaemonSetActionsBody row={row} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

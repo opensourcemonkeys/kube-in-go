@@ -8,7 +8,28 @@ import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetReplicaSets, DeleteReplicaSet } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-import { useTabContext } from '../../contexts/TabContext';
+import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
+
+function ReplicaSetReplicasBody({ row }: { row: models.ReplicaSetInfo }) {
+    return <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />;
+}
+
+function ReplicaSetAvailableBody({ row }: { row: models.ReplicaSetInfo }) {
+    return <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />;
+}
+
+function ReplicaSetActionsBody({ row, onOpenLog }: { row: models.ReplicaSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
+    return (
+        <Button
+            icon="pi pi-list"
+            text
+            size="small"
+            severity="secondary"
+            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+            onClick={() => onOpenLog({ resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel: 'replicasets' })}
+        />
+    );
+}
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -120,32 +141,19 @@ export default function ReplicaSetListComponent() {
                     showFilterMenu={false}
                     dataType="numeric"
                     style={{ minWidth: '9rem' }}
-                    body={(row: models.ReplicaSetInfo) => (
-                        <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />
-                    )}
+                    body={(row: models.ReplicaSetInfo) => <ReplicaSetReplicasBody row={row} />}
                 />
                 <Column
                     header="Available"
                     sortable
                     sortField="available_replicas"
                     style={{ minWidth: '8rem' }}
-                    body={(row: models.ReplicaSetInfo) => (
-                        <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />
-                    )}
+                    body={(row: models.ReplicaSetInfo) => <ReplicaSetAvailableBody row={row} />}
                 />
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.ReplicaSetInfo) => (
-                        <Button
-                            icon="pi pi-list"
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({ resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel: 'replicasets' })}
-                        />
-                    )}
+                    body={(row: models.ReplicaSetInfo) => <ReplicaSetActionsBody row={row} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

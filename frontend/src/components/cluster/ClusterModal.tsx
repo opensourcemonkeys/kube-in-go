@@ -64,8 +64,6 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
     return (
         <div
             className="cluster-modal-overlay"
-            role="presentation"
-            tabIndex={-1}
             onClick={handleOverlayClick}
             onKeyDown={handleOverlayKeyDown}
         >
