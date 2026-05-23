@@ -12,6 +12,9 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+const allPodsSelector = "<all pods>"
+const allNamespacesSelector = "<all namespaces>"
+
 func DeleteNetworkPolicy(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return fmt.Errorf("namespace and name are required")
@@ -120,7 +123,7 @@ func networkPolicyToInfo(p networkingv1.NetworkPolicy) models.NetworkPolicyInfo 
 
 func labelsMapToString(labels map[string]string) string {
 	if len(labels) == 0 {
-		return "<all pods>"
+		return allPodsSelector
 	}
 	parts := make([]string, 0, len(labels))
 	for k, v := range labels {
@@ -156,7 +159,7 @@ func ingressRuleToInfo(rule networkingv1.NetworkPolicyIngressRule) models.Networ
 		info.Peers = append(info.Peers, peer)
 	}
 	if len(rule.From) == 0 {
-		info.Peers = []models.NetworkPolicyPeer{{NamespaceSelector: "<all namespaces>", PodSelector: "<all pods>"}}
+		info.Peers = []models.NetworkPolicyPeer{{NamespaceSelector: allNamespacesSelector, PodSelector: allPodsSelector}}
 	}
 	return info
 }
@@ -180,7 +183,7 @@ func egressRuleToInfo(rule networkingv1.NetworkPolicyEgressRule) models.NetworkP
 		info.Peers = append(info.Peers, peer)
 	}
 	if len(rule.To) == 0 {
-		info.Peers = []models.NetworkPolicyPeer{{NamespaceSelector: "<all namespaces>", PodSelector: "<all pods>"}}
+		info.Peers = []models.NetworkPolicyPeer{{NamespaceSelector: allNamespacesSelector, PodSelector: allPodsSelector}}
 	}
 	return info
 }
