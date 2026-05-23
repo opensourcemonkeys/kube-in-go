@@ -66,7 +66,7 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
 
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <i className="pi pi-upload" />
+                    <i className="pi pi-upload" />{' '}
                     YAML Editor
                 </span>
                 <div className="flex align-items-center gap-1 flex-shrink-0">

@@ -106,11 +106,11 @@ export default function ClusterBar() {
 
                 <div className="cluster-bar__workspace-btns">
                     <button className="cluster-bar__ws-btn" onClick={openApplyYaml} title="YAML Editor">
-                        <i className="pi pi-upload" />
+                        <i className="pi pi-upload" />{' '}
                         <span>YAML Editor</span>
                     </button>
                     <button className="cluster-bar__ws-btn" onClick={openTerminal} title="Terminal">
-                        <i className="pi pi-terminal" />
+                        <i className="pi pi-terminal" />{' '}
                         <span>Terminal</span>
                     </button>
                 </div>
