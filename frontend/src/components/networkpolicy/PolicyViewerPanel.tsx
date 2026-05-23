@@ -400,6 +400,16 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
         e.preventDefault();
     }, []);
 
+    const handleDividerKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSplitPct((prev) => Math.max(prev - 2, 20));
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSplitPct((prev) => Math.min(prev + 2, 80));
+        }
+    }, []);
+
     useEffect(() => {
         const onMove = (e: MouseEvent) => {
             if (!isDragging.current || !containerRef.current) return;
@@ -546,7 +556,12 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
 
             {/* Divider */}
             <div
+                role="separator"
+                aria-label="Resize divider"
+                aria-orientation="horizontal"
+                tabIndex={0}
                 onMouseDown={handleDividerMouseDown}
+                onKeyDown={handleDividerKeyDown}
                 style={{
                     flexShrink: 0,
                     height: 6,

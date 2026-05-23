@@ -17,7 +17,14 @@ function TitleBar() {
     return (
         <div className="tb-root">
             {/* Draggable region */}
-            <div className="tb-drag" onDoubleClick={handleMaximise}>
+            <div
+                className="tb-drag"
+                role="button"
+                aria-label="Title bar – press Enter to toggle maximise"
+                tabIndex={0}
+                onDoubleClick={handleMaximise}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMaximise(); } }}
+            >
                 <img className="tb-logo" src={logoImg} alt="kube-ins" />
                 <span className="tb-title">kube-ins</span>
             </div>
