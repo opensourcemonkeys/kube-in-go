@@ -270,7 +270,9 @@ function buildFlow(graph: ClusterGraph): { nodes: Node[]; edges: Edge[] } {
     const edges: Edge[] = graph.edges.map(e => {
         const isSelector = e.kind === 'selector';
         const isIngress  = e.kind === 'ingress';
-        const color = isSelector ? '#3b82f6' : isIngress ? '#f97316' : '#475569';
+        let color = '#475569';
+        if (isSelector) color = '#3b82f6';
+        else if (isIngress) color = '#f97316';
         return {
             id: e.id,
             source: e.source,

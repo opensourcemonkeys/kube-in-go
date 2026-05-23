@@ -53,10 +53,6 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (e.key === 'Escape') onClose();
-    };
-
     return (
         <div className="cluster-modal-overlay">
             <button
@@ -66,13 +62,11 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                 onClick={onClose}
             />
             <Toast ref={toast} position="bottom-right" />
-            <div
+            <dialog
                 className="cluster-modal"
-                role="dialog"
-                aria-modal="true"
                 aria-label={editingName ? 'Edit Cluster' : 'Add Cluster'}
-                tabIndex={-1}
-                onKeyDown={handleKeyDown}
+                open
+                onCancel={onClose}
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
@@ -133,7 +127,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                         onClick={handleSave}
                     />
                 </div>
-            </div>
+            </dialog>
         </div>
     );
 }
