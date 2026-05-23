@@ -1001,6 +1001,21 @@ h1, h2, h3, h4, h5, h6,
   padding: 24px;
 }
 
+.cluster-modal-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: default;
+  z-index: 0;
+}
+
+.cluster-modal {
+  position: relative;
+  z-index: 1;
+}
+
 .cluster-modal {
   display: flex;
   flex-direction: column;

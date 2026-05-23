@@ -53,22 +53,26 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
         }
     };
 
-    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) onClose();
-    };
-
-    const handleOverlayKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (e.key === 'Escape') onClose();
     };
 
     return (
-        <div
-            className="cluster-modal-overlay"
-            onClick={handleOverlayClick}
-            onKeyDown={handleOverlayKeyDown}
-        >
+        <div className="cluster-modal-overlay">
+            <button
+                type="button"
+                className="cluster-modal-overlay__backdrop"
+                aria-label="Close modal"
+                onClick={onClose}
+            />
             <Toast ref={toast} position="bottom-right" />
-            <div className="cluster-modal">
+            <div
+                className="cluster-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label={editingName ? 'Edit Cluster' : 'Add Cluster'}
+                onKeyDown={handleKeyDown}
+            >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
                         <i className="pi pi-server" style={{ color: 'var(--monolith-primary)', fontSize: 16 }} />
