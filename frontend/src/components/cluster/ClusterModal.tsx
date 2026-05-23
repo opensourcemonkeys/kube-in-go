@@ -57,8 +57,18 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
         if (e.target === e.currentTarget) onClose();
     };
 
+    const handleOverlayKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Escape') onClose();
+    };
+
     return (
-        <div className="cluster-modal-overlay" onClick={handleOverlayClick}>
+        <div
+            className="cluster-modal-overlay"
+            role="presentation"
+            tabIndex={-1}
+            onClick={handleOverlayClick}
+            onKeyDown={handleOverlayKeyDown}
+        >
             <Toast ref={toast} position="bottom-right" />
             <div className="cluster-modal">
                 <div className="cluster-modal__header">
@@ -73,8 +83,9 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
 
                 <div className="cluster-modal__body">
                     <div className="cluster-modal__field">
-                        <label className="cluster-modal__label">Config Name</label>
+                        <label htmlFor="cluster-config-name" className="cluster-modal__label">Config Name</label>
                         <InputText
+                            id="cluster-config-name"
                             value={name}
                             onChange={e => setName(e.target.value)}
                             placeholder="e.g. production, staging, local"
@@ -90,8 +101,9 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                     </div>
 
                     <div className="cluster-modal__field cluster-modal__field--grow">
-                        <label className="cluster-modal__label">Kubeconfig Content</label>
+                        <label htmlFor="cluster-kubeconfig-content" className="cluster-modal__label">Kubeconfig Content</label>
                         <textarea
+                            id="cluster-kubeconfig-content"
                             className="cluster-modal__textarea"
                             value={content}
                             onChange={e => setContent(e.target.value)}

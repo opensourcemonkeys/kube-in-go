@@ -277,8 +277,9 @@ export default function AssistantPanel() {
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', padding: '0.5rem 0' }}>
                     <div>
-                        <label style={styles.label}>Provider</label>
+                        <label htmlFor="settings-provider" style={styles.label}>Provider</label>
                         <Dropdown
+                            inputId="settings-provider"
                             value={provider}
                             options={PROVIDER_OPTIONS}
                             onChange={(e) => setProvider(e.value)}
@@ -286,8 +287,9 @@ export default function AssistantPanel() {
                         />
                     </div>
                     <div>
-                        <label style={styles.label}>Anthropic API Key</label>
+                        <label htmlFor="settings-anthropic-key" style={styles.label}>Anthropic API Key</label>
                         <InputText
+                            id="settings-anthropic-key"
                             value={anthropicKey}
                             onChange={(e) => setAnthropicKey(e.target.value)}
                             placeholder="sk-ant-..."
@@ -296,8 +298,9 @@ export default function AssistantPanel() {
                         />
                     </div>
                     <div>
-                        <label style={styles.label}>OpenAI API Key</label>
+                        <label htmlFor="settings-openai-key" style={styles.label}>OpenAI API Key</label>
                         <InputText
+                            id="settings-openai-key"
                             value={openaiKey}
                             onChange={(e) => setOpenaiKey(e.target.value)}
                             placeholder="sk-..."
