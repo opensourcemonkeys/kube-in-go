@@ -16,6 +16,7 @@ import {
 import { models } from '../../../wailsjs/go/models';
 
 interface Message {
+    id: string;
     role: 'user' | 'assistant';
     content: string;
     time: string;
@@ -41,7 +42,7 @@ export default function AssistantPanel() {
     useEffect(() => {
         GetChatHistory().then((history) => {
             if (history && history.length > 0) {
-                setMessages(history as Message[]);
+                setMessages((history as Omit<Message, 'id'>[]).map((m) => ({ ...m, id: `${m.role}-${m.time}` })));
             }
         }).catch(() => {});
 
@@ -60,7 +61,7 @@ export default function AssistantPanel() {
         const text = input.trim();
         if (!text || loading) return;
 
-        const userMsg: Message = { role: 'user', content: text, time: new Date().toISOString() };
+        const userMsg: Message = { id: crypto.randomUUID(), role: 'user', content: text, time: new Date().toISOString() };
         const nextMessages = [...messages, userMsg];
         setMessages(nextMessages);
         setInput('');
@@ -72,6 +73,7 @@ export default function AssistantPanel() {
             );
             const reply = await AskAssistant(text, history.slice(0, -1));
             const assistantMsg: Message = {
+                id: crypto.randomUUID(),
                 role: 'assistant',
                 content: reply,
                 time: new Date().toISOString(),
@@ -134,24 +136,26 @@ export default function AssistantPanel() {
     };
 
     const renderContent = (content: string) => {
-        // Basic markdown: code blocks and inline code
-        const parts = content.split(/(```[\s\S]*?```|`[^`]+`)/g);
-        return parts.map((part, i) => {
-            if (part.startsWith('```') && part.endsWith('```')) {
-                const lines = part.slice(3, -3).split('\n');
+        const parts = content.split(/(```[\s\S]*?```|`[^`]+`)/g).map((value, i) => ({
+            id: `${i}-${value.length}-${value.charCodeAt(0) || 0}`,
+            value,
+        }));
+        return parts.map(({ id, value }) => {
+            if (value.startsWith('```') && value.endsWith('```')) {
+                const lines = value.slice(3, -3).split('\n');
                 const lang = lines[0];
                 const code = lines.slice(1).join('\n');
                 return (
-                    <pre key={i} style={styles.codeBlock}>
+                    <pre key={id} style={styles.codeBlock}>
                         {lang && <span style={styles.codeLang}>{lang}</span>}
                         <code>{code}</code>
                     </pre>
                 );
             }
-            if (part.startsWith('`') && part.endsWith('`')) {
-                return <code key={i} style={styles.inlineCode}>{part.slice(1, -1)}</code>;
+            if (value.startsWith('`') && value.endsWith('`')) {
+                return <code key={id} style={styles.inlineCode}>{value.slice(1, -1)}</code>;
             }
-            return <span key={i}>{part}</span>;
+            return <span key={id}>{value}</span>;
         });
     };
 
@@ -219,8 +223,8 @@ export default function AssistantPanel() {
                                 </p>
                             </div>
                         )}
-                        {messages.map((msg, idx) => (
-                            <div key={idx} style={msg.role === 'user' ? styles.userRow : styles.assistantRow}>
+                        {messages.map((msg) => (
+                            <div key={msg.id} style={msg.role === 'user' ? styles.userRow : styles.assistantRow}>
                                 <div style={msg.role === 'user' ? styles.userBubble : styles.assistantBubble}>
                                     <div style={styles.bubbleContent}>{renderContent(msg.content)}</div>
                                     <div style={styles.bubbleTime}>{formatTime(msg.time)}</div>
