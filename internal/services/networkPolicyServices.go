@@ -17,7 +17,7 @@ const allNamespacesSelector = "<all namespaces>"
 
 func DeleteNetworkPolicy(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	return client.NetworkingV1().NetworkPolicies(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
@@ -57,7 +57,7 @@ func GetNetworkPolicies(namespace string, client *kubernetes.Clientset) ([]model
 
 func GetNetworkPolicyYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and name are required")
+		return "", errNamespaceNameRequired
 	}
 	p, err := client.NetworkingV1().NetworkPolicies(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -72,7 +72,7 @@ func GetNetworkPolicyYaml(namespace, name string, client *kubernetes.Clientset) 
 
 func UpdateNetworkPolicyYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	var policy networkingv1.NetworkPolicy
 	if err := yaml.Unmarshal([]byte(yamlContent), &policy); err != nil {
@@ -86,7 +86,7 @@ func UpdateNetworkPolicyYaml(namespace, name, yamlContent string, client *kubern
 
 func GetNetworkPolicyDetail(namespace, name string, client *kubernetes.Clientset) (*models.NetworkPolicyDetail, error) {
 	if namespace == "" || name == "" {
-		return nil, fmt.Errorf("namespace and name are required")
+		return nil, errNamespaceNameRequired
 	}
 	p, err := client.NetworkingV1().NetworkPolicies(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {

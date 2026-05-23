@@ -2,7 +2,6 @@ package services_k8sclient
 
 import (
 	"context"
-	"fmt"
 	"kube-ins/internal/models"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -26,7 +25,7 @@ func GetJobs(namespace string, client *kubernetes.Clientset) ([]models.JobInfo, 
 
 func DeleteJob(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	propagation := metav1.DeletePropagationBackground
 	return client.BatchV1().Jobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{
@@ -36,7 +35,7 @@ func DeleteJob(namespace, name string, client *kubernetes.Clientset) error {
 
 func GetJobYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and name are required")
+		return "", errNamespaceNameRequired
 	}
 	j, err := client.BatchV1().Jobs(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {

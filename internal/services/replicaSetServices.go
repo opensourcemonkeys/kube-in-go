@@ -26,14 +26,14 @@ func GetReplicaSets(namespace string, client *kubernetes.Clientset) ([]models.Re
 
 func DeleteReplicaSet(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	return client.AppsV1().ReplicaSets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func GetReplicaSetYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and name are required")
+		return "", errNamespaceNameRequired
 	}
 	r, err := client.AppsV1().ReplicaSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -48,7 +48,7 @@ func GetReplicaSetYaml(namespace, name string, client *kubernetes.Clientset) (st
 
 func UpdateReplicaSetYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 
 	var rs appsv1.ReplicaSet

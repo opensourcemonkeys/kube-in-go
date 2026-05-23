@@ -26,14 +26,14 @@ func GetDaemonSets(namespace string, client *kubernetes.Clientset) ([]models.Dae
 
 func DeleteDaemonSet(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	return client.AppsV1().DaemonSets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func GetDaemonSetYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and name are required")
+		return "", errNamespaceNameRequired
 	}
 	d, err := client.AppsV1().DaemonSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -48,7 +48,7 @@ func GetDaemonSetYaml(namespace, name string, client *kubernetes.Clientset) (str
 
 func UpdateDaemonSetYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 
 	var ds appsv1.DaemonSet

@@ -27,7 +27,7 @@ func GetCronJobs(namespace string, client *kubernetes.Clientset) ([]models.CronJ
 
 func DeleteCronJob(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	propagation := metav1.DeletePropagationBackground
 	return client.BatchV1().CronJobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{
@@ -37,7 +37,7 @@ func DeleteCronJob(namespace, name string, client *kubernetes.Clientset) error {
 
 func GetCronJobYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and name are required")
+		return "", errNamespaceNameRequired
 	}
 	cj, err := client.BatchV1().CronJobs(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -52,7 +52,7 @@ func GetCronJobYaml(namespace, name string, client *kubernetes.Clientset) (strin
 
 func UpdateCronJobYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 
 	var cj batchv1.CronJob

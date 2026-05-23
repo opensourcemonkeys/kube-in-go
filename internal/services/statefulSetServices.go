@@ -26,14 +26,14 @@ func GetStatefulSets(namespace string, client *kubernetes.Clientset) ([]models.S
 
 func DeleteStatefulSet(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 	return client.AppsV1().StatefulSets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func GetStatefulSetYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
-		return "", fmt.Errorf("namespace and name are required")
+		return "", errNamespaceNameRequired
 	}
 	s, err := client.AppsV1().StatefulSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
@@ -48,7 +48,7 @@ func GetStatefulSetYaml(namespace, name string, client *kubernetes.Clientset) (s
 
 func UpdateStatefulSetYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
-		return fmt.Errorf("namespace and name are required")
+		return errNamespaceNameRequired
 	}
 
 	var ss appsv1.StatefulSet
