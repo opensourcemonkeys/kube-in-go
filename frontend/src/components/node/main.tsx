@@ -303,21 +303,9 @@ export default function NodeListComponent() {
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toast} position="bottom-right" />
 
-            {/* Summary bar */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '0.75rem 1rem',
-                borderBottom: '1px solid var(--surface-border)',
-                flexShrink: 0,
-            }}>
-                <h3 style={{ margin: 0 }}>Nodes</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
+                <h3 style={{ margin: 0 }}>Node List</h3>
                 <Tag value={`${readyCount} / ${nodes.length} Ready`} severity={readyCount === nodes.length && nodes.length > 0 ? 'success' : 'warning'} />
-                <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: 'var(--text-color-secondary)' }}>
-                    <i className="pi pi-refresh" style={{ marginRight: '0.3rem' }} />
-                    Updates every 3 seconds
-                </span>
             </div>
 
             {/* Node list */}

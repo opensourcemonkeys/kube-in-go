@@ -114,37 +114,34 @@ export default function CronJobListComponent() {
         </div>
     );
 
-    const tableHeader = (
-        <div className="flex justify-content-between align-items-center gap-2" style={{ overflow: 'hidden' }}>
-            <h3 className="m-0" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>CronJob List</h3>
-            <div className="flex gap-2" style={{ flexShrink: 0 }}>
-                <Button
-                    icon="pi pi-filter-slash"
-                    text
-                    severity="secondary"
-                    onClick={() => setFilters(defaultFilters)}
-                    tooltip="Clear filters"
-                    tooltipOptions={{ position: 'left' }}
-                />
-                <Button
-                    label="Delete Selected"
-                    icon="pi pi-trash"
-                    severity="danger"
-                    onClick={openDeleteDialog}
-                    disabled={selectedCronJobs.length === 0 || deleting}
-                />
-            </div>
-        </div>
-    );
-
     return (
-        <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toast} position="bottom-right" />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
+                <h3 style={{ margin: 0 }}>CronJob List</h3>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+                    <Button
+                        icon="pi pi-filter-slash"
+                        text
+                        severity="secondary"
+                        onClick={() => setFilters(defaultFilters)}
+                        tooltip="Clear filters"
+                        tooltipOptions={{ position: 'left' }}
+                    />
+                    <Button
+                        label="Delete Selected"
+                        icon="pi pi-trash"
+                        severity="danger"
+                        onClick={openDeleteDialog}
+                        disabled={selectedCronJobs.length === 0 || deleting}
+                    />
+                </div>
+            </div>
 
             <DataTable
                 value={cronJobs}
                 dataKey="name"
-                header={tableHeader}
                 selectionMode="multiple"
                 selection={selectedCronJobs}
                 onSelectionChange={(e) => setSelectedCronJobs(Array.isArray(e.value) ? e.value : [])}

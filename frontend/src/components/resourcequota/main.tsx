@@ -196,15 +196,7 @@ export default function ResourceQuotaListComponent() {
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toast} position="bottom-right" />
 
-            {/* Toolbar */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '0.6rem 1rem',
-                borderBottom: '1px solid var(--surface-border)',
-                flexShrink: 0,
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0 }}>Resource Quotas</h3>
                 <Tag value={`${totalQuotas} quota · ${filtered.length} namespace`} severity="info" />
                 <InputText
