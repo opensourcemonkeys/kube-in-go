@@ -13,15 +13,17 @@ import {
     GetDaemonSetYaml, UpdateDaemonSetYaml,
     GetJobYaml,
     GetCronJobYaml, UpdateCronJobYaml,
+    GetConfigMapYaml, UpdateConfigMapYaml,
+    GetSecretYaml, UpdateSecretYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'configmap' | 'secret';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'configmap', 'secret'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -50,6 +52,10 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetJobYaml(name, namespace);
                 } else if (resourceKind === 'cronjob') {
                     result = await GetCronJobYaml(name, namespace);
+                } else if (resourceKind === 'configmap') {
+                    result = await GetConfigMapYaml(name, namespace);
+                } else if (resourceKind === 'secret') {
+                    result = await GetSecretYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -84,6 +90,10 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateDaemonSetYaml(name, namespace, value);
             } else if (resourceKind === 'cronjob') {
                 await UpdateCronJobYaml(name, namespace, value);
+            } else if (resourceKind === 'configmap') {
+                await UpdateConfigMapYaml(name, namespace, value);
+            } else if (resourceKind === 'secret') {
+                await UpdateSecretYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

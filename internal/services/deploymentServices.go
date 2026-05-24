@@ -39,11 +39,7 @@ func GetDeploymentYaml(namespace, name string, client *kubernetes.Clientset) (st
 	if err != nil {
 		return "", err
 	}
-	yamlBytes, err := yaml.Marshal(d)
-	if err != nil {
-		return "", err
-	}
-	return string(yamlBytes), nil
+	return toApplyYaml(d)
 }
 
 func UpdateDeploymentYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {

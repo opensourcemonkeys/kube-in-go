@@ -39,11 +39,7 @@ func GetStatefulSetYaml(namespace, name string, client *kubernetes.Clientset) (s
 	if err != nil {
 		return "", err
 	}
-	yamlBytes, err := yaml.Marshal(s)
-	if err != nil {
-		return "", err
-	}
-	return string(yamlBytes), nil
+	return toApplyYaml(s)
 }
 
 func UpdateStatefulSetYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {

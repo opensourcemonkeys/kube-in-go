@@ -43,11 +43,7 @@ func GetCronJobYaml(namespace, name string, client *kubernetes.Clientset) (strin
 	if err != nil {
 		return "", err
 	}
-	yamlBytes, err := yaml.Marshal(cj)
-	if err != nil {
-		return "", err
-	}
-	return string(yamlBytes), nil
+	return toApplyYaml(cj)
 }
 
 func UpdateCronJobYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {

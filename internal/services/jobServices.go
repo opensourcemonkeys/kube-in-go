@@ -7,7 +7,6 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/yaml"
 )
 
 func GetJobs(namespace string, client *kubernetes.Clientset) ([]models.JobInfo, error) {
@@ -41,11 +40,7 @@ func GetJobYaml(namespace, name string, client *kubernetes.Clientset) (string, e
 	if err != nil {
 		return "", err
 	}
-	yamlBytes, err := yaml.Marshal(j)
-	if err != nil {
-		return "", err
-	}
-	return string(yamlBytes), nil
+	return toApplyYaml(j)
 }
 
 func jobToInfo(j batchv1.Job) models.JobInfo {

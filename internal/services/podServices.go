@@ -8,7 +8,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"sigs.k8s.io/yaml"
 )
 
 func GetPods(namespace string, repoK8sClient *kubernetes.Clientset) ([]models.PodInfo, error) {
@@ -44,12 +43,7 @@ func GetPodYaml(namespace string, name string, repoK8sClient *kubernetes.Clients
 		return "", err
 	}
 
-	yamlBytes, err := yaml.Marshal(pod)
-	if err != nil {
-		return "", err
-	}
-
-	return string(yamlBytes), nil
+	return toApplyYaml(pod)
 }
 
 func podToInfo(pod corev1.Pod) models.PodInfo {

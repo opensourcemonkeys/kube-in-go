@@ -8,6 +8,8 @@ import ApplyYamlPanel from './ApplyYamlPanel';
 import LogViewerPanel from '../logs/LogViewerPanel';
 import PolicyViewerPanel from '../networkpolicy/PolicyViewerPanel';
 import ClusterResourcePanel from '../clusterresource/ClusterResourcePanel';
+import ConfigMapEditorPanel from '../configmap/ConfigMapEditorPanel';
+import SecretEditorPanel from '../secret/SecretEditorPanel';
 
 const components = {
     view: ViewPanel,
@@ -17,6 +19,8 @@ const components = {
     logViewer: LogViewerPanel,
     policyViewer: PolicyViewerPanel,
     clusterResource: ClusterResourcePanel,
+    configMapEditor: ConfigMapEditorPanel,
+    secretEditor: SecretEditorPanel,
 };
 
 export default function DockviewContainer() {

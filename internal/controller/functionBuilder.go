@@ -111,6 +111,54 @@ func (a *App) UpdateCronJobYaml(name string, namespace string, yamlContent strin
 	return bussiness.UpdateCronJobYaml(name, namespace, yamlContent)
 }
 
+func (a *App) GetSecrets() []models.SecretInfo {
+	return bussiness.GetSecrets()
+}
+
+func (a *App) DeleteSecret(name string, namespace string) error {
+	return bussiness.DeleteSecret(name, namespace)
+}
+
+func (a *App) GetSecretYaml(name string, namespace string) (string, error) {
+	return bussiness.GetSecretYaml(name, namespace)
+}
+
+func (a *App) UpdateSecretYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateSecretYaml(name, namespace, yamlContent)
+}
+
+func (a *App) GetSecretData(name string, namespace string) (map[string]string, error) {
+	return bussiness.GetSecretData(name, namespace)
+}
+
+func (a *App) UpdateSecretData(name string, namespace string, data map[string]string) error {
+	return bussiness.UpdateSecretData(name, namespace, data)
+}
+
+func (a *App) GetConfigMaps() []models.ConfigMapInfo {
+	return bussiness.GetConfigMaps()
+}
+
+func (a *App) DeleteConfigMap(name string, namespace string) error {
+	return bussiness.DeleteConfigMap(name, namespace)
+}
+
+func (a *App) GetConfigMapYaml(name string, namespace string) (string, error) {
+	return bussiness.GetConfigMapYaml(name, namespace)
+}
+
+func (a *App) UpdateConfigMapYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateConfigMapYaml(name, namespace, yamlContent)
+}
+
+func (a *App) GetConfigMapData(name string, namespace string) (map[string]string, error) {
+	return bussiness.GetConfigMapData(name, namespace)
+}
+
+func (a *App) UpdateConfigMapData(name string, namespace string, data map[string]string) error {
+	return bussiness.UpdateConfigMapData(name, namespace, data)
+}
+
 func (a *App) CreateTerminalSession(id string) error {
 	return bussiness.CreateTerminalSession(id, func(data string) {
 		runtime.EventsEmit(a.ctx, "terminal:output:"+id, data)

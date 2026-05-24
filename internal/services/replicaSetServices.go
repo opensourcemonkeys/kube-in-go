@@ -39,11 +39,7 @@ func GetReplicaSetYaml(namespace, name string, client *kubernetes.Clientset) (st
 	if err != nil {
 		return "", err
 	}
-	yamlBytes, err := yaml.Marshal(r)
-	if err != nil {
-		return "", err
-	}
-	return string(yamlBytes), nil
+	return toApplyYaml(r)
 }
 
 func UpdateReplicaSetYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {

@@ -39,11 +39,7 @@ func GetDaemonSetYaml(namespace, name string, client *kubernetes.Clientset) (str
 	if err != nil {
 		return "", err
 	}
-	yamlBytes, err := yaml.Marshal(d)
-	if err != nil {
-		return "", err
-	}
-	return string(yamlBytes), nil
+	return toApplyYaml(d)
 }
 
 func UpdateDaemonSetYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {

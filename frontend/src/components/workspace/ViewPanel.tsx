@@ -7,6 +7,8 @@ import DaemonSetListComponent from '../daemonset/main';
 import JobListComponent from '../job/main';
 import CronJobListComponent from '../cronjob/main';
 import NetworkPolicyListComponent from '../networkpolicy/main';
+import ConfigMapListComponent from '../configmap/main';
+import SecretListComponent from '../secret/main';
 
 interface ViewPanelParams {
     view: string;
@@ -50,6 +52,8 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'jobs') return <JobListComponent />;
     if (view === 'cronjobs') return <CronJobListComponent />;
     if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
+    if (view === 'configmaps') return <ConfigMapListComponent />;
+    if (view === 'secrets') return <SecretListComponent />;
 
     return (
         <div className="card p-4">

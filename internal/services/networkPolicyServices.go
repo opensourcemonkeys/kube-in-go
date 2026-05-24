@@ -63,11 +63,7 @@ func GetNetworkPolicyYaml(namespace, name string, client *kubernetes.Clientset) 
 	if err != nil {
 		return "", err
 	}
-	b, err := yaml.Marshal(p)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
+	return toApplyYaml(p)
 }
 
 func UpdateNetworkPolicyYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
