@@ -10,6 +10,8 @@ import NetworkPolicyListComponent from '../networkpolicy/main';
 import ConfigMapListComponent from '../configmap/main';
 import SecretListComponent from '../secret/main';
 import NodeListComponent from '../node/main';
+import NamespaceListComponent from '../namespace/main';
+import ResourceQuotaListComponent from '../resourcequota/main';
 
 interface ViewPanelParams {
     view: string;
@@ -56,6 +58,8 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'configmaps') return <ConfigMapListComponent />;
     if (view === 'secrets') return <SecretListComponent />;
     if (view === 'nodes') return <NodeListComponent />;
+    if (view === 'namespaces') return <NamespaceListComponent />;
+    if (view === 'resourcequotas') return <ResourceQuotaListComponent />;
 
     return (
         <div className="card p-4">

@@ -11,6 +11,26 @@ func (a *App) GetNodes() []models.NodeInfo {
 	return bussiness.GetNodes()
 }
 
+func (a *App) GetNamespaces() []models.NamespaceInfo {
+	return bussiness.GetNamespaces()
+}
+
+func (a *App) DeleteNamespace(name string) error {
+	return bussiness.DeleteNamespace(name)
+}
+
+func (a *App) GetNamespaceYaml(name string) (string, error) {
+	return bussiness.GetNamespaceYaml(name)
+}
+
+func (a *App) GetResourceQuotaYaml(name string, namespace string) (string, error) {
+	return bussiness.GetResourceQuotaYaml(name, namespace)
+}
+
+func (a *App) UpdateResourceQuotaYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateResourceQuotaYaml(name, namespace, yamlContent)
+}
+
 func (a *App) CordonNode(name string) error {
 	return bussiness.CordonNode(name)
 }
