@@ -82,9 +82,16 @@ jobs:
             (cd "$dirname" && zip -r "../$dirname.zip" .)
           done
 
+      - name: Extract Release Notes
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          awk "/^## \[${TAG}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md \
+            | sed '/^[[:space:]]*$/d' > /tmp/release_notes.md
+          cat /tmp/release_notes.md
+
       - name: Create Release and Upload Artifacts
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         if: github.ref_type == 'tag'
         with:
-          body_path: CHANGELOG.md
+          body_path: /tmp/release_notes.md
           files: "dist/*.zip"
