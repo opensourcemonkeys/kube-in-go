@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.2.0-alpha] - 2026-05-24
+
+### Added
+
+#### Cluster
+- **Namespaces** — DataTable with multi-select, bulk delete, status tag, double-click YAML view
+- **Resource Quotas** — Hierarchical card layout grouped by namespace; per-quota usage bars (green/amber/red), used/hard values, inline YAML edit per quota; namespace filter
+- **Nodes** — Custom card layout per node: CPU & RAM usage charts (Chart.js), cordon / uncordon / drain actions, YAML edit
+
+#### Config & Secrets
+- **ConfigMaps** — Key-value editor panel in addition to YAML view/edit
+- **Secrets** — Key-value editor panel in addition to YAML view/edit
+
+#### AI
+- **AI Assistant** — Chat panel powered by configurable LLM; context-aware cluster queries
+
+#### UI / UX
+- Unified toolbar style across all resource screens — consistent `h3` title, padding, and bottom border
+- All DataTable screens moved to standalone toolbar div (header extracted from PrimeReact DataTable)
+
+### Changed
+- Node screen header cleaned up; redundant "Updates every 3 seconds" annotation removed
+- Various SonarQube code-quality and accessibility fixes
+
+---
+
 ## [v0.1.0-alpha] - 2026-05-19
 
 ### Added
