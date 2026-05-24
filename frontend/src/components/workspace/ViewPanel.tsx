@@ -9,6 +9,7 @@ import CronJobListComponent from '../cronjob/main';
 import NetworkPolicyListComponent from '../networkpolicy/main';
 import ConfigMapListComponent from '../configmap/main';
 import SecretListComponent from '../secret/main';
+import NodeListComponent from '../node/main';
 
 interface ViewPanelParams {
     view: string;
@@ -54,6 +55,7 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
     if (view === 'configmaps') return <ConfigMapListComponent />;
     if (view === 'secrets') return <SecretListComponent />;
+    if (view === 'nodes') return <NodeListComponent />;
 
     return (
         <div className="card p-4">

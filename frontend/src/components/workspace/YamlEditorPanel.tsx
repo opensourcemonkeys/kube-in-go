@@ -15,15 +15,16 @@ import {
     GetCronJobYaml, UpdateCronJobYaml,
     GetConfigMapYaml, UpdateConfigMapYaml,
     GetSecretYaml, UpdateSecretYaml,
+    GetNodeYaml, UpdateNodeYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'configmap' | 'secret';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'configmap' | 'secret' | 'node';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'configmap', 'secret'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'configmap', 'secret', 'node'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -56,6 +57,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetConfigMapYaml(name, namespace);
                 } else if (resourceKind === 'secret') {
                     result = await GetSecretYaml(name, namespace);
+                } else if (resourceKind === 'node') {
+                    result = await GetNodeYaml(name);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -94,6 +97,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateConfigMapYaml(name, namespace, value);
             } else if (resourceKind === 'secret') {
                 await UpdateSecretYaml(name, namespace, value);
+            } else if (resourceKind === 'node') {
+                await UpdateNodeYaml(name, value);
             }
             setOriginalYaml(value);
             setYaml(value);

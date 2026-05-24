@@ -7,6 +7,30 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+func (a *App) GetNodes() []models.NodeInfo {
+	return bussiness.GetNodes()
+}
+
+func (a *App) CordonNode(name string) error {
+	return bussiness.CordonNode(name)
+}
+
+func (a *App) UncordonNode(name string) error {
+	return bussiness.UncordonNode(name)
+}
+
+func (a *App) DrainNode(name string) error {
+	return bussiness.DrainNode(name)
+}
+
+func (a *App) GetNodeYaml(name string) (string, error) {
+	return bussiness.GetNodeYaml(name)
+}
+
+func (a *App) UpdateNodeYaml(name string, yamlContent string) error {
+	return bussiness.UpdateNodeYaml(name, yamlContent)
+}
+
 func (a *App) GetPods() []models.PodInfo {
 	return bussiness.GetPods()
 }

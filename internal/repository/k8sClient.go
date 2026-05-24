@@ -8,6 +8,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	metricsclient "k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 var activeKubeconfigPath string
@@ -27,6 +28,14 @@ func NewK8sClient() (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 	return clientset, err
+}
+
+func NewMetricsClient() (*metricsclient.Clientset, error) {
+	config, err := getK8sConfig()
+	if err != nil {
+		return nil, err
+	}
+	return metricsclient.NewForConfig(config)
 }
 
 func getK8sConfig() (*rest.Config, error) {

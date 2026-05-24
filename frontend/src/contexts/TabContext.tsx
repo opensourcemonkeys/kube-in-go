@@ -35,7 +35,7 @@ export interface TabDef {
 }
 
 export interface YamlPanelDef {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'configmap' | 'secret';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'configmap' | 'secret' | 'node';
     name: string;
     namespace: string;
     /** dockview panel id of the list panel to split beside */
