@@ -1,0 +1,67 @@
+site_name: kube-ins
+site_description: A visual desktop client for managing Kubernetes clusters
+site_author: kube-ins contributors
+site_url: https://github.com/hakanyorulmaz/kube-ins
+
+repo_name: kube-ins
+repo_url: https://github.com/hakanyorulmaz/kube-ins
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Adding Clusters: getting-started/cluster-setup.md
+  - Workloads:
+    - Overview: workloads/index.md
+    - Pods: workloads/pods.md
+    - Deployments: workloads/deployments.md
+    - StatefulSets & ReplicaSets: workloads/statefulsets-replicasets.md
+    - DaemonSets: workloads/daemonsets.md
+    - Jobs & CronJobs: workloads/jobs-cronjobs.md
+  - Cluster:
+    - Namespaces: cluster/namespaces.md
+    - Nodes: cluster/nodes.md
+    - Resource Quotas: cluster/resource-quotas.md
+  - Networking:
+    - Network Policies: networking/network-policies.md
+  - Config & Secrets:
+    - ConfigMaps: config-secrets/configmaps.md
+    - Secrets: config-secrets/secrets.md
+  - Workspace:
+    - YAML Editor: workspace/yaml-editor.md
+    - Terminal: workspace/terminal.md
+    - Log Viewer: workspace/log-viewer.md
+    - Cluster Graph: workspace/cluster-graph.md
