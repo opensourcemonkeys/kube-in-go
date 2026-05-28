@@ -25,6 +25,24 @@ import './theme-monolith.css';
 // )
 import { PrimeReactProvider } from 'primereact/api';
 import Appmain from './pages/main/appmain'
+import { loader } from '@monaco-editor/react';
+import * as monacoEditor from 'monaco-editor';
+
+loader.config({ monaco: monacoEditor });
+
+// Monaco requires a Worker but Wails webview blocks them.
+// Provide a no-op worker stub so monaco doesn't crash.
+class NoopWorker extends EventTarget {
+    postMessage() {}
+    terminate() {}
+    onmessage = null;
+    onmessageerror = null;
+    onerror = null;
+    dispatchEvent(event: Event) { return super.dispatchEvent(event); }
+}
+(window as any).MonacoEnvironment = {
+    getWorker: () => new NoopWorker() as unknown as Worker,
+};
 
 root.render(
     <React.StrictMode>

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
+import * as monacoEditor from 'monaco-editor';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import type * as monaco from 'monaco-editor';
 import {
+    GetK8sSchema,
     GetPodYaml,
     GetDeploymentYaml, UpdateDeploymentYaml,
     GetStatefulSetYaml, UpdateStatefulSetYaml,
@@ -35,7 +36,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
     const [originalYaml, setOriginalYaml] = useState('');
     const [saving, setSaving] = useState(false);
     const [dirty, setDirty] = useState(false);
-    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const editorRef = useRef<monacoEditor.editor.IStandaloneCodeEditor | null>(null);
     const toast = useRef<Toast | null>(null);
 
     useEffect(() => {
@@ -79,9 +80,146 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
         fetch();
     }, [resourceKind, name, namespace]);
 
-    const handleMount: OnMount = (editor) => {
+    const handleMount: OnMount = async (editor, monaco) => {
         editorRef.current = editor;
         requestAnimationFrame(() => editor.layout());
+
+        let schema: Record<string, unknown> = {};
+        try {
+            const raw = await GetK8sSchema();
+            schema = JSON.parse(raw);
+        } catch {
+            return;
+        }
+
+        type SchemaDef = {
+            description?: string;
+            properties?: Record<string, { description?: string; $ref?: string }>;
+            items?: { $ref?: string };
+            $ref?: string;
+        };
+        const defs = schema.definitions as Record<string, SchemaDef>;
+        if (!defs) return;
+
+        // Build kind -> definition key map from x-kubernetes-group-version-kind
+        const kindToDefKey = new Map<string, string>();
+        for (const [key, def] of Object.entries(defs)) {
+            const gvk = (def as any)['x-kubernetes-group-version-kind'];
+            if (Array.isArray(gvk)) {
+                for (const entry of gvk) {
+                    if (entry.kind) kindToDefKey.set(entry.kind as string, key);
+                }
+            }
+        }
+
+        const resolveRef = (ref: string): SchemaDef | undefined => {
+            const key = ref.replace('#/definitions/', '');
+            return defs[key];
+        };
+
+        const getPropsForDef = (def: SchemaDef): Array<{ key: string; desc: string; hasChildren: boolean }> => {
+            if (!def.properties) return [];
+            return Object.entries(def.properties).map(([key, val]) => ({
+                key,
+                desc: val.description ?? '',
+                hasChildren: !!(val.$ref || (val as any).type === 'object' || (val as any).type === 'array'),
+            }));
+        };
+
+        // Parse YAML lines to find the definition at cursor's indent level
+        const resolveDefAtCursor = (lines: string[], lineIndex: number): SchemaDef | null => {
+            const cursorIndent = lines[lineIndex].match(/^(\s*)/)?.[1].length ?? 0;
+
+            // Find kind in document
+            let docKind = '';
+            for (const l of lines) {
+                const m = l.match(/^kind:\s*(\S+)/);
+                if (m) { docKind = m[1]; break; }
+            }
+            const rootDefKey = kindToDefKey.get(docKind);
+            if (!rootDefKey) return null;
+
+            // Walk parent keys from root definition to cursor indent
+            interface Frame { def: SchemaDef; indent: number }
+            const stack: Frame[] = [{ def: defs[rootDefKey], indent: -1 }];
+
+            for (let i = 0; i < lineIndex; i++) {
+                const line = lines[i];
+                if (!line.trim() || line.trim().startsWith('#')) continue;
+                const indent = line.match(/^(\s*)/)?.[1].length ?? 0;
+                const keyMatch = line.match(/^\s*(\w[\w-]*):/);
+                if (!keyMatch) continue;
+                const key = keyMatch[1];
+                if (indent >= cursorIndent) continue;
+
+                // Pop stack frames that are at same or deeper indent
+                while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();
+
+                const parentDef = stack[stack.length - 1].def;
+                const propSchema = parentDef.properties?.[key];
+                if (!propSchema) continue;
+
+                let childDef: SchemaDef | undefined;
+                if (propSchema.$ref) {
+                    childDef = resolveRef(propSchema.$ref);
+                } else if ((propSchema as any).items?.$ref) {
+                    childDef = resolveRef((propSchema as any).items.$ref);
+                }
+                if (childDef) stack.push({ def: childDef, indent });
+            }
+
+            return stack[stack.length - 1].def;
+        };
+
+        const disposables: monacoEditor.IDisposable[] = [];
+
+        disposables.push(monaco.languages.registerCompletionItemProvider('yaml', {
+            triggerCharacters: ['\n'],
+            provideCompletionItems(model, position) {
+                const lines = model.getLinesContent();
+                const lineIndex = position.lineNumber - 1;
+                const word = model.getWordUntilPosition(position);
+                const range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn,
+                    endColumn: word.endColumn,
+                };
+
+                const def = resolveDefAtCursor(lines, lineIndex);
+                const props = def ? getPropsForDef(def) : [];
+
+                const suggestions: monacoEditor.languages.CompletionItem[] = props.map(({ key, desc, hasChildren }) => ({
+                    label: key,
+                    kind: monaco.languages.CompletionItemKind.Field,
+                    documentation: desc,
+                    insertText: hasChildren ? key + ':\n' : key + ': ',
+                    range,
+                }));
+                return { suggestions };
+            },
+        }));
+
+        disposables.push(monaco.languages.registerHoverProvider('yaml', {
+            provideHover(model, position) {
+                const word = model.getWordAtPosition(position);
+                if (!word) return null;
+                const lines = model.getLinesContent();
+                const lineIndex = position.lineNumber - 1;
+                const def = resolveDefAtCursor(lines, lineIndex);
+                if (!def?.properties) return null;
+                const prop = def.properties[word.word];
+                if (!prop?.description) return null;
+                return {
+                    contents: [
+                        { value: `**${word.word}**` },
+                        { value: prop.description },
+                    ],
+                };
+            },
+        }));
+
+        editor.onDidDispose(() => disposables.forEach(d => d.dispose()));
     };
 
     const handleChange = (value: string | undefined) => {
@@ -181,6 +319,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     theme={MONOLITH_THEME}
                     onMount={handleMount}
                     onChange={handleChange}
+                    
                     options={{
                         readOnly: !editable(resourceKind),
                         minimap: { enabled: true },
