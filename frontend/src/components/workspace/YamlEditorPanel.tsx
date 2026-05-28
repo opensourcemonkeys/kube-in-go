@@ -18,15 +18,16 @@ import {
     GetNodeYaml, UpdateNodeYaml,
     GetNamespaceYaml,
     GetResourceQuotaYaml, UpdateResourceQuotaYaml,
+    GetServiceYaml, UpdateServiceYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'configmap', 'secret', 'node', 'resourcequota'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'configmap', 'secret', 'node', 'resourcequota'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -65,6 +66,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetNamespaceYaml(name);
                 } else if (resourceKind === 'resourcequota') {
                     result = await GetResourceQuotaYaml(name, namespace);
+                } else if (resourceKind === 'service') {
+                    result = await GetServiceYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -107,6 +110,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateNodeYaml(name, value);
             } else if (resourceKind === 'resourcequota') {
                 await UpdateResourceQuotaYaml(name, namespace, value);
+            } else if (resourceKind === 'service') {
+                await UpdateServiceYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

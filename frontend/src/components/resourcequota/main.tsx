@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Chart } from 'primereact/chart';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
@@ -23,39 +24,59 @@ const getUsageColor = (pct: number) => {
     return '#ef4444';
 };
 
-function ResourceChip({ entry }: { entry: models.ResourceQuotaEntry }) {
+const barOptions = {
+    indexAxis: 'y' as const,
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false as const,
+    plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+    },
+    scales: {
+        x: { stacked: true, display: false, min: 0, max: 100 },
+        y: { stacked: true, display: false },
+    },
+    events: [] as any[],
+};
+
+function ResourceBar({ entry }: { entry: models.ResourceQuotaEntry }) {
+    const chartRef = useRef<any>(null);
     const pct = entry.hard_num > 0 ? Math.min((entry.used_num / entry.hard_num) * 100, 100) : 0;
     const color = getUsageColor(pct);
 
+    const [chartData] = useState(() => ({
+        labels: [''],
+        datasets: [
+            { data: [pct],       backgroundColor: [getUsageColor(pct)], borderRadius: 3, borderSkipped: false as const },
+            { data: [100 - pct], backgroundColor: ['#1e293b'],          borderRadius: 0, borderSkipped: false as const },
+        ],
+    }));
+
+    useEffect(() => {
+        const chart = chartRef.current?.getChart?.();
+        if (!chart) return;
+        chart.data.datasets[0].data = [pct];
+        chart.data.datasets[0].backgroundColor = [color];
+        chart.data.datasets[1].data = [100 - pct];
+        chart.update('none');
+    }, [entry.used_num, entry.hard_num]); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.25rem',
-            padding: '0.35rem 0.6rem',
-            background: 'var(--surface-ground)',
-            border: '1px solid var(--surface-border)',
-            borderRadius: 4,
-            minWidth: '9rem',
-        }}>
-            {/* Resource name */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{
-                fontSize: '0.65rem',
-                fontWeight: 600,
+                fontSize: '0.68rem', fontWeight: 600,
                 color: 'var(--text-color-secondary)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                maxWidth: '11rem',
+                width: '9rem', textAlign: 'right', flexShrink: 0,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }} title={entry.resource}>{entry.resource}</span>
-
-            {/* Mini bar */}
-            <div style={{ height: '5px', background: 'var(--surface-border)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${pct}%`, background: color }} />
+            <div style={{ flex: 1, height: '18px', minWidth: 0 }}>
+                <Chart ref={chartRef} type="bar" data={chartData} options={barOptions} style={{ height: '18px' }} />
             </div>
-
-            {/* used / hard */}
-            <span style={{ fontSize: '0.68rem', fontWeight: 600, color, whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color, width: '2.8rem', textAlign: 'right', flexShrink: 0 }}>
+                {pct.toFixed(0)}%
+            </span>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-color-secondary)', whiteSpace: 'nowrap', flexShrink: 0, minWidth: '8rem' }}>
                 {entry.used} / {entry.hard}
             </span>
         </div>
@@ -69,30 +90,24 @@ function QuotaRow({ rq, namespace, onEdit }: {
 }) {
     return (
         <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '0.75rem',
             padding: '0.6rem 0.75rem',
             borderBottom: '1px solid var(--surface-border)',
         }}>
-            {/* Left: quota name + edit */}
+            {/* Quota name header */}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.3rem',
-                minWidth: '10rem',
-                maxWidth: '10rem',
-                flexShrink: 0,
-                paddingTop: '0.25rem',
+                marginBottom: '0.5rem',
             }}>
-                <i className="pi pi-chart-bar" style={{ fontSize: '0.7rem', color: 'var(--text-color-secondary)', flexShrink: 0 }} />
+                <i className="pi pi-chart-bar" style={{ fontSize: '0.7rem', color: 'var(--text-color-secondary)' }} />
                 <span style={{
                     fontSize: '0.78rem',
                     fontWeight: 600,
-                    flex: 1,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
+                    flex: 1,
                 }} title={rq.name}>{rq.name}</span>
                 <Button
                     icon="pi pi-file-edit"
@@ -106,10 +121,10 @@ function QuotaRow({ rq, namespace, onEdit }: {
                 />
             </div>
 
-            {/* Right: resource chips */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', flex: 1 }}>
+            {/* Resource bars — alt alta */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                 {rq.entries.map(entry => (
-                    <ResourceChip key={entry.resource} entry={entry} />
+                    <ResourceBar key={entry.resource} entry={entry} />
                 ))}
             </div>
         </div>

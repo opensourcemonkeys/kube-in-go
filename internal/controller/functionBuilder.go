@@ -245,6 +245,22 @@ func (a *App) ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyD
 	return bussiness.ParseNetworkPolicyYaml(yamlContent)
 }
 
+func (a *App) GetServices() []models.ServiceInfo {
+	return bussiness.GetServices()
+}
+
+func (a *App) DeleteService(name string, namespace string) error {
+	return bussiness.DeleteService(name, namespace)
+}
+
+func (a *App) GetServiceYaml(name string, namespace string) (string, error) {
+	return bussiness.GetServiceYaml(name, namespace)
+}
+
+func (a *App) UpdateServiceYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateServiceYaml(name, namespace, yamlContent)
+}
+
 func (a *App) ApplyYaml(yamlContent string) (string, error) {
 	return bussiness.ApplyYaml(yamlContent)
 }

@@ -1189,6 +1189,7 @@ h1, h2, h3, h4, h5, h6,
 
   --dv-tabs-and-actions-container-background-color:   var(--monolith-container-low);
   --dv-tabs-and-actions-container-height:             36px;
+  --dv-tabs-and-actions-container-font-size:          13px;
 
   --dv-activegroup-hiddenpanel-tab-background-color:   var(--monolith-container-low);
   --dv-activegroup-hiddenpanel-tab-color:              var(--monolith-on-surface-var);
@@ -1206,6 +1207,9 @@ h1, h2, h3, h4, h5, h6,
   --dv-tab-divider-color:                             transparent;
   --dv-paneview-active-outline-color:                 transparent;
 
+  --dv-icon-hover-background-color:                   rgba(162, 201, 255, 0.08);
+  --dv-tabs-container-scrollbar-color:                var(--monolith-outline-var);
+
   --dv-sash-color:                                    transparent;
   --dv-active-sash-color:                             rgba(162, 201, 255, 0.25);
   --dv-active-sash-transition-delay:                  0.1s;
@@ -1215,6 +1219,18 @@ h1, h2, h3, h4, h5, h6,
   --dv-drag-over-border-color:                        var(--monolith-primary);
 
   --dv-floating-box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+}
+
+
+/* Overflow trigger button in tab bar */
+.dockview-theme-monolith .dv-tabs-overflow-dropdown-default {
+  color: var(--monolith-on-surface-var);
+}
+
+.dockview-theme-monolith .dv-tabs-overflow-dropdown-default:hover {
+  background-color: rgba(162, 201, 255, 0.08);
+  color: var(--monolith-on-surface);
+  border-radius: 0;
 }
 
 
