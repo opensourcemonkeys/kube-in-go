@@ -167,7 +167,7 @@ export default function SecretListComponent() {
                     filterField="type"
                     filterPlaceholder="Search type"
                     showFilterMenu={false}
-                    style={{ minWidth: '12rem', fontSize: '0.8rem', fontFamily: 'monospace' }}
+                    style={{ minWidth: '12rem' }}
                 />
                 <Column
                     key="data_count"

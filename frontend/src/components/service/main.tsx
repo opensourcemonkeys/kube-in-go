@@ -207,17 +207,17 @@ export default function ServiceListComponent() {
                     field="cluster_ip"
                     header="Cluster IP"
                     sortable
-                    style={{ minWidth: '10rem', fontFamily: 'monospace' }}
+                    style={{ minWidth: '10rem' }}
                 />
                 <Column
                     field="external_ips"
                     header="External IP"
-                    style={{ minWidth: '12rem', fontFamily: 'monospace' }}
+                    style={{ minWidth: '12rem' }}
                     body={(rowData: models.ServiceInfo) => formatExternalIPs(rowData.external_ips)}
                 />
                 <Column
                     header="Ports"
-                    style={{ minWidth: '14rem', fontFamily: 'monospace' }}
+                    style={{ minWidth: '14rem' }}
                     body={(rowData: models.ServiceInfo) => formatPorts(rowData.ports)}
                 />
             </DataTable>

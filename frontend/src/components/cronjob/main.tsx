@@ -185,7 +185,7 @@ export default function CronJobListComponent() {
                     filterField="schedule"
                     filterPlaceholder="Search schedule"
                     showFilterMenu={false}
-                    style={{ minWidth: '10rem', fontFamily: 'monospace' }}
+                    style={{ minWidth: '10rem' }}
                 />
                 <Column
                     header="Status"

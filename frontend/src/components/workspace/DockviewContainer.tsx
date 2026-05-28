@@ -50,6 +50,9 @@ export default function DockviewContainer() {
     return (
         <DockviewReact
             className="dockview-theme-monolith"
+            // Prevent dockview from adding `dockview-theme-abyss` (its default) to the
+            // inner dv-shell element, which would set --dv-separator-border to a blue color.
+            theme={{ name: 'monolith', className: 'dockview-theme-monolith' } as any}
             components={components}
             onReady={onReady}
         />

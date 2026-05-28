@@ -1210,8 +1210,9 @@ h1, h2, h3, h4, h5, h6,
   --dv-icon-hover-background-color:                   rgba(162, 201, 255, 0.08);
   --dv-tabs-container-scrollbar-color:                var(--monolith-outline-var);
 
+  --dv-separator-border:                              var(--monolith-outline-var);
   --dv-sash-color:                                    transparent;
-  --dv-active-sash-color:                             rgba(162, 201, 255, 0.25);
+  --dv-active-sash-color:                             rgba(139, 145, 157, 0.5);
   --dv-active-sash-transition-delay:                  0.1s;
   --dv-active-sash-transition-duration:               0.15s;
 
@@ -1324,16 +1325,15 @@ h1, h2, h3, h4, h5, h6,
   user-select: none;
 }
 
-/* Drag in progress: hard-block text selection across the entire page */
+/* While a dockview tab drag is active (body.dv-dragging toggled by MutationObserver
+   in DockviewContainer), block text selection on every element with !important so
+   PrimeReact DataTable rows don't get highlighted as the cursor passes over them. */
 body.dv-dragging,
 body.dv-dragging * {
   user-select: none !important;
   -webkit-user-select: none !important;
 }
 
-.dockview-theme-monolith .dv-sash {
-  background: transparent;
-}
 
 /* ── YAML Editor Panel ────────────────────────────────────── */
 .yaml-editor-panel {
