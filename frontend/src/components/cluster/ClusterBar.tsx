@@ -5,6 +5,7 @@ import { useClusterContext } from '../../contexts/ClusterContext';
 import { useTabContext } from '../../contexts/TabContext';
 import { useNextStep } from 'nextstepjs';
 import ClusterModal from './ClusterModal';
+import AboutModal from './AboutModal';
 
 export default function ClusterBar() {
     const { clusters, activeCluster, loaded, connectionError, refreshClusters, selectCluster } = useClusterContext();
@@ -12,6 +13,7 @@ export default function ClusterBar() {
     const { startNextStep } = useNextStep();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCluster, setEditingCluster] = useState<string | null>(null);
+    const [aboutOpen, setAboutOpen] = useState(false);
     const initialCheckDone = useRef(false);
     const errorPanelRef = useRef<OverlayPanel>(null);
 
@@ -124,8 +126,18 @@ export default function ClusterBar() {
                         <i className="pi pi-question-circle" />{' '}
                         <span>Tutorial</span>
                     </button>
+                    <button
+                        className="cluster-bar__ws-btn cluster-bar__ws-btn--about"
+                        onClick={() => setAboutOpen(true)}
+                        title="About"
+                    >
+                        <i className="pi pi-info-circle" />{' '}
+                        <span>About</span>
+                    </button>
                 </div>
             </div>
+
+            <AboutModal visible={aboutOpen} onHide={() => setAboutOpen(false)} />
 
             {modalOpen && (
                 <ClusterModal

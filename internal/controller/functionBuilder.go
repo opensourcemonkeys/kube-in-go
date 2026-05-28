@@ -7,6 +7,10 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+func (a *App) GetAppInfo() models.AppInfo {
+	return bussiness.GetAppInfo()
+}
+
 func (a *App) GetK8sSchema() string {
 	return bussiness.GetK8sSchema()
 }

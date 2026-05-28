@@ -905,6 +905,131 @@ h1, h2, h3, h4, h5, h6,
   border-color: rgba(162, 201, 255, 0.4) !important;
 }
 
+.cluster-bar__ws-btn--about {
+  color: var(--monolith-on-surface-var) !important;
+  border-color: rgba(65, 71, 82, 0.4) !important;
+}
+
+.cluster-bar__ws-btn--about:hover {
+  background: var(--monolith-container-high) !important;
+  border-color: rgba(65, 71, 82, 0.6) !important;
+}
+
+/* About Modal */
+.about-modal .p-dialog-content {
+  background: var(--monolith-container) !important;
+  border: 1px solid rgba(65, 71, 82, 0.5);
+  border-radius: 12px !important;
+  padding: 0 !important;
+}
+
+.about-modal__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 28px 24px;
+  gap: 12px;
+}
+
+.about-modal__logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(162, 201, 255, 0.08);
+  border: 1px solid rgba(162, 201, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.about-modal__logo-icon {
+  font-size: 28px;
+  color: var(--p-primary-color);
+}
+
+.about-modal__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--monolith-on-surface);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.about-modal__version {
+  font-size: 12px;
+  color: var(--monolith-on-surface-var);
+  background: rgba(65, 71, 82, 0.5);
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(65, 71, 82, 0.6);
+}
+
+.about-modal__desc {
+  font-size: 13px;
+  color: var(--monolith-on-surface-var);
+  text-align: center;
+  line-height: 1.6;
+  margin: 4px 0 8px;
+}
+
+.about-modal__meta {
+  width: 100%;
+  border: 1px solid rgba(65, 71, 82, 0.4);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.about-modal__meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(65, 71, 82, 0.3);
+}
+
+.about-modal__meta-row:last-child {
+  border-bottom: none;
+}
+
+.about-modal__meta-label {
+  color: var(--monolith-on-surface-var);
+}
+
+.about-modal__meta-value {
+  color: var(--monolith-on-surface);
+  font-weight: 500;
+}
+
+.about-modal__section-title {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--monolith-on-surface-var);
+  opacity: 0.6;
+  margin-top: 4px;
+}
+
+.about-modal__close-btn {
+  margin-top: 8px;
+  padding: 8px 28px;
+  background: rgba(162, 201, 255, 0.1);
+  border: 1px solid rgba(162, 201, 255, 0.2);
+  border-radius: 6px;
+  color: var(--p-primary-color);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.about-modal__close-btn:hover {
+  background: rgba(162, 201, 255, 0.18);
+  border-color: rgba(162, 201, 255, 0.4);
+}
+
 .cluster-bar__add-btn {
   width: 28px !important;
   height: 28px !important;
