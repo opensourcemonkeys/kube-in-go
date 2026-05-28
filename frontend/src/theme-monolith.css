@@ -1288,6 +1288,15 @@ h1, h2, h3, h4, h5, h6,
   border-right: 1px solid var(--surface-border);
 }
 
+.dv-tab.dv-tab-ghost-drag {
+  height: var(--dv-tabs-and-actions-container-height) !important;
+  width: fit-content !important;
+  max-width: 220px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
 .dockview-theme-monolith .dv-default-tab {
   display: flex;
   align-items: center;
@@ -1308,6 +1317,18 @@ h1, h2, h3, h4, h5, h6,
   background: var(--monolith-container);
   height: 100%;
   overflow: hidden;
+}
+
+/* Layout chrome: no text selection; editors/terminal manage their own */
+.dockview-theme-monolith {
+  user-select: none;
+}
+
+/* Drag in progress: hard-block text selection across the entire page */
+body.dv-dragging,
+body.dv-dragging * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
 .dockview-theme-monolith .dv-sash {

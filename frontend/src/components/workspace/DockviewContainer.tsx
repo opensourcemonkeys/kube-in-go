@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { DockviewReact, DockviewReadyEvent } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
@@ -26,8 +27,23 @@ const components = {
 export default function DockviewContainer() {
     const { registerApi, openTab } = useTabContext();
 
+    // Dockview adds `.dv-tab-ghost-drag` to DOM when a tab drag starts (pointer mode).
+    // We toggle `body.dv-dragging` so CSS can apply `user-select: none !important`
+    // across all elements, preventing text highlight-scanning during drag.
+    useEffect(() => {
+        const observer = new MutationObserver(() => {
+            document.body.classList.toggle('dv-dragging', !!document.querySelector('.dv-tab-ghost-drag'));
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        return () => {
+            observer.disconnect();
+            document.body.classList.remove('dv-dragging');
+        };
+    }, []);
+
     const onReady = (event: DockviewReadyEvent) => {
         registerApi(event.api);
+        (event.api as any).updateOptions({ dndStrategy: 'pointer' });
         openTab({ view: 'pods', title: 'Pods', icon: 'pi pi-box' });
     };
 
