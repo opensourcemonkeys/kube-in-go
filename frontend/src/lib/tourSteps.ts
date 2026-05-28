@@ -37,7 +37,7 @@ export const appTour: Tour[] = [
                 icon: '🗂️',
                 title: 'Main Workspace',
                 content: 'Resource panels open here. You can drag tabs to rearrange them, split the workspace horizontally or vertically, and resize panels by dragging the dividers between them.',
-                selector: '.dv-view-container',
+                selector: 'tour-workspace',
 
                 showControls: true,
                 showSkip: true,
