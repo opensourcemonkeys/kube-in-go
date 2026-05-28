@@ -3,11 +3,13 @@ import { Dropdown } from 'primereact/dropdown';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { useTabContext } from '../../contexts/TabContext';
+import { useNextStep } from 'nextstepjs';
 import ClusterModal from './ClusterModal';
 
 export default function ClusterBar() {
     const { clusters, activeCluster, loaded, connectionError, refreshClusters, selectCluster } = useClusterContext();
     const { openTerminal, openApplyYaml, openClusterResourceView } = useTabContext();
+    const { startNextStep } = useNextStep();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCluster, setEditingCluster] = useState<string | null>(null);
     const initialCheckDone = useRef(false);
@@ -50,7 +52,7 @@ export default function ClusterBar() {
                 <i className="pi pi-server cluster-bar__icon" />
                 <span className="cluster-bar__label">Cluster</span>
 
-                <div className="cluster-bar__select-group">
+                <div id="tour-cluster-area" className="cluster-bar__select-group">
                     <Dropdown
                         value={activeCluster || null}
                         options={clusters}
@@ -105,13 +107,22 @@ export default function ClusterBar() {
                 </div>
 
                 <div className="cluster-bar__workspace-btns">
-                    <button className="cluster-bar__ws-btn" onClick={openApplyYaml} title="YAML Editor">
+                    <button id="tour-yaml-btn" className="cluster-bar__ws-btn" onClick={openApplyYaml} title="YAML Editor">
                         <i className="pi pi-upload" />{' '}
                         <span>YAML Editor</span>
                     </button>
-                    <button className="cluster-bar__ws-btn" onClick={openTerminal} title="Terminal">
+                    <button id="tour-terminal-btn" className="cluster-bar__ws-btn" onClick={openTerminal} title="Terminal">
                         <i className="pi pi-terminal" />{' '}
                         <span>Terminal</span>
+                    </button>
+                    <div className="cluster-bar__ws-separator" />
+                    <button
+                        className="cluster-bar__ws-btn cluster-bar__ws-btn--tour"
+                        onClick={() => startNextStep('main')}
+                        title="Start Tutorial"
+                    >
+                        <i className="pi pi-question-circle" />{' '}
+                        <span>Tutorial</span>
                     </button>
                 </div>
             </div>

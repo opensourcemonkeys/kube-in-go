@@ -8,6 +8,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      'next/navigation': new URL('src/lib/next-stub.ts', import.meta.url).pathname,
+      'next/router': new URL('src/lib/next-stub.ts', import.meta.url).pathname,
       '@fontsource/geist/400.css': nm('@fontsource/geist/400.css'),
       '@fontsource/geist/600.css': nm('@fontsource/geist/600.css'),
       '@fontsource/geist/700.css': nm('@fontsource/geist/700.css'),

@@ -887,6 +887,24 @@ h1, h2, h3, h4, h5, h6,
   font-size: 12px;
 }
 
+.cluster-bar__ws-separator {
+  width: 1px;
+  height: 18px;
+  background: var(--surface-border);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+.cluster-bar__ws-btn--tour {
+  color: var(--p-primary-color) !important;
+  border-color: rgba(162, 201, 255, 0.2) !important;
+}
+
+.cluster-bar__ws-btn--tour:hover {
+  background: var(--monolith-container-high) !important;
+  border-color: rgba(162, 201, 255, 0.4) !important;
+}
+
 .cluster-bar__add-btn {
   width: 28px !important;
   height: 28px !important;
@@ -1547,4 +1565,154 @@ body.dv-dragging * {
   overflow: hidden;
   min-height: 0;
   height: 100%;
+}
+
+/* ============================================================
+   nextstepjs layout fix
+   The library's wrapper divs omit height, which breaks the
+   h-full chain and leaves a blank gap below the app content.
+   ============================================================ */
+
+[data-name="nextstep-wrapper"],
+[data-name="nextstep-site"] {
+  height: 100% !important;
+}
+
+/* ============================================================
+   Tour Card (nextstepjs custom card)
+   ============================================================ */
+
+.tour-card {
+  background: var(--monolith-container-high);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+  padding: 1rem 1.125rem;
+  min-width: 17rem;
+  max-width: 22rem;
+  font-family: var(--font-family);
+  color: var(--monolith-on-surface);
+  user-select: none;
+}
+
+.tour-card__header {
+  margin-bottom: 0.625rem;
+}
+
+.tour-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tour-card__icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.tour-card__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--monolith-on-surface);
+}
+
+.tour-card__content {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--monolith-on-surface-var);
+  margin-bottom: 0.875rem;
+}
+
+.tour-card__progress-track {
+  height: 3px;
+  background: var(--surface-border);
+  border-radius: 2px;
+  margin-bottom: 0.875rem;
+  overflow: hidden;
+}
+
+.tour-card__progress-fill {
+  height: 100%;
+  background: var(--p-primary-color);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.tour-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tour-card__counter {
+  font-size: 0.72rem;
+  color: var(--monolith-on-surface-var);
+  white-space: nowrap;
+}
+
+.tour-card__btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--border-radius);
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-family: var(--font-family);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  outline: none;
+}
+
+.tour-card__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tour-card__btn--secondary {
+  background: var(--monolith-container);
+  border-color: var(--surface-border);
+  color: var(--monolith-on-surface-var);
+}
+
+.tour-card__btn--secondary:not(:disabled):hover {
+  background: var(--monolith-container-high);
+  color: var(--monolith-on-surface);
+}
+
+.tour-card__btn--primary {
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color, #fff);
+}
+
+.tour-card__btn--primary:hover {
+  filter: brightness(1.1);
+}
+
+.tour-card__btn--finish {
+  background: var(--p-green-500, #22c55e);
+  color: #fff;
+}
+
+.tour-card__btn--finish:hover {
+  filter: brightness(1.1);
+}
+
+.tour-card__skip {
+  margin-top: 0.625rem;
+  width: 100%;
+  padding: 0.3rem 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 0.72rem;
+  font-family: var(--font-family);
+  color: var(--monolith-on-surface-var);
+  cursor: pointer;
+  text-align: center;
+  transition: color 0.15s;
+  outline: none;
+}
+
+.tour-card__skip:hover {
+  color: var(--monolith-on-surface);
 }
