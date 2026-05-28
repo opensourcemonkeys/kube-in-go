@@ -1221,6 +1221,53 @@ h1, h2, h3, h4, h5, h6,
   --dv-floating-box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
 }
 
+/* Overflow dropdown popup
+ * Uses #app prefix (ID specificity 1,0,0) to beat dockview.css rules (0,1,0)
+ * which load later in the cascade via DockviewContainer.tsx.
+ * !important on colors as extra safety for any future specificity conflicts.
+ */
+#root .dv-tabs-overflow-container {
+  background-color: var(--monolith-container) !important;
+  border: 1px solid var(--monolith-outline-var) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  font-family: var(--font-family);
+  font-size: 0.8125rem;
+}
+
+#root .dv-tabs-overflow-container .dv-tab:not(:last-child) {
+  border-bottom: 1px solid rgba(65, 71, 82, 0.40) !important;
+}
+
+#root .dv-tabs-overflow-container .dv-active-tab {
+  background-color: var(--monolith-container-high) !important;
+  color: var(--monolith-on-surface) !important;
+}
+
+#root .dv-tabs-overflow-container .dv-inactive-tab {
+  background-color: var(--monolith-container) !important;
+  color: var(--monolith-on-surface-var) !important;
+}
+
+#root .dv-tabs-overflow-container .dv-inactive-tab:hover {
+  background-color: rgba(162, 201, 255, 0.06) !important;
+  color: var(--monolith-on-surface) !important;
+}
+
+#root .dv-tabs-overflow-container .dv-tabs-overflow-group-header {
+  background-color: var(--monolith-container-low) !important;
+  color: var(--monolith-on-surface-var) !important;
+  border-bottom: 1px solid rgba(65, 71, 82, 0.40) !important;
+}
+
+#root .dv-tabs-overflow-container .dv-tabs-overflow-group-header:hover {
+  background-color: rgba(162, 201, 255, 0.06) !important;
+  color: var(--monolith-on-surface) !important;
+}
+
+#root .dv-tabs-overflow-container .dv-tabs-overflow-group-collapsed-badge {
+  background-color: rgba(65, 71, 82, 0.50) !important;
+  color: var(--monolith-on-surface-var) !important;
+}
 
 /* Overflow trigger button in tab bar */
 .dockview-theme-monolith .dv-tabs-overflow-dropdown-default {
