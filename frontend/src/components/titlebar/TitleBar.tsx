@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import logoImg from '../../assets/icon/logo.png';
 import {
     WindowMinimise,
     WindowToggleMaximise,
@@ -25,8 +24,12 @@ function TitleBar() {
                 onDoubleClick={handleMaximise}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMaximise(); } }}
             >
-                <img className="tb-logo" src={logoImg} alt="kube-ins" />
-                <span className="tb-title">kube-ins</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2.5 L20 7 V17 L12 21.5 L4 17 V7 Z" stroke="#3fc8b4" strokeWidth="1.5" strokeLinejoin="round"/>
+                    <path d="M12 12 V21.5 M4 7 L12 12 L20 7" stroke="#3fc8b4" strokeWidth="1.3" strokeLinejoin="round" opacity="0.7"/>
+                    <circle cx="12" cy="8.6" r="1.7" fill="#3fc8b4"/>
+                </svg>
+                <span className="tb-title">KUBE-INS</span>
             </div>
 
             {/* Action buttons */}

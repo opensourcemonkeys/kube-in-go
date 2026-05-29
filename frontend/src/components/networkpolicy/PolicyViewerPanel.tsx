@@ -31,7 +31,7 @@ interface PolicyViewerPanelParams {
 // ── Node styles ───────────────────────────────────────────────────────────────
 
 const NODE_POLICY: React.CSSProperties = {
-    background: 'var(--monolith-panel, #1a1f2e)',
+    background: 'var(--panel2)',
     border: '2px solid var(--p-primary-color, #6366f1)',
     borderRadius: 10,
     padding: '10px 16px',
@@ -485,7 +485,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
     return (
         <div
             ref={containerRef}
-            style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--monolith-base, #0d1117)' }}
+            style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--app)' }}
         >
             <Toast ref={toast} position="bottom-right" />
 
@@ -533,19 +533,19 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                         nodesDraggable
                         nodesConnectable={false}
                         elementsSelectable
-                        style={{ background: 'var(--monolith-base, #0d1117)' }}
+                        style={{ background: 'var(--app)' }}
                     >
                         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
                         <Controls
                             style={{
-                                background: 'var(--monolith-panel, #1a1f2e)',
+                                background: 'var(--panel2)',
                                 border: '1px solid var(--surface-border)',
                                 borderRadius: 8,
                             }}
                         />
                         <MiniMap
                             style={{
-                                background: 'var(--monolith-panel, #1a1f2e)',
+                                background: 'var(--panel2)',
                                 border: '1px solid var(--surface-border)',
                             }}
                             nodeColor="#6366f1"

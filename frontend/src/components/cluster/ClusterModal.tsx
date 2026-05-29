@@ -70,7 +70,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
-                        <i className="pi pi-server" style={{ color: 'var(--monolith-primary)', fontSize: 16 }} />
+                        <i className="pi pi-server" style={{ color: 'var(--teal)', fontSize: 16 }} />
                         <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
                     </div>
                     <button className="cluster-modal__close" onClick={onClose} title="Close">
@@ -91,7 +91,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                             autoFocus={!editingName}
                         />
                         {editingName && (
-                            <small style={{ color: 'var(--monolith-on-surface-var)', fontSize: 11 }}>
+                            <small style={{ color: 'var(--ink2)', fontSize: 11 }}>
                                 Config name cannot be changed
                             </small>
                         )}

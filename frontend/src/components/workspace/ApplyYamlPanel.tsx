@@ -115,11 +115,11 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                         style={{
                             flex: '0 0 40%',
                             borderTop: '1px solid var(--surface-border)',
-                            background: 'var(--monolith-base)',
+                            background: 'var(--app)',
                             padding: '10px 14px',
                             fontFamily: 'var(--font-family-mono)',
                             fontSize: 12,
-                            color: 'var(--monolith-tertiary)',
+                            color: 'var(--amber)',
                             whiteSpace: 'pre-wrap',
                             overflowY: 'auto',
                         }}

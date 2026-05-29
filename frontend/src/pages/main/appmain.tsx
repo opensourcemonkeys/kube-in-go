@@ -32,14 +32,11 @@ function Appmain() {
                             <div className="flex flex-1 overflow-hidden min-h-0">
                                 {/* Resource Explorer Sidebar */}
                                 <div
-                                    id="tour-sidebar"
                                     className="flex-shrink-0 overflow-y-auto overflow-x-hidden"
                                     style={{
                                         width: '240px',
-                                        background: 'var(--monolith-container-low)',
-                                        borderRight: '1px solid var(--surface-border)',
-                                        display: 'flex',
-                                        flexDirection: 'column',
+                                        background: 'var(--panel)',
+                                        borderRight: '1px solid var(--line)',
                                     }}
                                 >
                                     <SideMenu />

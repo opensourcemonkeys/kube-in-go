@@ -320,7 +320,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
     useEffect(() => { load(); }, [load]);
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--monolith-base, #0d1117)' }}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--app)' }}>
 
             {/* Toolbar */}
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
@@ -345,7 +345,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             <div style={{
                 display: 'flex', gap: 16, padding: '5px 14px', flexShrink: 0,
                 flexWrap: 'wrap', borderBottom: '1px solid var(--surface-border)',
-                background: 'var(--monolith-panel, #1a1f2e)',
+                background: 'var(--panel2)',
             }}>
                 {Object.entries(KIND_CONFIG).map(([kind, cfg]) => (
                     <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: cfg.color }}>
@@ -390,17 +390,17 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
                         nodesConnectable={false}
                         elementsSelectable
                         onInit={inst => { rfRef.current = inst; }}
-                        style={{ background: 'var(--monolith-base, #0d1117)' }}
+                        style={{ background: 'var(--app)' }}
                     >
                         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
                         <Controls style={{
-                            background: 'var(--monolith-panel, #1a1f2e)',
+                            background: 'var(--panel2)',
                             border: '1px solid var(--surface-border)',
                             borderRadius: 8,
                         }} />
                         <MiniMap
                             style={{
-                                background: 'var(--monolith-panel, #1a1f2e)',
+                                background: 'var(--panel2)',
                                 border: '1px solid var(--surface-border)',
                             }}
                             nodeColor={n => KIND_CONFIG[n.data?.kind]?.color ?? '#6b7280'}
