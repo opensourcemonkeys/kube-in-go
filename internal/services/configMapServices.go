@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -91,6 +92,6 @@ func configMapToInfo(cm corev1.ConfigMap) models.ConfigMapInfo {
 		Name:      cm.Name,
 		Namespace: cm.Namespace,
 		DataCount: len(cm.Data),
-		CreatedAt: cm.CreationTimestamp.Time,
+		CreatedAt: cm.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

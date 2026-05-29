@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type NetworkPolicyInfo struct {
 	Name             string    `json:"name"`
@@ -9,7 +9,7 @@ type NetworkPolicyInfo struct {
 	PolicyTypes      []string  `json:"policy_types"`
 	IngressRuleCount int       `json:"ingress_rule_count"`
 	EgressRuleCount  int       `json:"egress_rule_count"`
-	CreatedAt        time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 }
 
 type NetworkPolicyPeer struct {

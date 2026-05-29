@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type DaemonSetInfo struct {
 	Name                   string    `json:"name"`
@@ -9,5 +9,5 @@ type DaemonSetInfo struct {
 	CurrentNumberScheduled int32     `json:"current_number_scheduled"`
 	NumberReady            int32     `json:"number_ready"`
 	NumberAvailable        int32     `json:"number_available"`
-	CreatedAt              time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 }

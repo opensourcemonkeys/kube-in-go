@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -97,6 +98,6 @@ func secretToInfo(s corev1.Secret) models.SecretInfo {
 		Namespace: s.Namespace,
 		Type:      string(s.Type),
 		DataCount: len(s.Data),
-		CreatedAt: s.CreationTimestamp.Time,
+		CreatedAt: s.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

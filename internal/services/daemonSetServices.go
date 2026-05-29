@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -67,6 +68,6 @@ func daemonSetToInfo(d appsv1.DaemonSet) models.DaemonSetInfo {
 		CurrentNumberScheduled: d.Status.CurrentNumberScheduled,
 		NumberReady:            d.Status.NumberReady,
 		NumberAvailable:        d.Status.NumberAvailable,
-		CreatedAt:              d.CreationTimestamp.Time,
+		CreatedAt:              d.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

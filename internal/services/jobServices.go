@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"kube-ins/internal/models"
 
@@ -59,7 +60,7 @@ func jobToInfo(j batchv1.Job) models.JobInfo {
 		Failed:      j.Status.Failed,
 		Active:      j.Status.Active,
 		Status:      status,
-		CreatedAt:   j.CreationTimestamp.Time,
+		CreatedAt:   j.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }
 

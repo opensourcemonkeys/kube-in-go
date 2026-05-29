@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -113,7 +114,7 @@ func networkPolicyToInfo(p networkingv1.NetworkPolicy) models.NetworkPolicyInfo 
 		PolicyTypes:      policyTypesToStrings(p.Spec.PolicyTypes),
 		IngressRuleCount: len(p.Spec.Ingress),
 		EgressRuleCount:  len(p.Spec.Egress),
-		CreatedAt:        p.CreationTimestamp.Time,
+		CreatedAt:        p.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }
 

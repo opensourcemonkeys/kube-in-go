@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -70,6 +71,6 @@ func replicaSetToInfo(r appsv1.ReplicaSet) models.ReplicaSetInfo {
 		Replicas:          replicas,
 		ReadyReplicas:     r.Status.ReadyReplicas,
 		AvailableReplicas: r.Status.AvailableReplicas,
-		CreatedAt:         r.CreationTimestamp.Time,
+		CreatedAt:         r.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

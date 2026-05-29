@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type PodStatus string
 
@@ -14,5 +14,5 @@ type PodInfo struct {
 	Name      string    `json:"name"`
 	Namespace string    `json:"namespace"`
 	Status    PodStatus `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 }

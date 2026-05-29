@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type ServicePortInfo struct {
 	Port       int32  `json:"port"`
@@ -17,5 +17,5 @@ type ServiceInfo struct {
 	ClusterIP   string            `json:"cluster_ip"`
 	ExternalIPs []string          `json:"external_ips"`
 	Ports       []ServicePortInfo `json:"ports"`
-	CreatedAt   time.Time         `json:"created_at"`
+	CreatedAt string         `json:"created_at"`
 }

@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -71,6 +72,6 @@ func deploymentToInfo(d appsv1.Deployment) models.DeploymentInfo {
 		ReadyReplicas:     d.Status.ReadyReplicas,
 		AvailableReplicas: d.Status.AvailableReplicas,
 		UpdatedReplicas:   d.Status.UpdatedReplicas,
-		CreatedAt:         d.CreationTimestamp.Time,
+		CreatedAt:         d.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

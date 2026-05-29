@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -71,6 +72,6 @@ func statefulSetToInfo(s appsv1.StatefulSet) models.StatefulSetInfo {
 		ReadyReplicas:   s.Status.ReadyReplicas,
 		CurrentReplicas: s.Status.CurrentReplicas,
 		UpdatedReplicas: s.Status.UpdatedReplicas,
-		CreatedAt:       s.CreationTimestamp.Time,
+		CreatedAt:       s.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

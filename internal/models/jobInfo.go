@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type JobInfo struct {
 	Name        string    `json:"name"`
@@ -10,5 +10,5 @@ type JobInfo struct {
 	Failed      int32     `json:"failed"`
 	Active      int32     `json:"active"`
 	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 }

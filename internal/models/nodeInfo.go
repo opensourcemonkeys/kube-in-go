@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type NodeInfo struct {
 	Name              string    `json:"name"`
@@ -10,7 +10,7 @@ type NodeInfo struct {
 	OSImage           string    `json:"os_image"`
 	CpuCapacity       string    `json:"cpu_capacity"`
 	MemoryCapacity    string    `json:"memory_capacity"`
-	CreatedAt         time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 	CpuUsageMillis    int64     `json:"cpu_usage_millis"`
 	CpuCapacityMillis int64     `json:"cpu_capacity_millis"`
 	MemUsageMi        int64     `json:"mem_usage_mi"`

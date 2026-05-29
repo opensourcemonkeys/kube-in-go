@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type CronJobInfo struct {
 	Name             string     `json:"name"`
@@ -8,6 +8,6 @@ type CronJobInfo struct {
 	Schedule         string     `json:"schedule"`
 	Suspend          bool       `json:"suspend"`
 	ActiveCount      int        `json:"active_count"`
-	LastScheduleTime *time.Time `json:"last_schedule_time"`
-	CreatedAt        time.Time  `json:"created_at"`
+	LastScheduleTime string `json:"last_schedule_time"`
+	CreatedAt string  `json:"created_at"`
 }

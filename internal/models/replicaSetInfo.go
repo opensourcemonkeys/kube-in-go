@@ -1,6 +1,6 @@
 package models
 
-import "time"
+
 
 type ReplicaSetInfo struct {
 	Name              string    `json:"name"`
@@ -8,5 +8,5 @@ type ReplicaSetInfo struct {
 	Replicas          int32     `json:"replicas"`
 	ReadyReplicas     int32     `json:"ready_replicas"`
 	AvailableReplicas int32     `json:"available_replicas"`
-	CreatedAt         time.Time `json:"created_at"`
+	CreatedAt string `json:"created_at"`
 }

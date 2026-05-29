@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -51,7 +52,7 @@ func podToInfo(pod corev1.Pod) models.PodInfo {
 		Name:      pod.Name,
 		Namespace: pod.Namespace,
 		Status:    getPodStatus(pod),
-		CreatedAt: pod.CreationTimestamp.Time,
+		CreatedAt: pod.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }
 

@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -95,6 +96,6 @@ func serviceToInfo(svc corev1.Service) models.ServiceInfo {
 		ClusterIP:   svc.Spec.ClusterIP,
 		ExternalIPs: externalIPs,
 		Ports:       ports,
-		CreatedAt:   svc.CreationTimestamp.Time,
+		CreatedAt:   svc.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

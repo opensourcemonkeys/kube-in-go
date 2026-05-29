@@ -1,6 +1,7 @@
 package services_k8sclient
 
 import (
+	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
@@ -147,7 +148,7 @@ func nodeToInfo(node corev1.Node, metrics map[string]metricsv1beta1.NodeMetrics)
 		MemoryCapacity:    node.Status.Capacity.Memory().String(),
 		CpuCapacityMillis: cpuCapMillis,
 		MemCapacityMi:     memCapMi,
-		CreatedAt:         node.CreationTimestamp.Time,
+		CreatedAt:         node.CreationTimestamp.Time.Format(time.RFC3339),
 		Unschedulable:     node.Spec.Unschedulable,
 	}
 
