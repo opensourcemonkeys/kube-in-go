@@ -7,6 +7,10 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+// ============================================================================
+// App & System Functions
+// ============================================================================
+
 func (a *App) GetAppInfo() models.AppInfo {
 	return bussiness.GetAppInfo()
 }
@@ -14,6 +18,10 @@ func (a *App) GetAppInfo() models.AppInfo {
 func (a *App) GetK8sSchema() string {
 	return bussiness.GetK8sSchema()
 }
+
+// ============================================================================
+// Cluster Screen: Nodes & Namespaces
+// ============================================================================
 
 func (a *App) GetNodes() []models.NodeInfo {
 	return bussiness.GetNodes()
@@ -59,6 +67,10 @@ func (a *App) UpdateNodeYaml(name string, yamlContent string) error {
 	return bussiness.UpdateNodeYaml(name, yamlContent)
 }
 
+// ============================================================================
+// Workloads Screen: Pods
+// ============================================================================
+
 func (a *App) GetPods() []models.PodInfo {
 	return bussiness.GetPods()
 }
@@ -70,6 +82,10 @@ func (a *App) DeletePod(name string, namespace string) error {
 func (a *App) GetPodYaml(name string, namespace string) (string, error) {
 	return bussiness.GetPodYaml(name, namespace)
 }
+
+// ============================================================================
+// Workloads Screen: Deployments
+// ============================================================================
 
 func (a *App) GetDeployments() []models.DeploymentInfo {
 	return bussiness.GetDeployments()
@@ -87,6 +103,10 @@ func (a *App) UpdateDeploymentYaml(name string, namespace string, yamlContent st
 	return bussiness.UpdateDeploymentYaml(name, namespace, yamlContent)
 }
 
+// ============================================================================
+// Workloads Screen: StatefulSets
+// ============================================================================
+
 func (a *App) GetStatefulSets() []models.StatefulSetInfo {
 	return bussiness.GetStatefulSets()
 }
@@ -102,6 +122,10 @@ func (a *App) GetStatefulSetYaml(name string, namespace string) (string, error) 
 func (a *App) UpdateStatefulSetYaml(name string, namespace string, yamlContent string) error {
 	return bussiness.UpdateStatefulSetYaml(name, namespace, yamlContent)
 }
+
+// ============================================================================
+// Workloads Screen: ReplicaSets
+// ============================================================================
 
 func (a *App) GetReplicaSets() []models.ReplicaSetInfo {
 	return bussiness.GetReplicaSets()
@@ -119,6 +143,10 @@ func (a *App) UpdateReplicaSetYaml(name string, namespace string, yamlContent st
 	return bussiness.UpdateReplicaSetYaml(name, namespace, yamlContent)
 }
 
+// ============================================================================
+// Workloads Screen: DaemonSets
+// ============================================================================
+
 func (a *App) GetDaemonSets() []models.DaemonSetInfo {
 	return bussiness.GetDaemonSets()
 }
@@ -134,6 +162,10 @@ func (a *App) GetDaemonSetYaml(name string, namespace string) (string, error) {
 func (a *App) UpdateDaemonSetYaml(name string, namespace string, yamlContent string) error {
 	return bussiness.UpdateDaemonSetYaml(name, namespace, yamlContent)
 }
+
+// ============================================================================
+// Workloads Screen: Jobs & CronJobs
+// ============================================================================
 
 func (a *App) GetJobs() []models.JobInfo {
 	return bussiness.GetJobs()
@@ -163,6 +195,10 @@ func (a *App) UpdateCronJobYaml(name string, namespace string, yamlContent strin
 	return bussiness.UpdateCronJobYaml(name, namespace, yamlContent)
 }
 
+// ============================================================================
+// Configuration Screen: Secrets
+// ============================================================================
+
 func (a *App) GetSecrets() []models.SecretInfo {
 	return bussiness.GetSecrets()
 }
@@ -186,6 +222,10 @@ func (a *App) GetSecretData(name string, namespace string) (map[string]string, e
 func (a *App) UpdateSecretData(name string, namespace string, data map[string]string) error {
 	return bussiness.UpdateSecretData(name, namespace, data)
 }
+
+// ============================================================================
+// Configuration Screen: ConfigMaps
+// ============================================================================
 
 func (a *App) GetConfigMaps() []models.ConfigMapInfo {
 	return bussiness.GetConfigMaps()
@@ -211,6 +251,10 @@ func (a *App) UpdateConfigMapData(name string, namespace string, data map[string
 	return bussiness.UpdateConfigMapData(name, namespace, data)
 }
 
+// ============================================================================
+// Terminal Screen
+// ============================================================================
+
 func (a *App) CreateTerminalSession(id string) error {
 	return bussiness.CreateTerminalSession(id, func(data string) {
 		runtime.EventsEmit(a.ctx, "terminal:output:"+id, data)
@@ -228,6 +272,10 @@ func (a *App) ResizeTerminalSession(id string, cols int, rows int) error {
 func (a *App) CloseTerminalSession(id string) error {
 	return bussiness.CloseTerminalSession(id)
 }
+
+// ============================================================================
+// Network Screen: Network Policies
+// ============================================================================
 
 func (a *App) GetNetworkPolicies() []models.NetworkPolicyInfo {
 	return bussiness.GetNetworkPolicies()
@@ -253,6 +301,10 @@ func (a *App) ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyD
 	return bussiness.ParseNetworkPolicyYaml(yamlContent)
 }
 
+// ============================================================================
+// Network Screen: Services
+// ============================================================================
+
 func (a *App) GetServices() []models.ServiceInfo {
 	return bussiness.GetServices()
 }
@@ -269,9 +321,17 @@ func (a *App) UpdateServiceYaml(name string, namespace string, yamlContent strin
 	return bussiness.UpdateServiceYaml(name, namespace, yamlContent)
 }
 
+// ============================================================================
+// YAML Editor Screen
+// ============================================================================
+
 func (a *App) ApplyYaml(yamlContent string) (string, error) {
 	return bussiness.ApplyYaml(yamlContent)
 }
+
+// ============================================================================
+// Cluster Management
+// ============================================================================
 
 func (a *App) ListClusters() ([]string, error) {
 	return bussiness.ListClusters()
@@ -305,6 +365,10 @@ func (a *App) GetClusterGraph() (*models.ClusterGraph, error) {
 	return bussiness.GetClusterGraph()
 }
 
+// ============================================================================
+// Utility Functions: Resource Relationships & Navigation
+// ============================================================================
+
 func (a *App) GetPodContainers(name string, namespace string) ([]string, error) {
 	return bussiness.GetPodContainers(name, namespace)
 }
@@ -332,6 +396,10 @@ func (a *App) GetJobPods(name string, namespace string) ([]string, error) {
 func (a *App) GetCronJobPods(name string, namespace string) ([]string, error) {
 	return bussiness.GetCronJobPods(name, namespace)
 }
+
+// ============================================================================
+// Logs Screen
+// ============================================================================
 
 func (a *App) StartLogStream(sessionId string, podName string, namespace string, container string) error {
 	return bussiness.StartLogStream(sessionId, podName, namespace, container, func(data string) {
