@@ -3,8 +3,7 @@
 # ==========================================
 name: "kube-ins"
 version: "${VERSION}"
-version_schema: semver
-release: "1"
+version_schema: none
 arch: "amd64"
 platform: "linux"
 maintainer: "Hakan Yorulmaz <hakanyorulmaz94@gmail.com>"

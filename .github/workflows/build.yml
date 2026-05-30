@@ -51,6 +51,12 @@ jobs:
           make pkg-deb
           make pkg-rpm
 
+      - name: Rename Packages with Platform
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          mv dist/kube-ins_${VERSION}_amd64.deb dist/kube-ins-${VERSION}-debian-amd64.deb
+          mv dist/kube-ins-${VERSION}.x86_64.rpm dist/kube-ins-${VERSION}-rhel-x86_64.rpm
+
       - name: Upload Linux Packages
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -88,11 +94,17 @@ jobs:
         shell: bash
         run: make build-windows
 
+      - name: Rename Installer with Version
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          mv build/bin/kube-ins-amd64-installer.exe build/bin/kube-ins-${VERSION}-windows-amd64.exe
+
       - name: Upload Windows Installer
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: windows-installer
-          path: build/bin/kube-ins-amd64-installer.exe
+          path: build/bin/*-windows-amd64.exe
 
   # ==========================================
   # STAGE 2: RELEASE
