@@ -9,3 +9,5 @@ dist
 build/windows/*.pfx
 build/windows/*.key
 build/windows/*.crt
+build/dmg-builder/node_modules
+build/dmg-builder/package-lock.json

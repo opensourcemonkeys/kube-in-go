@@ -1,0 +1,25 @@
+{
+  "title": "kube-ins",
+  "icon": "../../build/darwin/AppIcon.icns",
+  "window": {
+    "size": {
+      "width": 540,
+      "height": 300
+    }
+  },
+  "contents": [
+    {
+      "x": 140,
+      "y": 150,
+      "type": "file",
+      "path": "../../build/bin/kube-ins.app"
+    },
+    {
+      "x": 400,
+      "y": 150,
+      "type": "link",
+      "path": "/Applications"
+    }
+  ],
+  "format": "UDZO"
+}

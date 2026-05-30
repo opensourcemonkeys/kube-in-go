@@ -1,0 +1,11 @@
+{
+  "name": "kube-ins-dmg-builder",
+  "version": "1.0.0",
+  "description": "DMG packaging script for kube-ins macOS builds",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "appdmg": "^0.6.6"
+  }
+}

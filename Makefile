@@ -12,6 +12,9 @@ build-linux:
 build-windows:
 	wails build -platform windows/amd64 -nsis -ldflags "$(LDFLAGS)"
 
+build-mac:
+	wails build -platform darwin/universal -ldflags "$(LDFLAGS)"
+
 dev:
 	wails dev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'"
 
@@ -25,9 +28,12 @@ pkg-rpm: build-linux
 
 pkg-windows: build-windows
 
-pkg-all: pkg-deb pkg-rpm pkg-windows
+pkg-mac: build-mac
+	cd build/dmg-builder && npm install --silent && VERSION=$(VERSION) node build.js
+
+pkg-all: pkg-deb pkg-rpm pkg-windows pkg-mac
 
 clean:
 	rm -rf ./build/bin ./dist
 
-.PHONY: build build-linux build-windows dev pkg-deb pkg-rpm pkg-windows pkg-linux pkg-all clean
+.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean
