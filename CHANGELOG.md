@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.2-alpha] - 2026-05-30
+
+### Added
+
+#### CI/CD
+- **macOS DMG packaging** — new `build/dmg-builder/` node package using `appdmg`; produces `kube-ins-<version>-macos-universal.dmg` under `dist/`
+- `build-mac` and `pkg-mac` Makefile targets for local macOS builds and DMG generation
+- `build-macos` job added to GitHub Actions pipeline (`macos-latest` runner); runs in parallel with Linux and Windows build jobs
+- macOS DMG artifact downloaded and uploaded to GitHub Releases in the release job
+
+---
+
 ## [v0.3.1-alpha] - 2026-05-30
 
 ### Fixed
