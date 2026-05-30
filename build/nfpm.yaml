@@ -1,0 +1,66 @@
+# ==========================================
+# 1. PACKAGE METADATA
+# ==========================================
+name: "kube-ins"
+version: "${VERSION}"
+version_schema: semver
+release: "1"
+arch: "amd64"
+platform: "linux"
+maintainer: "Hakan Yorulmaz <hakanyorulmaz94@gmail.com>"
+description: "A visual desktop client for managing Kubernetes clusters."
+homepage: "https://github.com/opensourcemonkeys/kube-in-go"
+license: "MIT"
+vendor: "Hakan Yorulmaz"
+
+# ==========================================
+# 2. PACKAGE CONTENTS
+# ==========================================
+contents:
+  # Linux binary (deb and rpm only)
+  - src: "./build/bin/kube-ins"
+    dst: "/usr/local/bin/kube-ins"
+    packager: deb
+    file_info:
+      mode: 0o755
+
+  - src: "./build/bin/kube-ins"
+    dst: "/usr/local/bin/kube-ins"
+    packager: rpm
+    file_info:
+      mode: 0o755
+
+  # GNOME / KDE application menu shortcut (deb and rpm only)
+  - src: "./build/kube-ins.desktop"
+    dst: "/usr/share/applications/kube-ins.desktop"
+    packager: deb
+    file_info:
+      mode: 0o644
+
+  - src: "./build/kube-ins.desktop"
+    dst: "/usr/share/applications/kube-ins.desktop"
+    packager: rpm
+    file_info:
+      mode: 0o644
+
+  # Application icon for Linux system menu (deb and rpm only)
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/kube-ins.png"
+    packager: deb
+    file_info:
+      mode: 0o644
+
+  - src: "./build/appicon.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/kube-ins.png"
+    packager: rpm
+    file_info:
+      mode: 0o644
+
+
+overrides:
+  deb:
+    depends:
+      - "libwebkit2gtk-4.0-37 | libwebkit2gtk-4.1-0"
+  rpm:
+    depends:
+      - (webkit2gtk4.0 or webkit2gtk4.1)

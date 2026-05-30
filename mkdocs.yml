@@ -1,10 +1,10 @@
 site_name: kube-ins
 site_description: A visual desktop client for managing Kubernetes clusters
 site_author: kube-ins contributors
-site_url: https://github.com/hakanyorulmaz/kube-ins
+site_url: https://github.com/opensourcemonkeys/kube-in-go
 
 repo_name: kube-ins
-repo_url: https://github.com/hakanyorulmaz/kube-ins
+repo_url: https://github.com/opensourcemonkeys/kube-in-go
 
 theme:
   name: material
