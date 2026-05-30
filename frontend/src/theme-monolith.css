@@ -127,9 +127,9 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .p-datatable .p-datatable-tbody > tr.p-highlight { background: var(--hover) !important; color: var(--ink) !important; }
 .p-datatable .p-datatable-tbody > tr.p-highlight td { color: var(--ink); }
 .p-datatable .p-datatable-thead > tr > th.p-selection-column,
-.p-datatable .p-datatable-tbody > tr > td.p-selection-column { width: 3rem !important; padding: 0 !important; text-align: center !important; }
-.p-datatable .p-datatable-thead > tr > th.p-filter-column { padding: 4px 8px; background: var(--panel); }
-.p-datatable .p-datatable-thead > tr > th.p-filter-column .p-inputtext { height: 28px; padding: 0 8px; font-size: 12px; border-radius: 4px; }
+.p-datatable .p-datatable-tbody > tr > td.p-selection-column { width: 3rem !important; }
+.p-datatable .p-datatable-thead > tr > th.p-filter-column { background: var(--panel); }
+.p-datatable .p-datatable-thead > tr > th.p-filter-column .p-inputtext { height: 28px;  font-size: 12px; border-radius: 4px; }
 .p-datatable .p-datatable-thead > tr > th.p-filter-column .p-column-filter-row { gap: 0; }
 .p-datatable .p-sortable-column:hover, .p-datatable .p-sortable-column:focus { background: var(--hover); color: var(--teal); box-shadow: none; }
 .p-datatable .p-sortable-column.p-highlight { background: var(--panel); color: var(--teal); }

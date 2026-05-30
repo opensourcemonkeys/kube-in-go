@@ -7,7 +7,12 @@ import { useNextStep } from 'nextstepjs';
 import ClusterModal from './ClusterModal';
 import AboutModal from './AboutModal';
 
-export default function ClusterBar() {
+interface ClusterBarProps {
+    onToggleSidebar?: () => void;
+    sidebarOpen?: boolean;
+}
+
+export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: ClusterBarProps) {
     const { clusters, activeCluster, loaded, connectionError, refreshClusters, selectCluster } = useClusterContext();
     const { openTerminal, openApplyYaml, openClusterResourceView } = useTabContext();
     const { startNextStep } = useNextStep();
@@ -56,6 +61,18 @@ export default function ClusterBar() {
     return (
         <>
             <div className="cluster-bar">
+                {/* Sidebar toggle */}
+                <button
+                    className="cluster-bar__icon-btn"
+                    onClick={onToggleSidebar}
+                    title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+                >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <rect x="2" y="3" width="12" height="10" rx="1.5"/>
+                        <path d="M6 3v10"/>
+                    </svg>
+                </button>
+                <div className="cluster-bar__ws-separator" />
                 {/* Split chip: CLUSTER label + dropdown */}
                 <div id="tour-cluster-area" className="cluster-bar__chip">
                     <div className="cluster-bar__chip-label">
