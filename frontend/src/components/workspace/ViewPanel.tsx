@@ -15,6 +15,8 @@ import SecretListComponent from '../secret/main';
 import NodeListComponent from '../node/main';
 import NamespaceListComponent from '../namespace/main';
 import ResourceQuotaListComponent from '../resourcequota/main';
+import EventListComponent from '../events/main';
+import LimitRangeListComponent from '../limitrange/main';
 
 interface ViewPanelParams {
     view: string;
@@ -65,7 +67,9 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'secrets') return <SecretListComponent />;
     if (view === 'nodes') return <NodeListComponent />;
     if (view === 'namespaces') return <NamespaceListComponent />;
+    if (view === 'events') return <EventListComponent />;
     if (view === 'resourcequotas') return <ResourceQuotaListComponent />;
+    if (view === 'limitranges') return <LimitRangeListComponent />;
 
     return (
         <div className="card p-4">

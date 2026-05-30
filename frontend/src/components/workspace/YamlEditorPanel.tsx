@@ -22,15 +22,16 @@ import {
     GetServiceYaml, UpdateServiceYaml,
     GetIngressYaml, UpdateIngressYaml,
     GetEndpointYaml,
+    GetLimitRangeYaml, UpdateLimitRangeYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota', 'limitrange'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -75,6 +76,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetIngressYaml(name, namespace);
                 } else if (resourceKind === 'endpoint') {
                     result = await GetEndpointYaml(name, namespace);
+                } else if (resourceKind === 'limitrange') {
+                    result = await GetLimitRangeYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -258,6 +261,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateServiceYaml(name, namespace, value);
             } else if (resourceKind === 'ingress') {
                 await UpdateIngressYaml(name, namespace, value);
+            } else if (resourceKind === 'limitrange') {
+                await UpdateLimitRangeYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

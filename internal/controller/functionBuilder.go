@@ -322,6 +322,30 @@ func (a *App) UpdateServiceYaml(name string, namespace string, yamlContent strin
 }
 
 // ============================================================================
+// Cluster Screen: LimitRanges
+// ============================================================================
+
+func (a *App) GetLimitRanges() []models.LimitRangeInfo {
+	return bussiness.GetLimitRanges()
+}
+
+func (a *App) GetLimitRangeYaml(name string, namespace string) (string, error) {
+	return bussiness.GetLimitRangeYaml(name, namespace)
+}
+
+func (a *App) UpdateLimitRangeYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateLimitRangeYaml(name, namespace, yamlContent)
+}
+
+// ============================================================================
+// Cluster Screen: Events
+// ============================================================================
+
+func (a *App) GetEvents() []models.EventInfo {
+	return bussiness.GetEvents()
+}
+
+// ============================================================================
 // Network Screen: Ingresses
 // ============================================================================
 
