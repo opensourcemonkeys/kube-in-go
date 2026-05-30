@@ -366,6 +366,18 @@ func (a *App) UpdateIngressYaml(name string, namespace string, yamlContent strin
 }
 
 // ============================================================================
+// Network Screen: IngressClasses
+// ============================================================================
+
+func (a *App) GetIngressClasses() []models.IngressClassInfo {
+	return bussiness.GetIngressClasses()
+}
+
+func (a *App) GetIngressClassYaml(name string) (string, error) {
+	return bussiness.GetIngressClassYaml(name)
+}
+
+// ============================================================================
 // Network Screen: Endpoints
 // ============================================================================
 

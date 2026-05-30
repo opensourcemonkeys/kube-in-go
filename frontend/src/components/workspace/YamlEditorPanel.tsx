@@ -21,12 +21,13 @@ import {
     GetResourceQuotaYaml, UpdateResourceQuotaYaml,
     GetServiceYaml, UpdateServiceYaml,
     GetIngressYaml, UpdateIngressYaml,
+    GetIngressClassYaml,
     GetEndpointYaml,
     GetLimitRangeYaml, UpdateLimitRangeYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange';
     name: string;
     namespace: string;
 }
@@ -74,6 +75,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetServiceYaml(name, namespace);
                 } else if (resourceKind === 'ingress') {
                     result = await GetIngressYaml(name, namespace);
+                } else if (resourceKind === 'ingressclass') {
+                    result = await GetIngressClassYaml(name);
                 } else if (resourceKind === 'endpoint') {
                     result = await GetEndpointYaml(name, namespace);
                 } else if (resourceKind === 'limitrange') {

@@ -11,6 +11,7 @@ const viewLabels: Record<string, string> = {
     cronjobs: 'CronJobs',
     services: 'Services',
     ingresses: 'Ingresses',
+    ingressclasses: 'Ingress Classes',
     endpoints: 'Endpoints',
     networkpolicies: 'Network Policies',
     configmaps: 'ConfigMaps',
@@ -35,7 +36,7 @@ export interface TabDef {
 }
 
 export interface YamlPanelDef {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange';
     name: string;
     namespace: string;
     /** dockview panel id of the list panel to split beside */

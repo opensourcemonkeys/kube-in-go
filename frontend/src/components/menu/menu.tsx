@@ -1,19 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTabContext } from '../../contexts/TabContext';
+import { NAV_GROUPS, VIEW_GROUP, NavItem } from './menuItems';
 
 const SIDEBAR_STATE_KEY = 'kube-sidebar-state';
-
-const VIEW_GROUP: Record<string, string> = {
-    pods: 'workloads', deployments: 'workloads', statefulsets: 'workloads',
-    replicasets: 'workloads', daemonsets: 'workloads', jobs: 'workloads', cronjobs: 'workloads',
-    services: 'networking', ingresses: 'networking', endpoints: 'networking', networkpolicies: 'networking',
-    configmaps: 'config', secrets: 'config', serviceaccounts: 'config', roles: 'config', rolebindings: 'config',
-    persistentvolumes: 'storage', persistentvolumeclaims: 'storage', storageclasses: 'storage',
-    nodes: 'cluster', namespaces: 'cluster', events: 'cluster', resourcequotas: 'cluster', limitranges: 'cluster',
-};
-
-type NavItem = { label: string; view: string; icon: string };
-type NavGroup = { key: string; label: string; sectionIcon: React.ReactNode; items: NavItem[] };
 
 const WorkloadsIcon = () => (
     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -42,42 +31,13 @@ const ClusterIcon = () => (
     </svg>
 );
 
-const NAV: NavGroup[] = [
-    { key: 'workloads', label: 'WORKLOADS', sectionIcon: <WorkloadsIcon />, items: [
-        { label: 'Pods',         view: 'pods',         icon: 'pi pi-circle' },
-        { label: 'Deployments',  view: 'deployments',  icon: 'pi pi-clone' },
-        { label: 'StatefulSets', view: 'statefulsets', icon: 'pi pi-database' },
-        { label: 'ReplicaSets',  view: 'replicasets',  icon: 'pi pi-copy' },
-        { label: 'DaemonSets',   view: 'daemonsets',   icon: 'pi pi-desktop' },
-        { label: 'Jobs',         view: 'jobs',         icon: 'pi pi-play-circle' },
-        { label: 'CronJobs',     view: 'cronjobs',     icon: 'pi pi-clock' },
-    ]},
-    { key: 'networking', label: 'NETWORKING', sectionIcon: <NetworkIcon />, items: [
-        { label: 'Services',         view: 'services',        icon: 'pi pi-arrows-h' },
-        { label: 'Ingresses',        view: 'ingresses',       icon: 'pi pi-globe' },
-        { label: 'Endpoints',        view: 'endpoints',       icon: 'pi pi-share-alt' },
-        { label: 'Network Policies', view: 'networkpolicies', icon: 'pi pi-shield' },
-    ]},
-    { key: 'config', label: 'CONFIG & SECURITY', sectionIcon: <ConfigIcon />, items: [
-        { label: 'ConfigMaps',       view: 'configmaps',         icon: 'pi pi-file-edit' },
-        { label: 'Secrets',          view: 'secrets',            icon: 'pi pi-key' },
-        { label: 'Service Accounts', view: 'serviceaccounts',    icon: 'pi pi-id-card' },
-        { label: 'Roles',            view: 'roles',              icon: 'pi pi-lock' },
-        { label: 'Role Bindings',    view: 'rolebindings',       icon: 'pi pi-link' },
-    ]},
-    { key: 'storage', label: 'STORAGE', sectionIcon: <StorageIcon />, items: [
-        { label: 'Persistent Volumes', view: 'persistentvolumes',      icon: 'pi pi-folder' },
-        { label: 'Volume Claims',      view: 'persistentvolumeclaims', icon: 'pi pi-inbox' },
-        { label: 'Storage Classes',    view: 'storageclasses',         icon: 'pi pi-briefcase' },
-    ]},
-    { key: 'cluster', label: 'CLUSTER', sectionIcon: <ClusterIcon />, items: [
-        { label: 'Nodes',           view: 'nodes',          icon: 'pi pi-server' },
-        { label: 'Namespaces',      view: 'namespaces',     icon: 'pi pi-sitemap' },
-        { label: 'Events',          view: 'events',         icon: 'pi pi-bell' },
-        { label: 'Resource Quotas', view: 'resourcequotas', icon: 'pi pi-chart-bar' },
-        { label: 'Limit Ranges',    view: 'limitranges',    icon: 'pi pi-sliders-h' },
-    ]},
-];
+const GROUP_ICONS: Record<string, React.ReactNode> = {
+    workloads:  <WorkloadsIcon />,
+    networking: <NetworkIcon />,
+    config:     <ConfigIcon />,
+    storage:    <StorageIcon />,
+    cluster:    <ClusterIcon />,
+};
 
 export default function SideMenu() {
     const { openTab } = useTabContext();
@@ -115,7 +75,7 @@ export default function SideMenu() {
 
     return (
         <nav id="tour-sidebar" className="sidebar-nav">
-            {NAV.map(group => (
+            {NAV_GROUPS.map(group => (
                 <div key={group.key} className="sidebar-section">
                     <button
                         className="sidebar-section__toggle"
@@ -131,7 +91,7 @@ export default function SideMenu() {
                             <path d="M4 6l4 4 4-4"/>
                         </svg>
                         <span className="sidebar-section__badge">
-                            <span className="sidebar-section__badge-icon">{group.sectionIcon}</span>
+                            <span className="sidebar-section__badge-icon">{GROUP_ICONS[group.key]}</span>
                             <span className="sidebar-section__badge-label">{group.label}</span>
                         </span>
                     </button>

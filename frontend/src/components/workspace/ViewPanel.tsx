@@ -8,6 +8,7 @@ import JobListComponent from '../job/main';
 import CronJobListComponent from '../cronjob/main';
 import ServiceListComponent from '../service/main';
 import IngressListComponent from '../ingress/main';
+import IngressClassListComponent from '../ingressclass/main';
 import EndpointListComponent from '../endpoints/main';
 import NetworkPolicyListComponent from '../networkpolicy/main';
 import ConfigMapListComponent from '../configmap/main';
@@ -61,6 +62,7 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'cronjobs') return <CronJobListComponent />;
     if (view === 'services') return <ServiceListComponent />;
     if (view === 'ingresses') return <IngressListComponent />;
+    if (view === 'ingressclasses') return <IngressClassListComponent />;
     if (view === 'endpoints') return <EndpointListComponent />;
     if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
     if (view === 'configmaps') return <ConfigMapListComponent />;

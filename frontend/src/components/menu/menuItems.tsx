@@ -1,119 +1,44 @@
-import { MenuItem } from 'primereact/menuitem';
-import { TabDef } from '../../contexts/TabContext';
+export type NavItem = { label: string; view: string; icon: string };
+export type NavGroup = { key: string; label: string; items: NavItem[] };
 
-export type PanelMenuItem = MenuItem & { key?: string };
+export const NAV_GROUPS: NavGroup[] = [
+    { key: 'workloads', label: 'WORKLOADS', items: [
+        { label: 'Pods',         view: 'pods',         icon: 'pi pi-circle' },
+        { label: 'Deployments',  view: 'deployments',  icon: 'pi pi-clone' },
+        { label: 'StatefulSets', view: 'statefulsets', icon: 'pi pi-database' },
+        { label: 'ReplicaSets',  view: 'replicasets',  icon: 'pi pi-copy' },
+        { label: 'DaemonSets',   view: 'daemonsets',   icon: 'pi pi-desktop' },
+        { label: 'Jobs',         view: 'jobs',         icon: 'pi pi-play-circle' },
+        { label: 'CronJobs',     view: 'cronjobs',     icon: 'pi pi-clock' },
+    ]},
+    { key: 'networking', label: 'NETWORKING', items: [
+        { label: 'Services',         view: 'services',        icon: 'pi pi-arrows-h' },
+        { label: 'Ingresses',        view: 'ingresses',       icon: 'pi pi-globe' },
+        { label: 'Ingress Classes',  view: 'ingressclasses',  icon: 'pi pi-sitemap' },
+        { label: 'Endpoints',        view: 'endpoints',       icon: 'pi pi-share-alt' },
+        { label: 'Network Policies', view: 'networkpolicies', icon: 'pi pi-shield' },
+    ]},
+    { key: 'config', label: 'CONFIG & SECURITY', items: [
+        { label: 'ConfigMaps',       view: 'configmaps',          icon: 'pi pi-file-edit' },
+        { label: 'Secrets',          view: 'secrets',             icon: 'pi pi-key' },
+        { label: 'Service Accounts', view: 'serviceaccounts',     icon: 'pi pi-id-card' },
+        { label: 'Roles',            view: 'roles',               icon: 'pi pi-lock' },
+        { label: 'Role Bindings',    view: 'rolebindings',        icon: 'pi pi-link' },
+    ]},
+    { key: 'storage', label: 'STORAGE', items: [
+        { label: 'Persistent Volumes', view: 'persistentvolumes',      icon: 'pi pi-folder' },
+        { label: 'Volume Claims',      view: 'persistentvolumeclaims', icon: 'pi pi-inbox' },
+        { label: 'Storage Classes',    view: 'storageclasses',         icon: 'pi pi-briefcase' },
+    ]},
+    { key: 'cluster', label: 'CLUSTER', items: [
+        { label: 'Nodes',           view: 'nodes',          icon: 'pi pi-server' },
+        { label: 'Namespaces',      view: 'namespaces',     icon: 'pi pi-sitemap' },
+        { label: 'Events',          view: 'events',         icon: 'pi pi-bell' },
+        { label: 'Resource Quotas', view: 'resourcequotas', icon: 'pi pi-chart-bar' },
+        { label: 'Limit Ranges',    view: 'limitranges',    icon: 'pi pi-sliders-h' },
+    ]},
+];
 
-export const viewGroupMap: Record<string, string> = {
-    pods: 'workloads',
-    deployments: 'workloads',
-    statefulsets: 'workloads',
-    replicasets: 'workloads',
-    daemonsets: 'workloads',
-    jobs: 'workloads',
-    cronjobs: 'workloads',
-    services: 'networking',
-    ingresses: 'networking',
-    endpoints: 'networking',
-    networkpolicies: 'networking',
-    configmaps: 'config-security',
-    secrets: 'config-security',
-    serviceaccounts: 'config-security',
-    roles: 'config-security',
-    rolebindings: 'config-security',
-    persistentvolumes: 'storage',
-    persistentvolumeclaims: 'storage',
-    storageclasses: 'storage',
-    nodes: 'cluster',
-    namespaces: 'cluster',
-    events: 'cluster',
-    resourcequotas: 'cluster',
-    limitranges: 'cluster',
-};
-
-const createItem = (
-    label: string,
-    icon: string,
-    view: string,
-    openTab: (def: TabDef) => void,
-    setActiveView: (v: string) => void,
-    activeView: string
-): MenuItem => ({
-    label,
-    icon,
-    command: () => {
-        setActiveView(view);
-        openTab({ view, title: label, icon });
-    },
-    className: activeView === view ? 'text-primary font-semibold' : undefined,
-});
-
-export function getMenuItems(
-    openTab: (def: TabDef) => void,
-    setActiveView: (v: string) => void,
-    activeView: string
-): PanelMenuItem[] {
-    const item = (label: string, icon: string, view: string) =>
-        createItem(label, icon, view, openTab, setActiveView, activeView);
-
-    return [
-        {
-            key: 'workloads',
-            label: 'Workloads',
-            icon: 'pi pi-box',
-            items: [
-                item('Pods', 'pi pi-box', 'pods'),
-                item('Deployments', 'pi pi-clone', 'deployments'),
-                item('StatefulSets', 'pi pi-database', 'statefulsets'),
-                item('ReplicaSets', 'pi pi-copy', 'replicasets'),
-                item('DaemonSets', 'pi pi-desktop', 'daemonsets'),
-                item('Jobs', 'pi pi-play-circle', 'jobs'),
-                item('CronJobs', 'pi pi-clock', 'cronjobs'),
-            ],
-        },
-        {
-            key: 'networking',
-            label: 'Networking',
-            icon: 'pi pi-globe',
-            items: [
-                item('Services', 'pi pi-directions-alt', 'services'),
-                item('Ingresses', 'pi pi-globe', 'ingresses'),
-                item('Endpoints', 'pi pi-share-alt', 'endpoints'),
-                item('Network Policies', 'pi pi-shield', 'networkpolicies'),
-            ],
-        },
-        {
-            key: 'config-security',
-            label: 'Config & Security',
-            icon: 'pi pi-key',
-            items: [
-                item('ConfigMaps', 'pi pi-file-edit', 'configmaps'),
-                item('Secrets', 'pi pi-key', 'secrets'),
-                item('Service Accounts', 'pi pi-id-card', 'serviceaccounts'),
-                item('Roles', 'pi pi-lock', 'roles'),
-                item('Role Bindings', 'pi pi-link', 'rolebindings'),
-            ],
-        },
-        {
-            key: 'storage',
-            label: 'Storage',
-            icon: 'pi pi-folder',
-            items: [
-                item('Persistent Volumes', 'pi pi-folder', 'persistentvolumes'),
-                item('Volume Claims', 'pi pi-inbox', 'persistentvolumeclaims'),
-                item('Storage Classes', 'pi pi-briefcase', 'storageclasses'),
-            ],
-        },
-        {
-            key: 'cluster',
-            label: 'Cluster',
-            icon: 'pi pi-server',
-            items: [
-                item('Nodes', 'pi pi-server', 'nodes'),
-                item('Namespaces', 'pi pi-sitemap', 'namespaces'),
-                item('Events', 'pi pi-bell', 'events'),
-                item('Resource Quotas', 'pi pi-chart-bar', 'resourcequotas'),
-                item('Limit Ranges', 'pi pi-sliders-h', 'limitranges'),
-            ],
-        },
-    ];
-}
+export const VIEW_GROUP: Record<string, string> = Object.fromEntries(
+    NAV_GROUPS.flatMap(g => g.items.map(item => [item.view, g.key]))
+);
