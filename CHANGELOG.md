@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.1-alpha] - 2026-05-30
+
+### Fixed
+
+#### CI/CD
+- Linux package filenames now use `-` instead of `~` as the pre-release separator (`version_schema: none` in nfpm)
+- Linux package filenames include platform label: `debian` for `.deb`, `rhel` for `.rpm`
+- Windows installer filename includes version and platform: `kube-ins-<version>-windows-amd64.exe`
+- NSIS (`makensis`) added to PATH after winget install step to fix "Cannot create installer: makensis not found" error
+- GitHub Actions pipeline consolidated: Linux build and packaging merged into a single job
+
+#### Documentation
+- Installation guide updated: replaced EOL distro versions (Ubuntu 20.04, Debian 10, Fedora 36/37, openSUSE 15.4/15.5, etc.) with currently supported releases
+- Linux dependency install commands corrected: runtime packages used instead of `-dev` packages; WebKitGTK 4.0/4.1 split by distro version
+- Windows section updated to reflect NSIS installer workflow instead of plain binary
+- Download table updated with current file naming format
+
+---
+
 ## [v0.3.0-alpha] - 2026-05-30
 
 ### Added
