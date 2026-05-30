@@ -20,9 +20,18 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.tracking
+    - toc.integrate
+    
     - search.highlight
+    - search.share
     - search.suggest
     - content.code.copy
+    - content.code.annotate
+    - content.code.tabbed
+    - content.code.superfences
+    - content.code.highlight
+    - content.code.inline 
   icon:
     repo: fontawesome/brands/github
 
