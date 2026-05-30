@@ -55,7 +55,7 @@ jobs:
         run: |
           VERSION=${GITHUB_REF_NAME#v}
           mv dist/kube-ins_${VERSION}_amd64.deb dist/kube-ins-${VERSION}-debian-amd64.deb
-          mv dist/kube-ins-${VERSION}.x86_64.rpm dist/kube-ins-${VERSION}-rhel-x86_64.rpm
+          mv dist/kube-ins-${VERSION}-1.x86_64.rpm dist/kube-ins-${VERSION}-rhel-x86_64.rpm
 
       - name: Upload Linux Packages
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

@@ -10,10 +10,13 @@ export default defineConfig({
     alias: {
       'next/navigation': new URL('src/lib/next-stub.ts', import.meta.url).pathname,
       'next/router': new URL('src/lib/next-stub.ts', import.meta.url).pathname,
-      '@fontsource/geist/400.css': nm('@fontsource/geist/400.css'),
-      '@fontsource/geist/600.css': nm('@fontsource/geist/600.css'),
-      '@fontsource/geist/700.css': nm('@fontsource/geist/700.css'),
+      '@fontsource/inter/400.css': nm('@fontsource/inter/400.css'),
+      '@fontsource/inter/500.css': nm('@fontsource/inter/500.css'),
+      '@fontsource/inter/600.css': nm('@fontsource/inter/600.css'),
+      '@fontsource/inter/700.css': nm('@fontsource/inter/700.css'),
       '@fontsource/jetbrains-mono/400.css': nm('@fontsource/jetbrains-mono/400.css'),
+      '@fontsource/jetbrains-mono/500.css': nm('@fontsource/jetbrains-mono/500.css'),
+      '@fontsource/jetbrains-mono/600.css': nm('@fontsource/jetbrains-mono/600.css'),
     }
   }
 })

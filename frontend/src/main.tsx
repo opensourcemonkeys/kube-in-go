@@ -12,10 +12,13 @@ const container = document.getElementById('root')
 const root = createRoot(container!)
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";
-import '@fontsource/geist/400.css';
-import '@fontsource/geist/600.css';
-import '@fontsource/geist/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
 import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/600.css';
 import './theme-monolith.css';
 
 // root.render(
