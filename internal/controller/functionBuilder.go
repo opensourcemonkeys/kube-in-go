@@ -390,6 +390,46 @@ func (a *App) GetEndpointYaml(name string, namespace string) (string, error) {
 }
 
 // ============================================================================
+// Storage Screen: Persistent Volumes
+// ============================================================================
+
+func (a *App) GetPersistentVolumes() []models.PersistentVolumeInfo {
+	return bussiness.GetPersistentVolumes()
+}
+
+func (a *App) GetPersistentVolumeYaml(name string) (string, error) {
+	return bussiness.GetPersistentVolumeYaml(name)
+}
+
+// ============================================================================
+// Storage Screen: Persistent Volume Claims
+// ============================================================================
+
+func (a *App) GetPersistentVolumeClaims() []models.PersistentVolumeClaimInfo {
+	return bussiness.GetPersistentVolumeClaims()
+}
+
+func (a *App) DeletePersistentVolumeClaim(name string, namespace string) error {
+	return bussiness.DeletePersistentVolumeClaim(name, namespace)
+}
+
+func (a *App) GetPersistentVolumeClaimYaml(name string, namespace string) (string, error) {
+	return bussiness.GetPersistentVolumeClaimYaml(name, namespace)
+}
+
+// ============================================================================
+// Storage Screen: Storage Classes
+// ============================================================================
+
+func (a *App) GetStorageClasses() []models.StorageClassInfo {
+	return bussiness.GetStorageClasses()
+}
+
+func (a *App) GetStorageClassYaml(name string) (string, error) {
+	return bussiness.GetStorageClassYaml(name)
+}
+
+// ============================================================================
 // YAML Editor Screen
 // ============================================================================
 

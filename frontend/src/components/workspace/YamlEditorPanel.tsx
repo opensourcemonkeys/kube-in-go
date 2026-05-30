@@ -24,10 +24,13 @@ import {
     GetIngressClassYaml,
     GetEndpointYaml,
     GetLimitRangeYaml, UpdateLimitRangeYaml,
+    GetPersistentVolumeYaml,
+    GetPersistentVolumeClaimYaml,
+    GetStorageClassYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass';
     name: string;
     namespace: string;
 }
@@ -81,6 +84,12 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetEndpointYaml(name, namespace);
                 } else if (resourceKind === 'limitrange') {
                     result = await GetLimitRangeYaml(name, namespace);
+                } else if (resourceKind === 'persistentvolume') {
+                    result = await GetPersistentVolumeYaml(name);
+                } else if (resourceKind === 'persistentvolumeclaim') {
+                    result = await GetPersistentVolumeClaimYaml(name, namespace);
+                } else if (resourceKind === 'storageclass') {
+                    result = await GetStorageClassYaml(name);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);

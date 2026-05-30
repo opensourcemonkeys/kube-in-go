@@ -18,6 +18,9 @@ import NamespaceListComponent from '../namespace/main';
 import ResourceQuotaListComponent from '../resourcequota/main';
 import EventListComponent from '../events/main';
 import LimitRangeListComponent from '../limitrange/main';
+import PersistentVolumeListComponent from '../persistentvolume/main';
+import PersistentVolumeClaimListComponent from '../persistentvolumeclaim/main';
+import StorageClassListComponent from '../storageclass/main';
 
 interface ViewPanelParams {
     view: string;
@@ -72,6 +75,9 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'events') return <EventListComponent />;
     if (view === 'resourcequotas') return <ResourceQuotaListComponent />;
     if (view === 'limitranges') return <LimitRangeListComponent />;
+    if (view === 'persistentvolumes') return <PersistentVolumeListComponent />;
+    if (view === 'persistentvolumeclaims') return <PersistentVolumeClaimListComponent />;
+    if (view === 'storageclasses') return <StorageClassListComponent />;
 
     return (
         <div className="card p-4">
