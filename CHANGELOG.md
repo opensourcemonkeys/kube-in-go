@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.4.0-alpha] - 2026-05-30
+
+### Added
+
+#### Storage
+- **Persistent Volumes** — DataTable showing status, capacity, access modes, reclaim policy, storage class, volume mode and bound claim; read-only YAML view
+- **Volume Claims** — DataTable with request/limit columns (instead of generic capacity), status tag, multi-select delete, read-only YAML view
+- **Storage Classes** — DataTable with default tag, provisioner, reclaim policy, binding mode; read-only YAML view
+
+#### Networking
+- **Ingresses** — DataTable with class, hosts, paths, address and TLS tag; YAML view/edit, delete action
+- **Ingress Classes** — cluster-scoped resource; default tag, controller column; read-only YAML view
+- **Endpoints** — DataTable with ready/not-ready address counts and port info; read-only YAML view
+
+#### Cluster
+- **Events** — DataTable with message truncation (40 chars), warning-only toggle filter, 5 s polling; double-click opens detail modal with full message
+- **Limit Ranges** — DataTable with type tags and per-type CPU/memory columns; list button opens full resource table modal; YAML view/edit
+
+#### Pod Exec
+- **Exec into pod** — new terminal panel per pod opened via the Exec button in the pod list; uses `kubectl exec`-equivalent SPDY streaming via `k8s.io/client-go/tools/remotecommand`
+- Pod list now exposes two action buttons per row: **Logs** (article icon) and **Exec** (terminal icon)
+- `containers` field added to `PodInfo` model; exec session defaults to the first container
+
+#### UI
+- **Material Icons** (`@mui/icons-material`) added as icon library alongside PrimeIcons; used for pod action buttons
+- Menu consolidated to a single source of truth in `menuItems.tsx`; `menu.tsx` no longer duplicates nav item definitions
+
+---
+
 ## [v0.3.2-alpha] - 2026-05-30
 
 ### Added
