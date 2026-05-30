@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.3.0-alpha] - 2026-05-30
+
+### Added
+
+#### Networking
+- **Services** — DataTable with namespace filter, port/type tags, YAML view/edit, delete action
+
+#### UI / UX
+- **Onboarding Tour** — step-by-step guided tour on first launch covering key panels and actions
+- **About Modal** — app version, build info, and repository link accessible from the cluster bar
+
+#### Editor
+- **Kubernetes YAML Schema Validation** — Monaco editor validates YAML against the full Kubernetes API schema; inline errors and autocompletion for all resource types
+
+#### CI/CD
+- Linux packages (`.deb` and `.rpm`) built with nfpm and published to GitHub Releases
+- Windows NSIS installer built with `wails build -nsis` and published to GitHub Releases
+- Makefile build targets: `build-linux`, `build-windows`, `pkg-deb`, `pkg-rpm`, `pkg-all`
+- GitHub Actions pipeline split into Build & Package stage and Release stage
+
+### Changed
+- Dockview panel drag-and-drop uses a custom drag event for more reliable panel reordering
+- Node and ResourceQuota screens refactored: leaner component structure, reduced DOM nesting
+
+### Removed
+- AI Assistant panel and all related backend endpoints
+
+---
+
 ## [v0.2.0-alpha] - 2026-05-24
 
 ### Added
