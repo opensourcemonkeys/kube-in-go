@@ -322,6 +322,38 @@ func (a *App) UpdateServiceYaml(name string, namespace string, yamlContent strin
 }
 
 // ============================================================================
+// Network Screen: Ingresses
+// ============================================================================
+
+func (a *App) GetIngresses() []models.IngressInfo {
+	return bussiness.GetIngresses()
+}
+
+func (a *App) DeleteIngress(name string, namespace string) error {
+	return bussiness.DeleteIngress(name, namespace)
+}
+
+func (a *App) GetIngressYaml(name string, namespace string) (string, error) {
+	return bussiness.GetIngressYaml(name, namespace)
+}
+
+func (a *App) UpdateIngressYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateIngressYaml(name, namespace, yamlContent)
+}
+
+// ============================================================================
+// Network Screen: Endpoints
+// ============================================================================
+
+func (a *App) GetEndpoints() []models.EndpointInfo {
+	return bussiness.GetEndpoints()
+}
+
+func (a *App) GetEndpointYaml(name string, namespace string) (string, error) {
+	return bussiness.GetEndpointYaml(name, namespace)
+}
+
+// ============================================================================
 // YAML Editor Screen
 // ============================================================================
 

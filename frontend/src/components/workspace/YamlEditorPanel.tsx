@@ -20,15 +20,17 @@ import {
     GetNamespaceYaml,
     GetResourceQuotaYaml, UpdateResourceQuotaYaml,
     GetServiceYaml, UpdateServiceYaml,
+    GetIngressYaml, UpdateIngressYaml,
+    GetEndpointYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'configmap', 'secret', 'node', 'resourcequota'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -69,6 +71,10 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetResourceQuotaYaml(name, namespace);
                 } else if (resourceKind === 'service') {
                     result = await GetServiceYaml(name, namespace);
+                } else if (resourceKind === 'ingress') {
+                    result = await GetIngressYaml(name, namespace);
+                } else if (resourceKind === 'endpoint') {
+                    result = await GetEndpointYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -250,6 +256,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateResourceQuotaYaml(name, namespace, value);
             } else if (resourceKind === 'service') {
                 await UpdateServiceYaml(name, namespace, value);
+            } else if (resourceKind === 'ingress') {
+                await UpdateIngressYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

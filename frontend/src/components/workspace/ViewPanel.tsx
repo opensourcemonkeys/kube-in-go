@@ -7,6 +7,8 @@ import DaemonSetListComponent from '../daemonset/main';
 import JobListComponent from '../job/main';
 import CronJobListComponent from '../cronjob/main';
 import ServiceListComponent from '../service/main';
+import IngressListComponent from '../ingress/main';
+import EndpointListComponent from '../endpoints/main';
 import NetworkPolicyListComponent from '../networkpolicy/main';
 import ConfigMapListComponent from '../configmap/main';
 import SecretListComponent from '../secret/main';
@@ -56,6 +58,8 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'jobs') return <JobListComponent />;
     if (view === 'cronjobs') return <CronJobListComponent />;
     if (view === 'services') return <ServiceListComponent />;
+    if (view === 'ingresses') return <IngressListComponent />;
+    if (view === 'endpoints') return <EndpointListComponent />;
     if (view === 'networkpolicies') return <NetworkPolicyListComponent />;
     if (view === 'configmaps') return <ConfigMapListComponent />;
     if (view === 'secrets') return <SecretListComponent />;
