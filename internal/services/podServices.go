@@ -48,11 +48,16 @@ func GetPodYaml(namespace string, name string, repoK8sClient *kubernetes.Clients
 }
 
 func podToInfo(pod corev1.Pod) models.PodInfo {
+	containers := make([]string, 0, len(pod.Spec.Containers))
+	for _, c := range pod.Spec.Containers {
+		containers = append(containers, c.Name)
+	}
 	return models.PodInfo{
-		Name:      pod.Name,
-		Namespace: pod.Namespace,
-		Status:    getPodStatus(pod),
-		CreatedAt: pod.CreationTimestamp.Time.Format(time.RFC3339),
+		Name:       pod.Name,
+		Namespace:  pod.Namespace,
+		Status:     getPodStatus(pod),
+		Containers: containers,
+		CreatedAt:  pod.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }
 

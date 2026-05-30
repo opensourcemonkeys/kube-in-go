@@ -50,6 +50,13 @@ export interface LogPanelDef {
     referencePanel: string;
 }
 
+export interface ExecPanelDef {
+    name: string;
+    namespace: string;
+    container: string;
+    referencePanel: string;
+}
+
 export interface PolicyViewerDef {
     name: string;
     namespace: string;
@@ -73,6 +80,7 @@ interface TabContextValue {
     openTab: (def: TabDef) => void;
     openYamlPanel: (def: YamlPanelDef) => void;
     openLogPanel: (def: LogPanelDef) => void;
+    openExecPanel: (def: ExecPanelDef) => void;
     openPolicyViewer: (def: PolicyViewerDef) => void;
     openConfigMapEditor: (def: ConfigMapEditorDef) => void;
     openSecretEditor: (def: SecretEditorDef) => void;
@@ -160,6 +168,37 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
                 resourceKind: def.resourceKind,
                 name: def.name,
                 namespace: def.namespace,
+            },
+        };
+
+        if (api.getPanel(def.referencePanel)) {
+            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
+        }
+
+        api.addPanel(addOptions);
+    }, []);
+
+    const openExecPanel = useCallback((def: ExecPanelDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `exec:${def.namespace}/${def.name}:${def.container}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const sessionId = `exec-${Date.now()}`;
+        const addOptions: any = {
+            id: panelId,
+            component: 'podExec',
+            title: `Exec • ${def.namespace}/${def.name}`,
+            params: {
+                sessionId,
+                name: def.name,
+                namespace: def.namespace,
+                container: def.container,
             },
         };
 
@@ -294,7 +333,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openTerminal, openApplyYaml, openClusterResourceView }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openTerminal, openApplyYaml, openClusterResourceView }}>
             {children}
         </TabContext.Provider>
     );

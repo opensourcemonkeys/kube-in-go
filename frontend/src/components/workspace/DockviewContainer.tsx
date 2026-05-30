@@ -11,6 +11,7 @@ import PolicyViewerPanel from '../networkpolicy/PolicyViewerPanel';
 import ClusterResourcePanel from '../clusterresource/ClusterResourcePanel';
 import ConfigMapEditorPanel from '../configmap/ConfigMapEditorPanel';
 import SecretEditorPanel from '../secret/SecretEditorPanel';
+import PodExecPanel from '../pod/PodExecPanel';
 
 const components = {
     view: ViewPanel,
@@ -22,6 +23,7 @@ const components = {
     clusterResource: ClusterResourcePanel,
     configMapEditor: ConfigMapEditorPanel,
     secretEditor: SecretEditorPanel,
+    podExec: PodExecPanel,
 };
 
 export default function DockviewContainer() {

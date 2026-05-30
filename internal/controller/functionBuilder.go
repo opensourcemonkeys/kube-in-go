@@ -83,6 +83,24 @@ func (a *App) GetPodYaml(name string, namespace string) (string, error) {
 	return bussiness.GetPodYaml(name, namespace)
 }
 
+func (a *App) CreatePodExecSession(sessionId string, namespace string, podName string, container string) error {
+	return bussiness.CreatePodExecSession(sessionId, namespace, podName, container, func(data string) {
+		runtime.EventsEmit(a.ctx, "exec:output:"+sessionId, data)
+	})
+}
+
+func (a *App) WriteToPodExecSession(sessionId string, data string) error {
+	return bussiness.WriteToPodExecSession(sessionId, data)
+}
+
+func (a *App) ResizePodExecSession(sessionId string, cols int, rows int) error {
+	return bussiness.ResizePodExecSession(sessionId, cols, rows)
+}
+
+func (a *App) ClosePodExecSession(sessionId string) error {
+	return bussiness.ClosePodExecSession(sessionId)
+}
+
 // ============================================================================
 // Workloads Screen: Deployments
 // ============================================================================

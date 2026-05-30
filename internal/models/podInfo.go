@@ -11,8 +11,9 @@ const (
 )
 
 type PodInfo struct {
-	Name      string    `json:"name"`
-	Namespace string    `json:"namespace"`
-	Status    PodStatus `json:"status"`
-	CreatedAt string `json:"created_at"`
+	Name       string    `json:"name"`
+	Namespace  string    `json:"namespace"`
+	Status     PodStatus `json:"status"`
+	Containers []string  `json:"containers"`
+	CreatedAt  string    `json:"created_at"`
 }

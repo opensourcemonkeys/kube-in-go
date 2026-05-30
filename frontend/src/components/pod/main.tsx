@@ -7,6 +7,8 @@ import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetPods, DeletePod } from '../../../wailsjs/go/controller_app/App';
+import TerminalIcon from '@mui/icons-material/Terminal';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
@@ -32,7 +34,7 @@ export default function DataTableComponent() {
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
-    const { openYamlPanel, openLogPanel } = useTabContext();
+    const { openYamlPanel, openLogPanel, openExecPanel } = useTabContext();
 
     const loadPods = async () => {
         try {
@@ -179,21 +181,38 @@ export default function DataTableComponent() {
                 />
                 <Column
                     header=""
-                    style={{ width: '4rem', textAlign: 'center' }}
+                    style={{ width: '6rem', textAlign: 'center' }}
                     body={(rowData: models.PodInfo) => (
-                        <Button
-                            icon="pi pi-list"
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({
-                                resourceKind: 'pod',
-                                name: rowData.name,
-                                namespace: rowData.namespace,
-                                referencePanel: 'pods',
-                            })}
-                        />
+                        <div style={{ display: 'flex', gap: '0.2rem', justifyContent: 'center' }}>
+                            <Button
+                                text
+                                size="small"
+                                severity="secondary"
+                                style={{ padding: '0.2rem' }}
+                                onClick={() => openLogPanel({
+                                    resourceKind: 'pod',
+                                    name: rowData.name,
+                                    namespace: rowData.namespace,
+                                    referencePanel: 'pods',
+                                })}
+                            >
+                                <ArticleOutlinedIcon style={{ fontSize: '16px' }} />
+                            </Button>
+                            <Button
+                                text
+                                size="small"
+                                severity="secondary"
+                                style={{ padding: '0.2rem' }}
+                                onClick={() => openExecPanel({
+                                    name: rowData.name,
+                                    namespace: rowData.namespace,
+                                    container: (rowData.containers && rowData.containers.length > 0) ? rowData.containers[0] : '',
+                                    referencePanel: 'pods',
+                                })}
+                            >
+                                <TerminalIcon style={{ fontSize: '16px' }} />
+                            </Button>
+                        </div>
                     )}
                 />
             </DataTable>
