@@ -103,7 +103,7 @@ export default function SideMenu() {
                                     className={`sidebar-item${activeView === item.view ? ' sidebar-item--active' : ''}`}
                                     onClick={() => navigate(item)}
                                 >
-                                    <i className={`${item.icon} sidebar-item__icon`} />
+                                    <span className="sidebar-item__icon">{item.icon}</span>
                                     <span className="sidebar-item__label">{item.label}</span>
                                 </button>
                             ))}

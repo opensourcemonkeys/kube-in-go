@@ -2,6 +2,9 @@ import { useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { Button } from 'primereact/button';
+import UploadOutlined from '@mui/icons-material/UploadOutlined';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import SendOutlined from '@mui/icons-material/SendOutlined';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
 import { ApplyYaml } from '../../../wailsjs/go/controller_app/App';
@@ -66,13 +69,13 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
 
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <i className="pi pi-upload" />{' '}
+                    <UploadOutlined style={{ fontSize: '0.9rem' }} />{' '}
                     YAML Editor
                 </span>
                 <div className="flex align-items-center gap-1 flex-shrink-0">
                     <Button
                         label="Clear"
-                        icon="pi pi-trash"
+                        icon={<DeleteOutlineOutlined fontSize="small" />}
                         text
                         size="small"
                         severity="secondary"
@@ -81,7 +84,7 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                     />
                     <Button
                         label="Apply"
-                        icon="pi pi-send"
+                        icon={<SendOutlined fontSize="small" />}
                         size="small"
                         loading={applying}
                         onClick={handleApply}

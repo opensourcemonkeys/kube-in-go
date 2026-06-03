@@ -32,7 +32,7 @@ const viewLabels: Record<string, string> = {
 export interface TabDef {
     view: string;
     title: string;
-    icon?: string;
+    icon?: React.ReactNode;
 }
 
 export interface YamlPanelDef {
@@ -114,7 +114,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: def.view,
             component: 'view',
             title: def.title,
-            params: { view: def.view, icon: def.icon ?? '' },
+            params: { view: def.view, icon: def.icon ?? null },
         });
     }, []);
 

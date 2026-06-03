@@ -1,5 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
+import React from 'react';
+import PublicOutlined from '@mui/icons-material/PublicOutlined';
+import AccountTreeOutlined from '@mui/icons-material/AccountTreeOutlined';
+import LayersOutlined from '@mui/icons-material/LayersOutlined';
+import StorageOutlined from '@mui/icons-material/StorageOutlined';
+import DnsOutlined from '@mui/icons-material/DnsOutlined';
+import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
+import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
+import { CircularProgress } from '@mui/material';
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
+import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined';
 import ReactFlow, {
     Background,
     Controls,
@@ -35,14 +46,14 @@ interface ClusterGraph {
 
 // ── Kind config ───────────────────────────────────────────────────────────────
 
-const KIND_CONFIG: Record<string, { color: string; icon: string; column: number }> = {
-    Ingress:     { color: '#ef4444', icon: 'pi-globe',    column: 0 },
-    Service:     { color: '#f97316', icon: 'pi-sitemap',  column: 1 },
-    Deployment:  { color: '#10b981', icon: 'pi-layers',   column: 2 },
-    StatefulSet: { color: '#8b5cf6', icon: 'pi-database', column: 2 },
-    DaemonSet:   { color: '#f59e0b', icon: 'pi-server',   column: 2 },
-    ReplicaSet:  { color: '#06b6d4', icon: 'pi-copy',     column: 3 },
-    Pod:         { color: '#3b82f6', icon: 'pi-box',      column: 4 },
+const KIND_CONFIG: Record<string, { color: string; Icon: React.ComponentType<{ style?: React.CSSProperties }>; column: number }> = {
+    Ingress:     { color: '#ef4444', Icon: PublicOutlined,       column: 0 },
+    Service:     { color: '#f97316', Icon: AccountTreeOutlined,  column: 1 },
+    Deployment:  { color: '#10b981', Icon: LayersOutlined,       column: 2 },
+    StatefulSet: { color: '#8b5cf6', Icon: StorageOutlined,      column: 2 },
+    DaemonSet:   { color: '#f59e0b', Icon: DnsOutlined,          column: 2 },
+    ReplicaSet:  { color: '#06b6d4', Icon: ContentCopyOutlined,  column: 3 },
+    Pod:         { color: '#3b82f6', Icon: Inventory2Outlined,   column: 4 },
 };
 
 const NODE_W = 220;
@@ -83,7 +94,7 @@ function statusColor(kind: string, status?: string): string {
 // ── Custom node ───────────────────────────────────────────────────────────────
 
 function K8sNode({ data }: NodeProps<ResourceNode>) {
-    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', icon: 'pi-box', column: 5 };
+    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', Icon: Inventory2Outlined, column: 5 };
     const sc = statusColor(data.kind, data.status);
 
     return (
@@ -101,7 +112,7 @@ function K8sNode({ data }: NodeProps<ResourceNode>) {
                 style={{ background: cfg.color, width: 8, height: 8 }} />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-                <i className={`pi ${cfg.icon}`} style={{ color: cfg.color, fontSize: 11 }} />
+                <cfg.Icon style={{ color: cfg.color, fontSize: 11 }} />
                 <span style={{ color: cfg.color, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     {data.kind}
                 </span>
@@ -325,18 +336,18 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             {/* Toolbar */}
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-2">
-                    <i className="pi pi-sitemap" />{' '}
+                    <AccountTreeOutlined style={{ fontSize: 14 }} />{' '}
                     Cluster Resource Graph
                 </span>
                 <div className="flex align-items-center gap-2">
-                    {loading && <i className="pi pi-spin pi-spinner" style={{ fontSize: 14, color: 'var(--text-color-secondary)' }} />}
+                    {loading && <CircularProgress size={14} style={{ color: 'var(--text-color-secondary)' }} />}
                     <button
                         className="cluster-bar__edit-btn"
                         onClick={load}
                         disabled={loading}
                         title="Refresh"
                     >
-                        <i className="pi pi-refresh" />
+                        <RefreshOutlined style={{ fontSize: 14 }} />
                     </button>
                 </div>
             </div>
@@ -349,7 +360,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             }}>
                 {Object.entries(KIND_CONFIG).map(([kind, cfg]) => (
                     <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: cfg.color }}>
-                        <i className={`pi ${cfg.icon}`} style={{ fontSize: 11 }} />{' '}
+                        <cfg.Icon style={{ fontSize: 11 }} />{' '}
                         {kind}
                     </span>
                 ))}
@@ -373,10 +384,10 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
                 {error ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: '#ef4444' }}>
-                        <i className="pi pi-exclamation-triangle" style={{ fontSize: 32 }} />
+                        <WarningAmberOutlined style={{ fontSize: 32 }} />
                         <span style={{ fontSize: 13 }}>{error}</span>
                         <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
-                            <i className="pi pi-refresh" /> Retry
+                            <RefreshOutlined style={{ fontSize: 14 }} /> Retry
                         </button>
                     </div>
                 ) : (

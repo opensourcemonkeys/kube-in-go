@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import FilterListOff from '@mui/icons-material/FilterListOff';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import Close from '@mui/icons-material/Close';
+import ListOutlined from '@mui/icons-material/ListOutlined';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -21,7 +25,7 @@ function ReplicaSetAvailableBody({ row }: { row: models.ReplicaSetInfo }) {
 function ReplicaSetActionsBody({ row, onOpenLog }: { row: models.ReplicaSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
-            icon="pi pi-list"
+            icon={<ListOutlined fontSize="small" />}
             text
             size="small"
             severity="secondary"
@@ -91,8 +95,8 @@ export default function ReplicaSetListComponent() {
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon="pi pi-times" text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -103,8 +107,8 @@ export default function ReplicaSetListComponent() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0 }}>ReplicaSet List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-                    <Button icon="pi pi-filter-slash" text severity="secondary" onClick={() => setFilters(defaultFilters)} tooltip="Clear filters" tooltipOptions={{ position: 'left' }} />
-                    <Button label="Delete Selected" icon="pi pi-trash" severity="danger" onClick={() => { if (selected.length > 0) setDeleteDialogVisible(true); }} disabled={selected.length === 0 || deleting} />
+                    <Button icon={<FilterListOff fontSize="small" />} text severity="secondary" onClick={() => setFilters(defaultFilters)} tooltip="Clear filters" tooltipOptions={{ position: 'left' }} />
+                    <Button label="Delete Selected" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={() => { if (selected.length > 0) setDeleteDialogVisible(true); }} disabled={selected.length === 0 || deleting} />
                 </div>
             </div>
 

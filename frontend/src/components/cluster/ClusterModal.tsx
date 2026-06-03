@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import DnsOutlined from '@mui/icons-material/DnsOutlined';
+import Close from '@mui/icons-material/Close';
+import CheckOutlined from '@mui/icons-material/CheckOutlined';
 import { SaveCluster, GetClusterContent } from '../../../wailsjs/go/controller_app/App';
 
 interface Props {
@@ -70,11 +73,11 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
-                        <i className="pi pi-server" style={{ color: 'var(--teal)', fontSize: 16 }} />
+                        <DnsOutlined style={{ color: 'var(--teal)', fontSize: 16 }} />
                         <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
                     </div>
                     <button className="cluster-modal__close" onClick={onClose} title="Close">
-                        <i className="pi pi-times" />
+                        <Close style={{ fontSize: '0.9rem' }} />
                     </button>
                 </div>
 
@@ -114,7 +117,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                 <div className="cluster-modal__footer">
                     <Button
                         label="Cancel"
-                        icon="pi pi-times"
+                        icon={<Close fontSize="small" />}
                         text
                         severity="secondary"
                         onClick={onClose}
@@ -122,7 +125,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                     />
                     <Button
                         label="Save"
-                        icon="pi pi-check"
+                        icon={<CheckOutlined fontSize="small" />}
                         loading={saving}
                         onClick={handleSave}
                     />

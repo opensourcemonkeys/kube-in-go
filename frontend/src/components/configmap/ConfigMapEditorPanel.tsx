@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import { Button } from 'primereact/button';
+import Close from '@mui/icons-material/Close';
+import Add from '@mui/icons-material/Add';
+import UndoOutlined from '@mui/icons-material/UndoOutlined';
+import CheckOutlined from '@mui/icons-material/CheckOutlined';
+import TuneOutlined from '@mui/icons-material/TuneOutlined';
 import { Column, ColumnEditorOptions, ColumnEvent } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
@@ -139,7 +144,7 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
 
     const actionsBody = (rowData: KeyValueRow) => (
         <Button
-            icon="pi pi-times"
+            icon={<Close fontSize="small" />}
             text
             severity="danger"
             size="small"
@@ -152,13 +157,13 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
     const tableHeader = (
         <div className="flex justify-content-between align-items-center gap-2">
             <span className="yaml-editor-toolbar__label flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
-                <i className="pi pi-sliders-h" />
+                <TuneOutlined style={{ fontSize: '0.9rem' }} />
                 {namespace}/{name}
             </span>
             <div className="flex align-items-center gap-1">
-                <Button label="Add Key" icon="pi pi-plus" text size="small" onClick={addRow} disabled={saving} />
-                <Button label="Revert" icon="pi pi-undo" text size="small" disabled={!dirty || saving} onClick={handleRevert} />
-                <Button label="Save" icon="pi pi-check" size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
+                <Button label="Add Key" icon={<Add fontSize="small" />} text size="small" onClick={addRow} disabled={saving} />
+                <Button label="Revert" icon={<UndoOutlined fontSize="small" />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
+                <Button label="Save" icon={<CheckOutlined fontSize="small" />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
             </div>
         </div>
     );

@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Chart } from 'primereact/chart';
+import BarChartOutlined from '@mui/icons-material/BarChartOutlined';
+import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
+import AccountTreeOutlined from '@mui/icons-material/AccountTreeOutlined';
+import Close from '@mui/icons-material/Close';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
@@ -87,14 +91,14 @@ function QuotaRow({ rq, namespace, onEdit }: {
     return (
         <div style={{ padding: '0.6rem 0.75rem', borderBottom: '1px solid var(--line)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.5rem' }}>
-                <i className="pi pi-chart-bar" style={{ fontSize: '0.7rem', color: 'var(--ink2)' }} />
+                <BarChartOutlined style={{ fontSize: '0.9rem', color: 'var(--ink2)' }} />
                 <span style={{
                     fontSize: '0.78rem', fontWeight: 600,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
                     color: 'var(--ink)',
                 }} title={rq.name}>{rq.name}</span>
                 <Button
-                    icon="pi pi-file-edit"
+                    icon={<EditNoteOutlined fontSize="small" />}
                     text size="small" severity="secondary"
                     style={{ padding: '0.15rem', flexShrink: 0 }}
                     tooltip="Edit YAML" tooltipOptions={{ position: 'top' }}
@@ -127,7 +131,7 @@ function NamespaceGroup({ ns, onEdit }: {
                 background: 'var(--panel)',
                 borderBottom: '1px solid var(--line)',
             }}>
-                <i className="pi pi-sitemap" style={{ fontSize: '0.9rem', color: 'var(--teal)' }} />
+                <AccountTreeOutlined style={{ fontSize: '0.9rem', color: 'var(--teal)' }} />
                 <span style={{ fontWeight: 700, fontSize: '0.9rem', flex: 1, color: 'var(--ink)' }}>{ns.name}</span>
                 <Tag value={ns.status} severity={getStatusSeverity(ns.status)} style={{ fontSize: '0.65rem' }} />
             </div>
@@ -186,7 +190,7 @@ export default function ResourceQuotaListComponent() {
                     style={{ marginLeft: 'auto', width: '14rem' }}
                 />
                 {nsFilter && (
-                    <Button icon="pi pi-times" text severity="secondary" size="small" onClick={() => setNsFilter('')} tooltip="Clear filter" />
+                    <Button icon={<Close fontSize="small" />} text severity="secondary" size="small" onClick={() => setNsFilter('')} tooltip="Clear filter" />
                 )}
             </div>
 

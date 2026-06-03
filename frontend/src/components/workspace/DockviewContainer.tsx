@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
 import { DockviewReact, DockviewReadyEvent } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
@@ -46,7 +47,7 @@ export default function DockviewContainer() {
     const onReady = (event: DockviewReadyEvent) => {
         registerApi(event.api);
         (event.api as any).updateOptions({ dndStrategy: 'pointer' });
-        openTab({ view: 'pods', title: 'Pods', icon: 'pi pi-box' });
+        openTab({ view: 'pods', title: 'Pods', icon: <Inventory2Outlined fontSize="small" /> });
     };
 
     return (

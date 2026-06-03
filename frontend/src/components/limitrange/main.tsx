@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import FilterListOff from '@mui/icons-material/FilterListOff';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import Close from '@mui/icons-material/Close';
+import ListOutlined from '@mui/icons-material/ListOutlined';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -64,7 +68,7 @@ export default function LimitRangeListComponent() {
                 <h3 style={{ margin: 0 }}>Limit Range List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        icon="pi pi-filter-slash"
+                        icon={<FilterListOff fontSize="small" />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
@@ -151,7 +155,7 @@ export default function LimitRangeListComponent() {
                     style={{ minWidth: '5rem', maxWidth: '5rem' }}
                     body={(row: models.LimitRangeInfo) => (
                         <Button
-                            icon="pi pi-list"
+                            icon={<ListOutlined fontSize="small" />}
                             text
                             size="small"
                             tooltip="View limits"

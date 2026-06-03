@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Chart } from 'primereact/chart';
+import DnsOutlined from '@mui/icons-material/DnsOutlined';
+import CheckCircleOutlined from '@mui/icons-material/CheckCircleOutlined';
+import BlockOutlined from '@mui/icons-material/BlockOutlined';
+import SendOutlined from '@mui/icons-material/SendOutlined';
+import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
+import Close from '@mui/icons-material/Close';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
+import LabelOutlined from '@mui/icons-material/LabelOutlined';
+import DesktopWindowsOutlined from '@mui/icons-material/DesktopWindowsOutlined';
+import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
+import StorageOutlined from '@mui/icons-material/StorageOutlined';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
@@ -127,8 +140,8 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
 
     const drainFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon="pi pi-times" text onClick={() => setDrainDialogVisible(false)} disabled={drainLoading} />
-            <Button label="Drain" icon="pi pi-send" severity="danger" onClick={handleDrain} loading={drainLoading} />
+            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDrainDialogVisible(false)} disabled={drainLoading} />
+            <Button label="Drain" icon={<SendOutlined fontSize="small" />} severity="danger" onClick={handleDrain} loading={drainLoading} />
         </div>
     );
 
@@ -143,7 +156,7 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
-                    <i className="pi pi-server" style={{ fontSize: '1.1rem', color: 'var(--teal)', flexShrink: 0 }} />
+                    <DnsOutlined style={{ fontSize: '1.1rem', color: 'var(--teal)', flexShrink: 0 }} />
                     <span style={{ fontWeight: 700, fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.name}</span>
                     <Tag value={node.status} severity={getStatusSeverity(node.status)} style={{ fontSize: '0.7rem', flexShrink: 0 }} />
                     {node.unschedulable && (
@@ -152,23 +165,23 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
                 </div>
                 <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
                     {node.unschedulable ? (
-                        <Button label="Uncordon" icon="pi pi-check-circle" size="small" severity="success" text loading={cordonLoading} onClick={handleUncordon} tooltip="Make node schedulable" tooltipOptions={{ position: 'top' }} />
+                        <Button label="Uncordon" icon={<CheckCircleOutlined fontSize="small" />} size="small" severity="success" text loading={cordonLoading} onClick={handleUncordon} tooltip="Make node schedulable" tooltipOptions={{ position: 'top' }} />
                     ) : (
-                        <Button label="Cordon" icon="pi pi-ban" size="small" severity="warning" text loading={cordonLoading} onClick={handleCordon} tooltip="Mark node as unschedulable" tooltipOptions={{ position: 'top' }} />
+                        <Button label="Cordon" icon={<BlockOutlined fontSize="small" />} size="small" severity="warning" text loading={cordonLoading} onClick={handleCordon} tooltip="Mark node as unschedulable" tooltipOptions={{ position: 'top' }} />
                     )}
-                    <Button label="Drain" icon="pi pi-send" size="small" severity="danger" text loading={drainLoading} onClick={() => setDrainDialogVisible(true)} tooltip="Evict pods and cordon node" tooltipOptions={{ position: 'top' }} />
-                    <Button icon="pi pi-file-edit" text size="small" severity="secondary" onClick={() => onEditYaml(node.name)} tooltip="Edit YAML" tooltipOptions={{ position: 'top' }} />
+                    <Button label="Drain" icon={<SendOutlined fontSize="small" />} size="small" severity="danger" text loading={drainLoading} onClick={() => setDrainDialogVisible(true)} tooltip="Evict pods and cordon node" tooltipOptions={{ position: 'top' }} />
+                    <Button icon={<EditNoteOutlined fontSize="small" />} text size="small" severity="secondary" onClick={() => onEditYaml(node.name)} tooltip="Edit YAML" tooltipOptions={{ position: 'top' }} />
                 </div>
             </div>
 
             {/* Meta + Charts */}
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flexShrink: 0, minWidth: '200px' }}>
-                    <MetaItem icon="pi-map-marker" label="IP"      value={node.internal_ip      || '—'} />
-                    <MetaItem icon="pi-tag"        label="Version" value={node.kubelet_version   || '—'} />
-                    <MetaItem icon="pi-desktop"    label="OS"      value={node.os_image          || '—'} />
-                    <MetaItem icon="pi-microchip"  label="CPU Cap" value={node.cpu_capacity      || '—'} />
-                    <MetaItem icon="pi-database"   label="MEM Cap" value={node.memory_capacity   || '—'} />
+                    <MetaItem icon={<PlaceOutlined style={{ fontSize: '0.75rem' }} />}           label="IP"      value={node.internal_ip      || '—'} />
+                    <MetaItem icon={<LabelOutlined style={{ fontSize: '0.75rem' }} />}           label="Version" value={node.kubelet_version   || '—'} />
+                    <MetaItem icon={<DesktopWindowsOutlined style={{ fontSize: '0.75rem' }} />}  label="OS"      value={node.os_image          || '—'} />
+                    <MetaItem icon={<MemoryOutlined style={{ fontSize: '0.75rem' }} />}          label="CPU Cap" value={node.cpu_capacity      || '—'} />
+                    <MetaItem icon={<StorageOutlined style={{ fontSize: '0.75rem' }} />}         label="MEM Cap" value={node.memory_capacity   || '—'} />
                 </div>
 
                 <div style={{ width: '1px', alignSelf: 'stretch', background: 'var(--line)', flexShrink: 0 }} />
@@ -179,8 +192,8 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
                         <UsageChart label="MEM" used={node.mem_usage_mi}     total={node.mem_capacity_mi}     unit="MiB" />
                     </div>
                 ) : (
-                    <div style={{ flex: 1, color: 'var(--ink2)', fontSize: '0.8rem', fontStyle: 'italic' }}>
-                        <i className="pi pi-info-circle" style={{ marginRight: '0.4rem' }} />
+                    <div style={{ flex: 1, color: 'var(--ink2)', fontSize: '0.8rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <InfoOutlined style={{ fontSize: '0.9rem' }} />
                         Metrics Server not available — CPU/RAM usage unavailable
                     </div>
                 )}
@@ -206,10 +219,10 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
     );
 }
 
-function MetaItem({ icon, label, value }: { icon: string; label: string; value: string }) {
+function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <i className={`pi ${icon}`} style={{ fontSize: '0.75rem', color: 'var(--ink2)' }} />
+            <span style={{ display: 'flex', alignItems: 'center', color: 'var(--ink2)' }}>{icon}</span>
             <span style={{ fontSize: '0.72rem', color: 'var(--ink2)' }}>{label}:</span>
             <span style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--ink)' }}>{value}</span>
         </div>

@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
+import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
+import UndoOutlined from '@mui/icons-material/UndoOutlined';
+import CheckOutlined from '@mui/icons-material/CheckOutlined';
 import * as monacoEditor from 'monaco-editor';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
@@ -308,7 +311,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
 
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <i className="pi pi-file-edit" />
+                    <EditNoteOutlined style={{ fontSize: '0.9rem' }} />
                     {namespace}/{name}
                 </span>
                 <div className="flex align-items-center gap-1 flex-shrink-0">
@@ -316,7 +319,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                         <>
                             <Button
                                 label="Revert"
-                                icon="pi pi-undo"
+                                icon={<UndoOutlined fontSize="small" />}
                                 text
                                 size="small"
                                 disabled={!dirty || saving}
@@ -324,7 +327,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                             />
                             <Button
                                 label="Save"
-                                icon="pi pi-check"
+                                icon={<CheckOutlined fontSize="small" />}
                                 size="small"
                                 loading={saving}
                                 disabled={!dirty}

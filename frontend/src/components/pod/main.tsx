@@ -9,6 +9,9 @@ import { FilterMatchMode } from 'primereact/api';
 import { GetPods, DeletePod } from '../../../wailsjs/go/controller_app/App';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import FilterListOff from '@mui/icons-material/FilterListOff';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import Close from '@mui/icons-material/Close';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
@@ -98,8 +101,8 @@ export default function DataTableComponent() {
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon="pi pi-times" text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -111,7 +114,7 @@ export default function DataTableComponent() {
                 <h3 style={{ margin: 0 }}>Pod List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        icon="pi pi-filter-slash"
+                        icon={<FilterListOff fontSize="small" />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
@@ -120,7 +123,7 @@ export default function DataTableComponent() {
                     />
                     <Button
                         label="Delete Selected"
-                        icon="pi pi-trash"
+                        icon={<DeleteOutlineOutlined fontSize="small" />}
                         severity="danger"
                         onClick={openDeleteDialog}
                         disabled={selectedPods.length === 0 || deleting}

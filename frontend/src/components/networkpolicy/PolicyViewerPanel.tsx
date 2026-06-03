@@ -1,4 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import ShieldOutlined from '@mui/icons-material/ShieldOutlined';
+import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
+import BlockOutlined from '@mui/icons-material/BlockOutlined';
+import ArrowForwardOutlined from '@mui/icons-material/ArrowForwardOutlined';
+import ArrowBackOutlined from '@mui/icons-material/ArrowBackOutlined';
+import UndoOutlined from '@mui/icons-material/UndoOutlined';
+import CheckOutlined from '@mui/icons-material/CheckOutlined';
+import { CircularProgress } from '@mui/material';
 import { IDockviewPanelProps } from 'dockview';
 import ReactFlow, {
     Background,
@@ -119,7 +127,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             label: (
                 <div>
                     <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                        <i className="pi pi-shield" style={{ marginRight: 6 }} />
+                        <ShieldOutlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />
                         {detail.name}
                     </div>
                     <div style={{ fontSize: 11, opacity: 0.7 }}>{detail.namespace}</div>
@@ -156,7 +164,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             label: (
                 <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                        <i className="pi pi-box" style={{ marginRight: 6 }} />{' '}
+                        <Inventory2Outlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />{' '}
                         Affected Pods
                     </div>
                     <div style={{ fontSize: 11 }}>{detail.pod_selector || '<all pods>'}</div>
@@ -192,7 +200,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <i className="pi pi-ban" style={{ marginRight: 6, color: '#ef4444' }} />{' '}
+                            <BlockOutlined style={{ marginRight: 6, fontSize: 13, color: '#ef4444', verticalAlign: 'middle' }} />{' '}
                             Deny All Ingress
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>All incoming traffic blocked</div>
@@ -226,7 +234,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <i className="pi pi-ban" style={{ marginRight: 6, color: '#ef4444' }} />{' '}
+                            <BlockOutlined style={{ marginRight: 6, fontSize: 13, color: '#ef4444', verticalAlign: 'middle' }} />{' '}
                             Deny All Egress
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>All outgoing traffic blocked</div>
@@ -263,7 +271,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                            <i className="pi pi-arrow-right" style={{ marginRight: 6 }} />{' '}
+                            <ArrowForwardOutlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />{' '}
                             Ingress Rule {i + 1}
                         </div>
                         <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
@@ -274,7 +282,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
-                                        <i className="pi pi-ban" style={{ marginRight: 3, fontSize: 9 }} />{' '}
+                                        <BlockOutlined style={{ marginRight: 3, fontSize: 9, verticalAlign: 'middle' }} />{' '}
                                         except: {exc}
                                     </div>
                                 ))}
@@ -311,7 +319,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                            <i className="pi pi-arrow-left" style={{ marginRight: 6 }} />{' '}
+                            <ArrowBackOutlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />{' '}
                             Egress Rule {i + 1}
                         </div>
                         <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
@@ -322,7 +330,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
-                                        <i className="pi pi-ban" style={{ marginRight: 3, fontSize: 9 }} />{' '}
+                                        <BlockOutlined style={{ marginRight: 3, fontSize: 9, verticalAlign: 'middle' }} />{' '}
                                         except: {exc}
                                     </div>
                                 ))}
@@ -492,13 +500,13 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
             {/* Toolbar */}
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <i className="pi pi-shield" />
+                    <ShieldOutlined style={{ fontSize: '0.9rem' }} />
                     {namespace}/{name}
                 </span>
                 <div className="flex align-items-center gap-1">
                     <Button
                         label="Revert"
-                        icon="pi pi-undo"
+                        icon={<UndoOutlined fontSize="small" />}
                         text
                         size="small"
                         disabled={!dirty || saving}
@@ -506,7 +514,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                     />
                     <Button
                         label="Save"
-                        icon="pi pi-check"
+                        icon={<CheckOutlined fontSize="small" />}
                         size="small"
                         loading={saving}
                         disabled={!dirty}
@@ -519,7 +527,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
             <div style={{ flex: `0 0 ${splitPct}%`, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
                 {graphLoading ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-color-secondary)' }}>
-                        <i className="pi pi-spin pi-spinner" style={{ fontSize: 24 }} />
+                        <CircularProgress size={24} />
                     </div>
                 ) : (
                     <ReactFlow

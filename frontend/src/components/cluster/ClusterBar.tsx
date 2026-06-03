@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined';
 import { Dropdown } from 'primereact/dropdown';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { useClusterContext } from '../../contexts/ClusterContext';
@@ -118,7 +119,7 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                         </button>
                         <OverlayPanel ref={errorPanelRef} className="cluster-error-panel">
                             <div className="cluster-error-panel__header">
-                                <i className="pi pi-exclamation-triangle cluster-error-panel__icon" />
+                                <WarningAmberOutlined className="cluster-error-panel__icon" style={{ fontSize: '1rem' }} />
                                 <span>Connection Error</span>
                             </div>
                             <pre className="cluster-error-panel__detail">{connectionError}</pre>

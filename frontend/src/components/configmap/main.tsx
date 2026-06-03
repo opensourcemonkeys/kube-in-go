@@ -1,4 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import FilterListOff from '@mui/icons-material/FilterListOff';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import Close from '@mui/icons-material/Close';
+import TuneOutlined from '@mui/icons-material/TuneOutlined';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -93,8 +97,8 @@ export default function ConfigMapListComponent() {
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon="pi pi-times" text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -106,7 +110,7 @@ export default function ConfigMapListComponent() {
                 <h3 style={{ margin: 0 }}>ConfigMap List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        icon="pi pi-filter-slash"
+                        icon={<FilterListOff fontSize="small" />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
@@ -115,7 +119,7 @@ export default function ConfigMapListComponent() {
                     />
                     <Button
                         label="Delete Selected"
-                        icon="pi pi-trash"
+                        icon={<DeleteOutlineOutlined fontSize="small" />}
                         severity="danger"
                         onClick={openDeleteDialog}
                         disabled={selectedConfigMaps.length === 0 || deleting}
@@ -187,7 +191,7 @@ export default function ConfigMapListComponent() {
                     style={{ width: '4rem', textAlign: 'center' }}
                     body={(rowData: models.ConfigMapInfo) => (
                         <Button
-                            icon="pi pi-sliders-h"
+                            icon={<TuneOutlined fontSize="small" />}
                             text
                             size="small"
                             severity="secondary"

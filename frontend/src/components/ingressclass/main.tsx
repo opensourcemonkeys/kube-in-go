@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import FilterListOff from '@mui/icons-material/FilterListOff';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+import Close from '@mui/icons-material/Close';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -53,7 +56,7 @@ export default function IngressClassListComponent() {
                 <h3 style={{ margin: 0 }}>Ingress Class List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        icon="pi pi-filter-slash"
+                        icon={<FilterListOff fontSize="small" />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
