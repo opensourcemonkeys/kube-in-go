@@ -51,10 +51,10 @@ function Appmain() {
             >
                 <ClusterProvider>
                     <TabProvider>
-                        <div className="flex flex-column h-full overflow-hidden">
+                        <div className="flex flex-column overflow-hidden" style={{ height: '100vh' }}>
                             <TitleBar />
                             <ClusterBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-                            <div className="flex flex-1 overflow-hidden min-h-0" style={{ position: 'relative' }}>
+                            <div className="flex-1 min-h-0" style={{ position: 'relative', overflow: 'hidden' }}>
 
                                 {/* Hover trigger zone — only active when sidebar is collapsed */}
                                 {!sidebarOpen && (
@@ -71,36 +71,41 @@ function Appmain() {
                                     />
                                 )}
 
-                                {/* Resource Explorer Sidebar */}
+                                {/* Resource Explorer Sidebar — always absolute so it never affects workspace layout */}
                                 <div
-                                    className="overflow-hidden flex-shrink-0"
-                                    style={sidebarOpen ? {
-                                        width: '240px',
-                                        transition: 'width 0.2s ease',
-                                        background: 'var(--panel)',
-                                        borderRight: '1px solid var(--line)',
-                                    } : {
+                                    style={{
                                         position: 'absolute',
                                         top: 0,
                                         left: 0,
                                         height: '100%',
-                                        zIndex: 100,
-                                        width: hovered ? '240px' : '0',
+                                        zIndex: sidebarOpen ? 1 : 100,
+                                        width: sidebarOpen ? '240px' : (hovered ? '240px' : '0'),
+                                        overflowY: 'auto',
+                                        overflowX: 'hidden',
                                         transition: 'width 0.2s ease',
                                         background: 'var(--panel)',
                                         borderRight: '1px solid var(--line)',
-                                        boxShadow: hovered ? '4px 0 16px rgba(0,0,0,0.4)' : 'none',
+                                        boxShadow: !sidebarOpen && hovered ? '4px 0 16px rgba(0,0,0,0.4)' : 'none',
                                     }}
                                     onMouseEnter={onEnter}
                                     onMouseLeave={onLeave}
                                 >
-                                    <div style={{ width: '240px', height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
-                                        <SideMenu />
-                                    </div>
+                                    <SideMenu />
                                 </div>
 
-                                {/* Main Workspace */}
-                                <div id="tour-workspace" className="flex-1 overflow-hidden" style={{ minWidth: 0 }}>
+                                {/* Main Workspace — shifts right only when sidebar is open */}
+                                <div
+                                    id="tour-workspace"
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: sidebarOpen ? '240px' : '0',
+                                        right: 0,
+                                        bottom: 0,
+                                        overflow: 'hidden',
+                                        transition: 'left 0.2s ease',
+                                    }}
+                                >
                                     <DockviewContainer />
                                 </div>
                             </div>
