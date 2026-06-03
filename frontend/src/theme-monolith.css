@@ -386,6 +386,23 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .log-viewer-dropdown .p-dropdown-label { padding: 0 8px; font-size: 12px; line-height: 24px; }
 .log-viewer-body { flex: 1; overflow: hidden; min-height: 0; height: 100%; }
 
+/* LazyLog theme overrides — component injects its own CSS module with hardcoded colors */
+.react-lazylog { background-color: var(--app) !important; color: var(--ink) !important; }
+.react-lazylog [class*="_line__"]:hover { background-color: var(--hover) !important; }
+.react-lazylog [class*="_lineHighlight__"] { background-color: var(--panel3) !important; }
+.react-lazylog [class*="_lineNumber__"] { color: var(--ink3) !important; }
+.react-lazylog [class*="_lineGutter__"] { color: var(--ink3) !important; }
+
+/* LazyLog searchbar overrides */
+.react-lazylog-searchbar { background-color: var(--panel) !important; color: var(--ink2) !important; border-bottom: 1px solid var(--line) !important; padding: 6px 10px !important; font-family: var(--font-family) !important; font-size: 12px !important; }
+.react-lazylog-searchbar-input { background-color: var(--panel2) !important; color: var(--ink) !important; border: 1px solid var(--line2) !important; border-radius: 4px !important; height: 24px !important; font-family: var(--font-family) !important; font-size: 12px !important; padding: 0 8px !important; outline: none !important; }
+.react-lazylog-searchbar-input:focus { border-color: rgba(63,200,180,.6) !important; box-shadow: 0 0 0 2px rgba(63,200,180,.15) !important; }
+.react-lazylog-searchbar-matches { color: var(--ink3) !important; }
+.react-lazylog-searchbar [class*="_button__"] { background: none !important; border: none !important; color: var(--ink3) !important; fill: var(--ink3) !important; border-radius: 4px !important; cursor: pointer !important; }
+.react-lazylog-searchbar [class*="_button__"]:hover { background: var(--hover) !important; color: var(--ink) !important; fill: var(--ink) !important; }
+.react-lazylog-searchbar [class*="_inactive__"] { color: var(--ink3) !important; fill: var(--ink3) !important; opacity: 0.5; }
+.react-lazylog-searchbar svg { width: 13px; height: 13px; fill: currentColor; }
+
 /* ════════════════════════════════════════════════════════════
    TOUR CARD
    ════════════════════════════════════════════════════════════ */

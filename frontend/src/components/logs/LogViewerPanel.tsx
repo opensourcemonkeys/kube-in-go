@@ -168,7 +168,6 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
                     enableSearch={true}
                     selectableLines={true}
                     wrapLines={false}
-                    style={{ background: 'var(--app)' }}
                     height="auto"
                     width="auto"
                 />
