@@ -164,11 +164,11 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
             <div className="log-viewer-body">
                 <LazyLog
                     text={logText}
-                    follow
-                    enableSearch
-                    selectableLines
+                    follow={true}
+                    enableSearch={true}
+                    selectableLines={true}
                     wrapLines={false}
-                    style={{ background: '#10141a' }}
+                    style={{ background: 'var(--app)' }}
                     height="auto"
                     width="auto"
                 />
