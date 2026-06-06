@@ -1,16 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import React from 'react';
-import PublicOutlined from '@mui/icons-material/PublicOutlined';
-import AccountTreeOutlined from '@mui/icons-material/AccountTreeOutlined';
-import LayersOutlined from '@mui/icons-material/LayersOutlined';
-import StorageOutlined from '@mui/icons-material/StorageOutlined';
-import DnsOutlined from '@mui/icons-material/DnsOutlined';
-import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined';
-import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
 import { CircularProgress } from '@mui/material';
-import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
-import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined';
+import { VscGlobe, VscTypeHierarchySub, VscLayers, VscDatabase, VscServer, VscCopy, VscPackage, VscRefresh, VscWarning } from 'react-icons/vsc';
 import ReactFlow, {
     Background,
     Controls,
@@ -47,13 +39,13 @@ interface ClusterGraph {
 // ── Kind config ───────────────────────────────────────────────────────────────
 
 const KIND_CONFIG: Record<string, { color: string; Icon: React.ComponentType<{ style?: React.CSSProperties }>; column: number }> = {
-    Ingress:     { color: '#ef4444', Icon: PublicOutlined,       column: 0 },
-    Service:     { color: '#f97316', Icon: AccountTreeOutlined,  column: 1 },
-    Deployment:  { color: '#10b981', Icon: LayersOutlined,       column: 2 },
-    StatefulSet: { color: '#8b5cf6', Icon: StorageOutlined,      column: 2 },
-    DaemonSet:   { color: '#f59e0b', Icon: DnsOutlined,          column: 2 },
-    ReplicaSet:  { color: '#06b6d4', Icon: ContentCopyOutlined,  column: 3 },
-    Pod:         { color: '#3b82f6', Icon: Inventory2Outlined,   column: 4 },
+    Ingress:     { color: '#ef4444', Icon: VscGlobe,       column: 0 },
+    Service:     { color: '#f97316', Icon: VscTypeHierarchySub,  column: 1 },
+    Deployment:  { color: '#10b981', Icon: VscLayers,       column: 2 },
+    StatefulSet: { color: '#8b5cf6', Icon: VscDatabase,      column: 2 },
+    DaemonSet:   { color: '#f59e0b', Icon: VscServer,          column: 2 },
+    ReplicaSet:  { color: '#06b6d4', Icon: VscCopy,  column: 3 },
+    Pod:         { color: '#3b82f6', Icon: VscPackage,   column: 4 },
 };
 
 const NODE_W = 220;
@@ -94,7 +86,7 @@ function statusColor(kind: string, status?: string): string {
 // ── Custom node ───────────────────────────────────────────────────────────────
 
 function K8sNode({ data }: NodeProps<ResourceNode>) {
-    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', Icon: Inventory2Outlined, column: 5 };
+    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', Icon: VscPackage, column: 5 };
     const sc = statusColor(data.kind, data.status);
 
     return (
@@ -336,7 +328,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             {/* Toolbar */}
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-2">
-                    <AccountTreeOutlined style={{ fontSize: 14 }} />{' '}
+                    <VscTypeHierarchySub style={{ fontSize: 14 }} />{' '}
                     Cluster Resource Graph
                 </span>
                 <div className="flex align-items-center gap-2">
@@ -347,7 +339,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
                         disabled={loading}
                         title="Refresh"
                     >
-                        <RefreshOutlined style={{ fontSize: 14 }} />
+                        <VscRefresh style={{ fontSize: 14 }} />
                     </button>
                 </div>
             </div>
@@ -384,10 +376,10 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
             <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
                 {error ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: '#ef4444' }}>
-                        <WarningAmberOutlined style={{ fontSize: 32 }} />
+                        <VscWarning style={{ fontSize: 32 }} />
                         <span style={{ fontSize: 13 }}>{error}</span>
                         <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
-                            <RefreshOutlined style={{ fontSize: 14 }} /> Retry
+                            <VscRefresh style={{ fontSize: 14 }} /> Retry
                         </button>
                     </div>
                 ) : (

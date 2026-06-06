@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined';
+import {
+    VscLayoutSidebarLeft, VscTable, VscAdd, VscEdit,
+    VscTypeHierarchySub, VscWarning, VscCloudUpload,
+    VscTerminal, VscQuestion, VscInfo,
+} from 'react-icons/vsc';
 import { Dropdown } from 'primereact/dropdown';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { useClusterContext } from '../../contexts/ClusterContext';
@@ -68,19 +72,13 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                     onClick={onToggleSidebar}
                     title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
                 >
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <rect x="2" y="3" width="12" height="10" rx="1.5"/>
-                        <path d="M6 3v10"/>
-                    </svg>
+                    <VscLayoutSidebarLeft size={14} />
                 </button>
                 <div className="cluster-bar__ws-separator" />
                 {/* Split chip: CLUSTER label + dropdown */}
                 <div id="tour-cluster-area" className="cluster-bar__chip">
                     <div className="cluster-bar__chip-label">
-                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-                            <rect x="2" y="2.5" width="12" height="11" rx="1.5"/>
-                            <path d="M2 6h12M5.5 2.5v11"/>
-                        </svg>
+                        <VscTable size={13} />
                         <span>CLUSTER</span>
                     </div>
                     <Dropdown
@@ -96,15 +94,15 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
 
                 {/* Icon buttons */}
                 <button className="cluster-bar__icon-btn" onClick={openAdd} title="Add Cluster">
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 3v10M3 8h10"/></svg>
+                    <VscAdd size={14} />
                 </button>
                 {activeCluster && (
                     <>
                         <button className="cluster-bar__icon-btn" onClick={openEdit} title="Edit cluster">
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2.5 13.5h2L13 5l-2-2-8.5 8.5z"/></svg>
+                            <VscEdit size={14} />
                         </button>
                         <button className="cluster-bar__icon-btn" onClick={openClusterResourceView} title="Resource Graph">
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="3.5" cy="8" r="1.6"/><circle cx="12.5" cy="4" r="1.6"/><circle cx="12.5" cy="12" r="1.6"/><path d="M5 7.3l6-2.6M5 8.7l6 2.6"/></svg>
+                            <VscTypeHierarchySub size={14} />
                         </button>
                     </>
                 )}
@@ -115,11 +113,11 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                             onClick={e => errorPanelRef.current?.toggle(e)}
                             title="Connection error"
                         >
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 2L14.5 14H1.5z"/><path d="M8 7v3M8 12v.4"/></svg>
+                            <VscWarning size={14} />
                         </button>
                         <OverlayPanel ref={errorPanelRef} className="cluster-error-panel">
                             <div className="cluster-error-panel__header">
-                                <WarningAmberOutlined className="cluster-error-panel__icon" style={{ fontSize: '1rem' }} />
+                                <VscWarning className="cluster-error-panel__icon" size={16} />
                                 <span>Connection Error</span>
                             </div>
                             <pre className="cluster-error-panel__detail">{connectionError}</pre>
@@ -130,20 +128,20 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                 {/* Right workspace buttons */}
                 <div className="cluster-bar__workspace-btns">
                     <button id="tour-yaml-btn" className="cluster-bar__ws-btn" onClick={openApplyYaml} title="YAML Editor">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#3fc8b4" strokeWidth="1.5"><path d="M8 11V3M4.5 6.5L8 3l3.5 3.5M3 13h10"/></svg>
+                        <VscCloudUpload size={14} />
                         <span>YAML Editor</span>
                     </button>
                     <button id="tour-terminal-btn" className="cluster-bar__ws-btn" onClick={openTerminal} title="Terminal">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#3fc8b4" strokeWidth="1.5"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M4 7l2 2-2 2M8.5 11H11"/></svg>
+                        <VscTerminal size={14} />
                         <span>Terminal</span>
                     </button>
                     <div className="cluster-bar__ws-separator" />
                     <button className="cluster-bar__ws-btn cluster-bar__ws-btn--ghost" onClick={() => startNextStep('main')} title="Tutorial">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="8" cy="8" r="6"/><path d="M6.4 6.4a1.7 1.7 0 1 1 2 2.4V10M8 12v.4"/></svg>
+                        <VscQuestion size={14} />
                         <span>Tutorial</span>
                     </button>
                     <button className="cluster-bar__ws-btn cluster-bar__ws-btn--ghost" onClick={() => setAboutOpen(true)} title="About">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 7v4M8 5v.4"/></svg>
+                        <VscInfo size={14} />
                         <span>About</span>
                     </button>
                 </div>

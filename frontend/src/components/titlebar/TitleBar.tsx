@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose } from 'react-icons/vsc';
 import {
     WindowMinimise,
     WindowToggleMaximise,
@@ -38,35 +39,16 @@ function TitleBar() {
 
             {/* Window controls */}
             <div className="tb-controls">
-                {/* Minimise */}
                 <button className="tb-btn tb-btn--min" onClick={WindowMinimise} title="Minimise">
-                    <svg viewBox="0 0 12 12" fill="none">
-                        <line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
+                    <VscChromeMinimize size={12} />
                 </button>
 
-                {/* Maximise / Restore */}
                 <button className="tb-btn tb-btn--max" onClick={handleMaximise} title={maximised ? 'Restore' : 'Maximise'}>
-                    {maximised ? (
-                        /* Restore: two overlapping squares */
-                        <svg viewBox="0 0 12 12" fill="none">
-                            <rect x="1" y="3" width="7" height="7" rx="0.75" stroke="currentColor" strokeWidth="1.25" />
-                            <path d="M4 3V2h7v7H10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    ) : (
-                        /* Maximise: single square */
-                        <svg viewBox="0 0 12 12" fill="none">
-                            <rect x="2" y="2" width="8" height="8" rx="0.75" stroke="currentColor" strokeWidth="1.25" />
-                        </svg>
-                    )}
+                    {maximised ? <VscChromeRestore size={12} /> : <VscChromeMaximize size={12} />}
                 </button>
 
-                {/* Close */}
                 <button className="tb-btn tb-btn--close" onClick={Quit} title="Close">
-                    <svg viewBox="0 0 12 12" fill="none">
-                        <line x1="2.5" y1="2.5" x2="9.5" y2="9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                        <line x1="9.5" y1="2.5" x2="2.5" y2="9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
+                    <VscChromeClose size={12} />
                 </button>
             </div>
         </div>

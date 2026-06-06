@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
-import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined';
-import VisibilityOffOutlined from '@mui/icons-material/VisibilityOffOutlined';
-import Close from '@mui/icons-material/Close';
-import Add from '@mui/icons-material/Add';
-import UndoOutlined from '@mui/icons-material/UndoOutlined';
-import CheckOutlined from '@mui/icons-material/CheckOutlined';
-import LockOutlined from '@mui/icons-material/LockOutlined';
+
+
+
+
+
+
+import { VscEye, VscEyeClosed, VscClose, VscAdd, VscDiscard, VscCheck, VscLock } from 'react-icons/vsc';
 import { Button } from 'primereact/button';
 import { Column, ColumnEditorOptions, ColumnEvent } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
@@ -59,7 +59,7 @@ function PasswordTextarea({ value, onChange }: { value: string; onChange: (val: 
                 }}
             />
             <Button
-                icon={visible ? <VisibilityOffOutlined fontSize="small" /> : <VisibilityOutlined fontSize="small" />}
+                icon={visible ? <VscEyeClosed size={16} /> : <VscEye size={16} />}
                 text
                 size="small"
                 severity="secondary"
@@ -170,7 +170,7 @@ export default function SecretEditorPanel({ params }: IDockviewPanelProps<Secret
 
     const actionsBody = (rowData: KeyValueRow) => (
         <Button
-            icon={<Close fontSize="small" />}
+            icon={<VscClose size={16} />}
             text
             severity="danger"
             size="small"
@@ -183,13 +183,13 @@ export default function SecretEditorPanel({ params }: IDockviewPanelProps<Secret
     const tableHeader = (
         <div className="flex justify-content-between align-items-center gap-2">
             <span className="yaml-editor-toolbar__label flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
-                <LockOutlined style={{ fontSize: '0.9rem' }} />
+                <VscLock size={14} />
                 {namespace}/{name}
             </span>
             <div className="flex align-items-center gap-1">
-                <Button label="Add Key" icon={<Add fontSize="small" />} text size="small" onClick={addRow} disabled={saving} />
-                <Button label="Revert" icon={<UndoOutlined fontSize="small" />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
-                <Button label="Save" icon={<CheckOutlined fontSize="small" />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
+                <Button label="Add Key" icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
+                <Button label="Revert" icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
+                <Button label="Save" icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
             </div>
         </div>
     );

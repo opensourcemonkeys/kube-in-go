@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
+import { VscPackage } from 'react-icons/vsc';
 import { DockviewReact, DockviewReadyEvent } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
@@ -13,6 +13,8 @@ import ClusterResourcePanel from '../clusterresource/ClusterResourcePanel';
 import ConfigMapEditorPanel from '../configmap/ConfigMapEditorPanel';
 import SecretEditorPanel from '../secret/SecretEditorPanel';
 import PodExecPanel from '../pod/PodExecPanel';
+import RoleEditorPanel from '../role/RoleEditorPanel';
+import RoleBindingEditorPanel from '../rolebinding/RoleBindingEditorPanel';
 
 const components = {
     view: ViewPanel,
@@ -25,6 +27,8 @@ const components = {
     configMapEditor: ConfigMapEditorPanel,
     secretEditor: SecretEditorPanel,
     podExec: PodExecPanel,
+    roleEditor: RoleEditorPanel,
+    roleBindingEditor: RoleBindingEditorPanel,
 };
 
 export default function DockviewContainer() {
@@ -47,7 +51,7 @@ export default function DockviewContainer() {
     const onReady = (event: DockviewReadyEvent) => {
         registerApi(event.api);
         (event.api as any).updateOptions({ dndStrategy: 'pointer' });
-        openTab({ view: 'pods', title: 'Pods', icon: <Inventory2Outlined fontSize="small" /> });
+        openTab({ view: 'pods', title: 'Pods', icon: <VscPackage size={16} /> });
     };
 
     return (

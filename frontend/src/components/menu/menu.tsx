@@ -1,42 +1,16 @@
 import { useState, useEffect } from 'react';
+import { VscChevronDown, VscTable, VscGlobe, VscSettings, VscFolder, VscExtensions } from 'react-icons/vsc';
 import { useTabContext } from '../../contexts/TabContext';
 import { NAV_GROUPS, VIEW_GROUP, NavItem } from './menuItems';
 
 const SIDEBAR_STATE_KEY = 'kube-sidebar-state';
 
-const WorkloadsIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-        <rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/><path d="M2.5 6h11M6 2.5v11"/>
-    </svg>
-);
-const NetworkIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-        <circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2q-3.5 6 0 12M8 2q3.5 6 0 12"/>
-    </svg>
-);
-const ConfigIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-        <circle cx="5.5" cy="8" r="3"/><path d="M8.3 8H14M12 8v3M14 8v2.5"/>
-    </svg>
-);
-const StorageIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-        <path d="M1.5 4.5a1 1 0 0 1 1-1H6l1.5 1.5h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1z"/>
-    </svg>
-);
-const ClusterIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-        <rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/>
-        <rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/>
-    </svg>
-);
-
 const GROUP_ICONS: Record<string, React.ReactNode> = {
-    workloads:  <WorkloadsIcon />,
-    networking: <NetworkIcon />,
-    config:     <ConfigIcon />,
-    storage:    <StorageIcon />,
-    cluster:    <ClusterIcon />,
+    workloads:  <VscTable size={13} />,
+    networking: <VscGlobe size={13} />,
+    config:     <VscSettings size={13} />,
+    storage:    <VscFolder size={13} />,
+    cluster:    <VscExtensions size={13} />,
 };
 
 export default function SideMenu() {
@@ -82,14 +56,11 @@ export default function SideMenu() {
                         onClick={() => toggleGroup(group.key)}
                         aria-expanded={expanded[group.key]}
                     >
-                        <svg
+                        <VscChevronDown
                             className="sidebar-section__chevron"
                             style={{ transform: expanded[group.key] ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                            width="11" height="11" viewBox="0 0 16 16"
-                            fill="none" stroke="currentColor" strokeWidth="1.6"
-                        >
-                            <path d="M4 6l4 4 4-4"/>
-                        </svg>
+                            size={11}
+                        />
                         <span className="sidebar-section__badge">
                             <span className="sidebar-section__badge-icon">{GROUP_ICONS[group.key]}</span>
                             <span className="sidebar-section__badge-label">{group.label}</span>

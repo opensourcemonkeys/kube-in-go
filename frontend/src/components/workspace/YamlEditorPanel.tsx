@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
-import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
-import UndoOutlined from '@mui/icons-material/UndoOutlined';
-import CheckOutlined from '@mui/icons-material/CheckOutlined';
+
+
+import { VscNote, VscDiscard, VscCheck } from 'react-icons/vsc';
 import * as monacoEditor from 'monaco-editor';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
@@ -30,15 +30,18 @@ import {
     GetPersistentVolumeYaml,
     GetPersistentVolumeClaimYaml,
     GetStorageClassYaml,
+    GetServiceAccountYaml, UpdateServiceAccountYaml,
+    GetRoleYaml, UpdateRoleYaml,
+    GetRoleBindingYaml, UpdateRoleBindingYaml,
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass' | 'serviceaccount' | 'role' | 'rolebinding';
     name: string;
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota', 'limitrange'].includes(kind);
+const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota', 'limitrange', 'serviceaccount', 'role', 'rolebinding'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { resourceKind, name, namespace } = params;
@@ -93,6 +96,12 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     result = await GetPersistentVolumeClaimYaml(name, namespace);
                 } else if (resourceKind === 'storageclass') {
                     result = await GetStorageClassYaml(name);
+                } else if (resourceKind === 'serviceaccount') {
+                    result = await GetServiceAccountYaml(name, namespace);
+                } else if (resourceKind === 'role') {
+                    result = await GetRoleYaml(name, namespace);
+                } else if (resourceKind === 'rolebinding') {
+                    result = await GetRoleBindingYaml(name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -278,6 +287,12 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateIngressYaml(name, namespace, value);
             } else if (resourceKind === 'limitrange') {
                 await UpdateLimitRangeYaml(name, namespace, value);
+            } else if (resourceKind === 'serviceaccount') {
+                await UpdateServiceAccountYaml(name, namespace, value);
+            } else if (resourceKind === 'role') {
+                await UpdateRoleYaml(name, namespace, value);
+            } else if (resourceKind === 'rolebinding') {
+                await UpdateRoleBindingYaml(name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);
@@ -311,7 +326,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
 
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <EditNoteOutlined style={{ fontSize: '0.9rem' }} />
+                    <VscNote size={14} />
                     {namespace}/{name}
                 </span>
                 <div className="flex align-items-center gap-1 flex-shrink-0">
@@ -319,7 +334,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                         <>
                             <Button
                                 label="Revert"
-                                icon={<UndoOutlined fontSize="small" />}
+                                icon={<VscDiscard size={16} />}
                                 text
                                 size="small"
                                 disabled={!dirty || saving}
@@ -327,7 +342,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                             />
                             <Button
                                 label="Save"
-                                icon={<CheckOutlined fontSize="small" />}
+                                icon={<VscCheck size={16} />}
                                 size="small"
                                 loading={saving}
                                 disabled={!dirty}

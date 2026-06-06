@@ -21,6 +21,9 @@ import LimitRangeListComponent from '../limitrange/main';
 import PersistentVolumeListComponent from '../persistentvolume/main';
 import PersistentVolumeClaimListComponent from '../persistentvolumeclaim/main';
 import StorageClassListComponent from '../storageclass/main';
+import ServiceAccountListComponent from '../serviceaccount/main';
+import RoleListComponent from '../role/main';
+import RoleBindingListComponent from '../rolebinding/main';
 
 interface ViewPanelParams {
     view: string;
@@ -78,6 +81,9 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'persistentvolumes') return <PersistentVolumeListComponent />;
     if (view === 'persistentvolumeclaims') return <PersistentVolumeClaimListComponent />;
     if (view === 'storageclasses') return <StorageClassListComponent />;
+    if (view === 'serviceaccounts') return <ServiceAccountListComponent />;
+    if (view === 'roles') return <RoleListComponent />;
+    if (view === 'rolebindings') return <RoleBindingListComponent />;
 
     return (
         <div className="card p-4">

@@ -9,38 +9,65 @@ import { VscClose, VscAdd, VscDiscard, VscCheck, VscSettings } from 'react-icons
 import { Column, ColumnEditorOptions, ColumnEvent } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
-import { GetConfigMapData, UpdateConfigMapData } from '../../../wailsjs/go/controller_app/App';
+import { GetRoles, UpdateRole } from '../../../wailsjs/go/controller_app/App';
+import { models } from '../../../wailsjs/go/models';
 
-interface ConfigMapEditorPanelParams {
+interface RoleEditorPanelParams {
     name: string;
     namespace: string;
 }
 
-interface KeyValueRow {
+interface RuleRow {
     id: number;
-    key: string;
-    value: string;
+    apiGroups: string;
+    resources: string;
+    verbs: string;
+    resourceNames: string;
 }
 
 let rowCounter = 0;
 const nextId = () => ++rowCounter;
 
-const dataToRows = (data: Record<string, string>): KeyValueRow[] =>
-    Object.entries(data)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, value]) => ({ id: nextId(), key, value }));
+function splitCSV(s: string): string[] {
+    return s.split(',').map(v => v.trim()).filter(Boolean);
+}
 
-const rowsEqual = (a: KeyValueRow[], b: KeyValueRow[]) => {
+function rulesToRows(rules: models.PolicyRuleInfo[]): RuleRow[] {
+    return (rules ?? []).map(r => ({
+        id: nextId(),
+        apiGroups:     (r.api_groups ?? []).join(', '),
+        resources:     (r.resources ?? []).join(', '),
+        verbs:         (r.verbs ?? []).join(', '),
+        resourceNames: (r.resource_names ?? []).join(', '),
+    }));
+}
+
+function rowsToRules(rows: RuleRow[]): models.PolicyRuleInfo[] {
+    return rows.map(r => models.PolicyRuleInfo.createFrom({
+        api_groups:     splitCSV(r.apiGroups),
+        resources:      splitCSV(r.resources),
+        verbs:          splitCSV(r.verbs),
+        resource_names: splitCSV(r.resourceNames),
+    }));
+}
+
+const rowsEqual = (a: RuleRow[], b: RuleRow[]) => {
     if (a.length !== b.length) return false;
-    return a.every((row, i) => row.key === b[i].key && row.value === b[i].value);
+    return a.every((row, i) =>
+        row.apiGroups === b[i].apiGroups &&
+        row.resources === b[i].resources &&
+        row.verbs === b[i].verbs &&
+        row.resourceNames === b[i].resourceNames
+    );
 };
 
-export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<ConfigMapEditorPanelParams>) {
+export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEditorPanelParams>) {
     const { name, namespace } = params;
-    const [rows, setRows] = useState<KeyValueRow[]>([]);
-    const [originalRows, setOriginalRows] = useState<KeyValueRow[]>([]);
+    const [rows, setRows] = useState<RuleRow[]>([]);
+    const [originalRows, setOriginalRows] = useState<RuleRow[]>([]);
+    const [storedLabels, setStoredLabels] = useState<Record<string, string>>({});
+    const [storedAnnotations, setStoredAnnotations] = useState<Record<string, string>>({});
     const [saving, setSaving] = useState(false);
     const [dirty, setDirty] = useState(false);
     const toast = useRef<Toast | null>(null);
@@ -48,10 +75,14 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
     useEffect(() => {
         const load = async () => {
             try {
-                const data = await GetConfigMapData(name, namespace);
-                const loaded = dataToRows(data ?? {});
+                const all = await GetRoles();
+                const role = all.find((r: any) => r.name === name && r.namespace === namespace);
+                if (!role) return;
+                const loaded = rulesToRows(role.rules ?? []);
                 setRows(loaded);
                 setOriginalRows(loaded.map(r => ({ ...r })));
+                setStoredLabels(role.labels ?? {});
+                setStoredAnnotations(role.annotations ?? {});
             } catch {
                 toast.current?.show({ severity: 'error', summary: 'Load failed', detail: `${namespace}/${name} could not be loaded`, life: 3500 });
             }
@@ -70,7 +101,7 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
 
     const addRow = () => {
         setRows(prev => {
-            const next = [...prev, { id: nextId(), key: '', value: '' }];
+            const next = [...prev, { id: nextId(), apiGroups: '', resources: '', verbs: '', resourceNames: '' }];
             setDirty(!rowsEqual(next, originalRows));
             return next;
         });
@@ -85,15 +116,10 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
     };
 
     const handleSave = async () => {
-        const data: Record<string, string> = {};
-        for (const row of rows) {
-            if (row.key.trim()) data[row.key.trim()] = row.value;
-        }
         setSaving(true);
         try {
-            await UpdateConfigMapData(name, namespace, data);
-            const saved = dataToRows(data);
-            setOriginalRows(saved.map(r => ({ ...r })));
+            await UpdateRole(name, namespace, storedLabels, storedAnnotations, rowsToRules(rows));
+            setOriginalRows(rows.map(r => ({ ...r })));
             setDirty(false);
             toast.current?.show({ severity: 'success', summary: 'Updated', detail: `${namespace}/${name} updated`, life: 2500 });
         } catch {
@@ -108,41 +134,16 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
         setDirty(false);
     };
 
-    const keyEditor = (options: ColumnEditorOptions) => (
+    const textEditor = (options: ColumnEditorOptions) => (
         <InputText
             value={options.value}
-            onChange={(e) => options.editorCallback!(e.target.value)}
+            onChange={e => options.editorCallback!(e.target.value)}
             style={{ fontFamily: 'monospace', fontSize: '0.85rem', width: '100%' }}
             autoFocus
         />
     );
 
-    const valueEditor = (options: ColumnEditorOptions) => (
-        <InputTextarea
-            value={options.value}
-            onChange={(e) => options.editorCallback!(e.target.value)}
-            style={{ fontFamily: 'monospace', fontSize: '0.85rem', width: '100%', minHeight: '72px' }}
-            autoResize
-            rows={3}
-        />
-    );
-
-    const valueBody = (rowData: KeyValueRow) => (
-        <span style={{
-            fontFamily: 'monospace',
-            fontSize: '0.85rem',
-            whiteSpace: 'pre',
-            display: 'block',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxHeight: '4.5rem',
-            color: 'var(--text-color-secondary)',
-        }}>
-            {rowData.value}
-        </span>
-    );
-
-    const actionsBody = (rowData: KeyValueRow) => (
+    const actionsBody = (rowData: RuleRow) => (
         <Button
             icon={<VscClose size={16} />}
             text
@@ -161,7 +162,7 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
                 {namespace}/{name}
             </span>
             <div className="flex align-items-center gap-1">
-                <Button label="Add Key" icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
+                <Button label="Add Rule" icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
                 <Button label="Revert" icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
                 <Button label="Save" icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
             </div>
@@ -171,7 +172,6 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
     return (
         <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toast} position="bottom-right" />
-
             <DataTable
                 value={rows}
                 dataKey="id"
@@ -181,29 +181,14 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
                 scrollHeight="flex"
                 showGridlines
                 stripedRows
-                emptyMessage="No data entries. Click 'Add Key' to add one."
+                emptyMessage="No rules. Click 'Add Rule' to add one."
                 style={{ flex: 1 }}
             >
-                <Column
-                    field="key"
-                    header="Key"
-                    editor={keyEditor}
-                    onCellEditComplete={onCellEditComplete}
-                    style={{ width: '30%', minWidth: '10rem', fontFamily: 'monospace', fontSize: '0.85rem' }}
-                />
-                <Column
-                    field="value"
-                    header="Value"
-                    editor={valueEditor}
-                    onCellEditComplete={onCellEditComplete}
-                    body={valueBody}
-                    style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
-                />
-                <Column
-                    header=""
-                    body={actionsBody}
-                    style={{ width: '3.5rem', textAlign: 'center' }}
-                />
+                <Column field="apiGroups" header="API Groups" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="resources" header="Resources" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="verbs" header="Verbs" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="resourceNames" header="Resource Names" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column header="" body={actionsBody} style={{ width: '3.5rem', textAlign: 'center' }} />
             </DataTable>
         </div>
     );

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import WarningAmberOutlined from '@mui/icons-material/WarningAmberOutlined';
-import FilterListOff from '@mui/icons-material/FilterListOff';
+
+import { VscWarning, VscClearAll } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -76,7 +76,7 @@ export default function EventListComponent() {
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
                         label="Warnings Only"
-                        icon={<WarningAmberOutlined fontSize="small" />}
+                        icon={<VscWarning size={16} />}
                         text
                         severity={warningOnly ? 'warning' : 'secondary'}
                         onClick={() => setWarningOnly(p => !p)}
@@ -84,7 +84,7 @@ export default function EventListComponent() {
                         tooltipOptions={{ position: 'left' }}
                     />
                     <Button
-                        icon={<FilterListOff fontSize="small" />}
+                        icon={<VscClearAll size={16} />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}

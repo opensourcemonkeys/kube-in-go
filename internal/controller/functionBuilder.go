@@ -270,6 +270,58 @@ func (a *App) UpdateConfigMapData(name string, namespace string, data map[string
 }
 
 // ============================================================================
+// Access Control: ServiceAccounts, Roles, RoleBindings
+// ============================================================================
+
+func (a *App) GetServiceAccounts() []models.ServiceAccountInfo {
+	return bussiness.GetServiceAccounts()
+}
+
+func (a *App) GetServiceAccountYaml(name string, namespace string) (string, error) {
+	return bussiness.GetServiceAccountYaml(name, namespace)
+}
+
+func (a *App) UpdateServiceAccountYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateServiceAccountYaml(name, namespace, yamlContent)
+}
+
+func (a *App) UpdateServiceAccount(name string, namespace string, labels map[string]string, annotations map[string]string) error {
+	return bussiness.UpdateServiceAccount(name, namespace, labels, annotations)
+}
+
+func (a *App) GetRoles() []models.RoleInfo {
+	return bussiness.GetRoles()
+}
+
+func (a *App) GetRoleYaml(name string, namespace string) (string, error) {
+	return bussiness.GetRoleYaml(name, namespace)
+}
+
+func (a *App) UpdateRoleYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateRoleYaml(name, namespace, yamlContent)
+}
+
+func (a *App) UpdateRole(name string, namespace string, labels map[string]string, annotations map[string]string, rules []models.PolicyRuleInfo) error {
+	return bussiness.UpdateRole(name, namespace, labels, annotations, rules)
+}
+
+func (a *App) GetRoleBindings() []models.RoleBindingInfo {
+	return bussiness.GetRoleBindings()
+}
+
+func (a *App) GetRoleBindingYaml(name string, namespace string) (string, error) {
+	return bussiness.GetRoleBindingYaml(name, namespace)
+}
+
+func (a *App) UpdateRoleBindingYaml(name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateRoleBindingYaml(name, namespace, yamlContent)
+}
+
+func (a *App) UpdateRoleBinding(name string, namespace string, labels map[string]string, annotations map[string]string, subjects []models.SubjectInfo) error {
+	return bussiness.UpdateRoleBinding(name, namespace, labels, annotations, subjects)
+}
+
+// ============================================================================
 // Terminal Screen
 // ============================================================================
 

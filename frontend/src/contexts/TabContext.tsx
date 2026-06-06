@@ -36,7 +36,7 @@ export interface TabDef {
 }
 
 export interface YamlPanelDef {
-    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass';
+    resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass' | 'serviceaccount' | 'role' | 'rolebinding';
     name: string;
     namespace: string;
     /** dockview panel id of the list panel to split beside */
@@ -75,6 +75,18 @@ export interface SecretEditorDef {
     referencePanel: string;
 }
 
+export interface RoleEditorDef {
+    name: string;
+    namespace: string;
+    referencePanel: string;
+}
+
+export interface RoleBindingEditorDef {
+    name: string;
+    namespace: string;
+    referencePanel: string;
+}
+
 interface TabContextValue {
     registerApi: (api: DockviewApi) => void;
     openTab: (def: TabDef) => void;
@@ -84,6 +96,8 @@ interface TabContextValue {
     openPolicyViewer: (def: PolicyViewerDef) => void;
     openConfigMapEditor: (def: ConfigMapEditorDef) => void;
     openSecretEditor: (def: SecretEditorDef) => void;
+    openRoleEditor: (def: RoleEditorDef) => void;
+    openRoleBindingEditor: (def: RoleBindingEditorDef) => void;
     openTerminal: () => void;
     openApplyYaml: () => void;
     openClusterResourceView: () => void;
@@ -284,6 +298,56 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel(addOptions);
     }, []);
 
+    const openRoleEditor = useCallback((def: RoleEditorDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `role-editor:${def.namespace}/${def.name}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const addOptions: any = {
+            id: panelId,
+            component: 'roleEditor',
+            title: `Edit • ${def.namespace}/${def.name}`,
+            params: { name: def.name, namespace: def.namespace },
+        };
+
+        if (api.getPanel(def.referencePanel)) {
+            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
+        }
+
+        api.addPanel(addOptions);
+    }, []);
+
+    const openRoleBindingEditor = useCallback((def: RoleBindingEditorDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `rolebinding-editor:${def.namespace}/${def.name}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const addOptions: any = {
+            id: panelId,
+            component: 'roleBindingEditor',
+            title: `Edit • ${def.namespace}/${def.name}`,
+            params: { name: def.name, namespace: def.namespace },
+        };
+
+        if (api.getPanel(def.referencePanel)) {
+            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
+        }
+
+        api.addPanel(addOptions);
+    }, []);
+
     const openClusterResourceView = useCallback(() => {
         const api = apiRef.current;
         if (!api) return;
@@ -333,7 +397,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openTerminal, openApplyYaml, openClusterResourceView }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openTerminal, openApplyYaml, openClusterResourceView }}>
             {children}
         </TabContext.Provider>
     );

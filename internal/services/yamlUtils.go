@@ -39,10 +39,9 @@ func toApplyYaml(obj runtime.Object) (string, error) {
 	if meta, ok := m["metadata"].(map[string]interface{}); ok {
 		delete(meta, "managedFields")
 		delete(meta, "resourceVersion")
-		delete(meta, "uid")
-		delete(meta, "selfLink")
+
 		delete(meta, "generation")
-		delete(meta, "creationTimestamp")
+
 		if annotations, ok := meta["annotations"].(map[string]interface{}); ok {
 			delete(annotations, "kubectl.kubernetes.io/last-applied-configuration")
 			if len(annotations) == 0 {

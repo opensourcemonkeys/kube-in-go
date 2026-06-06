@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import ShieldOutlined from '@mui/icons-material/ShieldOutlined';
-import Inventory2Outlined from '@mui/icons-material/Inventory2Outlined';
-import BlockOutlined from '@mui/icons-material/BlockOutlined';
-import ArrowForwardOutlined from '@mui/icons-material/ArrowForwardOutlined';
-import ArrowBackOutlined from '@mui/icons-material/ArrowBackOutlined';
-import UndoOutlined from '@mui/icons-material/UndoOutlined';
-import CheckOutlined from '@mui/icons-material/CheckOutlined';
+
+
+
+
+
+
+import { VscShield, VscPackage, VscCircleSlash, VscArrowRight, VscArrowLeft, VscDiscard, VscCheck } from 'react-icons/vsc';
 import { CircularProgress } from '@mui/material';
 import { IDockviewPanelProps } from 'dockview';
 import ReactFlow, {
@@ -127,7 +127,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             label: (
                 <div>
                     <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                        <ShieldOutlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />
+                        <VscShield size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />
                         {detail.name}
                     </div>
                     <div style={{ fontSize: 11, opacity: 0.7 }}>{detail.namespace}</div>
@@ -164,7 +164,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
             label: (
                 <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                        <Inventory2Outlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />{' '}
+                        <VscPackage size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                         Affected Pods
                     </div>
                     <div style={{ fontSize: 11 }}>{detail.pod_selector || '<all pods>'}</div>
@@ -200,7 +200,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <BlockOutlined style={{ marginRight: 6, fontSize: 13, color: '#ef4444', verticalAlign: 'middle' }} />{' '}
+                            <VscCircleSlash size={13} color="#ef4444" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                             Deny All Ingress
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>All incoming traffic blocked</div>
@@ -234,7 +234,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <BlockOutlined style={{ marginRight: 6, fontSize: 13, color: '#ef4444', verticalAlign: 'middle' }} />{' '}
+                            <VscCircleSlash size={13} color="#ef4444" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                             Deny All Egress
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>All outgoing traffic blocked</div>
@@ -271,7 +271,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                            <ArrowForwardOutlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />{' '}
+                            <VscArrowRight size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                             Ingress Rule {i + 1}
                         </div>
                         <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
@@ -282,7 +282,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
-                                        <BlockOutlined style={{ marginRight: 3, fontSize: 9, verticalAlign: 'middle' }} />{' '}
+                                        <VscCircleSlash size={9} style={{ marginRight: 3, verticalAlign: 'middle' }} />{' '}
                                         except: {exc}
                                     </div>
                                 ))}
@@ -319,7 +319,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 label: (
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                            <ArrowBackOutlined style={{ marginRight: 6, fontSize: 13, verticalAlign: 'middle' }} />{' '}
+                            <VscArrowLeft size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                             Egress Rule {i + 1}
                         </div>
                         <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
@@ -330,7 +330,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
-                                        <BlockOutlined style={{ marginRight: 3, fontSize: 9, verticalAlign: 'middle' }} />{' '}
+                                        <VscCircleSlash size={9} style={{ marginRight: 3, verticalAlign: 'middle' }} />{' '}
                                         except: {exc}
                                     </div>
                                 ))}
@@ -500,13 +500,13 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
             {/* Toolbar */}
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <ShieldOutlined style={{ fontSize: '0.9rem' }} />
+                    <VscShield size={14} />
                     {namespace}/{name}
                 </span>
                 <div className="flex align-items-center gap-1">
                     <Button
                         label="Revert"
-                        icon={<UndoOutlined fontSize="small" />}
+                        icon={<VscDiscard size={16} />}
                         text
                         size="small"
                         disabled={!dirty || saving}
@@ -514,7 +514,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                     />
                     <Button
                         label="Save"
-                        icon={<CheckOutlined fontSize="small" />}
+                        icon={<VscCheck size={16} />}
                         size="small"
                         loading={saving}
                         disabled={!dirty}

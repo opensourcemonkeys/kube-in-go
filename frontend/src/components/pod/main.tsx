@@ -7,11 +7,11 @@ import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { GetPods, DeletePod } from '../../../wailsjs/go/controller_app/App';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
-import FilterListOff from '@mui/icons-material/FilterListOff';
-import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
-import Close from '@mui/icons-material/Close';
+
+
+
+
+import { VscTerminal, VscListFlat, VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
@@ -101,8 +101,8 @@ export default function DataTableComponent() {
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label="Cancel" icon={<VscClose size={16} />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon={<VscTrash size={16} />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -114,7 +114,7 @@ export default function DataTableComponent() {
                 <h3 style={{ margin: 0 }}>Pod List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        icon={<FilterListOff fontSize="small" />}
+                        icon={<VscClearAll size={16} />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
@@ -123,7 +123,7 @@ export default function DataTableComponent() {
                     />
                     <Button
                         label="Delete Selected"
-                        icon={<DeleteOutlineOutlined fontSize="small" />}
+                        icon={<VscTrash size={16} />}
                         severity="danger"
                         onClick={openDeleteDialog}
                         disabled={selectedPods.length === 0 || deleting}
@@ -199,7 +199,7 @@ export default function DataTableComponent() {
                                     referencePanel: 'pods',
                                 })}
                             >
-                                <ArticleOutlinedIcon style={{ fontSize: '16px' }} />
+                                <VscListFlat size={16} />
                             </Button>
                             <Button
                                 text
@@ -213,7 +213,7 @@ export default function DataTableComponent() {
                                     referencePanel: 'pods',
                                 })}
                             >
-                                <TerminalIcon style={{ fontSize: '16px' }} />
+                                <VscTerminal size={16} />
                             </Button>
                         </div>
                     )}

@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import DnsOutlined from '@mui/icons-material/DnsOutlined';
-import Close from '@mui/icons-material/Close';
-import CheckOutlined from '@mui/icons-material/CheckOutlined';
+
+
+import { VscServer, VscClose, VscCheck } from 'react-icons/vsc';
 import { SaveCluster, GetClusterContent } from '../../../wailsjs/go/controller_app/App';
 
 interface Props {
@@ -73,11 +73,11 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
-                        <DnsOutlined style={{ color: 'var(--teal)', fontSize: 16 }} />
+                        <VscServer size={16} color="var(--teal)" />
                         <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
                     </div>
                     <button className="cluster-modal__close" onClick={onClose} title="Close">
-                        <Close style={{ fontSize: '0.9rem' }} />
+                        <VscClose size={14} />
                     </button>
                 </div>
 
@@ -117,7 +117,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                 <div className="cluster-modal__footer">
                     <Button
                         label="Cancel"
-                        icon={<Close fontSize="small" />}
+                        icon={<VscClose size={16} />}
                         text
                         severity="secondary"
                         onClick={onClose}
@@ -125,7 +125,7 @@ export default function ClusterModal({ editingName, onClose, onSaved }: Props) {
                     />
                     <Button
                         label="Save"
-                        icon={<CheckOutlined fontSize="small" />}
+                        icon={<VscCheck size={16} />}
                         loading={saving}
                         onClick={handleSave}
                     />

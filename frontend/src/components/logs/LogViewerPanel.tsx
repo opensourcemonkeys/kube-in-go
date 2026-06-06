@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import FormatAlignLeftOutlined from '@mui/icons-material/FormatAlignLeftOutlined';
+import { VscListFlat } from 'react-icons/vsc';
 import { IDockviewPanelProps } from 'dockview';
 import { LazyLog } from '@melloware/react-logviewer';
 import { Dropdown } from 'primereact/dropdown';
@@ -137,7 +137,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
     return (
         <div className="log-viewer-panel">
             <div className="log-viewer-toolbar">
-                <FormatAlignLeftOutlined style={{ fontSize: '0.9rem' }} />
+                <VscListFlat size={14} />
                 <span className="log-viewer-toolbar__label">Logs</span>
 
                 {resourceKind !== 'pod' && pods.length > 0 && (

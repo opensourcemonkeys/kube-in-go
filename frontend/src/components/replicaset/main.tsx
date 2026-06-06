@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import FilterListOff from '@mui/icons-material/FilterListOff';
-import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
-import Close from '@mui/icons-material/Close';
-import ListOutlined from '@mui/icons-material/ListOutlined';
+
+
+import { VscClearAll, VscTrash, VscClose, VscListFlat } from 'react-icons/vsc';
+
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -25,7 +25,7 @@ function ReplicaSetAvailableBody({ row }: { row: models.ReplicaSetInfo }) {
 function ReplicaSetActionsBody({ row, onOpenLog }: { row: models.ReplicaSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
-            icon={<ListOutlined fontSize="small" />}
+            icon={<VscListFlat size={16} />}
             text
             size="small"
             severity="secondary"
@@ -95,8 +95,8 @@ export default function ReplicaSetListComponent() {
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label="Cancel" icon={<VscClose size={16} />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon={<VscTrash size={16} />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -107,8 +107,8 @@ export default function ReplicaSetListComponent() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0 }}>ReplicaSet List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-                    <Button icon={<FilterListOff fontSize="small" />} text severity="secondary" onClick={() => setFilters(defaultFilters)} tooltip="Clear filters" tooltipOptions={{ position: 'left' }} />
-                    <Button label="Delete Selected" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={() => { if (selected.length > 0) setDeleteDialogVisible(true); }} disabled={selected.length === 0 || deleting} />
+                    <Button icon={<VscClearAll size={16} />} text severity="secondary" onClick={() => setFilters(defaultFilters)} tooltip="Clear filters" tooltipOptions={{ position: 'left' }} />
+                    <Button label="Delete Selected" icon={<VscTrash size={16} />} severity="danger" onClick={() => { if (selected.length > 0) setDeleteDialogVisible(true); }} disabled={selected.length === 0 || deleting} />
                 </div>
             </div>
 

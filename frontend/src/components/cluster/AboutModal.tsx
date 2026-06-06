@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import CloudOutlined from '@mui/icons-material/CloudOutlined';
+import { VscCloud } from 'react-icons/vsc';
 import { Dialog } from 'primereact/dialog';
 import { GetAppInfo } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
@@ -39,7 +39,7 @@ export default function AboutModal({ visible, onHide }: Props) {
         >
             <div className="about-modal__content">
                 <div className="about-modal__logo">
-                    <CloudOutlined className="about-modal__logo-icon" />
+                    <VscCloud className="about-modal__logo-icon" />
                 </div>
                 <h2 className="about-modal__title">kube-ins</h2>
                 {info && (

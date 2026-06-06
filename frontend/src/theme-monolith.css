@@ -51,6 +51,9 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .p-button.p-button-icon-only { width: 32px; padding: 0; }
 .p-button.p-button-sm { height: 28px; padding: 0 10px; font-size: 11.5px; gap: 6px; }
 .p-button.p-button-sm.p-button-icon-only { width: 28px; padding: 0; }
+/* p-button-text overrides height:auto which collapses icon-only buttons; restore fixed size */
+.p-button.p-button-text.p-button-icon-only { height: 32px; width: 32px; padding: 0; }
+.p-button.p-button-sm.p-button-text.p-button-icon-only { height: 28px; width: 28px; padding: 0; }
 
 /* Default button — muted (lara makes it solid cyan) */
 .p-button:not([class*="p-button-"]):not(.p-button-outlined):not(.p-button-text):not(.p-button-link) {

@@ -1,18 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
 import { Chart } from 'primereact/chart';
-import DnsOutlined from '@mui/icons-material/DnsOutlined';
-import CheckCircleOutlined from '@mui/icons-material/CheckCircleOutlined';
-import BlockOutlined from '@mui/icons-material/BlockOutlined';
-import SendOutlined from '@mui/icons-material/SendOutlined';
-import EditNoteOutlined from '@mui/icons-material/EditNoteOutlined';
-import Close from '@mui/icons-material/Close';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
-import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
-import LabelOutlined from '@mui/icons-material/LabelOutlined';
-import DesktopWindowsOutlined from '@mui/icons-material/DesktopWindowsOutlined';
-import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
-import StorageOutlined from '@mui/icons-material/StorageOutlined';
+import { VscServer, VscPass, VscCircleSlash, VscOutput, VscNote, VscClose, VscInfo, VscLocation, VscTag, VscDesktopDownload, VscChip, VscDatabase } from 'react-icons/vsc';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
@@ -140,8 +129,8 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
 
     const drainFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDrainDialogVisible(false)} disabled={drainLoading} />
-            <Button label="Drain" icon={<SendOutlined fontSize="small" />} severity="danger" onClick={handleDrain} loading={drainLoading} />
+            <Button label="Cancel" icon={<VscClose fontSize="small" />} text onClick={() => setDrainDialogVisible(false)} disabled={drainLoading} />
+            <Button label="Drain" icon={<VscOutput fontSize="small" />} severity="danger" onClick={handleDrain} loading={drainLoading} />
         </div>
     );
 
@@ -156,7 +145,7 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
-                    <DnsOutlined style={{ fontSize: '1.1rem', color: 'var(--teal)', flexShrink: 0 }} />
+                    <VscServer style={{ fontSize: '1.1rem', color: 'var(--teal)', flexShrink: 0 }} />
                     <span style={{ fontWeight: 700, fontSize: '1rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{node.name}</span>
                     <Tag value={node.status} severity={getStatusSeverity(node.status)} style={{ fontSize: '0.7rem', flexShrink: 0 }} />
                     {node.unschedulable && (
@@ -165,23 +154,23 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
                 </div>
                 <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
                     {node.unschedulable ? (
-                        <Button label="Uncordon" icon={<CheckCircleOutlined fontSize="small" />} size="small" severity="success" text loading={cordonLoading} onClick={handleUncordon} tooltip="Make node schedulable" tooltipOptions={{ position: 'top' }} />
+                        <Button label="Uncordon" icon={<VscPass fontSize="small" />} size="small" severity="success" text loading={cordonLoading} onClick={handleUncordon} tooltip="Make node schedulable" tooltipOptions={{ position: 'top' }} />
                     ) : (
-                        <Button label="Cordon" icon={<BlockOutlined fontSize="small" />} size="small" severity="warning" text loading={cordonLoading} onClick={handleCordon} tooltip="Mark node as unschedulable" tooltipOptions={{ position: 'top' }} />
+                        <Button label="Cordon" icon={<VscCircleSlash fontSize="small" />} size="small" severity="warning" text loading={cordonLoading} onClick={handleCordon} tooltip="Mark node as unschedulable" tooltipOptions={{ position: 'top' }} />
                     )}
-                    <Button label="Drain" icon={<SendOutlined fontSize="small" />} size="small" severity="danger" text loading={drainLoading} onClick={() => setDrainDialogVisible(true)} tooltip="Evict pods and cordon node" tooltipOptions={{ position: 'top' }} />
-                    <Button icon={<EditNoteOutlined fontSize="small" />} text size="small" severity="secondary" onClick={() => onEditYaml(node.name)} tooltip="Edit YAML" tooltipOptions={{ position: 'top' }} />
+                    <Button label="Drain" icon={<VscOutput fontSize="small" />} size="small" severity="danger" text loading={drainLoading} onClick={() => setDrainDialogVisible(true)} tooltip="Evict pods and cordon node" tooltipOptions={{ position: 'top' }} />
+                    <Button icon={<VscNote fontSize="small" />} text size="small" severity="secondary" onClick={() => onEditYaml(node.name)} tooltip="Edit YAML" tooltipOptions={{ position: 'top' }} />
                 </div>
             </div>
 
             {/* Meta + Charts */}
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flexShrink: 0, minWidth: '200px' }}>
-                    <MetaItem icon={<PlaceOutlined style={{ fontSize: '0.75rem' }} />}           label="IP"      value={node.internal_ip      || '—'} />
-                    <MetaItem icon={<LabelOutlined style={{ fontSize: '0.75rem' }} />}           label="Version" value={node.kubelet_version   || '—'} />
-                    <MetaItem icon={<DesktopWindowsOutlined style={{ fontSize: '0.75rem' }} />}  label="OS"      value={node.os_image          || '—'} />
-                    <MetaItem icon={<MemoryOutlined style={{ fontSize: '0.75rem' }} />}          label="CPU Cap" value={node.cpu_capacity      || '—'} />
-                    <MetaItem icon={<StorageOutlined style={{ fontSize: '0.75rem' }} />}         label="MEM Cap" value={node.memory_capacity   || '—'} />
+                    <MetaItem icon={<VscLocation style={{ fontSize: '0.75rem' }} />}           label="IP"      value={node.internal_ip      || '—'} />
+                    <MetaItem icon={<VscTag style={{ fontSize: '0.75rem' }} />}           label="Version" value={node.kubelet_version   || '—'} />
+                    <MetaItem icon={<VscDesktopDownload style={{ fontSize: '0.75rem' }} />}  label="OS"      value={node.os_image          || '—'} />
+                    <MetaItem icon={<VscChip style={{ fontSize: '0.75rem' }} />}          label="CPU Cap" value={node.cpu_capacity      || '—'} />
+                    <MetaItem icon={<VscDatabase style={{ fontSize: '0.75rem' }} />}         label="MEM Cap" value={node.memory_capacity   || '—'} />
                 </div>
 
                 <div style={{ width: '1px', alignSelf: 'stretch', background: 'var(--line)', flexShrink: 0 }} />
@@ -193,7 +182,7 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
                     </div>
                 ) : (
                     <div style={{ flex: 1, color: 'var(--ink2)', fontSize: '0.8rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <InfoOutlined style={{ fontSize: '0.9rem' }} />
+                        <VscInfo style={{ fontSize: '0.9rem' }} />
                         Metrics Server not available — CPU/RAM usage unavailable
                     </div>
                 )}

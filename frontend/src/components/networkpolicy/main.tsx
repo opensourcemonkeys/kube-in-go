@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import FilterListOff from '@mui/icons-material/FilterListOff';
-import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
-import Close from '@mui/icons-material/Close';
+
+
+import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -96,8 +96,8 @@ export default function NetworkPolicyListComponent() {
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<Close fontSize="small" />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon={<DeleteOutlineOutlined fontSize="small" />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label="Cancel" icon={<VscClose size={16} />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
+            <Button label="Delete" icon={<VscTrash size={16} />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -109,7 +109,7 @@ export default function NetworkPolicyListComponent() {
                 <h3 style={{ margin: 0 }}>Network Policy List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        icon={<FilterListOff fontSize="small" />}
+                        icon={<VscClearAll size={16} />}
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
@@ -118,7 +118,7 @@ export default function NetworkPolicyListComponent() {
                     />
                     <Button
                         label="Delete Selected"
-                        icon={<DeleteOutlineOutlined fontSize="small" />}
+                        icon={<VscTrash size={16} />}
                         severity="danger"
                         onClick={openDeleteDialog}
                         disabled={selectedPolicies.length === 0 || deleting}
