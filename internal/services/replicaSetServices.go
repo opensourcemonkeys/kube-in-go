@@ -65,12 +65,22 @@ func replicaSetToInfo(r appsv1.ReplicaSet) models.ReplicaSetInfo {
 	if r.Spec.Replicas != nil {
 		replicas = *r.Spec.Replicas
 	}
+	status := "Available"
+	switch {
+	case replicas == 0:
+		status = "Scaled Down"
+	case r.Status.ReadyReplicas == replicas:
+		status = "Available"
+	case r.Status.ReadyReplicas < replicas:
+		status = "Degraded"
+	}
 	return models.ReplicaSetInfo{
 		Name:              r.Name,
 		Namespace:         r.Namespace,
 		Replicas:          replicas,
 		ReadyReplicas:     r.Status.ReadyReplicas,
 		AvailableReplicas: r.Status.AvailableReplicas,
+		Status:            status,
 		CreatedAt:         r.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

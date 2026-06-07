@@ -54,9 +54,19 @@ const getReadySeverity = (ready: number, desired: number): 'success' | 'warning'
     return 'warning';
 };
 
+const getStatusSeverity = (status: string): 'success' | 'warning' | 'danger' | 'secondary' => {
+    switch (status) {
+        case 'Available':     return 'success';
+        case 'Degraded':      return 'danger';
+        case 'Not Scheduled': return 'secondary';
+        default:              return 'secondary';
+    }
+};
+
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
     namespace: { value: null, matchMode: FilterMatchMode.IN },
+    status:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function DaemonSetListComponent() {
@@ -70,6 +80,10 @@ export default function DaemonSetListComponent() {
 
     const namespaceOptions = useMemo(() =>
         [...new Set(items.map(i => i.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
+    const statusOptions = useMemo(() =>
+        [...new Set(items.map(i => i.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
         [items]
     );
 
@@ -150,6 +164,21 @@ export default function DaemonSetListComponent() {
                 <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
                         <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
+                />
+                <Column
+                    field="status"
+                    header="Status"
+                    sortable
+                    filter
+                    filterField="status"
+                    showFilterMenu={false}
+                    style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
+                    body={(row: models.DaemonSetInfo) => (
+                        <Tag value={row.status} severity={getStatusSeverity(row.status)} />
                     )}
                 />
                 <Column

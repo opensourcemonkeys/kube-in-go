@@ -110,6 +110,14 @@ interface TabContextValue {
     openReceivedPanel: (panel: ReceivedPanel) => void;
 }
 
+function positionAfter(api: DockviewApi, referenceId: string) {
+    const ref = api.getPanel(referenceId);
+    if (!ref) return undefined;
+    const panels: any[] = (ref as any).group?.panels ?? [];
+    const idx = panels.findIndex((p: any) => p.id === referenceId);
+    return { referencePanel: referenceId, direction: 'within' as const, index: idx >= 0 ? idx + 1 : undefined };
+}
+
 const TabContext = createContext<TabContextValue | null>(null);
 
 export function TabProvider({ children }: { children: React.ReactNode }) {
@@ -192,9 +200,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -223,9 +230,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -248,9 +254,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             params: { name: def.name, namespace: def.namespace },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -273,9 +278,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             params: { name: def.name, namespace: def.namespace },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -298,9 +302,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             params: { name: def.name, namespace: def.namespace },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -323,9 +326,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             params: { name: def.name, namespace: def.namespace },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -348,9 +350,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             params: { name: def.name, namespace: def.namespace },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);
@@ -396,9 +397,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             },
         };
 
-        if (api.getPanel(def.referencePanel)) {
-            addOptions.position = { referencePanel: def.referencePanel, direction: 'within' };
-        }
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
     }, []);

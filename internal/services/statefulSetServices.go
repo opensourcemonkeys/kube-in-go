@@ -65,6 +65,17 @@ func statefulSetToInfo(s appsv1.StatefulSet) models.StatefulSetInfo {
 	if s.Spec.Replicas != nil {
 		replicas = *s.Spec.Replicas
 	}
+	status := "Available"
+	switch {
+	case replicas == 0:
+		status = "Scaled Down"
+	case s.Status.ReadyReplicas == replicas && s.Status.UpdatedReplicas == replicas:
+		status = "Available"
+	case s.Status.UpdatedReplicas < replicas:
+		status = "Progressing"
+	case s.Status.ReadyReplicas < replicas:
+		status = "Degraded"
+	}
 	return models.StatefulSetInfo{
 		Name:            s.Name,
 		Namespace:       s.Namespace,
@@ -72,6 +83,7 @@ func statefulSetToInfo(s appsv1.StatefulSet) models.StatefulSetInfo {
 		ReadyReplicas:   s.Status.ReadyReplicas,
 		CurrentReplicas: s.Status.CurrentReplicas,
 		UpdatedReplicas: s.Status.UpdatedReplicas,
+		Status:          status,
 		CreatedAt:       s.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

@@ -65,6 +65,17 @@ func deploymentToInfo(d appsv1.Deployment) models.DeploymentInfo {
 	if d.Spec.Replicas != nil {
 		replicas = *d.Spec.Replicas
 	}
+	status := "Available"
+	switch {
+	case replicas == 0:
+		status = "Scaled Down"
+	case d.Status.ReadyReplicas == replicas && d.Status.UpdatedReplicas == replicas:
+		status = "Available"
+	case d.Status.UpdatedReplicas < replicas:
+		status = "Progressing"
+	case d.Status.ReadyReplicas < replicas:
+		status = "Degraded"
+	}
 	return models.DeploymentInfo{
 		Name:              d.Name,
 		Namespace:         d.Namespace,
@@ -72,6 +83,7 @@ func deploymentToInfo(d appsv1.Deployment) models.DeploymentInfo {
 		ReadyReplicas:     d.Status.ReadyReplicas,
 		AvailableReplicas: d.Status.AvailableReplicas,
 		UpdatedReplicas:   d.Status.UpdatedReplicas,
+		Status:            status,
 		CreatedAt:         d.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

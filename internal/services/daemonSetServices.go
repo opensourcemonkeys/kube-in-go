@@ -61,6 +61,15 @@ func UpdateDaemonSetYaml(namespace, name, yamlContent string, client *kubernetes
 }
 
 func daemonSetToInfo(d appsv1.DaemonSet) models.DaemonSetInfo {
+	status := "Available"
+	switch {
+	case d.Status.DesiredNumberScheduled == 0:
+		status = "Not Scheduled"
+	case d.Status.NumberReady == d.Status.DesiredNumberScheduled:
+		status = "Available"
+	case d.Status.NumberReady < d.Status.DesiredNumberScheduled:
+		status = "Degraded"
+	}
 	return models.DaemonSetInfo{
 		Name:                   d.Name,
 		Namespace:              d.Namespace,
@@ -68,6 +77,7 @@ func daemonSetToInfo(d appsv1.DaemonSet) models.DaemonSetInfo {
 		CurrentNumberScheduled: d.Status.CurrentNumberScheduled,
 		NumberReady:            d.Status.NumberReady,
 		NumberAvailable:        d.Status.NumberAvailable,
+		Status:                 status,
 		CreatedAt:              d.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }

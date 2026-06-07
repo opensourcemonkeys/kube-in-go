@@ -23,10 +23,20 @@ const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning
     return 'warning';
 };
 
+const getStatusSeverity = (status: string): 'success' | 'warning' | 'danger' | 'secondary' => {
+    switch (status) {
+        case 'Available':   return 'success';
+        case 'Progressing': return 'warning';
+        case 'Degraded':    return 'danger';
+        default:            return 'secondary';
+    }
+};
+
 const defaultFilters: DataTableFilterMeta = {
-    name:           { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace:      { value: null, matchMode: FilterMatchMode.IN },
-    replicas:       { value: null, matchMode: FilterMatchMode.EQUALS },
+    name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
+    status:    { value: null, matchMode: FilterMatchMode.IN },
+    replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
 export default function DeploymentListComponent() {
@@ -40,6 +50,10 @@ export default function DeploymentListComponent() {
 
     const namespaceOptions = useMemo(() =>
         [...new Set(deployments.map(d => d.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [deployments]
+    );
+    const statusOptions = useMemo(() =>
+        [...new Set(deployments.map(d => d.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
         [deployments]
     );
 
@@ -173,6 +187,21 @@ export default function DeploymentListComponent() {
                     style={{ minWidth: '10rem' }}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
                         <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
+                />
+                <Column
+                    field="status"
+                    header="Status"
+                    sortable
+                    filter
+                    filterField="status"
+                    showFilterMenu={false}
+                    style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
+                    body={(row: models.DeploymentInfo) => (
+                        <Tag value={row.status} severity={getStatusSeverity(row.status)} />
                     )}
                 />
                 <Column
