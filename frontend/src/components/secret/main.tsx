@@ -23,7 +23,7 @@ const defaultFilters: DataTableFilterMeta = {
     data_count: { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
-export default function SecretListComponent() {
+export default function SecretListComponent({ clusterName }: { clusterName: string }) {
     const [secrets, setSecrets] = useState<models.SecretInfo[]>([]);
     const [selectedSecrets, setSelectedSecrets] = useState<models.SecretInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -43,7 +43,7 @@ export default function SecretListComponent() {
 
     const loadSecrets = async () => {
         try {
-            const items = await GetSecrets();
+            const items = await GetSecrets(clusterName);
             setSecrets(items.map((item: any) => models.SecretInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load secrets:', error);
@@ -69,7 +69,7 @@ export default function SecretListComponent() {
 
         for (const s of toDelete) {
             try {
-                await DeleteSecret(s.name, s.namespace);
+                await DeleteSecret(clusterName, s.name, s.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -93,11 +93,11 @@ export default function SecretListComponent() {
     };
 
     const handleRowDoubleClick = (s: models.SecretInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'secret',
             name: s.name,
             namespace: s.namespace,
-            referencePanel: 'secrets',
+            referencePanel: `secrets:${clusterName}`,
         });
     };
 
@@ -217,10 +217,10 @@ export default function SecretListComponent() {
                             size="small"
                             severity="secondary"
                             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openSecretEditor({
-                                name: rowData.name,
+                            onClick={() => openSecretEditor({ clusterName,
+            name: rowData.name,
                                 namespace: rowData.namespace,
-                                referencePanel: 'secrets',
+                                referencePanel: `secrets:${clusterName}`,
                             })}
                         />
                     )}

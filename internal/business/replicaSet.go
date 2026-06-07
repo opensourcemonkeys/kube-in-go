@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetReplicaSets() []models.ReplicaSetInfo {
-	client, err := repository.NewK8sClient()
+func GetReplicaSets(clusterName string) []models.ReplicaSetInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,24 +21,24 @@ func GetReplicaSets() []models.ReplicaSetInfo {
 	return items
 }
 
-func DeleteReplicaSet(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteReplicaSet(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteReplicaSet(namespace, name, client)
 }
 
-func GetReplicaSetYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetReplicaSetYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetReplicaSetYaml(namespace, name, client)
 }
 
-func UpdateReplicaSetYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateReplicaSetYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

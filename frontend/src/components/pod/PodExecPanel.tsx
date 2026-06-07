@@ -12,6 +12,7 @@ import {
 } from '../../../wailsjs/go/controller_app/App';
 
 export interface PodExecPanelParams {
+    clusterName: string;
     sessionId: string;
     name: string;
     namespace: string;
@@ -19,7 +20,8 @@ export interface PodExecPanelParams {
 }
 
 export default function PodExecPanel({ params }: IDockviewPanelProps<PodExecPanelParams>) {
-    const { sessionId, name, namespace, container } = params;
+    const { clusterName, sessionId, name, namespace, container } = params;
+    const cn = clusterName ?? '';
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -66,7 +68,7 @@ export default function PodExecPanel({ params }: IDockviewPanelProps<PodExecPane
 
         term.write(`Connecting to ${namespace}/${name}${container ? ` [${container}]` : ''}...\r\n`);
 
-        CreatePodExecSession(sessionId, namespace, name, container).catch((err: unknown) => {
+        CreatePodExecSession(cn, sessionId, namespace, name, container).catch((err: unknown) => {
             term.write(`\r\nFailed to connect: ${err}\r\n`);
         });
 

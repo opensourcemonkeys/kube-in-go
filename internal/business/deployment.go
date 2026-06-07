@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetDeployments() []models.DeploymentInfo {
-	client, err := repository.NewK8sClient()
+func GetDeployments(clusterName string) []models.DeploymentInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,24 +21,24 @@ func GetDeployments() []models.DeploymentInfo {
 	return items
 }
 
-func DeleteDeployment(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteDeployment(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteDeployment(namespace, name, client)
 }
 
-func GetDeploymentYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetDeploymentYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetDeploymentYaml(namespace, name, client)
 }
 
-func UpdateDeploymentYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateDeploymentYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

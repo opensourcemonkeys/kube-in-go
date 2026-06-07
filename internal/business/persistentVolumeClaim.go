@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetPersistentVolumeClaims() []models.PersistentVolumeClaimInfo {
-	client, err := repository.NewK8sClient()
+func GetPersistentVolumeClaims(clusterName string) []models.PersistentVolumeClaimInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,16 +21,16 @@ func GetPersistentVolumeClaims() []models.PersistentVolumeClaimInfo {
 	return items
 }
 
-func DeletePersistentVolumeClaim(name string, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeletePersistentVolumeClaim(clusterName string, name string, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeletePersistentVolumeClaim(name, namespace, client)
 }
 
-func GetPersistentVolumeClaimYaml(name string, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetPersistentVolumeClaimYaml(clusterName string, name string, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}

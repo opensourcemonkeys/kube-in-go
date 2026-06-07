@@ -24,7 +24,7 @@ const defaultFilters: DataTableFilterMeta = {
 
 type ConfigMapRow = models.ConfigMapInfo & { _uid: string };
 
-export default function ConfigMapListComponent() {
+export default function ConfigMapListComponent({ clusterName }: { clusterName: string }) {
     const [configMaps, setConfigMaps] = useState<ConfigMapRow[]>([]);
     const [selectedConfigMaps, setSelectedConfigMaps] = useState<ConfigMapRow[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -40,7 +40,7 @@ export default function ConfigMapListComponent() {
 
     const loadConfigMaps = async () => {
         try {
-            const items = await GetConfigMaps();
+            const items = await GetConfigMaps(clusterName);
             setConfigMaps(items.map((item: any) => {
                 const cm = models.ConfigMapInfo.createFrom(item) as ConfigMapRow;
                 cm._uid = `${cm.namespace}/${cm.name}`;
@@ -70,7 +70,7 @@ export default function ConfigMapListComponent() {
 
         for (const cm of toDelete) {
             try {
-                await DeleteConfigMap(cm.name, cm.namespace);
+                await DeleteConfigMap(clusterName, cm.name, cm.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -94,11 +94,11 @@ export default function ConfigMapListComponent() {
     };
 
     const handleRowDoubleClick = (cm: models.ConfigMapInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'configmap',
             name: cm.name,
             namespace: cm.namespace,
-            referencePanel: 'configmaps',
+            referencePanel: `configmaps:${clusterName}`,
         });
     };
 
@@ -205,10 +205,10 @@ export default function ConfigMapListComponent() {
                             size="small"
                             severity="secondary"
                             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openConfigMapEditor({
-                                name: rowData.name,
+                            onClick={() => openConfigMapEditor({ clusterName,
+            name: rowData.name,
                                 namespace: rowData.namespace,
-                                referencePanel: 'configmaps',
+                                referencePanel: `configmaps:${clusterName}`,
                             })}
                         />
                     )}

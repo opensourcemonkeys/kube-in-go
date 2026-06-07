@@ -296,7 +296,12 @@ function buildFlow(graph: ClusterGraph): { nodes: Node[]; edges: Edge[] } {
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
 
-export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>) {
+interface ClusterResourcePanelParams {
+    clusterName: string;
+}
+
+export default function ClusterResourcePanel({ params }: IDockviewPanelProps<ClusterResourcePanelParams>) {
+    const cn = params?.clusterName ?? '';
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
     const [loading, setLoading] = useState(false);
@@ -307,7 +312,7 @@ export default function ClusterResourcePanel(_props: IDockviewPanelProps<object>
         setLoading(true);
         setError(null);
         try {
-            const raw: any = await GetClusterGraph();
+            const raw: any = await GetClusterGraph(cn);
             const graph: ClusterGraph = raw;
             const { nodes: n, edges: e } = buildFlow(graph);
             setNodes(n);

@@ -143,7 +143,7 @@ function NamespaceGroup({ ns, onEdit }: {
     );
 }
 
-export default function ResourceQuotaListComponent() {
+export default function ResourceQuotaListComponent({ clusterName }: { clusterName: string }) {
     const [namespaces, setNamespaces] = useState<models.NamespaceInfo[]>([]);
     const [nsFilter, setNsFilter] = useState('');
     const toast = useRef<Toast | null>(null);
@@ -151,7 +151,7 @@ export default function ResourceQuotaListComponent() {
 
     const loadData = async () => {
         try {
-            const items = await GetNamespaces();
+            const items = await GetNamespaces(clusterName);
             const all = items.map((item: any) => models.NamespaceInfo.createFrom(item));
             setNamespaces(all.filter((ns: models.NamespaceInfo) => ns.resource_quotas?.length > 0));
         } catch (error) {
@@ -167,7 +167,8 @@ export default function ResourceQuotaListComponent() {
     }, []);
 
     const handleEdit = (quotaName: string, namespace: string) => {
-        openYamlPanel({ resourceKind: 'resourcequota', name: quotaName, namespace, referencePanel: 'resourcequotas' });
+        openYamlPanel({ clusterName,
+            resourceKind: 'resourcequota', name: quotaName, namespace, referencePanel: `resourcequotas:${clusterName}` });
     };
 
     const filtered = nsFilter.trim()

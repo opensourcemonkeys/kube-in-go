@@ -28,7 +28,7 @@ const formatResourceMap = (m: Record<string, string> | null): string => {
     return entries.map(([k, v]) => `${k}: ${v}`).join(', ');
 };
 
-export default function LimitRangeListComponent() {
+export default function LimitRangeListComponent({ clusterName }: { clusterName: string }) {
     const [limitRanges, setLimitRanges] = useState<models.LimitRangeInfo[]>([]);
     const [selectedLimitRange, setSelectedLimitRange] = useState<models.LimitRangeInfo | null>(null);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
@@ -42,7 +42,7 @@ export default function LimitRangeListComponent() {
 
     const loadLimitRanges = async () => {
         try {
-            const items = await GetLimitRanges();
+            const items = await GetLimitRanges(clusterName);
             setLimitRanges(items.map((item: any) => models.LimitRangeInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load limit ranges:', error);
@@ -57,11 +57,11 @@ export default function LimitRangeListComponent() {
     }, []);
 
     const handleRowDoubleClick = (lr: models.LimitRangeInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'limitrange',
             name: lr.name,
             namespace: lr.namespace,
-            referencePanel: 'limitranges',
+            referencePanel: `limitranges:${clusterName}`,
         });
     };
 

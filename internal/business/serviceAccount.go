@@ -8,8 +8,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetServiceAccounts() []models.ServiceAccountInfo {
-	client, err := repository.NewK8sClient()
+func GetServiceAccounts(clusterName string) []models.ServiceAccountInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -22,24 +22,24 @@ func GetServiceAccounts() []models.ServiceAccountInfo {
 	return items
 }
 
-func GetServiceAccountYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetServiceAccountYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetServiceAccountYaml(namespace, name, client)
 }
 
-func UpdateServiceAccountYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateServiceAccountYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.UpdateServiceAccountYaml(namespace, name, yamlContent, client)
 }
 
-func UpdateServiceAccount(name, namespace string, labels, annotations map[string]string) error {
-	client, err := repository.NewK8sClient()
+func UpdateServiceAccount(clusterName string, name, namespace string, labels, annotations map[string]string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

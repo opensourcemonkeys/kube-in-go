@@ -19,19 +19,20 @@ import {
 export type WorkloadKind = 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob';
 
 export interface LogViewerPanelParams {
+    clusterName: string;
     resourceKind: WorkloadKind;
     name: string;
     namespace: string;
 }
 
-async function fetchPodsForKind(kind: WorkloadKind, name: string, namespace: string): Promise<string[]> {
+async function fetchPodsForKind(clusterName: string, kind: WorkloadKind, name: string, namespace: string): Promise<string[]> {
     switch (kind) {
-        case 'deployment':   return GetDeploymentPods(name, namespace);
-        case 'statefulset':  return GetStatefulSetPods(name, namespace);
-        case 'replicaset':   return GetReplicaSetPods(name, namespace);
-        case 'daemonset':    return GetDaemonSetPods(name, namespace);
-        case 'job':          return GetJobPods(name, namespace);
-        case 'cronjob':      return GetCronJobPods(name, namespace);
+        case 'deployment':   return GetDeploymentPods(clusterName, name, namespace);
+        case 'statefulset':  return GetStatefulSetPods(clusterName, name, namespace);
+        case 'replicaset':   return GetReplicaSetPods(clusterName, name, namespace);
+        case 'daemonset':    return GetDaemonSetPods(clusterName, name, namespace);
+        case 'job':          return GetJobPods(clusterName, name, namespace);
+        case 'cronjob':      return GetCronJobPods(clusterName, name, namespace);
         default:             return [];
     }
 }
@@ -39,7 +40,8 @@ async function fetchPodsForKind(kind: WorkloadKind, name: string, namespace: str
 const ALL_CONTAINERS = '';
 
 export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewerPanelParams>) {
-    const { resourceKind, name, namespace } = params;
+    const { clusterName, resourceKind, name, namespace } = params;
+    const cn = clusterName ?? '';
 
     const [pods, setPods] = useState<string[]>([]);
     const [selectedPod, setSelectedPod] = useState('');
@@ -74,7 +76,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
         if (resourceKind === 'pod') {
             setSelectedPod(name);
         } else {
-            fetchPodsForKind(resourceKind, name, namespace)
+            fetchPodsForKind(cn, resourceKind, name, namespace)
                 .then(podNames => {
                     setPods(podNames);
                     if (podNames.length > 0) setSelectedPod(podNames[0]);
@@ -87,7 +89,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
     // Load containers when selected pod changes
     useEffect(() => {
         if (!selectedPod) return;
-        GetPodContainers(selectedPod, namespace)
+        GetPodContainers(cn, selectedPod, namespace)
             .then(names => {
                 setContainers(names);
                 setSelectedContainer(ALL_CONTAINERS);
@@ -118,7 +120,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
             });
             newOffHandlers.push(off);
 
-            StartLogStream(sessionId, selectedPod, namespace, container).catch((err: unknown) => {
+            StartLogStream(cn, sessionId, selectedPod, namespace, container).catch((err: unknown) => {
                 pendingRef.current += `[error] ${String(err)}\n`;
             });
         });

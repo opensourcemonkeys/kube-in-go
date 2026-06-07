@@ -19,7 +19,7 @@ const defaultFilters: DataTableFilterMeta = {
     provisioner: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function StorageClassListComponent() {
+export default function StorageClassListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.StorageClassInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
@@ -32,7 +32,7 @@ export default function StorageClassListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetStorageClasses();
+            const data = await GetStorageClasses(clusterName);
             setItems((data ?? []).map((d: any) => models.StorageClassInfo.createFrom(d)));
         } catch {
             setItems([]);
@@ -46,11 +46,11 @@ export default function StorageClassListComponent() {
     }, []);
 
     const handleRowDoubleClick = (sc: models.StorageClassInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'storageclass',
             name: sc.name,
             namespace: '',
-            referencePanel: 'storageclasses',
+            referencePanel: `storageclasses:${clusterName}`,
         });
     };
 

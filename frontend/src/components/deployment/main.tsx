@@ -39,7 +39,7 @@ const defaultFilters: DataTableFilterMeta = {
     replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
-export default function DeploymentListComponent() {
+export default function DeploymentListComponent({ clusterName }: { clusterName: string }) {
     const [deployments, setDeployments] = useState<models.DeploymentInfo[]>([]);
     const [selectedDeployments, setSelectedDeployments] = useState<models.DeploymentInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -59,7 +59,7 @@ export default function DeploymentListComponent() {
 
     const loadDeployments = async () => {
         try {
-            const items = await GetDeployments();
+            const items = await GetDeployments(clusterName);
             setDeployments(items.map((item: any) => models.DeploymentInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load deployments:', error);
@@ -85,7 +85,7 @@ export default function DeploymentListComponent() {
 
         for (const dep of toDelete) {
             try {
-                await DeleteDeployment(dep.name, dep.namespace);
+                await DeleteDeployment(clusterName, dep.name, dep.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -109,11 +109,11 @@ export default function DeploymentListComponent() {
     };
 
     const handleRowDoubleClick = (dep: models.DeploymentInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'deployment',
             name: dep.name,
             namespace: dep.namespace,
-            referencePanel: 'deployments',
+            referencePanel: `deployments:${clusterName}`,
         });
     };
 
@@ -231,11 +231,11 @@ export default function DeploymentListComponent() {
                             size="small"
                             severity="secondary"
                             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                            onClick={() => openLogPanel({
-                                resourceKind: 'deployment',
+                            onClick={() => openLogPanel({ clusterName,
+            resourceKind: 'deployment',
                                 name: rowData.name,
                                 namespace: rowData.namespace,
-                                referencePanel: 'deployments',
+                                referencePanel: `deployments:${clusterName}`,
                             })}
                         />
                     )}

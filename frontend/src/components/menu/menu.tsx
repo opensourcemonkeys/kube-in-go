@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { VscChevronDown, VscTable, VscGlobe, VscSettings, VscFolder, VscExtensions } from 'react-icons/vsc';
 import { useTabContext } from '../../contexts/TabContext';
+import { useClusterContext } from '../../contexts/ClusterContext';
 import { NAV_GROUPS, VIEW_GROUP, NavItem } from './menuItems';
 
 const SIDEBAR_STATE_KEY = 'kube-sidebar-state';
@@ -15,6 +16,7 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
 
 export default function SideMenu() {
     const { openTab } = useTabContext();
+    const { activeCluster } = useClusterContext();
     const [activeView, setActiveView] = useState('pods');
     const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
         try {
@@ -25,7 +27,7 @@ export default function SideMenu() {
 
     const navigate = (item: NavItem) => {
         setActiveView(item.view);
-        openTab({ view: item.view, title: item.label, icon: item.icon });
+        openTab({ view: item.view, title: item.label, clusterName: activeCluster, icon: item.icon });
     };
 
     const toggleGroup = (key: string) => {

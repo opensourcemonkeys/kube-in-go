@@ -32,7 +32,7 @@ const defaultFilters: DataTableFilterMeta = {
     status:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function DataTableComponent() {
+export default function DataTableComponent({ clusterName }: { clusterName: string }) {
     const [pods, setPods] = useState<models.PodInfo[]>([]);
     const [selectedPods, setSelectedPods] = useState<models.PodInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -52,7 +52,7 @@ export default function DataTableComponent() {
 
     const loadPods = async () => {
         try {
-            const items = await GetPods();
+            const items = await GetPods(clusterName);
             setPods(items.map((item: any) => models.PodInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load pods:', error);
@@ -78,7 +78,7 @@ export default function DataTableComponent() {
 
         for (const pod of toDelete) {
             try {
-                await DeletePod(pod.name, pod.namespace);
+                await DeletePod(clusterName, pod.name, pod.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -102,11 +102,11 @@ export default function DataTableComponent() {
     };
 
     const handleRowDoubleClick = (pod: models.PodInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'pod',
             name: pod.name,
             namespace: pod.namespace,
-            referencePanel: 'pods',
+            referencePanel: `pods:${clusterName}`,
         });
     };
 
@@ -207,11 +207,11 @@ export default function DataTableComponent() {
                                 size="small"
                                 severity="secondary"
                                 style={{ padding: '0.2rem' }}
-                                onClick={() => openLogPanel({
-                                    resourceKind: 'pod',
+                                onClick={() => openLogPanel({ clusterName,
+            resourceKind: 'pod',
                                     name: rowData.name,
                                     namespace: rowData.namespace,
-                                    referencePanel: 'pods',
+                                    referencePanel: `pods:${clusterName}`,
                                 })}
                             >
                                 <VscListFlat size={16} />
@@ -221,11 +221,11 @@ export default function DataTableComponent() {
                                 size="small"
                                 severity="secondary"
                                 style={{ padding: '0.2rem' }}
-                                onClick={() => openExecPanel({
-                                    name: rowData.name,
+                                onClick={() => openExecPanel({ clusterName,
+            name: rowData.name,
                                     namespace: rowData.namespace,
                                     container: (rowData.containers && rowData.containers.length > 0) ? rowData.containers[0] : '',
-                                    referencePanel: 'pods',
+                                    referencePanel: `pods:${clusterName}`,
                                 })}
                             >
                                 <VscTerminal size={16} />

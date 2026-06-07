@@ -16,6 +16,7 @@ import { Toast } from 'primereact/toast';
 import { GetSecretData, UpdateSecretData } from '../../../wailsjs/go/controller_app/App';
 
 interface SecretEditorPanelParams {
+    clusterName: string;
     name: string;
     namespace: string;
 }
@@ -71,7 +72,8 @@ function PasswordTextarea({ value, onChange }: { value: string; onChange: (val: 
 }
 
 export default function SecretEditorPanel({ params }: IDockviewPanelProps<SecretEditorPanelParams>) {
-    const { name, namespace } = params;
+    const { clusterName, name, namespace } = params;
+    const cn = clusterName ?? '';
     const [rows, setRows] = useState<KeyValueRow[]>([]);
     const [originalRows, setOriginalRows] = useState<KeyValueRow[]>([]);
     const [saving, setSaving] = useState(false);
@@ -81,7 +83,7 @@ export default function SecretEditorPanel({ params }: IDockviewPanelProps<Secret
     useEffect(() => {
         const load = async () => {
             try {
-                const data = await GetSecretData(name, namespace);
+                const data = await GetSecretData(cn, name, namespace);
                 const loaded = dataToRows(data ?? {});
                 setRows(loaded);
                 setOriginalRows(loaded.map(r => ({ ...r })));
@@ -124,7 +126,7 @@ export default function SecretEditorPanel({ params }: IDockviewPanelProps<Secret
         }
         setSaving(true);
         try {
-            await UpdateSecretData(name, namespace, data);
+            await UpdateSecretData(cn, name, namespace, data);
             const saved = dataToRows(data);
             setOriginalRows(saved.map(r => ({ ...r })));
             setDirty(false);

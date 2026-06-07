@@ -32,7 +32,7 @@ const defaultFilters: DataTableFilterMeta = {
     storage_class_name: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function PersistentVolumeListComponent() {
+export default function PersistentVolumeListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.PersistentVolumeInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
@@ -49,7 +49,7 @@ export default function PersistentVolumeListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetPersistentVolumes();
+            const data = await GetPersistentVolumes(clusterName);
             setItems((data ?? []).map((d: any) => models.PersistentVolumeInfo.createFrom(d)));
         } catch {
             setItems([]);
@@ -63,11 +63,11 @@ export default function PersistentVolumeListComponent() {
     }, []);
 
     const handleRowDoubleClick = (pv: models.PersistentVolumeInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'persistentvolume',
             name: pv.name,
             namespace: '',
-            referencePanel: 'persistentvolumes',
+            referencePanel: `persistentvolumes:${clusterName}`,
         });
     };
 

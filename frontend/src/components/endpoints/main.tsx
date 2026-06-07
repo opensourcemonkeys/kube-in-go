@@ -42,7 +42,7 @@ const formatPorts = (subsets: models.EndpointSubsetInfo[]): string => {
     return ports.length > 0 ? ports.join(', ') : '-';
 };
 
-export default function EndpointListComponent() {
+export default function EndpointListComponent({ clusterName }: { clusterName: string }) {
     const [endpoints, setEndpoints] = useState<models.EndpointInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
@@ -50,7 +50,7 @@ export default function EndpointListComponent() {
 
     const loadEndpoints = async () => {
         try {
-            const items = await GetEndpoints();
+            const items = await GetEndpoints(clusterName);
             setEndpoints(items.map((item: any) => models.EndpointInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load endpoints:', error);
@@ -65,11 +65,11 @@ export default function EndpointListComponent() {
     }, []);
 
     const handleRowDoubleClick = (ep: models.EndpointInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'endpoint',
             name: ep.name,
             namespace: ep.namespace,
-            referencePanel: 'endpoints',
+            referencePanel: `endpoints:${clusterName}`,
         });
     };
 

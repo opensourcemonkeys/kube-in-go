@@ -7,24 +7,24 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func DeleteNamespace(name string) error {
-	client, err := repository.NewK8sClient()
+func DeleteNamespace(clusterName string, name string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteNamespace(name, client)
 }
 
-func GetNamespaceYaml(name string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetNamespaceYaml(clusterName string, name string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetNamespaceYaml(name, client)
 }
 
-func GetNamespaces() []models.NamespaceInfo {
-	client, err := repository.NewK8sClient()
+func GetNamespaces(clusterName string) []models.NamespaceInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println("GetNamespaces k8s client error:", err)
 		return []models.NamespaceInfo{}

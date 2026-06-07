@@ -33,7 +33,7 @@ const defaultFilters: DataTableFilterMeta = {
     storage_class_name: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function PersistentVolumeClaimListComponent() {
+export default function PersistentVolumeClaimListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.PersistentVolumeClaimInfo[]>([]);
     const [selected, setSelected] = useState<models.PersistentVolumeClaimInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -57,7 +57,7 @@ export default function PersistentVolumeClaimListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetPersistentVolumeClaims();
+            const data = await GetPersistentVolumeClaims(clusterName);
             setItems((data ?? []).map((d: any) => models.PersistentVolumeClaimInfo.createFrom(d)));
         } catch {
             setItems([]);
@@ -75,7 +75,7 @@ export default function PersistentVolumeClaimListComponent() {
         setDeleting(true);
         for (const pvc of selected) {
             try {
-                await DeletePersistentVolumeClaim(pvc.name, pvc.namespace);
+                await DeletePersistentVolumeClaim(clusterName, pvc.name, pvc.namespace);
                 toast.current?.show({ severity: 'success', summary: 'Deleted', detail: `${pvc.namespace}/${pvc.name}`, life: 2500 });
             } catch {
                 toast.current?.show({ severity: 'error', summary: 'Delete failed', detail: `${pvc.namespace}/${pvc.name}`, life: 3500 });
@@ -88,11 +88,11 @@ export default function PersistentVolumeClaimListComponent() {
     };
 
     const handleRowDoubleClick = (pvc: models.PersistentVolumeClaimInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'persistentvolumeclaim',
             name: pvc.name,
             namespace: pvc.namespace,
-            referencePanel: 'persistentvolumeclaims',
+            referencePanel: `persistentvolumeclaims:${clusterName}`,
         });
     };
 

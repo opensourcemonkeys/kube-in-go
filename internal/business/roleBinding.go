@@ -8,8 +8,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetRoleBindings() []models.RoleBindingInfo {
-	client, err := repository.NewK8sClient()
+func GetRoleBindings(clusterName string) []models.RoleBindingInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -22,24 +22,24 @@ func GetRoleBindings() []models.RoleBindingInfo {
 	return items
 }
 
-func GetRoleBindingYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetRoleBindingYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetRoleBindingYaml(namespace, name, client)
 }
 
-func UpdateRoleBindingYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateRoleBindingYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.UpdateRoleBindingYaml(namespace, name, yamlContent, client)
 }
 
-func UpdateRoleBinding(name, namespace string, labels, annotations map[string]string, subjects []models.SubjectInfo) error {
-	client, err := repository.NewK8sClient()
+func UpdateRoleBinding(clusterName string, name, namespace string, labels, annotations map[string]string, subjects []models.SubjectInfo) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

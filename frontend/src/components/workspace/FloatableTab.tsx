@@ -17,7 +17,7 @@ function getComponentType(panelId: string): string {
     if (panelId.startsWith('secret-editor:')) return 'secretEditor';
     if (panelId.startsWith('role-editor:')) return 'roleEditor';
     if (panelId.startsWith('rolebinding-editor:')) return 'roleBindingEditor';
-    if (panelId === 'cluster-resource-view') return 'clusterResource';
+    if (panelId.startsWith('cluster-resource-view')) return 'clusterResource';
     return 'view';
 }
 

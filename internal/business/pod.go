@@ -8,9 +8,9 @@ import (
 )
 
 // GetPods exposes pod data to the Wails app context.
-func GetPods() []models.PodInfo {
+func GetPods(clusterName string) []models.PodInfo {
 
-	client, err := repository.NewK8sClient()
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -21,8 +21,8 @@ func GetPods() []models.PodInfo {
 	return podItem
 }
 
-func DeletePod(name string, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeletePod(clusterName string, name string, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
@@ -30,8 +30,8 @@ func DeletePod(name string, namespace string) error {
 	return services.DeletePod(namespace, name, client)
 }
 
-func GetPodYaml(name string, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetPodYaml(clusterName string, name string, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}

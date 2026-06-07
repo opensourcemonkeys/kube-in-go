@@ -16,7 +16,7 @@ const defaultFilters: DataTableFilterMeta = {
     namespace: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function RoleBindingListComponent() {
+export default function RoleBindingListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.RoleBindingInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const { openYamlPanel, openRoleBindingEditor } = useTabContext();
@@ -28,7 +28,7 @@ export default function RoleBindingListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetRoleBindings();
+            const data = await GetRoleBindings(clusterName);
             setItems(data.map((d: any) => models.RoleBindingInfo.createFrom(d)));
         } catch {
             setItems([]);
@@ -52,7 +52,8 @@ export default function RoleBindingListComponent() {
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => openRoleBindingEditor({ name: rowData.name, namespace: rowData.namespace, referencePanel: 'rolebindings' })}
+            onClick={() => openRoleBindingEditor({ clusterName,
+            name: rowData.name, namespace: rowData.namespace, referencePanel: `rolebindings:${clusterName}` })}
         />
     );
 
@@ -80,7 +81,8 @@ export default function RoleBindingListComponent() {
                 filterDisplay="row"
                 onRowDoubleClick={(e: any) => {
                     const rb = e.data as models.RoleBindingInfo;
-                    openYamlPanel({ resourceKind: 'rolebinding', name: rb.name, namespace: rb.namespace, referencePanel: 'rolebindings' });
+                    openYamlPanel({ clusterName,
+            resourceKind: 'rolebinding', name: rb.name, namespace: rb.namespace, referencePanel: `rolebindings:${clusterName}` });
                 }}
                 stripedRows
                 showGridlines

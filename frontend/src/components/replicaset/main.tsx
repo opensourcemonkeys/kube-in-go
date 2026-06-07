@@ -24,7 +24,7 @@ function ReplicaSetAvailableBody({ row }: { row: models.ReplicaSetInfo }) {
     return <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />;
 }
 
-function ReplicaSetActionsBody({ row, onOpenLog }: { row: models.ReplicaSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
+function ReplicaSetActionsBody({ row, clusterName, onOpenLog }: { row: models.ReplicaSetInfo; clusterName: string; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
             icon={<VscListFlat size={16} />}
@@ -32,7 +32,7 @@ function ReplicaSetActionsBody({ row, onOpenLog }: { row: models.ReplicaSetInfo;
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => onOpenLog({ resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel: 'replicasets' })}
+            onClick={() => onOpenLog({ clusterName, resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel: `replicasets:${clusterName}` })}
         />
     );
 }
@@ -59,7 +59,7 @@ const defaultFilters: DataTableFilterMeta = {
     replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
-export default function ReplicaSetListComponent() {
+export default function ReplicaSetListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.ReplicaSetInfo[]>([]);
     const [selected, setSelected] = useState<models.ReplicaSetInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -79,7 +79,7 @@ export default function ReplicaSetListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetReplicaSets();
+            const data = await GetReplicaSets(clusterName);
             setItems(data.map((item: any) => models.ReplicaSetInfo.createFrom(item)));
         } catch {
             setItems([]);
@@ -97,7 +97,7 @@ export default function ReplicaSetListComponent() {
         setDeleting(true);
         for (const r of [...selected]) {
             try {
-                await DeleteReplicaSet(r.name, r.namespace);
+                await DeleteReplicaSet(clusterName, r.name, r.namespace);
                 toast.current?.show({ severity: 'success', summary: 'Deleted', detail: `${r.namespace}/${r.name}`, life: 2500 });
             } catch {
                 toast.current?.show({ severity: 'error', summary: 'Delete failed', detail: `${r.namespace}/${r.name}`, life: 3500 });
@@ -110,7 +110,8 @@ export default function ReplicaSetListComponent() {
     };
 
     const handleRowDoubleClick = (r: models.ReplicaSetInfo) => {
-        openYamlPanel({ resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel: 'replicasets' });
+        openYamlPanel({ clusterName,
+            resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel: `replicasets:${clusterName}` });
     };
 
     const deleteDialogFooter = (
@@ -191,7 +192,7 @@ export default function ReplicaSetListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.ReplicaSetInfo) => <ReplicaSetActionsBody row={row} onOpenLog={openLogPanel} />}
+                    body={(row: models.ReplicaSetInfo) => <ReplicaSetActionsBody row={row} clusterName={clusterName} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

@@ -83,8 +83,9 @@ function UsageChart({ label, used, total, unit }: {
     );
 }
 
-function NodeCard({ node, onEditYaml, onAction, onToast }: {
+function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
     node: models.NodeInfo;
+    clusterName: string;
     onEditYaml: (name: string) => void;
     onAction: () => void;
     onToast: (severity: 'success' | 'error', summary: string, detail: string) => void;
@@ -96,7 +97,7 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
     const handleCordon = async () => {
         setCordonLoading(true);
         try {
-            await CordonNode(node.name);
+            await CordonNode(clusterName, node.name);
             onToast('success', 'Cordoned', `${node.name} marked as unschedulable`);
             onAction();
         } catch (e: any) {
@@ -107,7 +108,7 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
     const handleUncordon = async () => {
         setCordonLoading(true);
         try {
-            await UncordonNode(node.name);
+            await UncordonNode(clusterName, node.name);
             onToast('success', 'Uncordoned', `${node.name} is schedulable again`);
             onAction();
         } catch (e: any) {
@@ -119,7 +120,7 @@ function NodeCard({ node, onEditYaml, onAction, onToast }: {
         setDrainDialogVisible(false);
         setDrainLoading(true);
         try {
-            await DrainNode(node.name);
+            await DrainNode(clusterName, node.name);
             onToast('success', 'Drain complete', `Pods on ${node.name} have been evicted`);
             onAction();
         } catch (e: any) {
@@ -218,14 +219,14 @@ function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string
     );
 }
 
-export default function NodeListComponent() {
+export default function NodeListComponent({ clusterName }: { clusterName: string }) {
     const [nodes, setNodes] = useState<models.NodeInfo[]>([]);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
 
     const loadNodes = async () => {
         try {
-            const items = await GetNodes();
+            const items = await GetNodes(clusterName);
             setNodes(items.map((item: any) => models.NodeInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load nodes:', error);
@@ -240,7 +241,8 @@ export default function NodeListComponent() {
     }, []);
 
     const handleEditYaml = (name: string) => {
-        openYamlPanel({ resourceKind: 'node', name, namespace: '', referencePanel: 'nodes' });
+        openYamlPanel({ clusterName,
+            resourceKind: 'node', name, namespace: '', referencePanel: `nodes:${clusterName}` });
     };
 
     const showToast = (severity: 'success' | 'error', summary: string, detail: string) => {
@@ -265,7 +267,7 @@ export default function NodeListComponent() {
                     </div>
                 ) : (
                     nodes.map(node => (
-                        <NodeCard key={node.name} node={node} onEditYaml={handleEditYaml} onAction={loadNodes} onToast={showToast} />
+                        <NodeCard key={node.name} node={node} clusterName={clusterName} onEditYaml={handleEditYaml} onAction={loadNodes} onToast={showToast} />
                     ))
                 )}
             </div>

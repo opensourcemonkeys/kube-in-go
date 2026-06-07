@@ -47,7 +47,7 @@ const defaultFilters: DataTableFilterMeta = {
     type:      { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function ServiceListComponent() {
+export default function ServiceListComponent({ clusterName }: { clusterName: string }) {
     const [services, setServices] = useState<models.ServiceInfo[]>([]);
     const [selectedServices, setSelectedServices] = useState<models.ServiceInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -67,7 +67,7 @@ export default function ServiceListComponent() {
 
     const loadServices = async () => {
         try {
-            const items = await GetServices();
+            const items = await GetServices(clusterName);
             setServices(items.map((item: any) => models.ServiceInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load services:', error);
@@ -93,7 +93,7 @@ export default function ServiceListComponent() {
 
         for (const svc of toDelete) {
             try {
-                await DeleteService(svc.name, svc.namespace);
+                await DeleteService(clusterName, svc.name, svc.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -117,11 +117,11 @@ export default function ServiceListComponent() {
     };
 
     const handleRowDoubleClick = (svc: models.ServiceInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'service',
             name: svc.name,
             namespace: svc.namespace,
-            referencePanel: 'services',
+            referencePanel: `services:${clusterName}`,
         });
     };
 

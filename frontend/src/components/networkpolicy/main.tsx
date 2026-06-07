@@ -20,7 +20,7 @@ const defaultFilters: DataTableFilterMeta = {
     namespace: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function NetworkPolicyListComponent() {
+export default function NetworkPolicyListComponent({ clusterName }: { clusterName: string }) {
     const [policies, setPolicies] = useState<models.NetworkPolicyInfo[]>([]);
     const [selectedPolicies, setSelectedPolicies] = useState<models.NetworkPolicyInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -36,7 +36,7 @@ export default function NetworkPolicyListComponent() {
 
     const loadPolicies = async () => {
         try {
-            const items = await GetNetworkPolicies();
+            const items = await GetNetworkPolicies(clusterName);
             setPolicies(items.map((item: any) => models.NetworkPolicyInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load network policies:', error);
@@ -62,7 +62,7 @@ export default function NetworkPolicyListComponent() {
 
         for (const policy of toDelete) {
             try {
-                await DeleteNetworkPolicy(policy.name, policy.namespace);
+                await DeleteNetworkPolicy(clusterName, policy.name, policy.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -149,10 +149,10 @@ export default function NetworkPolicyListComponent() {
                 scrollHeight="flex"
                 onRowDoubleClick={(e: any) => {
                     const policy = e.data as models.NetworkPolicyInfo;
-                    openPolicyViewer({
-                        name: policy.name,
+                    openPolicyViewer({ clusterName,
+            name: policy.name,
                         namespace: policy.namespace,
-                        referencePanel: 'networkpolicies',
+                        referencePanel: `networkpolicies:${clusterName}`,
                     });
                 }}
                 emptyMessage="No network policies found"

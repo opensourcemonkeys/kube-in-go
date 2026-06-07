@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetEndpoints() []models.EndpointInfo {
-	client, err := repository.NewK8sClient()
+func GetEndpoints(clusterName string) []models.EndpointInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,8 +21,8 @@ func GetEndpoints() []models.EndpointInfo {
 	return items
 }
 
-func GetEndpointYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetEndpointYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}

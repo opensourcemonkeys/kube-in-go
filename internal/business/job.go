@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetJobs() []models.JobInfo {
-	client, err := repository.NewK8sClient()
+func GetJobs(clusterName string) []models.JobInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,16 +21,16 @@ func GetJobs() []models.JobInfo {
 	return items
 }
 
-func DeleteJob(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteJob(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteJob(namespace, name, client)
 }
 
-func GetJobYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetJobYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}

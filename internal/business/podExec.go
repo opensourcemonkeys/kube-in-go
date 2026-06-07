@@ -5,8 +5,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func CreatePodExecSession(id, namespace, podName, container string, onOutput func(string)) error {
-	client, config, err := repository.NewK8sClientAndConfig()
+func CreatePodExecSession(clusterName string, id, namespace, podName, container string, onOutput func(string)) error {
+	client, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)
 	if err != nil {
 		return err
 	}

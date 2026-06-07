@@ -19,7 +19,7 @@ const defaultFilters: DataTableFilterMeta = {
     controller: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function IngressClassListComponent() {
+export default function IngressClassListComponent({ clusterName }: { clusterName: string }) {
     const [ingressClasses, setIngressClasses] = useState<models.IngressClassInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
@@ -32,7 +32,7 @@ export default function IngressClassListComponent() {
 
     const loadIngressClasses = async () => {
         try {
-            const items = await GetIngressClasses();
+            const items = await GetIngressClasses(clusterName);
             setIngressClasses(items.map((item: any) => models.IngressClassInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load ingress classes:', error);
@@ -47,11 +47,11 @@ export default function IngressClassListComponent() {
     }, []);
 
     const handleRowDoubleClick = (ic: models.IngressClassInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'ingressclass',
             name: ic.name,
             namespace: '',
-            referencePanel: 'ingressclasses',
+            referencePanel: `ingressclasses:${clusterName}`,
         });
     };
 

@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetStorageClasses() []models.StorageClassInfo {
-	client, err := repository.NewK8sClient()
+func GetStorageClasses(clusterName string) []models.StorageClassInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,8 +21,8 @@ func GetStorageClasses() []models.StorageClassInfo {
 	return items
 }
 
-func GetStorageClassYaml(name string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetStorageClassYaml(clusterName string, name string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}

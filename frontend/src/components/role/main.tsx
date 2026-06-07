@@ -16,7 +16,7 @@ const defaultFilters: DataTableFilterMeta = {
     namespace: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function RoleListComponent() {
+export default function RoleListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.RoleInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const { openYamlPanel, openRoleEditor } = useTabContext();
@@ -28,7 +28,7 @@ export default function RoleListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetRoles();
+            const data = await GetRoles(clusterName);
             setItems(data.map((d: any) => models.RoleInfo.createFrom(d)));
         } catch {
             setItems([]);
@@ -48,7 +48,8 @@ export default function RoleListComponent() {
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => openRoleEditor({ name: rowData.name, namespace: rowData.namespace, referencePanel: 'roles' })}
+            onClick={() => openRoleEditor({ clusterName,
+            name: rowData.name, namespace: rowData.namespace, referencePanel: `roles:${clusterName}` })}
         />
     );
 
@@ -76,7 +77,8 @@ export default function RoleListComponent() {
                 filterDisplay="row"
                 onRowDoubleClick={(e: any) => {
                     const role = e.data as models.RoleInfo;
-                    openYamlPanel({ resourceKind: 'role', name: role.name, namespace: role.namespace, referencePanel: 'roles' });
+                    openYamlPanel({ clusterName,
+            resourceKind: 'role', name: role.name, namespace: role.namespace, referencePanel: `roles:${clusterName}` });
                 }}
                 stripedRows
                 showGridlines

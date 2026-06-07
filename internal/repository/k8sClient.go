@@ -50,6 +50,59 @@ func NewMetricsClient() (*metricsclient.Clientset, error) {
 	return metricsclient.NewForConfig(config)
 }
 
+func NewK8sClientForCluster(clusterName string) (*kubernetes.Clientset, error) {
+	if clusterName == "" {
+		return NewK8sClient()
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(home, ".kube-ins", clusterName+".yaml")
+	config, err := clientcmd.BuildConfigFromFlags("", path)
+	if err != nil {
+		log.Printf("Failed to load kubeconfig for cluster %s: %v", clusterName, err)
+		return nil, err
+	}
+	return kubernetes.NewForConfig(config)
+}
+
+func NewK8sClientAndConfigForCluster(clusterName string) (*kubernetes.Clientset, *rest.Config, error) {
+	if clusterName == "" {
+		return NewK8sClientAndConfig()
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, nil, err
+	}
+	path := filepath.Join(home, ".kube-ins", clusterName+".yaml")
+	config, err := clientcmd.BuildConfigFromFlags("", path)
+	if err != nil {
+		return nil, nil, err
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, nil, err
+	}
+	return clientset, config, nil
+}
+
+func NewMetricsClientForCluster(clusterName string) (*metricsclient.Clientset, error) {
+	if clusterName == "" {
+		return NewMetricsClient()
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(home, ".kube-ins", clusterName+".yaml")
+	config, err := clientcmd.BuildConfigFromFlags("", path)
+	if err != nil {
+		return nil, err
+	}
+	return metricsclient.NewForConfig(config)
+}
+
 func getK8sConfig() (*rest.Config, error) {
 	// Use explicitly selected cluster config first
 	if activeKubeconfigPath != "" {

@@ -3,6 +3,7 @@ import { VscPackage } from 'react-icons/vsc';
 import { DockviewReact, DockviewReadyEvent } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
+import { useClusterContext } from '../../contexts/ClusterContext';
 import FloatableTab from './FloatableTab';
 import ViewPanel from './ViewPanel';
 import YamlEditorPanel from './YamlEditorPanel';
@@ -34,6 +35,7 @@ const components = {
 
 export default function DockviewContainer() {
     const { registerApi, openTab } = useTabContext();
+    const { activeCluster } = useClusterContext();
 
     // Dockview adds `.dv-tab-ghost-drag` to DOM when a tab drag starts (pointer mode).
     // We toggle `body.dv-dragging` so CSS can apply `user-select: none !important`
@@ -52,7 +54,7 @@ export default function DockviewContainer() {
     const onReady = (event: DockviewReadyEvent) => {
         registerApi(event.api);
         (event.api as any).updateOptions({ dndStrategy: 'pointer' });
-        openTab({ view: 'pods', title: 'Pods', icon: <VscPackage size={16} /> });
+        openTab({ view: 'pods', title: 'Pods', clusterName: activeCluster, icon: <VscPackage size={16} /> });
     };
 
     return (

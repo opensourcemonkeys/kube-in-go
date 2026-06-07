@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetCronJobs() []models.CronJobInfo {
-	client, err := repository.NewK8sClient()
+func GetCronJobs(clusterName string) []models.CronJobInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,24 +21,24 @@ func GetCronJobs() []models.CronJobInfo {
 	return items
 }
 
-func DeleteCronJob(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteCronJob(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteCronJob(namespace, name, client)
 }
 
-func GetCronJobYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetCronJobYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetCronJobYaml(namespace, name, client)
 }
 
-func UpdateCronJobYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateCronJobYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

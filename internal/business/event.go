@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetEvents() []models.EventInfo {
-	client, err := repository.NewK8sClient()
+func GetEvents(clusterName string) []models.EventInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil

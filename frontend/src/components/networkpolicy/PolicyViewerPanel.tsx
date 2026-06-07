@@ -32,6 +32,7 @@ import { models } from '../../../wailsjs/go/models';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 
 interface PolicyViewerPanelParams {
+    clusterName: string;
     name: string;
     namespace: string;
 }
@@ -359,7 +360,8 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function PolicyViewerPanel({ params }: IDockviewPanelProps<PolicyViewerPanelParams>) {
-    const { name, namespace } = params;
+    const { clusterName, name, namespace } = params;
+    const cn = clusterName ?? '';
 
     const [splitPct, setSplitPct] = useState(55);
     const isDragging = useRef(false);
@@ -380,7 +382,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
     // Initial graph load
     useEffect(() => {
         setGraphLoading(true);
-        GetNetworkPolicyDetail(name, namespace)
+        GetNetworkPolicyDetail(cn, name, namespace)
             .then((raw: any) => {
                 const detail = models.NetworkPolicyDetail.createFrom(raw);
                 const { nodes: n, edges: e } = buildGraph(detail);
@@ -393,7 +395,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
 
     // Initial YAML load
     useEffect(() => {
-        GetNetworkPolicyYaml(name, namespace)
+        GetNetworkPolicyYaml(cn, name, namespace)
             .then((result: string) => {
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -464,7 +466,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
         const value = editorRef.current?.getValue() ?? yaml;
         setSaving(true);
         try {
-            await UpdateNetworkPolicyYaml(name, namespace, value);
+            await UpdateNetworkPolicyYaml(cn, name, namespace, value);
             setOriginalYaml(value);
             setYaml(value);
             setDirty(false);
@@ -480,7 +482,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
         editorRef.current?.setValue(originalYaml);
         setDirty(false);
         // Revert graph to original state
-        GetNetworkPolicyDetail(name, namespace)
+        GetNetworkPolicyDetail(cn, name, namespace)
             .then((raw: any) => {
                 const detail = models.NetworkPolicyDetail.createFrom(raw);
                 const { nodes: n, edges: e } = buildGraph(detail);

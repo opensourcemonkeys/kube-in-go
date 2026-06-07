@@ -14,6 +14,7 @@ import { Toast } from 'primereact/toast';
 import { GetConfigMapData, UpdateConfigMapData } from '../../../wailsjs/go/controller_app/App';
 
 interface ConfigMapEditorPanelParams {
+    clusterName: string;
     name: string;
     namespace: string;
 }
@@ -38,7 +39,8 @@ const rowsEqual = (a: KeyValueRow[], b: KeyValueRow[]) => {
 };
 
 export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<ConfigMapEditorPanelParams>) {
-    const { name, namespace } = params;
+    const { clusterName, name, namespace } = params;
+    const cn = clusterName ?? '';
     const [rows, setRows] = useState<KeyValueRow[]>([]);
     const [originalRows, setOriginalRows] = useState<KeyValueRow[]>([]);
     const [saving, setSaving] = useState(false);
@@ -48,7 +50,7 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
     useEffect(() => {
         const load = async () => {
             try {
-                const data = await GetConfigMapData(name, namespace);
+                const data = await GetConfigMapData(cn, name, namespace);
                 const loaded = dataToRows(data ?? {});
                 setRows(loaded);
                 setOriginalRows(loaded.map(r => ({ ...r })));
@@ -91,7 +93,7 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
         }
         setSaving(true);
         try {
-            await UpdateConfigMapData(name, namespace, data);
+            await UpdateConfigMapData(cn, name, namespace, data);
             const saved = dataToRows(data);
             setOriginalRows(saved.map(r => ({ ...r })));
             setDirty(false);

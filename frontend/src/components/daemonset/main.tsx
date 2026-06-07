@@ -34,7 +34,7 @@ function DaemonSetCurrentBody({ row }: { row: models.DaemonSetInfo }) {
     );
 }
 
-function DaemonSetActionsBody({ row, onOpenLog }: { row: models.DaemonSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
+function DaemonSetActionsBody({ row, clusterName, onOpenLog }: { row: models.DaemonSetInfo; clusterName: string; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
             icon={<VscListFlat size={16} />}
@@ -42,7 +42,7 @@ function DaemonSetActionsBody({ row, onOpenLog }: { row: models.DaemonSetInfo; o
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => onOpenLog({ resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel: 'daemonsets' })}
+            onClick={() => onOpenLog({ clusterName, resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel: `daemonsets:${clusterName}` })}
         />
     );
 }
@@ -69,7 +69,7 @@ const defaultFilters: DataTableFilterMeta = {
     status:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function DaemonSetListComponent() {
+export default function DaemonSetListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.DaemonSetInfo[]>([]);
     const [selected, setSelected] = useState<models.DaemonSetInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -89,7 +89,7 @@ export default function DaemonSetListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetDaemonSets();
+            const data = await GetDaemonSets(clusterName);
             setItems(data.map((item: any) => models.DaemonSetInfo.createFrom(item)));
         } catch {
             setItems([]);
@@ -107,7 +107,7 @@ export default function DaemonSetListComponent() {
         setDeleting(true);
         for (const d of [...selected]) {
             try {
-                await DeleteDaemonSet(d.name, d.namespace);
+                await DeleteDaemonSet(clusterName, d.name, d.namespace);
                 toast.current?.show({ severity: 'success', summary: 'Deleted', detail: `${d.namespace}/${d.name}`, life: 2500 });
             } catch {
                 toast.current?.show({ severity: 'error', summary: 'Delete failed', detail: `${d.namespace}/${d.name}`, life: 3500 });
@@ -120,7 +120,8 @@ export default function DaemonSetListComponent() {
     };
 
     const handleRowDoubleClick = (d: models.DaemonSetInfo) => {
-        openYamlPanel({ resourceKind: 'daemonset', name: d.name, namespace: d.namespace, referencePanel: 'daemonsets' });
+        openYamlPanel({ clusterName,
+            resourceKind: 'daemonset', name: d.name, namespace: d.namespace, referencePanel: `daemonsets:${clusterName}` });
     };
 
     const deleteDialogFooter = (
@@ -198,7 +199,7 @@ export default function DaemonSetListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.DaemonSetInfo) => <DaemonSetActionsBody row={row} onOpenLog={openLogPanel} />}
+                    body={(row: models.DaemonSetInfo) => <DaemonSetActionsBody row={row} clusterName={clusterName} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

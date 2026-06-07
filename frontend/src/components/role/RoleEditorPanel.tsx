@@ -14,6 +14,7 @@ import { GetRoles, UpdateRole } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 
 interface RoleEditorPanelParams {
+    clusterName: string;
     name: string;
     namespace: string;
 }
@@ -63,7 +64,8 @@ const rowsEqual = (a: RuleRow[], b: RuleRow[]) => {
 };
 
 export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEditorPanelParams>) {
-    const { name, namespace } = params;
+    const { clusterName, name, namespace } = params;
+    const cn = clusterName ?? '';
     const [rows, setRows] = useState<RuleRow[]>([]);
     const [originalRows, setOriginalRows] = useState<RuleRow[]>([]);
     const [storedLabels, setStoredLabels] = useState<Record<string, string>>({});
@@ -75,7 +77,7 @@ export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEdit
     useEffect(() => {
         const load = async () => {
             try {
-                const all = await GetRoles();
+                const all = await GetRoles(cn);
                 const role = all.find((r: any) => r.name === name && r.namespace === namespace);
                 if (!role) return;
                 const loaded = rulesToRows(role.rules ?? []);
@@ -118,7 +120,7 @@ export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEdit
     const handleSave = async () => {
         setSaving(true);
         try {
-            await UpdateRole(name, namespace, storedLabels, storedAnnotations, rowsToRules(rows));
+            await UpdateRole(cn, name, namespace, storedLabels, storedAnnotations, rowsToRules(rows));
             setOriginalRows(rows.map(r => ({ ...r })));
             setDirty(false);
             toast.current?.show({ severity: 'success', summary: 'Updated', detail: `${namespace}/${name} updated`, life: 2500 });

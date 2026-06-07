@@ -15,7 +15,7 @@ const defaultFilters: DataTableFilterMeta = {
     namespace: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function ServiceAccountListComponent() {
+export default function ServiceAccountListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.ServiceAccountInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const { openYamlPanel } = useTabContext();
@@ -27,7 +27,7 @@ export default function ServiceAccountListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetServiceAccounts();
+            const data = await GetServiceAccounts(clusterName);
             setItems(data.map((d: any) => models.ServiceAccountInfo.createFrom(d)));
         } catch {
             setItems([]);
@@ -64,7 +64,8 @@ export default function ServiceAccountListComponent() {
                 filterDisplay="row"
                 onRowDoubleClick={(e: any) => {
                     const sa = e.data as models.ServiceAccountInfo;
-                    openYamlPanel({ resourceKind: 'serviceaccount', name: sa.name, namespace: sa.namespace, referencePanel: 'serviceaccounts' });
+                    openYamlPanel({ clusterName,
+            resourceKind: 'serviceaccount', name: sa.name, namespace: sa.namespace, referencePanel: `serviceaccounts:${clusterName}` });
                 }}
                 stripedRows
                 showGridlines

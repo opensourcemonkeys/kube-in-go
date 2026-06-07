@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetStatefulSets() []models.StatefulSetInfo {
-	client, err := repository.NewK8sClient()
+func GetStatefulSets(clusterName string) []models.StatefulSetInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,24 +21,24 @@ func GetStatefulSets() []models.StatefulSetInfo {
 	return items
 }
 
-func DeleteStatefulSet(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteStatefulSet(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteStatefulSet(namespace, name, client)
 }
 
-func GetStatefulSetYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetStatefulSetYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetStatefulSetYaml(namespace, name, client)
 }
 
-func UpdateStatefulSetYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateStatefulSetYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

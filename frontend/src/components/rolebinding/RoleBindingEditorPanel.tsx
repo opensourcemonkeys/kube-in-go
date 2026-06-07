@@ -15,6 +15,7 @@ import { GetRoleBindings, UpdateRoleBinding } from '../../../wailsjs/go/controll
 import { models } from '../../../wailsjs/go/models';
 
 interface RoleBindingEditorPanelParams {
+    clusterName: string;
     name: string;
     namespace: string;
 }
@@ -54,7 +55,8 @@ const rowsEqual = (a: SubjectRow[], b: SubjectRow[]) => {
 };
 
 export default function RoleBindingEditorPanel({ params }: IDockviewPanelProps<RoleBindingEditorPanelParams>) {
-    const { name, namespace } = params;
+    const { clusterName, name, namespace } = params;
+    const cn = clusterName ?? '';
     const [rows, setRows] = useState<SubjectRow[]>([]);
     const [originalRows, setOriginalRows] = useState<SubjectRow[]>([]);
     const [storedLabels, setStoredLabels] = useState<Record<string, string>>({});
@@ -66,7 +68,7 @@ export default function RoleBindingEditorPanel({ params }: IDockviewPanelProps<R
     useEffect(() => {
         const load = async () => {
             try {
-                const all = await GetRoleBindings();
+                const all = await GetRoleBindings(cn);
                 const rb = all.find((r: any) => r.name === name && r.namespace === namespace);
                 if (!rb) return;
                 const loaded = subjectsToRows(rb.subjects ?? []);
@@ -109,7 +111,7 @@ export default function RoleBindingEditorPanel({ params }: IDockviewPanelProps<R
     const handleSave = async () => {
         setSaving(true);
         try {
-            await UpdateRoleBinding(name, namespace, storedLabels, storedAnnotations, rowsToSubjects(rows));
+            await UpdateRoleBinding(cn, name, namespace, storedLabels, storedAnnotations, rowsToSubjects(rows));
             setOriginalRows(rows.map(r => ({ ...r })));
             setDirty(false);
             toast.current?.show({ severity: 'success', summary: 'Updated', detail: `${namespace}/${name} updated`, life: 2500 });

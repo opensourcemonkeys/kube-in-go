@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetSecrets() []models.SecretInfo {
-	client, err := repository.NewK8sClient()
+func GetSecrets(clusterName string) []models.SecretInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,40 +21,40 @@ func GetSecrets() []models.SecretInfo {
 	return items
 }
 
-func DeleteSecret(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteSecret(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteSecret(namespace, name, client)
 }
 
-func GetSecretYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetSecretYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetSecretYaml(namespace, name, client)
 }
 
-func UpdateSecretYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateSecretYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.UpdateSecretYaml(namespace, name, yamlContent, client)
 }
 
-func GetSecretData(name, namespace string) (map[string]string, error) {
-	client, err := repository.NewK8sClient()
+func GetSecretData(clusterName string, name, namespace string) (map[string]string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return nil, err
 	}
 	return services.GetSecretData(namespace, name, client)
 }
 
-func UpdateSecretData(name, namespace string, data map[string]string) error {
-	client, err := repository.NewK8sClient()
+func UpdateSecretData(clusterName string, name, namespace string, data map[string]string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

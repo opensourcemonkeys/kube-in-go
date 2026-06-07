@@ -39,7 +39,7 @@ const formatPaths = (rules: models.IngressRuleInfo[]): string => {
     return paths.length > 0 ? paths.join(', ') : '-';
 };
 
-export default function IngressListComponent() {
+export default function IngressListComponent({ clusterName }: { clusterName: string }) {
     const [ingresses, setIngresses] = useState<models.IngressInfo[]>([]);
     const [selectedIngresses, setSelectedIngresses] = useState<models.IngressInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -59,7 +59,7 @@ export default function IngressListComponent() {
 
     const loadIngresses = async () => {
         try {
-            const items = await GetIngresses();
+            const items = await GetIngresses(clusterName);
             setIngresses(items.map((item: any) => models.IngressInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load ingresses:', error);
@@ -85,7 +85,7 @@ export default function IngressListComponent() {
 
         for (const ing of toDelete) {
             try {
-                await DeleteIngress(ing.name, ing.namespace);
+                await DeleteIngress(clusterName, ing.name, ing.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -109,11 +109,11 @@ export default function IngressListComponent() {
     };
 
     const handleRowDoubleClick = (ing: models.IngressInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'ingress',
             name: ing.name,
             namespace: ing.namespace,
-            referencePanel: 'ingresses',
+            referencePanel: `ingresses:${clusterName}`,
         });
     };
 

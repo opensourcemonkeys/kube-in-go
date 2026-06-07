@@ -6,8 +6,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetClusterGraph() (*models.ClusterGraph, error) {
-	client, err := repository.NewK8sClient()
+func GetClusterGraph(clusterName string) (*models.ClusterGraph, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return nil, err
 	}

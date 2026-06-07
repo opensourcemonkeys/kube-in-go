@@ -40,7 +40,7 @@ const formatTime = (ts: string): string => {
     }
 };
 
-export default function EventListComponent() {
+export default function EventListComponent({ clusterName }: { clusterName: string }) {
     const [events, setEvents] = useState<models.EventInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const [warningOnly, setWarningOnly] = useState(false);
@@ -70,7 +70,7 @@ export default function EventListComponent() {
 
     const loadEvents = async () => {
         try {
-            const items = await GetEvents();
+            const items = await GetEvents(clusterName);
             setEvents(items.map((item: any) => models.EventInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load events:', error);

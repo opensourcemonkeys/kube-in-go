@@ -29,7 +29,7 @@ function JobCompletionsBody({ row }: { row: models.JobInfo }) {
     );
 }
 
-function JobActionsBody({ row, onOpenLog }: { row: models.JobInfo; onOpenLog: (def: LogPanelDef) => void }) {
+function JobActionsBody({ row, clusterName, onOpenLog }: { row: models.JobInfo; clusterName: string; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
             icon={<VscListFlat size={16} />}
@@ -37,7 +37,7 @@ function JobActionsBody({ row, onOpenLog }: { row: models.JobInfo; onOpenLog: (d
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => onOpenLog({ resourceKind: 'job', name: row.name, namespace: row.namespace, referencePanel: 'jobs' })}
+            onClick={() => onOpenLog({ clusterName, resourceKind: 'job', name: row.name, namespace: row.namespace, referencePanel: `jobs:${clusterName}` })}
         />
     );
 }
@@ -64,7 +64,7 @@ const defaultFilters: DataTableFilterMeta = {
     status:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function JobListComponent() {
+export default function JobListComponent({ clusterName }: { clusterName: string }) {
     const [jobs, setJobs] = useState<models.JobInfo[]>([]);
     const [selectedJobs, setSelectedJobs] = useState<models.JobInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -84,7 +84,7 @@ export default function JobListComponent() {
 
     const loadJobs = async () => {
         try {
-            const items = await GetJobs();
+            const items = await GetJobs(clusterName);
             setJobs(items.map((item: any) => models.JobInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load jobs:', error);
@@ -110,7 +110,7 @@ export default function JobListComponent() {
 
         for (const job of toDelete) {
             try {
-                await DeleteJob(job.name, job.namespace);
+                await DeleteJob(clusterName, job.name, job.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -134,11 +134,11 @@ export default function JobListComponent() {
     };
 
     const handleRowDoubleClick = (job: models.JobInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'job',
             name: job.name,
             namespace: job.namespace,
-            referencePanel: 'jobs',
+            referencePanel: `jobs:${clusterName}`,
         });
     };
 
@@ -244,7 +244,7 @@ export default function JobListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.JobInfo) => <JobActionsBody row={row} onOpenLog={openLogPanel} />}
+                    body={(row: models.JobInfo) => <JobActionsBody row={row} clusterName={clusterName} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetLimitRanges() []models.LimitRangeInfo {
-	client, err := repository.NewK8sClient()
+func GetLimitRanges(clusterName string) []models.LimitRangeInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,16 +21,16 @@ func GetLimitRanges() []models.LimitRangeInfo {
 	return items
 }
 
-func GetLimitRangeYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetLimitRangeYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetLimitRangeYaml(namespace, name, client)
 }
 
-func UpdateLimitRangeYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateLimitRangeYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}

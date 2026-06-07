@@ -30,7 +30,7 @@ const defaultFilters: DataTableFilterMeta = {
     status: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function NamespaceListComponent() {
+export default function NamespaceListComponent({ clusterName }: { clusterName: string }) {
     const [namespaces, setNamespaces] = useState<models.NamespaceInfo[]>([]);
     const [selectedNamespaces, setSelectedNamespaces] = useState<models.NamespaceInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -46,7 +46,7 @@ export default function NamespaceListComponent() {
 
     const loadNamespaces = async () => {
         try {
-            const items = await GetNamespaces();
+            const items = await GetNamespaces(clusterName);
             setNamespaces(items.map((item: any) => models.NamespaceInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load namespaces:', error);
@@ -72,7 +72,7 @@ export default function NamespaceListComponent() {
 
         for (const ns of toDelete) {
             try {
-                await DeleteNamespace(ns.name);
+                await DeleteNamespace(clusterName, ns.name);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -96,11 +96,11 @@ export default function NamespaceListComponent() {
     };
 
     const handleRowDoubleClick = (ns: models.NamespaceInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'namespace',
             name: ns.name,
             namespace: '',
-            referencePanel: 'namespaces',
+            referencePanel: `namespaces:${clusterName}`,
         });
     };
 

@@ -25,7 +25,7 @@ function CronJobStatusBody({ row }: { row: models.CronJobInfo }) {
     );
 }
 
-function CronJobActionsBody({ row, onOpenLog }: { row: models.CronJobInfo; onOpenLog: (def: LogPanelDef) => void }) {
+function CronJobActionsBody({ row, clusterName, onOpenLog }: { row: models.CronJobInfo; clusterName: string; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
             icon={<VscListFlat size={16} />}
@@ -33,7 +33,7 @@ function CronJobActionsBody({ row, onOpenLog }: { row: models.CronJobInfo; onOpe
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => onOpenLog({ resourceKind: 'cronjob', name: row.name, namespace: row.namespace, referencePanel: 'cronjobs' })}
+            onClick={() => onOpenLog({ clusterName, resourceKind: 'cronjob', name: row.name, namespace: row.namespace, referencePanel: `cronjobs:${clusterName}` })}
         />
     );
 }
@@ -44,7 +44,7 @@ const defaultFilters: DataTableFilterMeta = {
     schedule:  { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function CronJobListComponent() {
+export default function CronJobListComponent({ clusterName }: { clusterName: string }) {
     const [cronJobs, setCronJobs] = useState<models.CronJobInfo[]>([]);
     const [selectedCronJobs, setSelectedCronJobs] = useState<models.CronJobInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -64,7 +64,7 @@ export default function CronJobListComponent() {
 
     const loadCronJobs = async () => {
         try {
-            const items = await GetCronJobs();
+            const items = await GetCronJobs(clusterName);
             setCronJobs(items.map((item: any) => models.CronJobInfo.createFrom(item)));
         } catch (error) {
             console.error('Failed to load cronjobs:', error);
@@ -90,7 +90,7 @@ export default function CronJobListComponent() {
 
         for (const cj of toDelete) {
             try {
-                await DeleteCronJob(cj.name, cj.namespace);
+                await DeleteCronJob(clusterName, cj.name, cj.namespace);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Deleted successfully',
@@ -114,11 +114,11 @@ export default function CronJobListComponent() {
     };
 
     const handleRowDoubleClick = (cj: models.CronJobInfo) => {
-        openYamlPanel({
+        openYamlPanel({ clusterName,
             resourceKind: 'cronjob',
             name: cj.name,
             namespace: cj.namespace,
-            referencePanel: 'cronjobs',
+            referencePanel: `cronjobs:${clusterName}`,
         });
     };
 
@@ -223,7 +223,7 @@ export default function CronJobListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.CronJobInfo) => <CronJobActionsBody row={row} onOpenLog={openLogPanel} />}
+                    body={(row: models.CronJobInfo) => <CronJobActionsBody row={row} clusterName={clusterName} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

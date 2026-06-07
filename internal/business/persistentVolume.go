@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetPersistentVolumes() []models.PersistentVolumeInfo {
-	client, err := repository.NewK8sClient()
+func GetPersistentVolumes(clusterName string) []models.PersistentVolumeInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,8 +21,8 @@ func GetPersistentVolumes() []models.PersistentVolumeInfo {
 	return items
 }
 
-func GetPersistentVolumeYaml(name string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetPersistentVolumeYaml(clusterName string, name string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}

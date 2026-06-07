@@ -7,8 +7,8 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetNetworkPolicies() []models.NetworkPolicyInfo {
-	client, err := repository.NewK8sClient()
+func GetNetworkPolicies(clusterName string) []models.NetworkPolicyInfo {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
 		return nil
@@ -21,24 +21,24 @@ func GetNetworkPolicies() []models.NetworkPolicyInfo {
 	return items
 }
 
-func DeleteNetworkPolicy(name, namespace string) error {
-	client, err := repository.NewK8sClient()
+func DeleteNetworkPolicy(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 	return services.DeleteNetworkPolicy(namespace, name, client)
 }
 
-func GetNetworkPolicyYaml(name, namespace string) (string, error) {
-	client, err := repository.NewK8sClient()
+func GetNetworkPolicyYaml(clusterName string, name, namespace string) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return "", err
 	}
 	return services.GetNetworkPolicyYaml(namespace, name, client)
 }
 
-func UpdateNetworkPolicyYaml(name, namespace, yamlContent string) error {
-	client, err := repository.NewK8sClient()
+func UpdateNetworkPolicyYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return err
 	}
@@ -49,8 +49,8 @@ func ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyDetail, er
 	return services.ParseNetworkPolicyYaml(yamlContent)
 }
 
-func GetNetworkPolicyDetail(name, namespace string) (*models.NetworkPolicyDetail, error) {
-	client, err := repository.NewK8sClient()
+func GetNetworkPolicyDetail(clusterName string, name, namespace string) (*models.NetworkPolicyDetail, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		return nil, err
 	}

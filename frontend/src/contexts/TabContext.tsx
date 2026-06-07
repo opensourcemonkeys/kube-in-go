@@ -32,10 +32,12 @@ const viewLabels: Record<string, string> = {
 export interface TabDef {
     view: string;
     title: string;
+    clusterName: string;
     icon?: React.ReactNode;
 }
 
 export interface YamlPanelDef {
+    clusterName: string;
     resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass' | 'serviceaccount' | 'role' | 'rolebinding';
     name: string;
     namespace: string;
@@ -44,6 +46,7 @@ export interface YamlPanelDef {
 }
 
 export interface LogPanelDef {
+    clusterName: string;
     resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob';
     name: string;
     namespace: string;
@@ -51,6 +54,7 @@ export interface LogPanelDef {
 }
 
 export interface ExecPanelDef {
+    clusterName: string;
     name: string;
     namespace: string;
     container: string;
@@ -58,30 +62,35 @@ export interface ExecPanelDef {
 }
 
 export interface PolicyViewerDef {
+    clusterName: string;
     name: string;
     namespace: string;
     referencePanel: string;
 }
 
 export interface ConfigMapEditorDef {
+    clusterName: string;
     name: string;
     namespace: string;
     referencePanel: string;
 }
 
 export interface SecretEditorDef {
+    clusterName: string;
     name: string;
     namespace: string;
     referencePanel: string;
 }
 
 export interface RoleEditorDef {
+    clusterName: string;
     name: string;
     namespace: string;
     referencePanel: string;
 }
 
 export interface RoleBindingEditorDef {
+    clusterName: string;
     name: string;
     namespace: string;
     referencePanel: string;
@@ -106,7 +115,7 @@ interface TabContextValue {
     openRoleBindingEditor: (def: RoleBindingEditorDef) => void;
     openTerminal: () => void;
     openApplyYaml: () => void;
-    openClusterResourceView: () => void;
+    openClusterResourceView: (clusterName: string) => void;
     openReceivedPanel: (panel: ReceivedPanel) => void;
 }
 
@@ -133,17 +142,20 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const existing = api.getPanel(def.view);
+        const panelId = def.clusterName ? `${def.view}:${def.clusterName}` : def.view;
+        const title = def.clusterName ? `${def.title} • ${def.clusterName}` : def.title;
+
+        const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
             return;
         }
 
         api.addPanel({
-            id: def.view,
+            id: panelId,
             component: 'view',
-            title: def.title,
-            params: { view: def.view, icon: def.icon ?? null },
+            title,
+            params: { view: def.view, clusterName: def.clusterName, icon: def.icon ?? null },
         });
     }, []);
 
@@ -182,7 +194,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `log:${def.resourceKind}:${def.namespace}/${def.name}`;
+        const panelId = `log:${def.resourceKind}:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -194,6 +206,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             component: 'logViewer',
             title: `Logs • ${def.namespace}/${def.name}`,
             params: {
+                clusterName: def.clusterName,
                 resourceKind: def.resourceKind,
                 name: def.name,
                 namespace: def.namespace,
@@ -210,7 +223,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `exec:${def.namespace}/${def.name}:${def.container}`;
+        const panelId = `exec:${def.clusterName}:${def.namespace}/${def.name}:${def.container}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -223,6 +236,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             component: 'podExec',
             title: `Exec • ${def.namespace}/${def.name}`,
             params: {
+                clusterName: def.clusterName,
                 sessionId,
                 name: def.name,
                 namespace: def.namespace,
@@ -240,7 +254,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `policy:${def.namespace}/${def.name}`;
+        const panelId = `policy:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -251,7 +265,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: panelId,
             component: 'policyViewer',
             title: `Policy • ${def.namespace}/${def.name}`,
-            params: { name: def.name, namespace: def.namespace },
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
         };
 
         const pos = positionAfter(api, def.referencePanel);
@@ -264,7 +278,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `configmap-editor:${def.namespace}/${def.name}`;
+        const panelId = `configmap-editor:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -275,7 +289,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: panelId,
             component: 'configMapEditor',
             title: `Edit • ${def.namespace}/${def.name}`,
-            params: { name: def.name, namespace: def.namespace },
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
         };
 
         const pos = positionAfter(api, def.referencePanel);
@@ -288,7 +302,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `secret-editor:${def.namespace}/${def.name}`;
+        const panelId = `secret-editor:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -299,7 +313,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: panelId,
             component: 'secretEditor',
             title: `Edit • ${def.namespace}/${def.name}`,
-            params: { name: def.name, namespace: def.namespace },
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
         };
 
         const pos = positionAfter(api, def.referencePanel);
@@ -312,7 +326,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `role-editor:${def.namespace}/${def.name}`;
+        const panelId = `role-editor:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -323,7 +337,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: panelId,
             component: 'roleEditor',
             title: `Edit • ${def.namespace}/${def.name}`,
-            params: { name: def.name, namespace: def.namespace },
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
         };
 
         const pos = positionAfter(api, def.referencePanel);
@@ -336,7 +350,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `rolebinding-editor:${def.namespace}/${def.name}`;
+        const panelId = `rolebinding-editor:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -347,7 +361,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: panelId,
             component: 'roleBindingEditor',
             title: `Edit • ${def.namespace}/${def.name}`,
-            params: { name: def.name, namespace: def.namespace },
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
         };
 
         const pos = positionAfter(api, def.referencePanel);
@@ -356,11 +370,11 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel(addOptions);
     }, []);
 
-    const openClusterResourceView = useCallback(() => {
+    const openClusterResourceView = useCallback((clusterName: string) => {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = 'cluster-resource-view';
+        const panelId = `cluster-resource-view:${clusterName}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
@@ -370,8 +384,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel({
             id: panelId,
             component: 'clusterResource',
-            title: 'Resource Graph',
-            params: {},
+            title: `Resource Graph • ${clusterName}`,
+            params: { clusterName },
         });
     }, []);
 
@@ -379,18 +393,21 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const api = apiRef.current;
         if (!api) return;
 
-        const panelId = `yaml:${def.resourceKind}:${def.namespace}/${def.name}`;
+        const panelId = `yaml:${def.resourceKind}:${def.clusterName}:${def.namespace}/${def.name}`;
         const existing = api.getPanel(panelId);
         if (existing) {
             existing.focus();
             return;
         }
 
+        // referencePanel is now `${view}:${clusterName}` — extract the view key for the label
+        const viewKey = def.referencePanel.split(':')[0];
         const addOptions: any = {
             id: panelId,
             component: 'yamlEditor',
-            title: `${viewLabels[def.referencePanel] ?? def.referencePanel} • ${def.namespace}/${def.name}`,
+            title: `${viewLabels[viewKey] ?? viewKey} • ${def.namespace}/${def.name}`,
             params: {
+                clusterName: def.clusterName,
                 resourceKind: def.resourceKind,
                 name: def.name,
                 namespace: def.namespace,
@@ -405,33 +422,34 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
 
     const openReceivedPanel = useCallback((panel: ReceivedPanel) => {
         const p = panel.params ?? {};
+        const cn: string = p.clusterName ?? '';
         switch (panel.componentType) {
             case 'view':
-                openTab({ view: p.view ?? 'pods', title: panel.title });
+                openTab({ view: p.view ?? 'pods', title: panel.title, clusterName: cn });
                 break;
             case 'yamlEditor':
-                openYamlPanel({ resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
+                openYamlPanel({ clusterName: cn, resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'logViewer':
-                openLogPanel({ resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
+                openLogPanel({ clusterName: cn, resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'policyViewer':
-                openPolicyViewer({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                openPolicyViewer({ clusterName: cn, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'configMapEditor':
-                openConfigMapEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                openConfigMapEditor({ clusterName: cn, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'secretEditor':
-                openSecretEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                openSecretEditor({ clusterName: cn, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'roleEditor':
-                openRoleEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                openRoleEditor({ clusterName: cn, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'roleBindingEditor':
-                openRoleBindingEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                openRoleBindingEditor({ clusterName: cn, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
             case 'clusterResource':
-                openClusterResourceView();
+                openClusterResourceView(cn);
                 break;
             case 'applyYaml':
                 openApplyYaml();

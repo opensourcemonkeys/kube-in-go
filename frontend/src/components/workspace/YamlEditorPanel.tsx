@@ -36,6 +36,7 @@ import {
 } from '../../../wailsjs/go/controller_app/App';
 
 interface YamlEditorPanelParams {
+    clusterName: string;
     resourceKind: 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'job' | 'cronjob' | 'service' | 'ingress' | 'ingressclass' | 'endpoint' | 'configmap' | 'secret' | 'node' | 'namespace' | 'resourcequota' | 'limitrange' | 'persistentvolume' | 'persistentvolumeclaim' | 'storageclass' | 'serviceaccount' | 'role' | 'rolebinding';
     name: string;
     namespace: string;
@@ -44,7 +45,7 @@ interface YamlEditorPanelParams {
 const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota', 'limitrange', 'serviceaccount', 'role', 'rolebinding'].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
-    const { resourceKind, name, namespace } = params;
+    const { clusterName, resourceKind, name, namespace } = params;
     const [yaml, setYaml] = useState('Loading...');
     const [originalYaml, setOriginalYaml] = useState('');
     const [saving, setSaving] = useState(false);
@@ -57,51 +58,51 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
             try {
                 let result = '';
                 if (resourceKind === 'pod') {
-                    result = await GetPodYaml(name, namespace);
+                    result = await GetPodYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'deployment') {
-                    result = await GetDeploymentYaml(name, namespace);
+                    result = await GetDeploymentYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'statefulset') {
-                    result = await GetStatefulSetYaml(name, namespace);
+                    result = await GetStatefulSetYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'replicaset') {
-                    result = await GetReplicaSetYaml(name, namespace);
+                    result = await GetReplicaSetYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'daemonset') {
-                    result = await GetDaemonSetYaml(name, namespace);
+                    result = await GetDaemonSetYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'job') {
-                    result = await GetJobYaml(name, namespace);
+                    result = await GetJobYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'cronjob') {
-                    result = await GetCronJobYaml(name, namespace);
+                    result = await GetCronJobYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'configmap') {
-                    result = await GetConfigMapYaml(name, namespace);
+                    result = await GetConfigMapYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'secret') {
-                    result = await GetSecretYaml(name, namespace);
+                    result = await GetSecretYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'node') {
-                    result = await GetNodeYaml(name);
+                    result = await GetNodeYaml(clusterName, name);
                 } else if (resourceKind === 'namespace') {
-                    result = await GetNamespaceYaml(name);
+                    result = await GetNamespaceYaml(clusterName, name);
                 } else if (resourceKind === 'resourcequota') {
-                    result = await GetResourceQuotaYaml(name, namespace);
+                    result = await GetResourceQuotaYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'service') {
-                    result = await GetServiceYaml(name, namespace);
+                    result = await GetServiceYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'ingress') {
-                    result = await GetIngressYaml(name, namespace);
+                    result = await GetIngressYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'ingressclass') {
-                    result = await GetIngressClassYaml(name);
+                    result = await GetIngressClassYaml(clusterName, name);
                 } else if (resourceKind === 'endpoint') {
-                    result = await GetEndpointYaml(name, namespace);
+                    result = await GetEndpointYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'limitrange') {
-                    result = await GetLimitRangeYaml(name, namespace);
+                    result = await GetLimitRangeYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'persistentvolume') {
-                    result = await GetPersistentVolumeYaml(name);
+                    result = await GetPersistentVolumeYaml(clusterName, name);
                 } else if (resourceKind === 'persistentvolumeclaim') {
-                    result = await GetPersistentVolumeClaimYaml(name, namespace);
+                    result = await GetPersistentVolumeClaimYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'storageclass') {
-                    result = await GetStorageClassYaml(name);
+                    result = await GetStorageClassYaml(clusterName, name);
                 } else if (resourceKind === 'serviceaccount') {
-                    result = await GetServiceAccountYaml(name, namespace);
+                    result = await GetServiceAccountYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'role') {
-                    result = await GetRoleYaml(name, namespace);
+                    result = await GetRoleYaml(clusterName, name, namespace);
                 } else if (resourceKind === 'rolebinding') {
-                    result = await GetRoleBindingYaml(name, namespace);
+                    result = await GetRoleBindingYaml(clusterName, name, namespace);
                 }
                 const content = result || 'No YAML available';
                 setYaml(content);
@@ -264,35 +265,35 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
         setSaving(true);
         try {
             if (resourceKind === 'deployment') {
-                await UpdateDeploymentYaml(name, namespace, value);
+                await UpdateDeploymentYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'statefulset') {
-                await UpdateStatefulSetYaml(name, namespace, value);
+                await UpdateStatefulSetYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'replicaset') {
-                await UpdateReplicaSetYaml(name, namespace, value);
+                await UpdateReplicaSetYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'daemonset') {
-                await UpdateDaemonSetYaml(name, namespace, value);
+                await UpdateDaemonSetYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'cronjob') {
-                await UpdateCronJobYaml(name, namespace, value);
+                await UpdateCronJobYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'configmap') {
-                await UpdateConfigMapYaml(name, namespace, value);
+                await UpdateConfigMapYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'secret') {
-                await UpdateSecretYaml(name, namespace, value);
+                await UpdateSecretYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'node') {
-                await UpdateNodeYaml(name, value);
+                await UpdateNodeYaml(clusterName, name, value);
             } else if (resourceKind === 'resourcequota') {
-                await UpdateResourceQuotaYaml(name, namespace, value);
+                await UpdateResourceQuotaYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'service') {
-                await UpdateServiceYaml(name, namespace, value);
+                await UpdateServiceYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'ingress') {
-                await UpdateIngressYaml(name, namespace, value);
+                await UpdateIngressYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'limitrange') {
-                await UpdateLimitRangeYaml(name, namespace, value);
+                await UpdateLimitRangeYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'serviceaccount') {
-                await UpdateServiceAccountYaml(name, namespace, value);
+                await UpdateServiceAccountYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'role') {
-                await UpdateRoleYaml(name, namespace, value);
+                await UpdateRoleYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'rolebinding') {
-                await UpdateRoleBindingYaml(name, namespace, value);
+                await UpdateRoleBindingYaml(clusterName, name, namespace, value);
             }
             setOriginalYaml(value);
             setYaml(value);

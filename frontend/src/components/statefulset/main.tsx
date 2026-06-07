@@ -29,7 +29,7 @@ function StatefulSetUpdatedBody({ row }: { row: models.StatefulSetInfo }) {
     );
 }
 
-function StatefulSetActionsBody({ row, onOpenLog }: { row: models.StatefulSetInfo; onOpenLog: (def: LogPanelDef) => void }) {
+function StatefulSetActionsBody({ row, clusterName, onOpenLog }: { row: models.StatefulSetInfo; clusterName: string; onOpenLog: (def: LogPanelDef) => void }) {
     return (
         <Button
             icon={<VscListFlat size={16} />}
@@ -37,7 +37,7 @@ function StatefulSetActionsBody({ row, onOpenLog }: { row: models.StatefulSetInf
             size="small"
             severity="secondary"
             style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-            onClick={() => onOpenLog({ resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel: 'statefulsets' })}
+            onClick={() => onOpenLog({ clusterName, resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel: `statefulsets:${clusterName}` })}
         />
     );
 }
@@ -65,7 +65,7 @@ const defaultFilters: DataTableFilterMeta = {
     replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
-export default function StatefulSetListComponent() {
+export default function StatefulSetListComponent({ clusterName }: { clusterName: string }) {
     const [items, setItems] = useState<models.StatefulSetInfo[]>([]);
     const [selected, setSelected] = useState<models.StatefulSetInfo[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -85,7 +85,7 @@ export default function StatefulSetListComponent() {
 
     const load = async () => {
         try {
-            const data = await GetStatefulSets();
+            const data = await GetStatefulSets(clusterName);
             setItems(data.map((item: any) => models.StatefulSetInfo.createFrom(item)));
         } catch {
             setItems([]);
@@ -103,7 +103,7 @@ export default function StatefulSetListComponent() {
         setDeleting(true);
         for (const s of [...selected]) {
             try {
-                await DeleteStatefulSet(s.name, s.namespace);
+                await DeleteStatefulSet(clusterName, s.name, s.namespace);
                 toast.current?.show({ severity: 'success', summary: 'Deleted', detail: `${s.namespace}/${s.name}`, life: 2500 });
             } catch {
                 toast.current?.show({ severity: 'error', summary: 'Delete failed', detail: `${s.namespace}/${s.name}`, life: 3500 });
@@ -116,7 +116,8 @@ export default function StatefulSetListComponent() {
     };
 
     const handleRowDoubleClick = (s: models.StatefulSetInfo) => {
-        openYamlPanel({ resourceKind: 'statefulset', name: s.name, namespace: s.namespace, referencePanel: 'statefulsets' });
+        openYamlPanel({ clusterName,
+            resourceKind: 'statefulset', name: s.name, namespace: s.namespace, referencePanel: `statefulsets:${clusterName}` });
     };
 
     const deleteDialogFooter = (
@@ -197,7 +198,7 @@ export default function StatefulSetListComponent() {
                 <Column
                     header=""
                     style={{ width: '4rem', textAlign: 'center' }}
-                    body={(row: models.StatefulSetInfo) => <StatefulSetActionsBody row={row} onOpenLog={openLogPanel} />}
+                    body={(row: models.StatefulSetInfo) => <StatefulSetActionsBody row={row} clusterName={clusterName} onOpenLog={openLogPanel} />}
                 />
             </DataTable>
 

@@ -96,7 +96,7 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                         <button className="cluster-bar__icon-btn" onClick={openEdit} title="Edit cluster">
                             <VscEdit size={14} />
                         </button>
-                        <button className="cluster-bar__icon-btn" onClick={openClusterResourceView} title="Resource Graph">
+                        <button className="cluster-bar__icon-btn" onClick={() => openClusterResourceView(activeCluster)} title="Resource Graph">
                             <VscTypeHierarchySub size={14} />
                         </button>
                     </>
