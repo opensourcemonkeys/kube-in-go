@@ -1,16 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import {
     VscLayoutSidebarLeft, VscTable, VscAdd, VscEdit,
-    VscTypeHierarchySub, VscWarning, VscCloudUpload,
-    VscTerminal, VscQuestion, VscInfo,
+    VscTypeHierarchySub, VscWarning,
 } from 'react-icons/vsc';
 import { Dropdown } from 'primereact/dropdown';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { useTabContext } from '../../contexts/TabContext';
-import { useNextStep } from 'nextstepjs';
 import ClusterModal from './ClusterModal';
-import AboutModal from './AboutModal';
 
 interface ClusterBarProps {
     onToggleSidebar?: () => void;
@@ -19,11 +16,9 @@ interface ClusterBarProps {
 
 export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: ClusterBarProps) {
     const { clusters, activeCluster, loaded, connectionError, refreshClusters, selectCluster } = useClusterContext();
-    const { openTerminal, openApplyYaml, openClusterResourceView } = useTabContext();
-    const { startNextStep } = useNextStep();
+    const { openClusterResourceView } = useTabContext();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCluster, setEditingCluster] = useState<string | null>(null);
-    const [aboutOpen, setAboutOpen] = useState(false);
     const initialCheckDone = useRef(false);
     const errorPanelRef = useRef<OverlayPanel>(null);
 
@@ -125,29 +120,7 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                     </>
                 )}
 
-                {/* Right workspace buttons */}
-                <div className="cluster-bar__workspace-btns">
-                    <button id="tour-yaml-btn" className="cluster-bar__ws-btn" onClick={openApplyYaml} title="YAML Editor">
-                        <VscCloudUpload size={14} />
-                        <span>YAML Editor</span>
-                    </button>
-                    <button id="tour-terminal-btn" className="cluster-bar__ws-btn" onClick={openTerminal} title="Terminal">
-                        <VscTerminal size={14} />
-                        <span>Terminal</span>
-                    </button>
-                    <div className="cluster-bar__ws-separator" />
-                    <button className="cluster-bar__ws-btn cluster-bar__ws-btn--ghost" onClick={() => startNextStep('main')} title="Tutorial">
-                        <VscQuestion size={14} />
-                        <span>Tutorial</span>
-                    </button>
-                    <button className="cluster-bar__ws-btn cluster-bar__ws-btn--ghost" onClick={() => setAboutOpen(true)} title="About">
-                        <VscInfo size={14} />
-                        <span>About</span>
-                    </button>
-                </div>
             </div>
-
-            <AboutModal visible={aboutOpen} onHide={() => setAboutOpen(false)} />
 
             {modalOpen && (
                 <ClusterModal

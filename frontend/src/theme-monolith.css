@@ -226,9 +226,23 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
   padding: 0 0 0 12px; flex-shrink: 0;
   --wails-draggable: drag; user-select: none;
 }
-.tb-drag { display: flex; align-items: center; gap: 8px; flex: 1; height: 100%; cursor: default; }
+.tb-brand { display: flex; align-items: center; gap: 8px; height: 100%; padding-right: 4px; flex-shrink: 0; }
+.tb-drag { flex: 1; height: 100%; cursor: default; }
 .tb-title { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: var(--ink); }
 .tb-instance-name { font-size: 10px; font-weight: 500; color: var(--accent, #3fc8b4); background: rgba(63,200,180,.12); border: 1px solid rgba(63,200,180,.25); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
+.tb-actions { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; }
+.tb-actions .p-menubar { background: transparent; border: none; padding: 0; height: 100%; border-radius: 0; }
+.tb-actions .p-menubar .p-menubar-root-list { gap: 0; height: 100%; padding: 0; }
+.tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content { border-radius: 0; }
+.tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link { height: 36px; padding: 0 10px; gap: 0; border-radius: 0; color: var(--ink2); font-size: 12px; font-weight: 500; }
+.tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link:hover,
+.tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem.p-menuitem-active > .p-menuitem-content > .p-menuitem-link { background: var(--hover); color: var(--ink); }
+.tb-actions .p-menubar .p-submenu-list { background: var(--panel); border: 1px solid var(--line2); border-radius: 6px; padding: 4px 0; min-width: 160px; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
+.tb-actions .p-menubar .p-submenu-list .p-menuitem-content { border-radius: 0; }
+.tb-actions .p-menubar .p-submenu-list .p-menuitem-link { padding: 6px 12px; gap: 8px; color: var(--ink2); font-size: 12.5px; }
+.tb-actions .p-menubar .p-submenu-list .p-menuitem-link:hover,
+.tb-actions .p-menubar .p-submenu-list .p-menuitem.p-focus > .p-menuitem-content > .p-menuitem-link { background: var(--hover); color: var(--ink); }
+.tb-actions .p-menubar .p-menuitem-icon { display: flex; align-items: center; }
 .tb-controls { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; }
 .tb-btn { display: flex; align-items: center; justify-content: center; width: 46px; height: 100%; background: transparent; border: none; cursor: pointer; color: var(--ink3); padding: 0; transition: background .15s, color .15s; outline: none; }
 .tb-btn svg { width: 12px; height: 12px; }
