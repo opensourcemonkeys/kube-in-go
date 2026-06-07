@@ -87,6 +87,12 @@ export interface RoleBindingEditorDef {
     referencePanel: string;
 }
 
+export interface ReceivedPanel {
+    componentType: string;
+    title: string;
+    params: Record<string, any>;
+}
+
 interface TabContextValue {
     registerApi: (api: DockviewApi) => void;
     openTab: (def: TabDef) => void;
@@ -101,6 +107,7 @@ interface TabContextValue {
     openTerminal: () => void;
     openApplyYaml: () => void;
     openClusterResourceView: () => void;
+    openReceivedPanel: (panel: ReceivedPanel) => void;
 }
 
 const TabContext = createContext<TabContextValue | null>(null);
@@ -396,8 +403,44 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel(addOptions);
     }, []);
 
+    const openReceivedPanel = useCallback((panel: ReceivedPanel) => {
+        const p = panel.params ?? {};
+        switch (panel.componentType) {
+            case 'view':
+                openTab({ view: p.view ?? 'pods', title: panel.title });
+                break;
+            case 'yamlEditor':
+                openYamlPanel({ resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'logViewer':
+                openLogPanel({ resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'policyViewer':
+                openPolicyViewer({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'configMapEditor':
+                openConfigMapEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'secretEditor':
+                openSecretEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'roleEditor':
+                openRoleEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'roleBindingEditor':
+                openRoleBindingEditor({ name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
+            case 'clusterResource':
+                openClusterResourceView();
+                break;
+            case 'applyYaml':
+                openApplyYaml();
+                break;
+        }
+    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openClusterResourceView, openApplyYaml]);
+
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openTerminal, openApplyYaml, openClusterResourceView }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
             {children}
         </TabContext.Provider>
     );

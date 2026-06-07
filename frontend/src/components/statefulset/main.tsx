@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose, VscListFlat } from 'react-icons/vsc';
@@ -10,6 +10,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetStatefulSets, DeleteStatefulSet } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
@@ -49,7 +51,7 @@ const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
     replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
@@ -61,6 +63,11 @@ export default function StatefulSetListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel, openLogPanel } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(items.map(i => i.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
 
     const load = async () => {
         try {
@@ -136,7 +143,9 @@ export default function StatefulSetListComponent() {
             >
                 <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
                 <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                <Column field="namespace" header="Namespace" sortable filter filterField="namespace" filterPlaceholder="Search namespace" showFilterMenu={false} style={{ minWidth: '10rem' }} />
+                <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }} filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )} />
                 <Column
                     header="Replicas"
                     sortable

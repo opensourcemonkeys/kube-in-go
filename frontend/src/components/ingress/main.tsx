@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
@@ -9,14 +9,16 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetIngresses, DeleteIngress } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    class_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
+    class_name: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 const formatHosts = (rules: models.IngressRuleInfo[]): string => {
@@ -45,6 +47,15 @@ export default function IngressListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(ingresses.map(i => i.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [ingresses]
+    );
+    const classNameOptions = useMemo(() =>
+        [...new Set(ingresses.map(i => i.class_name).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [ingresses]
+    );
 
     const loadIngresses = async () => {
         try {
@@ -172,9 +183,11 @@ export default function IngressListComponent() {
                     sortable
                     filter
                     filterField="namespace"
-                    filterPlaceholder="Search namespace"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="class_name"
@@ -182,10 +195,12 @@ export default function IngressListComponent() {
                     sortable
                     filter
                     filterField="class_name"
-                    filterPlaceholder="Search class"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
                     body={(row: models.IngressInfo) => row.class_name || '-'}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={classNameOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     header="Hosts"

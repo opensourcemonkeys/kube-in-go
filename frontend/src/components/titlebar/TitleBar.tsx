@@ -5,9 +5,11 @@ import {
     WindowToggleMaximise,
     Quit,
 } from '../../../wailsjs/runtime/runtime';
+import { useInstanceContext } from '../../contexts/InstanceContext';
 
 function TitleBar() {
     const [maximised, setMaximised] = useState(false);
+    const { selfInfo } = useInstanceContext();
 
     const handleMaximise = () => {
         WindowToggleMaximise();
@@ -31,6 +33,9 @@ function TitleBar() {
                     <circle cx="12" cy="8.6" r="1.7" fill="#3fc8b4"/>
                 </svg>
                 <span className="tb-title">KUBE-INS</span>
+                {selfInfo && (
+                    <span className="tb-instance-name">{selfInfo.name}</span>
+                )}
             </div>
 
             {/* Action buttons */}

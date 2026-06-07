@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { VscWarning, VscClearAll } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
@@ -8,6 +8,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetEvents } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 
@@ -22,11 +24,11 @@ const getTypeSeverity = (type: string): TagSeverity => {
 };
 
 const defaultFilters: DataTableFilterMeta = {
-    namespace:   { value: null, matchMode: FilterMatchMode.CONTAINS },
-    type:        { value: null, matchMode: FilterMatchMode.CONTAINS },
-    reason:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    object_kind: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    object:      { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace:   { value: null, matchMode: FilterMatchMode.IN },
+    type:        { value: null, matchMode: FilterMatchMode.IN },
+    reason:      { value: null, matchMode: FilterMatchMode.IN },
+    object_kind: { value: null, matchMode: FilterMatchMode.IN },
+    object:      { value: null, matchMode: FilterMatchMode.IN },
 };
 
 const formatTime = (ts: string): string => {
@@ -42,6 +44,27 @@ export default function EventListComponent() {
     const [events, setEvents] = useState<models.EventInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const [warningOnly, setWarningOnly] = useState(false);
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(events.map(e => e.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [events]
+    );
+    const typeOptions = useMemo(() =>
+        [...new Set(events.map(e => e.type).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [events]
+    );
+    const reasonOptions = useMemo(() =>
+        [...new Set(events.map(e => e.reason).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [events]
+    );
+    const objectKindOptions = useMemo(() =>
+        [...new Set(events.map(e => e.object_kind).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [events]
+    );
+    const objectOptions = useMemo(() =>
+        [...new Set(events.map(e => e.object).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [events]
+    );
     const [selectedEvent, setSelectedEvent] = useState<models.EventInfo | null>(null);
     const toast = useRef<Toast | null>(null);
 
@@ -116,11 +139,13 @@ export default function EventListComponent() {
                     sortable
                     filter
                     filterField="type"
-                    filterPlaceholder="Search"
                     showFilterMenu={false}
                     style={{ minWidth: '8rem' }}
                     body={(row: models.EventInfo) => (
                         <Tag value={row.type || '-'} severity={getTypeSeverity(row.type)} />
+                    )}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={typeOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
@@ -129,9 +154,11 @@ export default function EventListComponent() {
                     sortable
                     filter
                     filterField="namespace"
-                    filterPlaceholder="Search"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="object_kind"
@@ -139,9 +166,11 @@ export default function EventListComponent() {
                     sortable
                     filter
                     filterField="object_kind"
-                    filterPlaceholder="Search"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={objectKindOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="object"
@@ -149,9 +178,11 @@ export default function EventListComponent() {
                     sortable
                     filter
                     filterField="object"
-                    filterPlaceholder="Search"
                     showFilterMenu={false}
                     style={{ minWidth: '14rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={objectOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="reason"
@@ -159,9 +190,11 @@ export default function EventListComponent() {
                     sortable
                     filter
                     filterField="reason"
-                    filterPlaceholder="Search"
                     showFilterMenu={false}
                     style={{ minWidth: '11rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={reasonOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="message"

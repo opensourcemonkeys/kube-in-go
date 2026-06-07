@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose, VscListFlat } from 'react-icons/vsc';
@@ -10,6 +10,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetJobs, DeleteJob } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
@@ -58,8 +60,8 @@ const getCompletionSeverity = (succeeded: number, completions: number, failed: n
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status:    { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
+    status:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function JobListComponent() {
@@ -70,6 +72,15 @@ export default function JobListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel, openLogPanel } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(jobs.map(j => j.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [jobs]
+    );
+    const statusOptions = useMemo(() =>
+        [...new Set(jobs.map(j => j.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [jobs]
+    );
 
     const loadJobs = async () => {
         try {
@@ -197,9 +208,11 @@ export default function JobListComponent() {
                     sortable
                     filter
                     filterField="namespace"
-                    filterPlaceholder="Search namespace"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="status"
@@ -207,10 +220,12 @@ export default function JobListComponent() {
                     sortable
                     filter
                     filterField="status"
-                    filterPlaceholder="Search status"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
                     body={(row: models.JobInfo) => <JobStatusBody row={row} />}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     header="Completions"

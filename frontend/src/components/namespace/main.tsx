@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
@@ -9,6 +9,8 @@ import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetNamespaces, DeleteNamespace } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
@@ -25,7 +27,7 @@ const getStatusSeverity = (status: string): Severity => {
 
 const defaultFilters: DataTableFilterMeta = {
     name:   { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    status: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function NamespaceListComponent() {
@@ -36,6 +38,11 @@ export default function NamespaceListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
+
+    const statusOptions = useMemo(() =>
+        [...new Set(namespaces.map(n => n.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [namespaces]
+    );
 
     const loadNamespaces = async () => {
         try {
@@ -163,9 +170,11 @@ export default function NamespaceListComponent() {
                     sortable
                     filter
                     filterField="status"
-                    filterPlaceholder="Search status"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                     body={(rowData: models.NamespaceInfo) => (
                         <Tag value={rowData.status} severity={getStatusSeverity(rowData.status)} />
                     )}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
@@ -8,13 +8,15 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetIngressClasses } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
-    controller: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    controller: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function IngressClassListComponent() {
@@ -22,6 +24,11 @@ export default function IngressClassListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
+
+    const controllerOptions = useMemo(() =>
+        [...new Set(ingressClasses.map(i => i.controller).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [ingressClasses]
+    );
 
     const loadIngressClasses = async () => {
         try {
@@ -96,9 +103,11 @@ export default function IngressClassListComponent() {
                     sortable
                     filter
                     filterField="controller"
-                    filterPlaceholder="Search controller"
                     showFilterMenu={false}
                     style={{ minWidth: '20rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={controllerOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="is_default"

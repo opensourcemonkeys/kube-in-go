@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose, VscListFlat } from 'react-icons/vsc';
@@ -10,6 +10,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetCronJobs, DeleteCronJob } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext, LogPanelDef } from '../../contexts/TabContext';
@@ -38,8 +40,8 @@ function CronJobActionsBody({ row, onOpenLog }: { row: models.CronJobInfo; onOpe
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    schedule:  { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
+    schedule:  { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function CronJobListComponent() {
@@ -50,6 +52,15 @@ export default function CronJobListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel, openLogPanel } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(cronJobs.map(c => c.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [cronJobs]
+    );
+    const scheduleOptions = useMemo(() =>
+        [...new Set(cronJobs.map(c => c.schedule).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [cronJobs]
+    );
 
     const loadCronJobs = async () => {
         try {
@@ -177,9 +188,11 @@ export default function CronJobListComponent() {
                     sortable
                     filter
                     filterField="namespace"
-                    filterPlaceholder="Search namespace"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="schedule"
@@ -187,9 +200,11 @@ export default function CronJobListComponent() {
                     sortable
                     filter
                     filterField="schedule"
-                    filterPlaceholder="Search schedule"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={scheduleOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     header="Status"

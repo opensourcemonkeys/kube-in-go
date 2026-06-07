@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
@@ -9,6 +9,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetPersistentVolumeClaims, DeletePersistentVolumeClaim } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
@@ -26,9 +28,9 @@ const getStatusSeverity = (status: string): TagSeverity => {
 
 const defaultFilters: DataTableFilterMeta = {
     name:               { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace:          { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status:             { value: null, matchMode: FilterMatchMode.CONTAINS },
-    storage_class_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace:          { value: null, matchMode: FilterMatchMode.IN },
+    status:             { value: null, matchMode: FilterMatchMode.IN },
+    storage_class_name: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function PersistentVolumeClaimListComponent() {
@@ -39,6 +41,19 @@ export default function PersistentVolumeClaimListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(items.map(i => i.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
+    const statusOptions = useMemo(() =>
+        [...new Set(items.map(i => i.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
+    const storageClassOptions = useMemo(() =>
+        [...new Set(items.map(i => i.storage_class_name).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
 
     const load = async () => {
         try {
@@ -147,9 +162,11 @@ export default function PersistentVolumeClaimListComponent() {
                     sortable
                     filter
                     filterField="namespace"
-                    filterPlaceholder="Search namespace"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="status"
@@ -157,9 +174,11 @@ export default function PersistentVolumeClaimListComponent() {
                     sortable
                     filter
                     filterField="status"
-                    filterPlaceholder="Search status"
                     showFilterMenu={false}
                     style={{ minWidth: '8rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                     body={(row: models.PersistentVolumeClaimInfo) => (
                         <Tag value={row.status} severity={getStatusSeverity(row.status)} />
                     )}
@@ -179,9 +198,11 @@ export default function PersistentVolumeClaimListComponent() {
                     sortable
                     filter
                     filterField="storage_class_name"
-                    filterPlaceholder="Search class"
                     showFilterMenu={false}
                     style={{ minWidth: '12rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={storageClassOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column field="volume_name" header="Volume" style={{ minWidth: '14rem' }} />
             </DataTable>

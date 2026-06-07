@@ -3,6 +3,7 @@ import { VscPackage } from 'react-icons/vsc';
 import { DockviewReact, DockviewReadyEvent } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
+import FloatableTab from './FloatableTab';
 import ViewPanel from './ViewPanel';
 import YamlEditorPanel from './YamlEditorPanel';
 import TerminalPanel from '../terminal/TerminalPanel';
@@ -61,6 +62,8 @@ export default function DockviewContainer() {
             // inner dv-shell element, which would set --dv-separator-border to a blue color.
             theme={{ name: 'monolith', className: 'dockview-theme-monolith' } as any}
             components={components}
+            defaultTabComponent={FloatableTab}
+            floatingGroupBounds="boundedWithinViewport"
             onReady={onReady}
         />
     );

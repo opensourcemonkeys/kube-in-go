@@ -588,3 +588,19 @@ func (a *App) StartLogStream(sessionId string, podName string, namespace string,
 func (a *App) StopLogStream(sessionId string) {
 	bussiness.StopLogStream(sessionId)
 }
+
+// ============================================================================
+// Instance Hub — cross-instance tab transfer
+// ============================================================================
+
+func (a *App) GetInstances() []models.InstanceInfo {
+	return a.hub.GetInstances()
+}
+
+func (a *App) GetSelfInstanceInfo() models.InstanceInfo {
+	return a.hub.GetSelfInfo()
+}
+
+func (a *App) TransferTab(targetInstanceId string, panel models.SerializedPanel) error {
+	return a.hub.TransferTab(targetInstanceId, panel)
+}

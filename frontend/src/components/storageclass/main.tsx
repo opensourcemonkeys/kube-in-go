@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
@@ -8,13 +8,15 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetStorageClasses } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
 const defaultFilters: DataTableFilterMeta = {
     name:        { value: null, matchMode: FilterMatchMode.CONTAINS },
-    provisioner: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    provisioner: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function StorageClassListComponent() {
@@ -22,6 +24,11 @@ export default function StorageClassListComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
+
+    const provisionerOptions = useMemo(() =>
+        [...new Set(items.map(i => i.provisioner).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
 
     const load = async () => {
         try {
@@ -104,9 +111,11 @@ export default function StorageClassListComponent() {
                     sortable
                     filter
                     filterField="provisioner"
-                    filterPlaceholder="Search provisioner"
                     showFilterMenu={false}
                     style={{ minWidth: '20rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={provisionerOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column field="reclaim_policy" header="Reclaim Policy" sortable style={{ minWidth: '10rem' }} />
                 <Column field="volume_binding_mode" header="Binding Mode" sortable style={{ minWidth: '12rem' }} />

@@ -1,23 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { VscClearAll, VscSettings } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetRoleBindings } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function RoleBindingListComponent() {
     const [items, setItems] = useState<models.RoleBindingInfo[]>([]);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const { openYamlPanel, openRoleBindingEditor } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(items.map(i => i.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [items]
+    );
 
     const load = async () => {
         try {
@@ -83,7 +90,9 @@ export default function RoleBindingListComponent() {
                 emptyMessage="No role bindings found"
             >
                 <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                <Column field="namespace" header="Namespace" sortable filter filterField="namespace" filterPlaceholder="Search namespace" showFilterMenu={false} style={{ minWidth: '10rem' }} />
+                <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }} filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )} />
                 <Column header="RoleRef" body={roleRefBody} style={{ minWidth: '12rem' }} />
                 <Column header="Subjects" body={(rb: models.RoleBindingInfo) => (rb.subjects ?? []).length} style={{ minWidth: '7rem' }} />
                 <Column field="created_at" header="Created" sortable style={{ minWidth: '12rem' }} />

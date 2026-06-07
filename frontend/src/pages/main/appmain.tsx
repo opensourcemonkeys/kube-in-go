@@ -3,9 +3,11 @@ import { NextStepProvider, NextStepReact } from 'nextstepjs';
 import SideMenu from '../../components/menu/menu';
 import TitleBar from '../../components/titlebar/TitleBar';
 import DockviewContainer from '../../components/workspace/DockviewContainer';
+import TabInstanceBridge from '../../components/workspace/TabInstanceBridge';
 import ClusterBar from '../../components/cluster/ClusterBar';
 import { TabProvider } from '../../contexts/TabContext';
 import { ClusterProvider } from '../../contexts/ClusterContext';
+import { InstanceProvider } from '../../contexts/InstanceContext';
 import { appTour } from '../../lib/tourSteps';
 import TourCard from '../../components/tour/TourCard';
 
@@ -50,7 +52,9 @@ function Appmain() {
                 disableConsoleLogs
             >
                 <ClusterProvider>
+                    <InstanceProvider>
                     <TabProvider>
+                        <TabInstanceBridge />
                         <div className="flex flex-column overflow-hidden" style={{ height: '100vh' }}>
                             <TitleBar />
                             <ClusterBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
@@ -111,6 +115,7 @@ function Appmain() {
                             </div>
                         </div>
                     </TabProvider>
+                    </InstanceProvider>
                 </ClusterProvider>
             </NextStepReact>
         </NextStepProvider>

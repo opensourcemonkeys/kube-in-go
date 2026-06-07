@@ -113,6 +113,46 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item:hover,
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight { background: var(--hover); color: var(--teal); }
 
+/* ── MultiSelect panel ───────────────────────────────────────*/
+.p-multiselect-panel .p-multiselect-header {
+  background: var(--panel); border-bottom: 1px solid var(--line2);
+  padding: 6px 10px; display: flex; align-items: center; gap: 8px; border-radius: 6px 6px 0 0;
+}
+.p-multiselect-panel .p-multiselect-filter-container {
+  flex: 1; position: relative; display: flex; align-items: center;
+}
+.p-multiselect-panel .p-multiselect-filter {
+  width: 100%; height: 26px; padding: 0 28px 0 8px;
+  background: var(--app); border: 1px solid var(--line2); border-radius: 4px;
+  color: var(--ink); font-family: var(--font-family); font-size: 12px; outline: none;
+}
+.p-multiselect-panel .p-multiselect-filter:focus {
+  border-color: rgba(63,200,180,.6); box-shadow: 0 0 0 3px rgba(63,200,180,.15);
+}
+.p-multiselect-panel .p-multiselect-filter-icon {
+  position: absolute; right: 8px; color: var(--ink3); pointer-events: none; width: 12px; height: 12px;
+}
+.p-multiselect-panel .p-multiselect-close {
+  background: transparent; border: none; border-radius: 4px; cursor: pointer;
+  color: var(--ink3); width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0;
+}
+.p-multiselect-panel .p-multiselect-close:hover { background: var(--hover); color: var(--ink); }
+.p-multiselect-panel .p-multiselect-close svg { width: 12px; height: 12px; }
+.p-multiselect-panel .p-multiselect-items { padding: 4px 0; margin: 0; list-style: none; }
+.p-multiselect-panel .p-multiselect-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px; cursor: pointer; transition: background .1s;
+  color: var(--ink2); font-family: var(--font-family); font-size: 12.5px; background: transparent;
+}
+.p-multiselect-panel .p-multiselect-item:hover,
+.p-multiselect-panel .p-multiselect-item.p-focus { background: var(--hover); color: var(--ink); }
+.p-multiselect-panel .p-multiselect-item.p-highlight { color: var(--teal); }
+.p-multiselect-panel .p-multiselect-item.p-highlight:hover,
+.p-multiselect-panel .p-multiselect-item.p-highlight.p-focus { background: var(--hover); }
+.p-multiselect-panel .p-multiselect-item span { line-height: 1; }
+.p-multiselect-panel .p-multiselect-checkbox { display: flex; align-items: center; }
+
 /* ── Checkbox ────────────────────────────────────────────────*/
 .p-checkbox .p-checkbox-box { background: var(--panel2); border: 1px solid var(--line2); border-radius: 4px; width: 15px; height: 15px; }
 .p-checkbox.p-highlight .p-checkbox-box { background: var(--teal) !important; border-color: var(--teal) !important; }
@@ -133,6 +173,8 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .p-datatable .p-datatable-tbody > tr > td.p-selection-column { width: 3rem !important; }
 .p-datatable .p-datatable-thead > tr > th.p-filter-column { background: var(--panel); }
 .p-datatable .p-datatable-thead > tr > th.p-filter-column .p-inputtext { height: 28px;  font-size: 12px; border-radius: 4px; }
+.p-datatable .p-datatable-thead > tr > th.p-filter-column .p-multiselect { height: 28px; font-size: 12px; border-radius: 4px; }
+.p-datatable .p-datatable-thead > tr > th.p-filter-column .p-multiselect .p-multiselect-label { padding: 0 8px; line-height: 28px; font-size: 12px; text-transform: capitalize; letter-spacing: normal; font-weight: normal; }
 .p-datatable .p-datatable-thead > tr > th.p-filter-column .p-column-filter-row { gap: 0; }
 .p-datatable .p-sortable-column:hover, .p-datatable .p-sortable-column:focus { background: var(--hover); color: var(--teal); box-shadow: none; }
 .p-datatable .p-sortable-column.p-highlight { background: var(--panel); color: var(--teal); }
@@ -186,6 +228,7 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 }
 .tb-drag { display: flex; align-items: center; gap: 8px; flex: 1; height: 100%; cursor: default; }
 .tb-title { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: var(--ink); }
+.tb-instance-name { font-size: 10px; font-weight: 500; color: var(--accent, #3fc8b4); background: rgba(63,200,180,.12); border: 1px solid rgba(63,200,180,.25); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
 .tb-controls { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; }
 .tb-btn { display: flex; align-items: center; justify-content: center; width: 46px; height: 100%; background: transparent; border: none; cursor: pointer; color: var(--ink3); padding: 0; transition: background .15s, color .15s; outline: none; }
 .tb-btn svg { width: 12px; height: 12px; }
@@ -434,3 +477,8 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 
 /* ── Misc ─────────────────────────────────────────────────── */
 .text-secondary, .text-muted, .p-column-header-content .p-column-filter-menu-button { color: var(--ink2); font-size: 11px; }
+
+/* ── Tab close button ────────────────────────────────────── */
+.dv-tab:hover .tab-close-btn,
+.dv-active-tab .tab-close-btn { opacity: 0.55 !important; }
+.tab-close-btn:hover { opacity: 1 !important; color: #fff !important; }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
@@ -6,6 +6,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
+import { MultiSelect } from 'primereact/multiselect';
+import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetPods, DeletePod } from '../../../wailsjs/go/controller_app/App';
 
 
@@ -26,8 +28,8 @@ const getStatusSeverity = (status: string) => {
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    status:    { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.IN },
+    status:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function DataTableComponent() {
@@ -38,6 +40,15 @@ export default function DataTableComponent() {
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel, openLogPanel, openExecPanel } = useTabContext();
+
+    const namespaceOptions = useMemo(() =>
+        [...new Set(pods.map(p => p.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [pods]
+    );
+    const statusOptions = useMemo(() =>
+        [...new Set(pods.map(p => p.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
+        [pods]
+    );
 
     const loadPods = async () => {
         try {
@@ -165,9 +176,11 @@ export default function DataTableComponent() {
                     sortable
                     filter
                     filterField="namespace"
-                    filterPlaceholder="Search namespace"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                    )}
                 />
                 <Column
                     field="status"
@@ -175,11 +188,13 @@ export default function DataTableComponent() {
                     sortable
                     filter
                     filterField="status"
-                    filterPlaceholder="Search status"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
                     body={(rowData: models.PodInfo) => (
                         <Tag value={rowData.status} severity={getStatusSeverity(rowData.status)} />
+                    )}
+                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
