@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.0-alpha] - 2026-06-13
+
+### Added
+
+#### Config & Security (RBAC)
+- **Service Accounts** — DataTable with namespace and secret/token columns; read-only YAML view; new model, service and business layers
+- **Roles** — namespaced DataTable with rule summary; YAML view/edit via a dedicated `RoleEditorPanel`
+- **Role Bindings** — DataTable showing role reference and subjects; YAML view/edit via `RoleBindingEditorPanel`
+
+#### Multi-Instance Management
+- **Instance discovery & panel transfer** over a WebSocket IPC hub (`localhost:34200`); the first kube-ins process becomes the hub server, later processes connect as clients, and the hub auto-reassigns when the server exits
+- **Transfer a tab to another instance** — right-click any tab to send the panel to another running instance via `InstancePickerMenu`; `terminal` and `podExec` panels are non-transferable
+- Instances are auto-named in connection order ("Instance 1", "Instance 2", …) and shown in the title bar
+- New `InstanceContext`, `TabInstanceBridge` and a custom `FloatableTab` tab header
+
+#### Per-tab Cluster Isolation
+- Each panel is now pinned to the cluster it was opened with; new `NewK8sClientForCluster` / `NewK8sClientAndConfigForCluster` / `NewMetricsClientForCluster` constructors load the panel's cluster directly, bypassing the global active path
+- Panel IDs and tab titles encode the cluster name, so changing the global cluster via the cluster bar no longer affects already-open tabs
+- **Cluster bar menu** for per-cluster actions
+
+#### DataTable Filters
+- **MultiSelect (dropdown) filters** for string columns (namespace, status, type, …) with `IN` matching and built-in search; numeric columns keep a number input
+- **Workload status column** added to workload lists; improved tab insertion order
+
+#### UI
+- Switched to **Material Icons** / VSCode icon sets across the app
+- Log viewer theming, dropdown theming and oversize hidden-item theme fixes
+
+#### Testing & CI
+- **Selenium E2E suite** under `e2e_tests/` (pytest): app smoke flow, navigation across every sidebar item, full YAML CRUD lifecycle, and panel open/load checks (Logs, Exec, Resource Graph); self-contained HTML report with inline failure screenshots; `make test-e2e` target
+- **GitHub Actions E2E stages** — on tag, an ephemeral `kind` cluster + `xvfb` + headless Chrome run the suite, and the report is emailed via Gmail SMTP
+
+### Changed
+- Controller, business and service layers thread `clusterName` through all resource-fetching functions
+
+### Fixed
+- **Apply YAML** now targets the active cluster's kubeconfig (`--kubeconfig`) and surfaces kubectl's error output instead of a bare `exit status 1`
+
+---
+
 ## [v0.4.0-alpha] - 2026-05-30
 
 ### Added
