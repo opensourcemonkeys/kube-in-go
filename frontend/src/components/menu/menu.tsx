@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { VscChevronDown, VscTable, VscGlobe, VscSettings, VscFolder, VscExtensions } from 'react-icons/vsc';
+import { VscChevronDown, VscTable, VscGlobe, VscSettings, VscFolder, VscExtensions, VscShield } from 'react-icons/vsc';
 import { useTabContext } from '../../contexts/TabContext';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { NAV_GROUPS, VIEW_GROUP, NavItem } from './menuItems';
@@ -10,6 +10,7 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
     workloads:  <VscTable size={13} />,
     networking: <VscGlobe size={13} />,
     config:     <VscSettings size={13} />,
+    security:   <VscShield size={13} />,
     storage:    <VscFolder size={13} />,
     cluster:    <VscExtensions size={13} />,
 };

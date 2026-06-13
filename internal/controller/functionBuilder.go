@@ -543,6 +543,18 @@ func (a *App) GetClusterGraph(clusterName string) (*models.ClusterGraph, error) 
 	return bussiness.GetClusterGraph(clusterName)
 }
 
+func (a *App) GetSecurityGraph(clusterName string) (*models.SecurityGraph, error) {
+	return bussiness.GetSecurityGraph(clusterName)
+}
+
+func (a *App) GetObjectYaml(clusterName, group, resource, namespace, name string) (string, error) {
+	return bussiness.GetObjectYaml(clusterName, group, resource, namespace, name)
+}
+
+func (a *App) UpdateObjectYaml(clusterName, group, resource, namespace, name, yamlContent string) error {
+	return bussiness.UpdateObjectYaml(clusterName, group, resource, namespace, name, yamlContent)
+}
+
 // ============================================================================
 // Utility Functions: Resource Relationships & Navigation
 // ============================================================================

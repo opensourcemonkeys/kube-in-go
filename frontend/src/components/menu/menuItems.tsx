@@ -23,12 +23,15 @@ export const NAV_GROUPS: NavGroup[] = [
         { label: 'Endpoints',        view: 'endpoints',       icon: <VscGitCompare style={S} /> },
         { label: 'Network Policies', view: 'networkpolicies', icon: <VscShield style={S} /> },
     ]},
-    { key: 'config', label: 'CONFIG & SECURITY', items: [
+    { key: 'config', label: 'CONFIG & SECRETS', items: [
         { label: 'ConfigMaps',       view: 'configmaps',          icon: <VscNote style={S} /> },
         { label: 'Secrets',          view: 'secrets',             icon: <VscKey style={S} /> },
-        { label: 'Service Accounts', view: 'serviceaccounts',     icon: <VscAccount style={S} /> },
-        { label: 'Roles',            view: 'roles',               icon: <VscLock style={S} /> },
-        { label: 'Role Bindings',    view: 'rolebindings',        icon: <VscLink style={S} /> },
+    ]},
+    { key: 'security', label: 'SECURITY', items: [
+        { label: 'Service Accounts',  view: 'serviceaccounts', icon: <VscAccount style={S} /> },
+        { label: 'Roles',             view: 'roles',           icon: <VscLock style={S} /> },
+        { label: 'Role Bindings',     view: 'rolebindings',    icon: <VscLink style={S} /> },
+        { label: 'Security Role Map', view: 'securityrolemap', icon: <VscTypeHierarchySub style={S} /> },
     ]},
     { key: 'storage', label: 'STORAGE', items: [
         { label: 'Persistent Volumes', view: 'persistentvolumes',      icon: <VscFolder style={S} /> },

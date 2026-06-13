@@ -24,6 +24,7 @@ import StorageClassListComponent from '../storageclass/main';
 import ServiceAccountListComponent from '../serviceaccount/main';
 import RoleListComponent from '../role/main';
 import RoleBindingListComponent from '../rolebinding/main';
+import SecurityRoleMap from '../security/SecurityRoleMap';
 
 interface ViewPanelParams {
     view: string;
@@ -59,6 +60,7 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'serviceaccounts') return <ServiceAccountListComponent clusterName={cn} />;
     if (view === 'roles') return <RoleListComponent clusterName={cn} />;
     if (view === 'rolebindings') return <RoleBindingListComponent clusterName={cn} />;
+    if (view === 'securityrolemap') return <SecurityRoleMap clusterName={cn} />;
 
     return (
         <div className="card p-4">

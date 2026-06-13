@@ -96,6 +96,16 @@ export interface RoleBindingEditorDef {
     referencePanel: string;
 }
 
+export interface ObjectYamlDef {
+    clusterName: string;
+    kind: string;
+    group: string;
+    resource: string;
+    name: string;
+    namespace: string;
+    referencePanel: string;
+}
+
 export interface ReceivedPanel {
     componentType: string;
     title: string;
@@ -113,6 +123,7 @@ interface TabContextValue {
     openSecretEditor: (def: SecretEditorDef) => void;
     openRoleEditor: (def: RoleEditorDef) => void;
     openRoleBindingEditor: (def: RoleBindingEditorDef) => void;
+    openObjectYaml: (def: ObjectYamlDef) => void;
     openTerminal: () => void;
     openApplyYaml: () => void;
     openClusterResourceView: (clusterName: string) => void;
@@ -298,6 +309,37 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel(addOptions);
     }, []);
 
+    const openObjectYaml = useCallback((def: ObjectYamlDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `object-yaml:${def.clusterName}:${def.group}/${def.resource}:${def.namespace}/${def.name}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const addOptions: any = {
+            id: panelId,
+            component: 'objectYaml',
+            title: `Edit • ${def.namespace ? def.namespace + '/' : ''}${def.name}`,
+            params: {
+                clusterName: def.clusterName,
+                kind: def.kind,
+                group: def.group,
+                resource: def.resource,
+                name: def.name,
+                namespace: def.namespace,
+            },
+        };
+
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
+
+        api.addPanel(addOptions);
+    }, []);
+
     const openSecretEditor = useCallback((def: SecretEditorDef) => {
         const api = apiRef.current;
         if (!api) return;
@@ -458,7 +500,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openClusterResourceView, openApplyYaml]);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
+        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
             {children}
         </TabContext.Provider>
     );
