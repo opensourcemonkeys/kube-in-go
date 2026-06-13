@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.1-alpha] - 2026-06-13
+
+### Fixed
+- **CI E2E pipeline** — the frontend is now built before launching `wails dev` so the `//go:embed all:frontend/dist` directive resolves on a clean checkout (`dist/` is gitignored). Previously the dev server failed to compile, never came up, and the readiness check hung.
+- E2E readiness check now fails fast and prints the dev log when `wails dev` exits early, instead of waiting out the full timeout.
+
+---
+
 ## [v0.5.0-alpha] - 2026-06-13
 
 ### Added

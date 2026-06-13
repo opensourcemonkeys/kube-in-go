@@ -227,6 +227,16 @@ jobs:
       - name: Install Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
+      - name: Build frontend (satisfies //go:embed all:frontend/dist)
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+        # frontend/dist is gitignored, so a fresh checkout has no dist/. The Go
+        # binary embeds it via //go:embed in main.go, so `wails dev` cannot compile
+        # without it. Building once here populates dist/; dev still serves live
+        # content from the Vite watcher.
+
       - name: Create kind cluster
         uses: helm/kind-action@0025e74a8c7512023d06dc019c617aa3cf561fde # v1.10.0
 
@@ -244,16 +254,26 @@ jobs:
       - name: Start Wails dev server (xvfb)
         run: |
           xvfb-run -a -s "-screen 0 1280x800x24" make dev > /tmp/wails-dev.log 2>&1 &
-          echo "Waiting for http://localhost:34115 ..."
-          for i in $(seq 1 60); do
+          WAILS_PID=$!
+          echo "wails dev started (pid $WAILS_PID); waiting for http://localhost:34115 ..."
+          # Up to ~10 min: the first cold compile of client-go is slow.
+          for i in $(seq 1 120); do
+            # Fail fast if the dev process died (e.g. Go compile / embed error).
+            if ! kill -0 "$WAILS_PID" 2>/dev/null; then
+              echo "::error::wails dev exited before becoming ready — log below:"
+              cat /tmp/wails-dev.log || true
+              exit 1
+            fi
             if curl -sf http://localhost:34115 >/dev/null; then
               echo "Wails dev server is up."
               exit 0
             fi
+            echo "--- attempt $i/120, recent log: ---"
+            tail -n 5 /tmp/wails-dev.log || true
             sleep 5
           done
-          echo "::error::Wails dev server did not become ready in time"
-          tail -n 100 /tmp/wails-dev.log || true
+          echo "::error::Wails dev server did not become ready in time — full log below:"
+          cat /tmp/wails-dev.log || true
           exit 1
 
       - name: Run E2E suite
