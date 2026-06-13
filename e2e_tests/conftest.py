@@ -10,8 +10,10 @@ from pytest_html import extras as html_extras
 sys.path.insert(0, os.path.dirname(__file__))
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-# Set HEADLESS = True to run Chrome in headless mode (no visible window).
-HEADLESS = False
+# Headless is env-driven so CI can run without a visible window while local runs
+# stay headed by default. Set E2E_HEADLESS=1 (as the GitHub Actions e2e job does)
+# to enable headless Chrome.
+HEADLESS = os.environ.get("E2E_HEADLESS", "0") == "1"
 
 BASE_URL = "http://localhost:34115"
 
@@ -31,6 +33,7 @@ def driver():
     options = Options()
     if HEADLESS:
         options.add_argument("--headless=new")
+        options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1280,800")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
