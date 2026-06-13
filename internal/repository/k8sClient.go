@@ -17,6 +17,10 @@ func SetActiveKubeconfig(path string) {
 	activeKubeconfigPath = path
 }
 
+func GetActiveKubeconfigPath() string {
+	return activeKubeconfigPath
+}
+
 func NewK8sClient() (*kubernetes.Clientset, error) {
 	config, err := getK8sConfig()
 	if err != nil {

@@ -21,6 +21,10 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
 
     const handleMount: OnMount = (editor) => {
         editorRef.current = editor;
+        // Expose the most-recently-mounted editor for E2E tests.
+        // window.__kubeInsYamlEditor is overwritten each time a new panel opens,
+        // so it always refers to the newest ApplyYamlPanel instance.
+        (window as unknown as Record<string, unknown>).__kubeInsYamlEditor = editor;
         requestAnimationFrame(() => editor.layout());
     };
 

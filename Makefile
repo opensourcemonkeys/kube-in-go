@@ -36,4 +36,9 @@ pkg-all: pkg-deb pkg-rpm pkg-windows pkg-mac
 clean:
 	rm -rf ./build/bin ./dist
 
-.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean
+test-e2e:
+	@echo "⚠  Make sure 'make dev' is running in another terminal (http://localhost:34115)."
+	cd e2e_tests && pip install -q -r requirements.txt && \
+		pytest -v --html=../report.html --self-contained-html
+
+.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean test-e2e

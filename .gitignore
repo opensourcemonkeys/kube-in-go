@@ -11,3 +11,5 @@ build/windows/*.key
 build/windows/*.crt
 build/dmg-builder/node_modules
 build/dmg-builder/package-lock.json
+e2e_tests/__pycache__/*
+report.html
