@@ -139,12 +139,43 @@
    LANDING PAGE — VS Code-style hero + feature cards
    ════════════════════════════════════════════════════════════════ */
 .ki-hero {
-  background:
-    radial-gradient(900px 380px at 50% -120px, rgba(63, 200, 180, 0.12), transparent 70%),
-    linear-gradient(180deg, var(--ki-panel) 0%, var(--ki-app) 100%);
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--ki-panel) 0%, var(--ki-app) 100%);
   border-bottom: 1px solid var(--ki-line);
 }
+/* Animated aurora glow drifting behind the hero title */
+.ki-hero::before {
+  content: "";
+  position: absolute;
+  inset: -45% -15%;
+  z-index: 0;
+  background:
+    radial-gradient(38% 50% at 30% 35%, rgba(63, 200, 180, 0.30), transparent 60%),
+    radial-gradient(34% 46% at 70% 42%, rgba(110, 168, 230, 0.22), transparent 60%),
+    radial-gradient(30% 42% at 50% 68%, rgba(167, 139, 214, 0.18), transparent 60%);
+  filter: blur(42px);
+  animation: ki-aurora 16s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+/* Faint moving grid, faded out toward the edges */
+.ki-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(63, 200, 180, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 200, 180, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(62% 60% at 50% 38%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(62% 60% at 50% 38%, #000 25%, transparent 78%);
+  animation: ki-grid 24s linear infinite;
+  pointer-events: none;
+}
 .ki-hero__inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -186,10 +217,30 @@
   line-height: 1.1;
   font-weight: 700;
   letter-spacing: -0.02em;
-  background: linear-gradient(90deg, var(--ki-ink), var(--ki-teal));
+  background: linear-gradient(90deg, var(--ki-ink) 0%, var(--ki-teal) 50%, var(--ki-ink) 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: ki-shimmer 7s linear infinite;
+}
+
+@keyframes ki-aurora {
+  0%   { transform: translate3d(-4%, -2%, 0) rotate(0deg)  scale(1.05); }
+  50%  { transform: translate3d(4%, 3%, 0)  rotate(8deg)  scale(1.16); }
+  100% { transform: translate3d(-2%, 2%, 0) rotate(-6deg) scale(1.08); }
+}
+@keyframes ki-grid {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 44px 44px, 44px 44px; }
+}
+@keyframes ki-shimmer {
+  to { background-position: 200% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ki-hero::before,
+  .ki-hero::after,
+  .ki-hero__title { animation: none; }
 }
 .ki-hero__tagline {
   margin: 1rem 0 0;
@@ -207,6 +258,44 @@
 .ki-hero__cta .md-button {
   min-width: 9.5rem;
   padding: 0.55rem 1.25rem;
+}
+
+/* Make the primary "Download" CTA pop: teal gradient + glow + lift */
+.ki-hero__cta .md-button--primary,
+[data-md-color-scheme="slate"] .ki-hero__cta .md-typeset .md-button--primary {
+  padding: 0.8rem 2.2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ki-app);
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #62e3cf 0%, var(--ki-teal) 55%, #2bb6a2 100%);
+  box-shadow:
+    0 0 0 1px rgba(63, 200, 180, 0.45),
+    0 10px 28px rgba(63, 200, 180, 0.38);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  animation: ki-cta-glow 3s ease-in-out infinite;
+}
+.ki-hero__cta .md-button--primary:hover,
+[data-md-color-scheme="slate"] .ki-hero__cta .md-typeset .md-button--primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  color: var(--ki-app);
+  box-shadow:
+    0 0 0 1px rgba(63, 200, 180, 0.65),
+    0 14px 36px rgba(63, 200, 180, 0.55);
+}
+.ki-hero__cta .md-button--primary:active {
+  transform: translateY(0);
+}
+
+@keyframes ki-cta-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(63, 200, 180, 0.40), 0 10px 26px rgba(63, 200, 180, 0.30); }
+  50%      { box-shadow: 0 0 0 1px rgba(63, 200, 180, 0.65), 0 12px 34px rgba(63, 200, 180, 0.58); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ki-hero__cta .md-button--primary { animation: none; }
 }
 
 /* Hide the auto-rendered page H1 on the landing page (hero supplies it) */

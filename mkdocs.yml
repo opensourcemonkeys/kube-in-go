@@ -3,8 +3,6 @@ site_description: A visual desktop client for managing Kubernetes clusters
 site_author: Kube Inspector contributors
 site_url: https://kubeinspector.com
 
-repo_name: kube-ins
-
 theme:
   name: material
   custom_dir: overrides
@@ -35,9 +33,7 @@ theme:
     - content.code.tabbed
     - content.code.superfences
     - content.code.highlight
-    - content.code.inline 
-  icon:
-    repo: fontawesome/brands/github
+    - content.code.inline
 
 markdown_extensions:
   - admonition
@@ -56,11 +52,10 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 nav:
-  - Home: index.md
-  - Downloads: downloads.md
   - Getting Started:
     - Installation: getting-started/installation.md
     - Adding Clusters: getting-started/cluster-setup.md
+  - Downloads: downloads.md
   - Workloads:
     - Overview: workloads/index.md
     - Pods: workloads/pods.md
