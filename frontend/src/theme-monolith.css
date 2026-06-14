@@ -544,3 +544,104 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .dv-tab:hover .tab-close-btn,
 .dv-active-tab .tab-close-btn { opacity: 0.55 !important; }
 .tab-close-btn:hover { opacity: 1 !important; color: #fff !important; }
+
+/* ════════════════════════════════════════════════════════════
+   TABVIEW — matches Dockview tab headers (panel/app + teal accent)
+   ════════════════════════════════════════════════════════════ */
+.p-tabview .p-tabview-nav {
+  background: var(--panel);
+  border: none;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-family);
+}
+.p-tabview .p-tabview-nav li { margin: 0; }
+.p-tabview .p-tabview-nav .p-tabview-nav-link {
+  background: var(--panel);
+  color: var(--ink2);
+  height: 36px;
+  padding: 0 14px;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-top: 2px solid transparent;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  margin: 0;
+  transition: background .12s, color .12s;
+}
+.p-tabview .p-tabview-nav .p-tabview-nav-link:not(.p-disabled):focus { box-shadow: none; }
+.p-tabview .p-tabview-nav li:not(.p-highlight):not(.p-disabled) .p-tabview-nav-link:hover {
+  background: var(--hover);
+  color: var(--ink);
+  border-color: transparent var(--line) transparent transparent;
+}
+.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: var(--app);
+  color: var(--ink);
+  border-top-color: var(--teal);
+}
+.p-tabview .p-tabview-ink-bar { display: none; }
+.p-tabview .p-tabview-nav-btn.p-link {
+  background: var(--panel);
+  color: var(--ink2);
+  border-radius: 0;
+  box-shadow: none;
+}
+.p-tabview .p-tabview-nav-btn.p-link:hover { background: var(--hover); color: var(--ink); }
+
+/* Tab panel interior matches the app background */
+.p-tabview .p-tabview-panels {
+  background: var(--app);
+  color: var(--ink);
+  border: none;
+  padding: 12px 0 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PAGINATOR — themed to match the app surfaces + teal accent
+   ════════════════════════════════════════════════════════════ */
+.p-paginator {
+  background: var(--panel);
+  border: none;
+  border-top: 1px solid var(--line);
+  color: var(--ink2);
+  font-family: var(--font-family);
+  font-size: 12px;
+}
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last,
+.p-paginator .p-paginator-pages .p-paginator-page {
+  background: transparent;
+  color: var(--ink2);
+  border: none;
+  border-radius: 6px;
+  min-width: 32px;
+  height: 32px;
+  margin: 0 1px;
+  transition: background .12s, color .12s;
+}
+.p-paginator .p-paginator-first:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-prev:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-next:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-last:not(.p-disabled):not(.p-highlight):hover,
+.p-paginator .p-paginator-pages .p-paginator-page:not(.p-highlight):hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: var(--teal);
+  color: var(--app);
+  font-weight: 600;
+}
+.p-paginator .p-paginator-current { color: var(--ink3); }
+.p-paginator .p-dropdown {
+  background: var(--panel2);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  height: 32px;
+}
+.p-paginator .p-dropdown:not(.p-disabled):hover { border-color: var(--line2); }
+.p-paginator .p-dropdown .p-dropdown-label { color: var(--ink); display: flex; align-items: center; }

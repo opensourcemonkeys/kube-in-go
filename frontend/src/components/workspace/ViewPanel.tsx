@@ -25,6 +25,7 @@ import ServiceAccountListComponent from '../serviceaccount/main';
 import RoleListComponent from '../role/main';
 import RoleBindingListComponent from '../rolebinding/main';
 import SecurityRoleMap from '../security/SecurityRoleMap';
+import TrivyScanner from '../security/TrivyScanner';
 
 interface ViewPanelParams {
     view: string;
@@ -61,6 +62,7 @@ export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanel
     if (view === 'roles') return <RoleListComponent clusterName={cn} />;
     if (view === 'rolebindings') return <RoleBindingListComponent clusterName={cn} />;
     if (view === 'securityrolemap') return <SecurityRoleMap clusterName={cn} />;
+    if (view === 'trivy') return <TrivyScanner clusterName={cn} />;
 
     return (
         <div className="card p-4">

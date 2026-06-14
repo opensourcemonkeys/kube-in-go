@@ -547,6 +547,14 @@ func (a *App) GetSecurityGraph(clusterName string) (*models.SecurityGraph, error
 	return bussiness.GetSecurityGraph(clusterName)
 }
 
+func (a *App) TrivyScanImage(clusterName, imageRef string) (*models.TrivyScanResult, error) {
+	return bussiness.TrivyScanImage(clusterName, imageRef)
+}
+
+func (a *App) TrivyListPodImages(clusterName, namespace string) ([]string, error) {
+	return bussiness.TrivyListPodImages(clusterName, namespace)
+}
+
 func (a *App) GetObjectYaml(clusterName, group, resource, namespace, name string) (string, error) {
 	return bussiness.GetObjectYaml(clusterName, group, resource, namespace, name)
 }

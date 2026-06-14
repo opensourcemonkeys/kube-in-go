@@ -1,5 +1,5 @@
 import React from 'react';
-import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings } from 'react-icons/vsc';
+import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings } from 'react-icons/vsc';
 
 const S = { fontSize: '0.875rem' };
 
@@ -32,6 +32,7 @@ export const NAV_GROUPS: NavGroup[] = [
         { label: 'Roles',             view: 'roles',           icon: <VscLock style={S} /> },
         { label: 'Role Bindings',     view: 'rolebindings',    icon: <VscLink style={S} /> },
         { label: 'Security Role Map', view: 'securityrolemap', icon: <VscTypeHierarchySub style={S} /> },
+        { label: 'Vulnerability Scan', view: 'trivy',         icon: <VscBug style={S} /> },
     ]},
     { key: 'storage', label: 'STORAGE', items: [
         { label: 'Persistent Volumes', view: 'persistentvolumes',      icon: <VscFolder style={S} /> },
