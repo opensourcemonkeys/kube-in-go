@@ -19,6 +19,7 @@ import 'reactflow/dist/style.css';
 import dagre from '@dagrejs/dagre';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import { useTabContext } from '../../contexts/TabContext';
 import { GetSecurityGraph } from '../../../wailsjs/go/controller_app/App';
 
@@ -73,10 +74,17 @@ function SecNode({ data }: NodeProps<SecurityNodeData>) {
             borderRadius: 8,
             background: '#131c2e',
             padding: '6px 11px',
-            width: NODE_W,
-            minHeight: NODE_H,
+            width: '100%',
+            // Fill the wrapper's pinned height so the box's vertical centre — where
+            // ReactFlow anchors the left/right handles — matches the centre dagre
+            // laid out at. Otherwise verb chips grow the box and arrows go diagonal.
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
             fontFamily: 'var(--font-family)',
             boxSizing: 'border-box',
+            overflow: 'hidden',
         }}>
             <Handle type="target" position={Position.Left}
                 style={{ background: cfg.color, width: 8, height: 8 }} />
@@ -142,10 +150,15 @@ function buildFlow(graph: SecurityGraph): { nodes: Node[]; edges: Edge[] } {
     });
     g.setDefaultEdgeLabel(() => ({}));
 
-    for (const n of graph.nodes) {
+    // Object (instance) nodes/edges are no longer drawn in the graph — they live
+    // as a filterable list inside the Resource detail popup instead.
+    const layoutNodes = graph.nodes.filter(n => n.kind !== 'Object');
+    const layoutEdges = graph.edges.filter(e => e.kind !== 'instance');
+
+    for (const n of layoutNodes) {
         g.setNode(n.id, { width: NODE_W, height: nodeHeight(n) });
     }
-    for (const e of graph.edges) {
+    for (const e of layoutEdges) {
         // Only lay out edges whose endpoints exist as nodes.
         if (g.hasNode(e.source) && g.hasNode(e.target)) {
             g.setEdge(e.source, e.target);
@@ -154,7 +167,7 @@ function buildFlow(graph: SecurityGraph): { nodes: Node[]; edges: Edge[] } {
 
     dagre.layout(g);
 
-    const nodes: Node[] = graph.nodes.map(n => {
+    const nodes: Node[] = layoutNodes.map(n => {
         // dagre returns the node centre; ReactFlow positions from the top-left.
         const p = g.node(n.id);
         const h = nodeHeight(n);
@@ -162,11 +175,16 @@ function buildFlow(graph: SecurityGraph): { nodes: Node[]; edges: Edge[] } {
             id: n.id,
             type: 'secNode',
             position: p ? { x: p.x - NODE_W / 2, y: p.y - h / 2 } : { x: 0, y: 0 },
+            // Pin the DOM size to exactly what dagre used so the node's centre (and
+            // thus the handle anchors) line up — keeps role→resource arrows straight.
+            width: NODE_W,
+            height: h,
+            style: { width: NODE_W, height: h },
             data: n,
         };
     });
 
-    const edges: Edge[] = graph.edges.map(e => {
+    const edges: Edge[] = layoutEdges.map(e => {
         const st = EDGE_STYLE[e.kind] ?? { stroke: '#475569', dashed: false };
         return {
             id: e.id,
@@ -191,7 +209,9 @@ function buildFlow(graph: SecurityGraph): { nodes: Node[]; edges: Edge[] } {
 
 interface DetailItem { label: string; sub?: string }
 interface DetailSection { title: string; items: DetailItem[] }
-interface NodeDetail { node: SecurityNodeData; sections: DetailSection[] }
+// `objects` holds the real cluster objects a Resource node grants access to; they
+// are rendered as a filterable list (not a plain section) in the detail popup.
+interface NodeDetail { node: SecurityNodeData; sections: DetailSection[]; objects?: DetailItem[] }
 
 function computeDetail(graph: SecurityGraph, nodeId: string): NodeDetail | null {
     const byId = new Map(graph.nodes.map(n => [n.id, n]));
@@ -212,6 +232,7 @@ function computeDetail(graph: SecurityGraph, nodeId: string): NodeDetail | null 
             .sort((a, b) => a.label.localeCompare(b.label));
 
     const sections: DetailSection[] = [];
+    let objects: DetailItem[] | undefined;
 
     if (node.kind === 'ServiceAccount') {
         const items = out.filter(e => e.kind === 'subject').map(e => {
@@ -245,8 +266,7 @@ function computeDetail(graph: SecurityGraph, nodeId: string): NodeDetail | null 
             title: 'Granted by',
             items: inc.filter(e => e.kind === 'grants').map(e => ({ label: name(e.source), sub: ns(e.source) })),
         });
-        const objs = out.filter(e => e.kind === 'instance').map(e => ({ label: name(e.target), sub: ns(e.target) || undefined }));
-        sections.push({ title: `Accessible objects (${objs.length})`, items: objs });
+        objects = out.filter(e => e.kind === 'instance').map(e => ({ label: name(e.target), sub: ns(e.target) || undefined }));
     } else if (node.kind === 'Object') {
         const inst = inc.find(e => e.kind === 'instance');
         const resId = inst?.source;
@@ -260,7 +280,7 @@ function computeDetail(graph: SecurityGraph, nodeId: string): NodeDetail | null 
         }
     }
 
-    return { node, sections };
+    return { node, sections, objects };
 }
 
 // ── Panel ───────────────────────────────────────────────────────────────────────
@@ -277,6 +297,8 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     // The object double-clicked, shown in a detail modal.
     const [detailNodeId, setDetailNodeId] = useState<string | null>(null);
+    // Free-text filter for a Resource node's accessible-objects list.
+    const [objFilter, setObjFilter] = useState('');
     const rfRef = useRef<ReactFlowInstance | null>(null);
     const { openObjectYaml } = useTabContext();
 
@@ -302,8 +324,21 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
 
     useEffect(() => { load(); }, [load]);
 
-    const openDetail = useCallback((nodeId: string) => setDetailNodeId(nodeId), []);
+    const openDetail = useCallback((nodeId: string) => { setObjFilter(''); setDetailNodeId(nodeId); }, []);
     const closeDetail = useCallback(() => setDetailNodeId(null), []);
+
+    // Focus a node by id — same effect as clicking it (highlights its chain) plus
+    // it pans the view so the node is centred. Used by the filter dropdowns.
+    const focusNode = useCallback((nodeId: string | null) => {
+        setSelectedNodeId(nodeId);
+        if (!nodeId) return;
+        const n = nodes.find(x => x.id === nodeId);
+        const inst = rfRef.current;
+        if (n && inst) {
+            const zoom = inst.getZoom();
+            inst.setCenter(n.position.x + NODE_W / 2, n.position.y + 40, { zoom, duration: 400 });
+        }
+    }, [nodes]);
 
     // Open the object's YAML in a dockview panel (beside this map), not a popup.
     const openYaml = useCallback((node: SecurityNodeData) => {
@@ -320,32 +355,43 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
         closeDetail();
     }, [cn, openObjectYaml, closeDetail]);
 
-    // Reachable set (connected component) from the clicked node, walking edges
-    // in both directions so the full chain — e.g. ServiceAccount → RoleBinding →
-    // Role → Resource — lights up regardless of which object was clicked.
+    // Highlight only the clicked node's own RBAC chain: its ancestors (walking
+    // edges backwards toward ServiceAccounts) and its descendants (walking
+    // forwards toward Resources). A plain undirected flood-fill would bleed across
+    // unrelated branches — e.g. two RoleBindings that reference the same shared
+    // Role/ClusterRole would pull each other (and their ServiceAccounts) in. By
+    // never reversing direction mid-walk, sibling branches stay dim.
     const { highlightNodes, highlightEdges } = useMemo(() => {
         if (!selectedNodeId) {
             return { highlightNodes: null as Set<string> | null, highlightEdges: null as Set<string> | null };
         }
-        const adj = new Map<string, Array<{ edgeId: string; other: string }>>();
-        const push = (k: string, v: { edgeId: string; other: string }) => {
-            const arr = adj.get(k);
-            if (arr) arr.push(v); else adj.set(k, [v]);
+        const fwd = new Map<string, Array<{ edgeId: string; other: string }>>(); // source -> targets
+        const bwd = new Map<string, Array<{ edgeId: string; other: string }>>(); // target -> sources
+        const push = (m: Map<string, Array<{ edgeId: string; other: string }>>, k: string, v: { edgeId: string; other: string }) => {
+            const arr = m.get(k);
+            if (arr) arr.push(v); else m.set(k, [v]);
         };
         for (const e of edges) {
-            push(e.source, { edgeId: e.id, other: e.target });
-            push(e.target, { edgeId: e.id, other: e.source });
+            push(fwd, e.source, { edgeId: e.id, other: e.target });
+            push(bwd, e.target, { edgeId: e.id, other: e.source });
         }
+
         const nodeSet = new Set<string>([selectedNodeId]);
         const edgeSet = new Set<string>();
-        const queue = [selectedNodeId];
-        while (queue.length) {
-            const cur = queue.shift()!;
-            for (const { edgeId, other } of adj.get(cur) ?? []) {
-                edgeSet.add(edgeId);
-                if (!nodeSet.has(other)) { nodeSet.add(other); queue.push(other); }
+        const walk = (adj: Map<string, Array<{ edgeId: string; other: string }>>) => {
+            const seen = new Set<string>([selectedNodeId]);
+            const queue = [selectedNodeId];
+            while (queue.length) {
+                const cur = queue.shift()!;
+                for (const { edgeId, other } of adj.get(cur) ?? []) {
+                    edgeSet.add(edgeId);
+                    nodeSet.add(other);
+                    if (!seen.has(other)) { seen.add(other); queue.push(other); }
+                }
             }
-        }
+        };
+        walk(fwd); // descendants: clicked → … → Resource
+        walk(bwd); // ancestors:  ServiceAccount → … → clicked
         return { highlightNodes: nodeSet, highlightEdges: edgeSet };
     }, [edges, selectedNodeId]);
 
@@ -377,6 +423,29 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
         });
     }, [nodes, highlightNodes, selectedNodeId]);
 
+    // Filter dropdown options per kind. When a node is focused, options narrow to
+    // that node's connected chain (highlightNodes) so picking a ServiceAccount
+    // surfaces only its related RoleBindings / Roles / ClusterRoles, and so on.
+    const optionsByKind = useMemo(() => {
+        const mk = (kind: string) => (graph?.nodes ?? [])
+            .filter(n => n.kind === kind && (!highlightNodes || highlightNodes.has(n.id)))
+            .map(n => ({ label: n.namespace ? `${n.name} · ${n.namespace}` : n.name, value: n.id }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+        return {
+            ServiceAccount: mk('ServiceAccount'),
+            RoleBinding: mk('RoleBinding'),
+            Role: mk('Role'),
+            ClusterRole: mk('ClusterRole'),
+        } as Record<string, Array<{ label: string; value: string }>>;
+    }, [graph, highlightNodes]);
+
+    // The value shown in each dropdown: the focused node id when it is of that
+    // kind, otherwise empty.
+    const selectedKind = selectedNodeId ? graph?.nodes.find(n => n.id === selectedNodeId)?.kind : undefined;
+    const valueForKind = (kind: string) => (selectedKind === kind ? selectedNodeId : null);
+
+    const FILTER_KINDS: Array<keyof typeof KIND_CONFIG> = ['ServiceAccount', 'RoleBinding', 'Role', 'ClusterRole'];
+
     const detail = detailNodeId && graph ? computeDetail(graph, detailNodeId) : null;
     const detailCfg = detail ? (KIND_CONFIG[detail.node.kind] ?? { color: '#6b7280', Icon: VscTypeHierarchySub }) : null;
 
@@ -397,13 +466,46 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                 </div>
             </div>
 
+            {/* Filter bar — pick an object to focus it (and narrow the others) */}
+            <div style={{
+                display: 'flex', gap: 10, padding: '8px 14px', flexShrink: 0,
+                flexWrap: 'wrap', alignItems: 'flex-end',
+                borderBottom: '1px solid var(--surface-border)', background: 'var(--panel)',
+            }}>
+                {FILTER_KINDS.map(kind => {
+                    const cfg = KIND_CONFIG[kind];
+                    return (
+                        <div key={kind} style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0, flex: '1 1 180px' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: cfg.color }}>
+                                <cfg.Icon style={{ fontSize: 11 }} /> {kind}
+                            </span>
+                            <Dropdown
+                                value={valueForKind(kind)}
+                                options={optionsByKind[kind]}
+                                onChange={e => focusNode(e.value ?? null)}
+                                filter
+                                showClear
+                                placeholder={`All ${optionsByKind[kind].length}`}
+                                emptyMessage="none"
+                                emptyFilterMessage="no matches"
+                                style={{ width: '100%' }}
+                                className="p-inputtext-sm"
+                            />
+                        </div>
+                    );
+                })}
+                {selectedNodeId && (
+                    <Button label="Clear focus" icon="pi pi-times" text size="small" onClick={() => setSelectedNodeId(null)} />
+                )}
+            </div>
+
             {/* Legend */}
             <div style={{
                 display: 'flex', gap: 16, padding: '5px 14px', flexShrink: 0,
                 flexWrap: 'wrap', borderBottom: '1px solid var(--surface-border)',
                 background: 'var(--panel2)',
             }}>
-                {Object.entries(KIND_CONFIG).map(([kind, cfg]) => (
+                {Object.entries(KIND_CONFIG).filter(([kind]) => kind !== 'Object').map(([kind, cfg]) => (
                     <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: cfg.color }}>
                         <cfg.Icon style={{ fontSize: 11 }} />{' '}
                         {kind}
@@ -512,6 +614,56 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                 )}
                             </div>
                         ))}
+
+                        {/* Accessible objects — filterable list (Resource nodes) */}
+                        {detail.objects && (() => {
+                            const q = objFilter.trim().toLowerCase();
+                            const filtered = q
+                                ? detail.objects.filter(o => o.label.toLowerCase().includes(q) || (o.sub ?? '').toLowerCase().includes(q))
+                                : detail.objects;
+                            return (
+                                <div>
+                                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text-color-secondary)', marginBottom: 6 }}>
+                                        Accessible objects ({detail.objects.length})
+                                    </div>
+                                    {detail.objects.length === 0 ? (
+                                        <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>none</div>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="text"
+                                                value={objFilter}
+                                                onChange={e => setObjFilter(e.target.value)}
+                                                placeholder="Filter objects…"
+                                                style={{
+                                                    width: '100%', boxSizing: 'border-box', marginBottom: 6,
+                                                    padding: '5px 9px', fontSize: 13, borderRadius: 6,
+                                                    background: 'var(--panel2)', color: '#e2e8f0',
+                                                    border: '1px solid var(--surface-border)', outline: 'none',
+                                                }}
+                                            />
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 260, overflowY: 'auto' }}>
+                                                {filtered.length === 0 ? (
+                                                    <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>no matches</div>
+                                                ) : filtered.map((it, ii) => (
+                                                    <div key={ii} style={{
+                                                        display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12,
+                                                        padding: '5px 9px', background: 'var(--panel2)', border: '1px solid var(--surface-border)', borderRadius: 6,
+                                                    }}>
+                                                        <span style={{ fontSize: 13, fontWeight: 500, color: '#e2e8f0', wordBreak: 'break-all' }}>{it.label}</span>
+                                                        {it.sub && (
+                                                            <span style={{ fontSize: 11, color: 'var(--text-color-secondary)', fontFamily: 'var(--font-family-mono)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                                                {it.sub}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            );
+                        })()}
 
                         {/* YAML action — only for nodes backed by a real object */}
                         {detail.node.resource && (
