@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useTableViewport } from '../../lib/useTableViewport';
-
 
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
@@ -65,8 +63,6 @@ export default function EndpointListComponent({ clusterName }: { clusterName: st
         return () => window.clearInterval(intervalId);
     }, []);
 
-    const { ref: tableRef, ready: tableReady } = useTableViewport();
-
     const handleRowDoubleClick = (ep: models.EndpointInfo) => {
         openYamlPanel({ clusterName,
             resourceKind: 'endpoint',
@@ -94,8 +90,6 @@ export default function EndpointListComponent({ clusterName }: { clusterName: st
                 </div>
             </div>
 
-            <div ref={tableRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            {tableReady && (
             <DataTable
                 value={endpoints}
                 dataKey="name"
@@ -108,7 +102,6 @@ export default function EndpointListComponent({ clusterName }: { clusterName: st
                 resizableColumns
                 scrollable
                 scrollHeight="flex"
-                virtualScrollerOptions={{ itemSize: 46 }}
                 emptyMessage="No endpoints found"
             >
                 <Column
@@ -165,8 +158,6 @@ export default function EndpointListComponent({ clusterName }: { clusterName: st
                     )}
                 />
             </DataTable>
-            )}
-            </div>
         </div>
     );
 }
