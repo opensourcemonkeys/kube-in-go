@@ -5,6 +5,7 @@ frontend/wailsjs/runtime
 frontend/wailsjs/go
 .claude
 dist
+site
 build/windows/*.pfx
 build/windows/*.key
 build/windows/*.crt
