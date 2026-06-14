@@ -127,6 +127,7 @@ export default function ClusterBar({ onToggleSidebar, sidebarOpen = true }: Clus
                     editingName={editingCluster}
                     onClose={handleClose}
                     onSaved={handleSaved}
+                    dismissible={clusters.length > 0}
                 />
             )}
         </>
