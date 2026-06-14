@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.5.4-alpha] - 2026-06-14
+
+### Changed
+- **CI / Packaging** — linux artifact build adjusted for latest distributions; artifact filenames now include distro markers.
+
+---
+
 ## [v0.5.3-alpha] - 2026-06-14
 
 ### Added
