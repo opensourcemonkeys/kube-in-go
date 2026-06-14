@@ -2,12 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.5.9-alpha] - 2026-06-15
+
+### Changed
+- **Dropped remaining GitHub references** — removed the GitHub Releases / repository links from the README and the installation docs, and pointed the Linux package `homepage` to `https://kubeinspector.com`.
+
+---
+
 ## [v0.5.8-alpha] - 2026-06-15
-<!-- Set the version above to match the git tag before releasing. -->
 
 ### Added
 - **Vulnerability scanning (Trivy)** — a new **Vulnerability Scan** screen under the Security menu that integrates the Trivy library directly. Three tabs: a full-cluster scan (every image running across namespaces), a single-image scan, and per-namespace pod images. Results show a severity summary and a filterable, sortable table of CVEs (linked to cve.org), grouped by image.
-- **Documentation website** — a MkDocs Material site under `docs/` with a custom "monolith" dark theme matching the desktop app, an animated landing hero, and a site-wide alpha notice. Build/preview locally with `make docs-build` / `make docs-serve`.
+- **Documentation website** — a MkDocs Material site under `docs/` with a custom "monolith" dark theme matching the desktop app: an animated landing hero (aurora glow + title shimmer) with a prominent **Download** call-to-action, a streamlined top nav (Getting Started → Downloads, no Home/GitHub clutter), and a site-wide alpha notice. Build/preview locally with `make docs-build` / `make docs-serve`.
 - **Release distribution (Cloudflare R2)** — release artifacts are published to an R2 bucket under `/dist`, and a per-platform **Downloads** page (Linux `.deb`/`.rpm`, Windows, macOS) is generated from the release tag and deployed with the site on every tag.
 
 ### Changed
