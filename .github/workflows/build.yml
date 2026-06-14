@@ -98,8 +98,8 @@ jobs:
 
       - name: Build and Package
         run: |
-          make pkg-deb
-          make pkg-rpm
+          make pkg-deb WAILS_TAGS=webkit2_41
+          make pkg-rpm WAILS_TAGS=webkit2_41
 
       - name: Rename Packages with Platform (ubuntu-24.04)
         run: |

@@ -3,11 +3,15 @@ LDFLAGS := -X 'kube-ins/internal/business.appVersion=$(VERSION)'
 NFPM    := nfpm
 DIST    := ./dist
 
+# Optional Wails build tags. On distros that ship webkit2gtk-4.1 instead of
+# 4.0 (Ubuntu 24.04+, Fedora 40+), build with: make build-linux WAILS_TAGS=webkit2_41
+TAGS    := $(if $(WAILS_TAGS),-tags "$(WAILS_TAGS)",)
+
 build:
-	wails build -ldflags "$(LDFLAGS)"
+	wails build $(TAGS) -ldflags "$(LDFLAGS)"
 
 build-linux:
-	wails build -platform linux/amd64 -ldflags "$(LDFLAGS)"
+	wails build $(TAGS) -platform linux/amd64 -ldflags "$(LDFLAGS)"
 
 build-windows:
 	wails build -platform windows/amd64 -nsis -ldflags "$(LDFLAGS)"
