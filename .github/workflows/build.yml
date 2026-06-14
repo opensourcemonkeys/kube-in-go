@@ -291,16 +291,97 @@ jobs:
           R2_BUCKET: ${{ vars.R2_BUCKET }}
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#v}"
           ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
           echo "Artifacts to publish:"
           ls -lh dist/
-          echo "Uploading to s3://${R2_BUCKET}/releases/${VERSION}/ ..."
-          aws s3 sync dist/ "s3://${R2_BUCKET}/releases/${VERSION}/" \
-            --endpoint-url "$ENDPOINT" --no-progress
-          echo "Mirroring to s3://${R2_BUCKET}/releases/latest/ ..."
-          aws s3 sync dist/ "s3://${R2_BUCKET}/releases/latest/" \
+          # Publish to /dist on the website bucket; --delete keeps only the latest release's files.
+          echo "Uploading to s3://${R2_BUCKET}/dist/ ..."
+          aws s3 sync dist/ "s3://${R2_BUCKET}/dist/" \
             --endpoint-url "$ENDPOINT" --delete --no-progress
+
+  # ==========================================
+  # STAGE 2c: BUILD & PUBLISH DOCS WEBSITE
+  # ==========================================
+  # Builds the MkDocs site and publishes it to the R2 bucket root. Runs after
+  # upload-r2 so the auto-generated Downloads page links (/dist/<file>) resolve.
+  deploy-docs:
+    name: Build & deploy docs to R2
+    runs-on: ubuntu-latest
+    needs: [upload-r2]
+    if: github.ref_type == 'tag'
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        with:
+          python-version: '3.12'
+
+      - name: Install MkDocs Material
+        run: pip install mkdocs-material
+
+      - name: Generate Downloads page from R2 artifacts
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          mapfile -t FILES < <(aws s3 ls "s3://${R2_BUCKET}/dist/" --endpoint-url "$ENDPOINT" | awk 'NF>=4 {print $4}' | sort)
+
+          # Emit a "## <title>" section with one link per file matching the glob.
+          emit () {
+            local title="$1"; local pattern="$2"; local found=0 f
+            for f in "${FILES[@]}"; do
+              case "$f" in
+                $pattern)
+                  if [ "$found" -eq 0 ]; then printf '\n## %s\n\n' "$title"; found=1; fi
+                  printf -- '- [%s](/dist/%s)\n' "$f" "$f" ;;
+              esac
+            done
+          }
+          emit_other () {
+            local found=0 f
+            for f in "${FILES[@]}"; do
+              case "$f" in
+                *.deb|*.rpm|*.exe|*.dmg|*.AppImage) ;;
+                *) if [ "$found" -eq 0 ]; then printf '\n## Other\n\n'; found=1; fi
+                   printf -- '- [%s](/dist/%s)\n' "$f" "$f" ;;
+              esac
+            done
+          }
+
+          {
+            echo "# Downloads"
+            echo
+            echo "Latest installers and packages for **${GITHUB_REF_NAME}**, grouped by platform."
+            emit "Linux — Debian / Ubuntu (.deb)" "*.deb"
+            emit "Linux — RHEL / Fedora (.rpm)"   "*.rpm"
+            emit "Linux — AppImage"               "*.AppImage"
+            emit "Windows"                         "*.exe"
+            emit "macOS"                           "*.dmg"
+            emit_other
+          } > docs/downloads.md
+          echo "----- generated docs/downloads.md -----"
+          cat docs/downloads.md
+
+      - name: Build site
+        run: make docs-build
+
+      - name: Publish site to Cloudflare R2
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          echo "Publishing site/ to s3://${R2_BUCKET}/ (preserving dist/*) ..."
+          aws s3 sync site/ "s3://${R2_BUCKET}/" \
+            --endpoint-url "$ENDPOINT" \
+            --delete --exclude "dist/*" --no-progress
 
   # ==========================================
   # STAGE 3: END-TO-END TESTS

@@ -57,6 +57,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Downloads: downloads.md
   - Getting Started:
     - Installation: getting-started/installation.md
     - Adding Clusters: getting-started/cluster-setup.md
