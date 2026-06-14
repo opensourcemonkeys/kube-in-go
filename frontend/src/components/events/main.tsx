@@ -7,11 +7,15 @@ import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
-import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
+import type { DockviewPanelApi } from 'dockview';
 import { GetEvents } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+import { useEventsStore, defaultEventFilters } from '../../stores/eventsStore';
+import { usePanelActive } from '../../lib/usePanelActive';
+import { useDeferredMount } from '../../lib/useDeferredMount';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
 
@@ -23,13 +27,9 @@ const getTypeSeverity = (type: string): TagSeverity => {
     }
 };
 
-const defaultFilters: DataTableFilterMeta = {
-    namespace:   { value: null, matchMode: FilterMatchMode.IN },
-    type:        { value: null, matchMode: FilterMatchMode.IN },
-    reason:      { value: null, matchMode: FilterMatchMode.IN },
-    object_kind: { value: null, matchMode: FilterMatchMode.IN },
-    object:      { value: null, matchMode: FilterMatchMode.IN },
-};
+// Stable empty array so the store selector returns a consistent reference
+// before a tab snapshot exists (avoids needless re-renders).
+const EMPTY_EVENTS: models.EventInfo[] = [];
 
 const formatTime = (ts: string): string => {
     if (!ts) return '-';
@@ -40,10 +40,29 @@ const formatTime = (ts: string): string => {
     }
 };
 
-export default function EventListComponent({ clusterName }: { clusterName: string }) {
-    const [events, setEvents] = useState<models.EventInfo[]>([]);
-    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
-    const [warningOnly, setWarningOnly] = useState(false);
+export default function EventListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    // Whether this panel is the foreground tab. When backgrounded we tear down
+    // the table DOM and pause polling; the latest data lives in the persisted
+    // store, so returning to the foreground rebuilds instantly from it.
+    const active = usePanelActive(api);
+    // Lazily mount the heavy DataTable a couple of frames after the tab paints,
+    // so switching to this tab feels instant instead of janking on a big render.
+    const showTable = useDeferredMount(active);
+
+    // Persisted, per-cluster tab snapshot (events, filters, warningOnly). Reading
+    // from the store on mount is what restores the tab "where it left off"; every
+    // write below is auto-persisted to disk by the store's persist middleware.
+    const storeKey = `events:${clusterName}`;
+    const tab = useEventsStore((s) => s.tabs[storeKey]);
+    const patchTab = useEventsStore((s) => s.patchTab);
+
+    const events = tab?.events ?? EMPTY_EVENTS;
+    const filters = tab?.filters ?? defaultEventFilters();
+    const warningOnly = tab?.warningOnly ?? false;
+
+    const setEvents = (next: models.EventInfo[]) => patchTab(storeKey, { events: next });
+    const setFilters = (next: DataTableFilterMeta) => patchTab(storeKey, { filters: next });
+    const setWarningOnly = (next: boolean) => patchTab(storeKey, { warningOnly: next });
 
     const namespaceOptions = useMemo(() =>
         [...new Set(events.map(e => e.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
@@ -73,16 +92,24 @@ export default function EventListComponent({ clusterName }: { clusterName: strin
             const items = await GetEvents(clusterName);
             setEvents(items.map((item: any) => models.EventInfo.createFrom(item)));
         } catch (error) {
+            // Keep the last persisted snapshot on a transient fetch failure so the
+            // tab still shows where it left off instead of going blank.
             console.error('Failed to load events:', error);
-            setEvents([]);
         }
     };
 
     useEffect(() => {
+        if (!active) return;
         loadEvents();
         const intervalId = window.setInterval(loadEvents, 5000);
         return () => window.clearInterval(intervalId);
-    }, []);
+    }, [active]);
+
+    // Backgrounded: render nothing heavy so the table DOM is released. The full
+    // UI is rebuilt from the persisted store the moment the tab is reactivated.
+    if (!active) {
+        return <div style={{ height: '100%' }} />;
+    }
 
     const displayedEvents = warningOnly
         ? events.filter(e => e.type === 'Warning')
@@ -102,7 +129,7 @@ export default function EventListComponent({ clusterName }: { clusterName: strin
                         icon={<VscWarning size={16} />}
                         text
                         severity={warningOnly ? 'warning' : 'secondary'}
-                        onClick={() => setWarningOnly(p => !p)}
+                        onClick={() => setWarningOnly(!warningOnly)}
                         tooltip="Show only Warning events"
                         tooltipOptions={{ position: 'left' }}
                     />
@@ -110,13 +137,19 @@ export default function EventListComponent({ clusterName }: { clusterName: strin
                         icon={<VscClearAll size={16} />}
                         text
                         severity="secondary"
-                        onClick={() => setFilters(defaultFilters)}
+                        onClick={() => setFilters(defaultEventFilters())}
                         tooltip="Clear filters"
                         tooltipOptions={{ position: 'left' }}
                     />
                 </div>
             </div>
 
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            {!showTable ? (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ProgressSpinner style={{ width: 40, height: 40 }} strokeWidth="4" />
+                </div>
+            ) : (
             <DataTable
                 value={displayedEvents}
                 dataKey="name"
@@ -128,6 +161,7 @@ export default function EventListComponent({ clusterName }: { clusterName: strin
                 resizableColumns
                 scrollable
                 scrollHeight="flex"
+                virtualScrollerOptions={{ itemSize: 46 }}
                 emptyMessage="No events found"
                 sortField="last_timestamp"
                 sortOrder={-1}
@@ -229,6 +263,8 @@ export default function EventListComponent({ clusterName }: { clusterName: strin
                     body={(row: models.EventInfo) => formatTime(row.last_timestamp)}
                 />
             </DataTable>
+            )}
+            </div>
 
             <Dialog
                 header={

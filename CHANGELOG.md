@@ -1,7 +1,16 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.5.3-alpha] - 2026-06-14
 
+### Added
+- **Security graph** — added a dedicated security graph view to visualize role and policy relationships.
+
+### Changed
+- **Security role mapping improvements** — enhanced role mapping handling for more accurate security rule display.
+- **React Flow optimization** — improved React Flow performance and rendering efficiency.
+
+---
 ## [v0.5.1-alpha] - 2026-06-13
 
 ### Fixed

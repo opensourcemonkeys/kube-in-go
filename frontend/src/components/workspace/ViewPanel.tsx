@@ -31,7 +31,7 @@ interface ViewPanelParams {
     clusterName: string;
 }
 
-export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParams>) {
+export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanelParams>) {
     const { view, clusterName } = params;
     const cn = clusterName ?? '';
 
@@ -51,7 +51,7 @@ export default function ViewPanel({ params }: IDockviewPanelProps<ViewPanelParam
     if (view === 'secrets') return <SecretListComponent clusterName={cn} />;
     if (view === 'nodes') return <NodeListComponent clusterName={cn} />;
     if (view === 'namespaces') return <NamespaceListComponent clusterName={cn} />;
-    if (view === 'events') return <EventListComponent clusterName={cn} />;
+    if (view === 'events') return <EventListComponent clusterName={cn} api={api} />;
     if (view === 'resourcequotas') return <ResourceQuotaListComponent clusterName={cn} />;
     if (view === 'limitranges') return <LimitRangeListComponent clusterName={cn} />;
     if (view === 'persistentvolumes') return <PersistentVolumeListComponent clusterName={cn} />;
