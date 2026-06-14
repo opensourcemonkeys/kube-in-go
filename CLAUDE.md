@@ -1,0 +1,313 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Overview
+
+**kube-ins** is a desktop application for managing Kubernetes clusters with a visual interface. It's built using:
+- **Backend**: Go with Wails v2 (desktop app framework)
+- **Frontend**: React 18 + TypeScript with Vite, using PrimeReact + MUI components and Dockview for a resizable panel layout
+- **Kubernetes Integration**: Uses `k8s.io/client-go` to interact with Kubernetes clusters
+
+The app provides a unified interface to visualize and manage Kubernetes resources (pods, deployments, network policies, etc.) across multiple cluster configurations.
+
+## Architecture
+
+### Backend Architecture (Go)
+
+The backend follows a layered architecture with clear separation of concerns:
+
+```
+main.go
+└── controller/
+    ├── app.go (Wails binding point, holds context + InstanceHub)
+    └── functionBuilder.go (Exposes Go functions to frontend via Wails)
+        ├── business/
+        │   ├── pod.go, deployment.go, networkPolicy.go, cluster.go, terminal.go, log.go, etc.
+        │   └── applyYaml.go, clusterResource.go
+        ├── services/
+        │   └── *Services.go (handles Kubernetes client logic and YAML operations)
+        ├── repository/
+        │   └── k8sClient.go (abstracts kubeconfig loading and k8s.io/client-go initialization)
+        └── ipc/
+            ├── hub.go (WebSocket hub for multi-instance discovery and panel transfer)
+            └── messages.go (message types: MsgRegister, MsgInstanceList, MsgTransferTab)
+models/
+└── *Info.go (data structures for frontend serialization)
+└── instanceModels.go (InstanceInfo, SerializedPanel — used by IPC system)
+```
+
+**Layer Responsibilities**:
+
+1. **Controller** (`internal/controller/`): Entry point for Wails bindings. The `App` struct holds the `context.Context` and an `*ipc.InstanceHub`. `functionBuilder.go` exposes all callable methods to the frontend via Wails RPC, including `GetInstances()`, `GetSelfInstanceInfo()`, and `TransferTab()`.
+
+2. **Business** (`internal/business/`): Orchestration layer that coordinates repository and service calls. Also manages app state like active cluster selection (persisted to `~/.kube-ins/.active` file).
+
+3. **Services** (`internal/services/`): Direct Kubernetes API interactions. Takes a `kubernetes.Clientset` as a parameter (not a global). Examples: `GetPods()`, `DeletePod()`, `GetPodYaml()`, `GetClusterGraph()`.
+
+> The backend has grown to cover most core Kubernetes resources — each has a parallel `business/<kind>.go`, `services/<kind>Services.go`, and `models/<kind>Info.go` triple (pods, deployments, daemonsets, statefulsets, jobs, cronjobs, services, endpoints, ingresses, configmaps, secrets, RBAC roles/bindings/service accounts, PVs/PVCs, storage classes, namespaces, nodes, events, quotas, limit ranges, etc.). The `securityGraph` feature (`business/securityGraph.go` → `services/securityGraphServices.go` → `models/securityGraphInfo.go`, surfaced by `components/security/SecurityRoleMap.tsx`) builds an RBAC subject→role→resource graph and needs both client and rest config (`NewK8sClientAndConfigForCluster`). The `trivy` vulnerability scanner (`business/trivy.go` → `services/trivyServices.go` → `models/trivyScanInfo.go`, surfaced by `components/security/TrivyScanner.tsx`) is different: instead of calling the k8s API it imports the **Trivy library directly** (`github.com/aquasecurity/trivy`). `services.ScanImage` hand-builds a `flag.Options` and runs `artifact.NewRunner(...).ScanImage(...)`; several non-obvious defaults are mandatory (`PackageOptions.PkgTypes`, `VulnSeveritySources: "auto"`, and the blank import `_ "modernc.org/sqlite"` for the Java/RPM DB) or scans silently return nothing. The cluster scan is implemented as the frontend listing all pod images (`TrivyListPodImages`) and scanning each via `TrivyScanImage` — there is no `trivy k8s` misconfig scan. Follow the existing triples when adding a resource — see "Adding a New Resource Type" below.
+
+4. **Repository** (`internal/repository/`): Abstracts kubeconfig loading. Provides six constructors in two families:
+   - `NewK8sClient()` / `NewK8sClientAndConfig()` / `NewMetricsClient()` — read the global active kubeconfig path (set via `SetActiveKubeconfig()`). Still used by cluster-management functions that don't have a per-tab cluster.
+   - `NewK8sClientForCluster(clusterName)` / `NewK8sClientAndConfigForCluster(clusterName)` / `NewMetricsClientForCluster(clusterName)` — load `~/.kube-ins/{clusterName}.yaml` directly, **bypassing the global active path**. Used by all resource-fetching business functions so each panel stays pinned to its cluster regardless of which cluster the user has globally selected. Falls back to `NewK8sClient()` when `clusterName == ""`.
+
+5. **Models** (`internal/models/`): Struct definitions for frontend serialization (e.g., `PodInfo`, `DeploymentInfo`). These are marshaled to JSON by Wails.
+
+6. **IPC** (`internal/ipc/`): Multi-instance discovery and panel transfer over WebSocket. The first kube-ins process binds `localhost:34200` and becomes the hub server; subsequent processes connect as clients. The hub auto-reassigns when the server exits. Exposes `GetInstances()`, `GetSelfInfo()`, `TransferTab()` on `InstanceHub`.
+
+**Key Patterns**:
+- Business functions call repository constructors each time (not singletons).
+- All resource-fetching business functions take `clusterName string` as their first parameter and call `NewK8sClientForCluster(clusterName)` so that each panel is pinned to the cluster it was opened with. The controller passes `clusterName` through from the frontend call.
+- `clusterName` flows: Dockview panel params → frontend component → Wails call → controller function → business function → `NewK8sClientForCluster(clusterName)` → service function.
+
+### Frontend Architecture (React)
+
+```
+frontend/src/
+├── main.tsx (Vite entry point, routes and global setup)
+├── pages/
+│   └── main/appmain.tsx (main app layout)
+├── components/
+│   ├── workspace/
+│   │   ├── DockviewContainer.tsx (panel manager, routes panel IDs to components)
+│   │   ├── FloatableTab.tsx (custom Dockview tab header — right-click to transfer panel)
+│   │   ├── TabInstanceBridge.tsx (zero-render bridge: wires InstanceContext → TabContext)
+│   │   ├── ViewPanel.tsx, YamlEditorPanel.tsx, ApplyYamlPanel.tsx, etc.
+│   ├── transfer/
+│   │   └── InstancePickerMenu.tsx (portal context menu for selecting transfer target)
+│   ├── pod/, deployment/, networkpolicy/ (resource-specific views)
+│   ├── terminal/ (xterm.js wrapper)
+│   ├── logs/ (react-logviewer wrapper)
+│   ├── cluster/ (cluster selection UI)
+│   └── menu/ (sidebar navigation)
+├── contexts/
+│   ├── ClusterContext.tsx (manages cluster list, active cluster, connection health checks)
+│   ├── TabContext.tsx (manages dockview panel lifecycle and routing)
+│   └── InstanceContext.tsx (multi-instance discovery, panel transfer via IPC hub)
+└── lib/ (Monaco editor theme, utilities)
+```
+
+**State Management**:
+- **ClusterContext**: Loaded on app startup, persists active cluster selection. Polls `CheckClusterConnection()` every 20 seconds.
+- **TabContext**: Manages Dockview API for opening/closing panels. Each resource type (pods, deployments, etc.) opens as a panel.
+- **InstanceContext**: Polls `GetInstances()` every 3 seconds. Listens for `tab:received` Wails event and calls the registered `onPanelReceived` callback. `TabInstanceBridge` wires this to `TabContext.openReceivedPanel`.
+- **Zustand stores** (`frontend/src/stores/`): React Context holds app-wide state; per-tab view state that must survive a tab close/reopen uses Zustand instead. `eventsStore.ts` is the reference example — a `persist`-middleware store keyed by `events:${clusterName}` so each cluster's Events tab keeps its rows, filters, and toggles across app restarts (persisted to the Wails webview's localStorage). New persistent per-tab state should follow this keyed-by-panel-id pattern rather than living in component `useState`.
+
+**UI Framework**:
+- **Dockview** (v6): Resizable, draggable panel layout. Components are registered in `DockviewContainer.tsx` and instantiated by panel type string.
+- **PrimeReact**: DataTable, Dialogs, Tags, Buttons, etc. Built on the `lara-dark-cyan` theme, but heavily re-skinned by `frontend/src/theme-monolith.css` — a single global stylesheet imported last in `main.tsx` that overrides `.p-*` selectors using the app's `--app/--panel/--ink/--teal/...` CSS variables (defined in its `:root`). **Style new PrimeReact components by adding global `.p-*` overrides to this file rather than per-component CSS**; match the Dockview tab look via the `.dockview-theme-monolith` rules in the same file.
+- **MUI** (`@mui/material`): Used alongside PrimeReact for some UI elements.
+- **Monaco Editor** (via `@monaco-editor/react`): YAML editing with `monaco-yaml` for schema validation.
+- **xterm.js**: Terminal emulation.
+
+**Registered Dockview panel types** (in `DockviewContainer.tsx`):
+`view`, `yamlEditor`, `terminal`, `applyYaml`, `logViewer`, `policyViewer`, `clusterResource`, `configMapEditor`, `secretEditor`, `podExec`, `roleEditor`, `roleBindingEditor`, `objectYaml`
+
+`FloatableTab` is registered as `defaultTabComponent` — it replaces the default Dockview tab header for all panels. Right-clicking a tab (when other instances are connected) shows `InstancePickerMenu` to transfer the panel. Panels whose component type is `terminal` or `podExec` are non-transferable.
+
+**Event Streaming**: The frontend listens to Wails events for real-time updates:
+- `terminal:output:${id}` for terminal output
+- `log:output:${sessionId}` for pod logs
+- `tab:received` for incoming panel transfers from other instances (payload: `SerializedPanel`)
+
+These are emitted from backend functions via `runtime.EventsEmit()` in the controller.
+
+### Per-tab Cluster Isolation
+
+Each panel is frozen to the cluster it was opened with:
+- **Panel ID scheme**: View panels use `${view}:${clusterName}` (e.g., `pods:my-cluster`). Sub-panels use the cluster name in their ID too (e.g., `yaml:pod:my-cluster:ns/name`).
+- **Tab title**: `${label} • ${clusterName}` (e.g., `Pods • my-cluster`).
+- **`clusterName` stored in Dockview `params`**: All panel components destructure `clusterName` from `params` and pass it to every API call. Changing the global cluster via `ClusterBar` does not affect existing open tabs.
+- **`referencePanel`**: When opening sub-panels from a list view, `referencePanel` is the view panel ID (`pods:my-cluster`). `TabContext.openYamlPanel` extracts the view key via `def.referencePanel.split(':')[0]` to build the title.
+
+### Cluster Configuration
+
+Clusters are stored as YAML files in `~/.kube-ins/` with a `.yaml` extension (e.g., `my-cluster.yaml`). The active cluster is tracked in `~/.kube-ins/.active`. When a cluster is selected via the UI:
+1. Backend calls `SetActiveCluster(name)` which calls `SetActiveKubeconfig(path)`.
+2. This updates the global active path used by `NewK8sClient()` / `NewK8sClientAndConfig()` / `NewMetricsClient()`.
+3. Newly opened panels pass the selected cluster name through `clusterName` and call `NewK8sClientForCluster(clusterName)` directly — so the global path matters only for the cluster-management functions (listing clusters, checking connections, etc.).
+
+## Build & Run
+
+> **`GOEXPERIMENT=jsonv2` is required to compile.** The Trivy scanner library pulls in `encoding/json/v2`, which is gated behind the `jsonv2` GOEXPERIMENT on Go 1.26 (the project is on `go 1.26.3`). The `Makefile` exports it for every target (`export GOEXPERIMENT := jsonv2`) and CI sets it in the workflow `env:`. If you run bare `go build`/`go test`/`wails` outside `make`, prefix with `GOEXPERIMENT=jsonv2` or the build fails with `build constraints exclude all Go files in .../encoding/json/v2`.
+
+### Development
+
+Use `make dev` rather than bare `wails dev` — it injects the app version from the latest git tag via ldflags:
+
+```bash
+make dev
+```
+
+This starts:
+- Vite dev server on `localhost:5173` (frontend hot reload)
+- Wails dev server on `localhost:34115` (Go methods accessible from browser devtools)
+- Wails app window
+
+**Frontend only** (if Go backend is unchanged):
+```bash
+cd frontend
+npm run dev
+```
+
+### Building
+
+```bash
+make build           # current platform
+make build-linux     # linux/amd64
+make build-windows   # windows/amd64 (with NSIS installer)
+make build-mac       # darwin/universal
+```
+
+Output goes to `build/bin/`.
+
+The Makefile injects the version from git tags: `git describe --tags --abbrev=0` → `kube-ins/internal/business.appVersion`.
+
+**Packaging** (requires `nfpm` on PATH):
+```bash
+make pkg-deb    # .deb package
+make pkg-rpm    # .rpm package
+make pkg-mac    # .dmg (runs build/dmg-builder/build.js)
+make pkg-all    # all platforms
+```
+
+Packages go to `./dist/`.
+
+**Frontend build only**:
+```bash
+cd frontend
+npm run build
+```
+
+## Key Dependencies
+
+**Backend (Go)**:
+- `wailsapp/wails/v2`: Desktop app framework, handles Go-to-JS RPC and event emission
+- `k8s.io/client-go`: Kubernetes API client
+- `k8s.io/metrics`: Metrics API client for node/pod resource usage
+- `k8s.io/apimachinery`: Kubernetes data types
+- `creack/pty`: Pseudo-terminal for terminal sessions
+- `sigs.k8s.io/yaml`: YAML marshaling
+- `gorilla/websocket`: WebSocket server/client used by the IPC hub
+- `google/uuid`: Unique instance IDs for the IPC hub
+
+**Frontend**:
+- `react`, `react-dom`, `react-router-dom`: Core framework
+- `primereact`, `@mui/material`: Component libraries (both are used)
+- `dockview`: Panel layout manager
+- `@monaco-editor/react`, `monaco-yaml`: YAML editor with schema validation
+- `@xterm/xterm`: Terminal emulation
+- `@melloware/react-logviewer`: Log streaming viewer
+- `reactflow`: Cluster graph visualization
+- `chart.js`: Charts (node metrics, etc.)
+
+## Common Tasks
+
+### Adding a New Resource Type (e.g., Services)
+
+1. **Create model** (`internal/models/serviceInfo.go`):
+   ```go
+   package models
+   type ServiceInfo struct {
+       Name      string
+       Namespace string
+       // ... other fields
+   }
+   ```
+
+2. **Add service layer** (`internal/services/serviceServices.go`):
+   ```go
+   func GetServices(namespace string, client *kubernetes.Clientset) ([]models.ServiceInfo, error) {
+       // Use client.CoreV1().Services(namespace).List()
+   }
+   ```
+
+3. **Add business layer** (`internal/business/service.go`):
+   ```go
+   func GetServices(clusterName string) []models.ServiceInfo {
+       client, _ := repository.NewK8sClientForCluster(clusterName)
+       return services.GetServices("", client)
+   }
+   ```
+
+4. **Expose in controller** (`internal/controller/functionBuilder.go`):
+   ```go
+   func (a *App) GetServices(clusterName string) []models.ServiceInfo {
+       return business.GetServices(clusterName)
+   }
+   ```
+
+5. **Create frontend component** (`frontend/src/components/service/main.tsx`):
+   - `export default function ServiceListComponent({ clusterName }: { clusterName: string })`
+   - Call `GetServices(clusterName)` via Wails bindings
+   - Pass `clusterName` to all `openYamlPanel` / `openLogPanel` calls and include it in `referencePanel: \`services:${clusterName}\``
+
+6. **Register in Dockview** (`frontend/src/components/workspace/DockviewContainer.tsx`):
+   ```js
+   const components = {
+       // ...
+       services: ServiceComponent,
+   };
+   ```
+
+7. **Add menu item** (`frontend/src/components/menu/menuItems.tsx`):
+   - Add to appropriate category (Workloads, Discovery, etc.)
+
+### Debugging Wails Events
+
+The frontend listens to Wails events. To debug:
+```javascript
+// In browser console
+window.runtime.EventsOn('terminal:output:sessionId', (data) => console.log(data));
+```
+
+Backend emits via:
+```go
+runtime.EventsEmit(a.ctx, "event:name", payload)
+```
+
+## TypeScript & Wails Bindings
+
+Wails auto-generates TypeScript definitions from Go structs and exposed methods. Located in `frontend/wailsjs/go/`:
+- `controller_app/App.ts`: Generated from `internal/controller/functionBuilder.go`
+- `models/`: Generated from `internal/models/`
+
+After modifying Go methods or models, regenerate bindings:
+```bash
+wails generate bindings
+```
+
+## Testing
+
+There are no Go unit tests, but a Selenium + pytest **end-to-end suite** lives in `e2e_tests/` (`test_main_flow.py`, `test_navigation.py`, `test_panels.py`, `test_yaml_crud.py`). It drives the live Wails dev server via Chrome:
+
+```bash
+make dev                 # in one terminal (serves http://localhost:34115)
+make test-e2e            # in another: installs deps, runs pytest, emits report.html
+E2E_HEADLESS=1 make test-e2e   # headless (CI uses xvfb)
+```
+
+The CI `e2e` job spins up an ephemeral `kind` cluster, writes its kubeconfig to `~/.kube-ins/ci.yaml`, sets `.active` to `ci`, then runs the suite. Ad-hoc Go tests still follow conventions (`GOEXPERIMENT=jsonv2 go test ./...`); note any test touching the Trivy scanner downloads the vulnerability DB and needs network.
+
+## Code Conventions
+
+1. **Package names**: kebab-case in imports, but use aliases (`controller_app`, `services_k8sclient`)
+2. **Error handling**: Business layer logs errors with `fmt.Println()`, returns them as second return value
+3. **Concurrency**: Terminal and log streaming use callback functions emitted via Wails events
+4. **State**: Cluster selection is the only persistent app state (file-based in `~/.kube-ins/`)
+
+## Known Patterns
+
+- **Callback-based streaming**: Terminal input/output and log streaming use callback functions passed from controller to business layer, which emit results via `runtime.EventsEmit()`
+- **Namespace filtering**: Some functions take `namespace=""` to fetch across all namespaces
+- **Panel ID scheme**:
+  - View panels: `${view}:${clusterName}` → e.g., `pods:my-cluster`
+  - YAML panels: `yaml:${kind}:${clusterName}:${namespace}/${name}`
+  - Log panels: `log:${kind}:${clusterName}:${namespace}/${name}`
+  - Exec panels: `exec:${clusterName}:${namespace}/${name}:${container}`
+  - Policy viewer: `policy:${clusterName}:${namespace}/${name}`
+- **Error recovery**: Frontend gracefully handles Wails call failures and displays toasts
+- **Multi-instance tab transfer**: Right-clicking any tab (except `terminal`/`podExec`) shows a picker to send the panel to another running instance. The sender calls `TransferTab(targetId, SerializedPanel)` on the backend; the hub routes it via WebSocket; the receiver emits `tab:received` which `InstanceContext` delivers to `TabContext.openReceivedPanel`. `TabInstanceBridge` is the glue component that connects the two contexts without prop drilling. Instance names ("Instance 1", "Instance 2", ...) are assigned by the server in connection order and broadcast to all clients.
+- **Dockview tab insertion at index**: When opening a sub-panel (YAML, logs, exec, etc.) from within an existing panel, `positionAfter()` in `TabContext` uses `direction: 'within'` + `index: refIndex + 1` to insert the new tab immediately to the right of the source panel within the same group.
+- **`FloatableTab` component type detection**: Uses `panelId.startsWith('cluster-resource-view')` (prefix match) rather than exact equality, because cluster resource view IDs encode the cluster name (`cluster-resource-view:${clusterName}`).
+- **Module-level body helpers** (e.g., `DaemonSetActionsBody`, `NodeCard`): When a DataTable column body renderer needs `clusterName`, it must be received as an explicit prop — it cannot close over `clusterName` from the parent component since it is defined at module scope.

@@ -4,7 +4,6 @@ frontend/dist
 frontend/wailsjs/runtime
 frontend/wailsjs/go
 .claude
-CLAUDE.md
 dist
 build/windows/*.pfx
 build/windows/*.key
