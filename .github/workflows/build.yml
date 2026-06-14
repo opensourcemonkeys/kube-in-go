@@ -329,48 +329,8 @@ jobs:
       - name: Install MkDocs Material
         run: pip install mkdocs-material
 
-      - name: Generate Downloads page from R2 artifacts
-        run: |
-          set -euo pipefail
-          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-          mapfile -t FILES < <(aws s3 ls "s3://${R2_BUCKET}/dist/" --endpoint-url "$ENDPOINT" | awk 'NF>=4 {print $4}' | sort)
-
-          # Emit a "## <title>" section with one link per file matching the glob.
-          emit () {
-            local title="$1"; local pattern="$2"; local found=0 f
-            for f in "${FILES[@]}"; do
-              case "$f" in
-                $pattern)
-                  if [ "$found" -eq 0 ]; then printf '\n## %s\n\n' "$title"; found=1; fi
-                  printf -- '- [%s](/dist/%s)\n' "$f" "$f" ;;
-              esac
-            done
-          }
-          emit_other () {
-            local found=0 f
-            for f in "${FILES[@]}"; do
-              case "$f" in
-                *.deb|*.rpm|*.exe|*.dmg|*.AppImage) ;;
-                *) if [ "$found" -eq 0 ]; then printf '\n## Other\n\n'; found=1; fi
-                   printf -- '- [%s](/dist/%s)\n' "$f" "$f" ;;
-              esac
-            done
-          }
-
-          {
-            echo "# Downloads"
-            echo
-            echo "Latest installers and packages for **${GITHUB_REF_NAME}**, grouped by platform."
-            emit "Linux — Debian / Ubuntu (.deb)" "*.deb"
-            emit "Linux — RHEL / Fedora (.rpm)"   "*.rpm"
-            emit "Linux — AppImage"               "*.AppImage"
-            emit "Windows"                         "*.exe"
-            emit "macOS"                           "*.dmg"
-            emit_other
-          } > docs/downloads.md
-          echo "----- generated docs/downloads.md -----"
-          cat docs/downloads.md
-
+      # The Downloads page is generated from the git tag inside `make docs-build`
+      # (see the docs-downloads target), so nothing extra is needed here.
       - name: Build site
         run: make docs-build
 

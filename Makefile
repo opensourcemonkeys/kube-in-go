@@ -52,10 +52,19 @@ test-e2e:
 
 # ── Documentation (MkDocs Material) ──────────────────────────────
 # Requires mkdocs-material on PATH: pip install mkdocs-material
-docs-serve:
+
+# docs/downloads.md is tracked with a __VERSION__ placeholder; substitute the
+# current git tag ($(VERSION)) in place before building/serving. In CI this runs
+# on a fresh checkout. Locally, `git checkout docs/downloads.md` restores the
+# placeholder if you need to rebuild for a different version.
+docs-downloads:
+	@echo "Substituting version v$(VERSION) into docs/downloads.md"
+	@sed -i 's/__VERSION__/$(VERSION)/g' docs/downloads.md
+
+docs-serve: docs-downloads
 	mkdocs serve
 
-docs-build:
+docs-build: docs-downloads
 	mkdocs build --clean --strict
 
-.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean test-e2e docs-serve docs-build
+.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean test-e2e docs-downloads docs-serve docs-build
