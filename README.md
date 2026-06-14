@@ -12,7 +12,7 @@ A visual desktop client for managing Kubernetes clusters. Built with Go, Wails, 
 
 ## Installation
 
-Download the latest release for your platform from the [Releases page](https://github.com/opensourcemonkeys/kube-in-go/releases).
+
 
 | Platform | File |
 |---|---|
@@ -40,7 +40,7 @@ sudo dnf install webkit2gtk4.1
 sudo dnf install webkit2gtk3
 ```
 
-For a full list of supported distributions and versions see the [Installation guide](https://github.com/opensourcemonkeys/kube-in-go/blob/main/docs/getting-started/installation.md).
+
 
 ## Building from Source
 

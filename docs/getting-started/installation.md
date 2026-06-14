@@ -4,7 +4,7 @@ Kube Inspector ships as a single self-contained binary. On Linux, one system lib
 
 ## Download
 
-Go to the [Releases page](https://github.com/opensourcemonkeys/kube-in-go/releases) and download the package for your platform.
+
 
 | Platform | File |
 |---|---|
