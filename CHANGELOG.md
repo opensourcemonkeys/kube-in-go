@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [vX.Y.Z-alpha] - 2026-06-15
+## [v0.5.8-alpha] - 2026-06-15
 <!-- Set the version above to match the git tag before releasing. -->
 
 ### Added
