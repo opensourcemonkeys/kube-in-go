@@ -1,0 +1,59 @@
+name: Deploy Docs
+
+# Build the MkDocs site on every push to main and publish it to the same
+# Cloudflare R2 bucket used by the release pipeline (build.yml). The site is
+# written to the bucket root; release downloads under releases/* are preserved.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'overrides/**'
+      - 'mkdocs.yml'
+      - 'Makefile'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: true
+
+jobs:
+  deploy-docs:
+    name: Build & deploy MkDocs to R2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        with:
+          python-version: '3.12'
+
+      - name: Install MkDocs Material
+        run: pip install mkdocs-material
+
+      - name: Build site
+        run: make docs-build
+
+      - name: Publish to Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          # Newer aws-cli v2 adds trailing checksums that R2 rejects; request them only when required.
+          AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+          AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          echo "Publishing site/ to s3://${R2_BUCKET}/ (preserving releases/*) ..."
+          aws s3 sync site/ "s3://${R2_BUCKET}/" \
+            --endpoint-url "$ENDPOINT" \
+            --delete --exclude "releases/*" --no-progress
