@@ -28,4 +28,4 @@ Double-click any namespace row to open its YAML definition in a panel. Namespace
 !!! danger "Namespace deletion is destructive"
     Deleting a namespace removes all resources inside it — Pods, Deployments, Services, ConfigMaps, Secrets, PVCs, and more. This action cannot be undone. Double-check the list before confirming.
 
-Namespaces in `Terminating` status are being deleted by Kubernetes. kube-ins reflects this with a red status tag. If a namespace is stuck in `Terminating`, it usually means a finalizer is blocking deletion — this must be resolved via `kubectl` or by editing the finalizers in the YAML view.
+Namespaces in `Terminating` status are being deleted by Kubernetes. Kube Inspector reflects this with a red status tag. If a namespace is stuck in `Terminating`, it usually means a finalizer is blocking deletion — this must be resolved via `kubectl` or by editing the finalizers in the YAML view.

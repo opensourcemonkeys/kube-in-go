@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=kube-ins
+Name=Kube Inspector
 Comment=A visual desktop client for managing Kubernetes clusters.
 Exec=/usr/local/bin/kube-ins
 Icon=kube-ins

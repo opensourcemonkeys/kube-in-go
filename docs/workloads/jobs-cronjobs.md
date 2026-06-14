@@ -2,7 +2,7 @@
 
 ## Jobs
 
-Jobs run a workload to completion. kube-ins lists all Jobs across namespaces.
+Jobs run a workload to completion. Kube Inspector lists all Jobs across namespaces.
 
 ### Columns
 
@@ -17,7 +17,7 @@ Jobs run a workload to completion. kube-ins lists all Jobs across namespaces.
 
 ### Actions
 
-- **View YAML** — Double-click to open the Job manifest. Jobs are read-only in kube-ins; to re-run, delete the Job and recreate it (or trigger the parent CronJob).
+- **View YAML** — Double-click to open the Job manifest. Jobs are read-only in Kube Inspector; to re-run, delete the Job and recreate it (or trigger the parent CronJob).
 - **Delete** — Removes the Job and its completed/failed pods.
 
 ---

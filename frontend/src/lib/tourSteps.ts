@@ -6,7 +6,7 @@ export const appTour: Tour[] = [
         steps: [
             {
                 icon: '👋',
-                title: 'Welcome to kube-ins',
+                title: 'Welcome to Kube Inspector',
                 content: 'This quick tour will show you the key features of the app. Use the arrow buttons to navigate between steps, or press Skip to exit at any time.',
                 selector: undefined,
                 side: 'bottom',
@@ -67,7 +67,7 @@ export const appTour: Tour[] = [
             {
                 icon: '✅',
                 title: "You're all set!",
-                content: 'You now know the essentials of kube-ins. Double-click any row in a resource list to view its YAML, and use the log button on workload rows to stream live logs.',
+                content: 'You now know the essentials of Kube Inspector. Double-click any row in a resource list to view its YAML, and use the log button on workload rows to stream live logs.',
                 selector: undefined,
                 showControls: true,
                 showSkip: false,

@@ -41,7 +41,7 @@ export default function AboutModal({ visible, onHide }: Props) {
                 <div className="about-modal__logo">
                     <VscCloud className="about-modal__logo-icon" />
                 </div>
-                <h2 className="about-modal__title">kube-ins</h2>
+                <h2 className="about-modal__title">Kube Inspector</h2>
                 {info && (
                     <div className="about-modal__version">{info.app_version}</div>
                 )}

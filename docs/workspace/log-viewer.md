@@ -1,6 +1,6 @@
 # Log Viewer
 
-The Log Viewer streams pod logs in real time inside kube-ins. It works for both individual pods and workload-level resources (Deployments, StatefulSets, etc.).
+The Log Viewer streams pod logs in real time inside Kube Inspector. It works for both individual pods and workload-level resources (Deployments, StatefulSets, etc.).
 
 ## Opening the Log Viewer
 

@@ -1,17 +1,21 @@
-site_name: kube-ins
+site_name: Kube Inspector
 site_description: A visual desktop client for managing Kubernetes clusters
-site_author: kube-ins contributors
-site_url: https://github.com/opensourcemonkeys/kube-in-go
+site_author: Kube Inspector contributors
+site_url: https://kubeinspector.com
 
 repo_name: kube-ins
-repo_url: https://github.com/opensourcemonkeys/kube-in-go
 
 theme:
   name: material
+  custom_dir: overrides
+  logo: assets/logo.png
+  favicon: assets/logo.png
   palette:
+    # Dark only — matches the desktop app's "monolith" theme (no light toggle)
     scheme: slate
-    primary: indigo
-    accent: indigo
+    primary: custom
+    accent: custom
+
   font:
     text: Inter
     code: JetBrains Mono
@@ -47,6 +51,9 @@ markdown_extensions:
   - tables
   - attr_list
   - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 nav:
   - Home: index.md
@@ -74,3 +81,6 @@ nav:
     - Terminal: workspace/terminal.md
     - Log Viewer: workspace/log-viewer.md
     - Cluster Graph: workspace/cluster-graph.md
+
+extra_css:
+  - stylesheets/extra.css

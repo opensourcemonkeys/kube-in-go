@@ -51,7 +51,7 @@ function TitleBar() {
                         <path d="M12 12 V21.5 M4 7 L12 12 L20 7" stroke="#3fc8b4" strokeWidth="1.3" strokeLinejoin="round" opacity="0.7"/>
                         <circle cx="12" cy="8.6" r="1.7" fill="#3fc8b4"/>
                     </svg>
-                    <span className="tb-title">KUBE-INS</span>
+                    <span className="tb-title">KUBE INSPECTOR</span>
                     {selfInfo && (
                         <span className="tb-instance-name">{selfInfo.name}</span>
                     )}

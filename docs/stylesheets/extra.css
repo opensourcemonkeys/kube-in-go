@@ -1,0 +1,238 @@
+/* ════════════════════════════════════════════════════════════════
+   kube-ins docs theme — re-skins MkDocs Material with the app's
+   "monolith" palette (frontend/src/theme-monolith.css): deep blue-grey
+   surfaces + teal accent, Inter / JetBrains Mono.
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* App palette (mirrors theme-monolith.css :root) */
+  --ki-app:    #080b11;
+  --ki-panel:  #0c1017;
+  --ki-panel2: #11161f;
+  --ki-panel3: #151b26;
+  --ki-line:   #1a212e;
+  --ki-line2:  #252e3f;
+  --ki-ink:    #e7eaf0;
+  --ki-ink2:   #98a1b3;
+  --ki-ink3:   #5c6779;
+  --ki-teal:   #3fc8b4;
+  --ki-green:  #5fc98a;
+  --ki-amber:  #e2a85a;
+  --ki-red:    #e07d6e;
+  --ki-blue:   #6ea8e6;
+
+  --md-text-font: "Inter";
+  --md-code-font: "JetBrains Mono";
+}
+
+/* ── Dark scheme (slate) — matches the desktop app ───────────────── */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color:           var(--ki-app);
+  --md-default-fg-color:           var(--ki-ink);
+  --md-default-fg-color--light:    var(--ki-ink2);
+  --md-default-fg-color--lighter:  var(--ki-ink3);
+  --md-default-fg-color--lightest: rgba(231, 234, 240, 0.07);
+
+  /* Header / nav rail use the panel surface for a dark brand bar */
+  --md-primary-fg-color:        var(--ki-panel);
+  --md-primary-fg-color--light: var(--ki-panel2);
+  --md-primary-fg-color--dark:  var(--ki-app);
+  --md-primary-bg-color:        var(--ki-ink);
+  --md-primary-bg-color--light: var(--ki-ink2);
+
+  --md-accent-fg-color:             var(--ki-teal);
+  --md-accent-fg-color--transparent: rgba(63, 200, 180, 0.1);
+
+  --md-typeset-a-color: var(--ki-teal);
+
+  --md-code-bg-color: var(--ki-panel2);
+  --md-code-fg-color: var(--ki-ink);
+
+  --md-footer-bg-color:      var(--ki-panel);
+  --md-footer-bg-color--dark: var(--ki-app);
+  --md-footer-fg-color:      var(--ki-ink2);
+
+  --md-typeset-mark-color: rgba(63, 200, 180, 0.28);
+}
+
+/* ── Light scheme (default) — keeps the dark brand bar + teal accent */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        var(--ki-panel);
+  --md-primary-fg-color--light: var(--ki-panel2);
+  --md-primary-fg-color--dark:  var(--ki-app);
+  --md-primary-bg-color:        var(--ki-ink);
+
+  /* darker teal so links stay readable on white */
+  --md-accent-fg-color: #0f7a6b;
+  --md-typeset-a-color: #0f7a6b;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Component polish
+   ════════════════════════════════════════════════════════════════ */
+
+/* Hairline under the header, like the app's --line dividers */
+[data-md-color-scheme="slate"] .md-header {
+  border-bottom: 1px solid var(--ki-line);
+  box-shadow: none;
+}
+
+/* Inline code: subtle bordered chip */
+[data-md-color-scheme="slate"] .md-typeset code {
+  border: 1px solid var(--ki-line);
+  border-radius: 4px;
+}
+
+/* Fenced code blocks sit on the deeper panel2 surface */
+[data-md-color-scheme="slate"] .md-typeset pre > code {
+  border: 1px solid var(--ki-line);
+}
+
+/* Tables — header strip matches the app's DataTable headers */
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background: var(--ki-panel);
+  color: var(--ki-ink2);
+  border-bottom: 1px solid var(--ki-line);
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) td {
+  border-top: 1px solid var(--ki-line);
+}
+
+/* Active nav item gets the teal accent */
+[data-md-color-scheme="slate"] .md-nav__link--active,
+[data-md-color-scheme="slate"] .md-nav__item .md-nav__link--active {
+  color: var(--ki-teal);
+}
+
+/* Tabs bar (navigation.tabs) on the panel surface with teal active underline */
+[data-md-color-scheme="slate"] .md-tabs {
+  background: var(--ki-panel);
+  border-bottom: 1px solid var(--ki-line);
+}
+
+/* Text selection in teal */
+[data-md-color-scheme="slate"] ::selection {
+  background: rgba(63, 200, 180, 0.28);
+  color: var(--ki-ink);
+}
+
+/* Search box on the input surface */
+[data-md-color-scheme="slate"] .md-search__form {
+  background: var(--ki-panel2);
+  border: 1px solid var(--ki-line2);
+}
+[data-md-color-scheme="slate"] .md-search__form:hover {
+  background: var(--ki-panel3);
+}
+
+/* Buttons (.md-button) — primary uses teal like the app accent buttons */
+[data-md-color-scheme="slate"] .md-typeset .md-button--primary {
+  background: var(--ki-teal);
+  border-color: var(--ki-teal);
+  color: var(--ki-app);
+}
+[data-md-color-scheme="slate"] .md-typeset .md-button--primary:hover {
+  filter: brightness(1.08);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   LANDING PAGE — VS Code-style hero + feature cards
+   ════════════════════════════════════════════════════════════════ */
+.ki-hero {
+  background:
+    radial-gradient(900px 380px at 50% -120px, rgba(63, 200, 180, 0.12), transparent 70%),
+    linear-gradient(180deg, var(--ki-panel) 0%, var(--ki-app) 100%);
+  border-bottom: 1px solid var(--ki-line);
+}
+.ki-hero__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4.5rem 1rem 4rem;
+}
+.ki-hero__logo {
+  width: 84px;
+  height: 84px;
+  margin-bottom: 1.25rem;
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.45));
+}
+/* Site-wide alpha notice — full-width strip below the navigation/menu bar */
+.ki-alpha-strip {
+  background: rgba(226, 168, 90, 0.10);
+  border-bottom: 1px solid rgba(226, 168, 90, 0.28);
+  color: #e2a85a;
+  font-size: 0.72rem;
+}
+.ki-alpha-strip__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+}
+.ki-alpha-strip__tag {
+  flex: none;
+  padding: 0.05rem 0.45rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ki-app);
+  background: #e2a85a;
+  border-radius: 4px;
+}
+.ki-hero__title {
+  margin: 0;
+  font-size: 3rem;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--ki-ink), var(--ki-teal));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ki-hero__tagline {
+  margin: 1rem 0 0;
+  max-width: 38rem;
+  font-size: 1.15rem;
+  color: var(--ki-ink2);
+}
+.ki-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+.ki-hero__cta .md-button {
+  min-width: 9.5rem;
+  padding: 0.55rem 1.25rem;
+}
+
+/* Hide the auto-rendered page H1 on the landing page (hero supplies it) */
+.md-typeset .ki-features { margin-top: 1rem; }
+
+@media screen and (max-width: 44.9375em) {
+  .ki-hero__title { font-size: 2.1rem; }
+  .ki-hero__inner { padding: 3rem 1rem; }
+}
+
+/* Feature cards — lift on hover, teal top accent (slate scheme) */
+[data-md-color-scheme="slate"] .md-typeset .ki-features > ul > li,
+[data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
+  background: var(--ki-panel);
+  border: 1px solid var(--ki-line);
+  border-radius: 10px;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+[data-md-color-scheme="slate"] .md-typeset .ki-features > ul > li:hover {
+  border-color: var(--ki-teal);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+.md-typeset .ki-features .lg.middle {
+  color: var(--ki-teal);
+}
+
+/* Quick-links list */
+.ki-quicklinks { margin-bottom: 2rem; }

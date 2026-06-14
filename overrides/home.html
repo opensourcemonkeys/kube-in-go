@@ -1,0 +1,22 @@
+{% extends "main.html" %}
+
+<!-- Landing page: a VS Code-style hero injected above the normal content. -->
+{% block tabs %}
+  {{ super() }}
+  <section class="ki-hero">
+    <div class="ki-hero__inner md-grid">
+      <img class="ki-hero__logo" src="{{ 'assets/logo.png' | url }}" alt="kube-ins" />
+      <h1 class="ki-hero__title">Kubernetes, in one window.</h1>
+      <p class="ki-hero__tagline">{{ config.site_description }}</p>
+      <div class="ki-hero__cta">
+        <a href="{{ 'getting-started/installation/' | url }}" class="md-button md-button--primary">
+          Download
+        </a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  {{ super() }}
+{% endblock %}

@@ -1,6 +1,6 @@
 # Terminal
 
-The Terminal panel provides an integrated `kubectl` terminal directly inside kube-ins. It is powered by xterm.js and a server-side pseudo-terminal (pty).
+The Terminal panel provides an integrated `kubectl` terminal directly inside Kube Inspector. It is powered by xterm.js and a server-side pseudo-terminal (pty).
 
 ## Opening the Terminal
 

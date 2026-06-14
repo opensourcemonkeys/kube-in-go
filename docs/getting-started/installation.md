@@ -1,6 +1,6 @@
 # Installation
 
-kube-ins ships as a single self-contained binary. On Linux, one system library is required at runtime (see below).
+Kube Inspector ships as a single self-contained binary. On Linux, one system library is required at runtime (see below).
 
 ## Download
 
@@ -16,7 +16,7 @@ Go to the [Releases page](https://github.com/opensourcemonkeys/kube-in-go/releas
 
 ### Dependency: WebKitGTK
 
-kube-ins uses a WebKit-based webview (via [Wails](https://wails.io)). A WebKitGTK runtime library must be present on the host system. Install it before running the app:
+Kube Inspector uses a WebKit-based webview (via [Wails](https://wails.io)). A WebKitGTK runtime library must be present on the host system. Install it before running the app:
 
 === "Debian 11 / Ubuntu 22.04 and older"
     ```bash
@@ -83,7 +83,7 @@ Run `kube-ins-<version>-windows-amd64.exe` and follow the installation wizard.
 - Network access to the target Kubernetes API server
 - **Linux only**: WebKitGTK 4.0 or 4.1 system library (see above)
 
-kube-ins does **not** require `kubectl` to be installed — it communicates directly with the Kubernetes API using client-go.
+Kube Inspector does **not** require `kubectl` to be installed — it communicates directly with the Kubernetes API using client-go.
 
 ## Supported Operating Systems
 
@@ -96,7 +96,7 @@ kube-ins does **not** require `kubectl` to be installed — it communicates dire
 
 ### Linux
 
-kube-ins requires **WebKitGTK 4.0** or **WebKitGTK 4.1** to be available as a system package.
+Kube Inspector requires **WebKitGTK 4.0** or **WebKitGTK 4.1** to be available as a system package.
 
 | Distribution | Versions | WebKitGTK |
 |---|---|---|
@@ -117,4 +117,4 @@ kube-ins requires **WebKitGTK 4.0** or **WebKitGTK 4.1** to be available as a sy
 
 ## First Launch
 
-On first launch, kube-ins checks `~/.kube/config` automatically. If you already have clusters configured there, they will be importable from the cluster manager. See [Adding Clusters](cluster-setup.md) for details.
+On first launch, Kube Inspector checks `~/.kube/config` automatically. If you already have clusters configured there, they will be importable from the cluster manager. See [Adding Clusters](cluster-setup.md) for details.

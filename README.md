@@ -4,7 +4,7 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=opensourcemonkeys_kube-in-go&metric=vulnerabilities&token=9517aa0dd09f9e60df2e574263790002b60845f6)](https://sonarcloud.io/summary/new_code?id=opensourcemonkeys_kube-in-go)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=opensourcemonkeys_kube-in-go&metric=sqale_rating&token=9517aa0dd09f9e60df2e574263790002b60845f6)](https://sonarcloud.io/summary/new_code?id=opensourcemonkeys_kube-in-go)
 
-# kube-ins
+# Kube Inspector
 
 A visual desktop client for managing Kubernetes clusters. Built with Go, Wails, and React.
 

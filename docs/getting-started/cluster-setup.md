@@ -1,6 +1,6 @@
 # Adding Clusters
 
-kube-ins stores each cluster as a separate kubeconfig file under `~/.kube-ins/`. You can add, edit, and switch between clusters at any time.
+Kube Inspector stores each cluster as a separate kubeconfig file under `~/.kube-ins/`. You can add, edit, and switch between clusters at any time.
 
 ## Opening the Cluster Manager
 
@@ -15,18 +15,18 @@ Click the cluster name in the **top bar** to open the cluster manager. From ther
 ## Adding a New Cluster
 
 1. Click **Add Cluster** in the cluster manager.
-2. Enter a **name** for the cluster (used as a label inside kube-ins).
+2. Enter a **name** for the cluster (used as a label inside Kube Inspector).
 3. Paste the full kubeconfig content into the editor.
 4. Click **Save**.
 
-kube-ins saves the kubeconfig to `~/.kube-ins/<name>.yaml` and immediately tries to connect.
+Kube Inspector saves the kubeconfig to `~/.kube-ins/<name>.yaml` and immediately tries to connect.
 
 !!! tip "Getting your kubeconfig"
     If you manage your cluster with `kubectl`, you can copy the relevant context from your existing config:
     ```bash
     kubectl config view --raw --minify --context=<context-name>
     ```
-    Paste the output into the kube-ins editor.
+    Paste the output into the Kube Inspector editor.
 
 ## Switching Clusters
 
@@ -42,7 +42,7 @@ Click the delete icon next to a cluster name. The kubeconfig file is removed fro
 
 ## Connection Health Check
 
-kube-ins polls the active cluster's API server every 20 seconds. The status indicator in the top bar reflects the latest check:
+Kube Inspector polls the active cluster's API server every 20 seconds. The status indicator in the top bar reflects the latest check:
 
 - **Green** — cluster is reachable and responding
 - **Red** — cluster is unreachable or returned an error

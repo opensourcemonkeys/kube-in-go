@@ -50,4 +50,12 @@ test-e2e:
 	cd e2e_tests && pip install -q -r requirements.txt && \
 		pytest -v --html=../report.html --self-contained-html
 
-.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean test-e2e
+# ── Documentation (MkDocs Material) ──────────────────────────────
+# Requires mkdocs-material on PATH: pip install mkdocs-material
+docs-serve:
+	mkdocs serve
+
+docs-build:
+	mkdocs build --clean --strict
+
+.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean test-e2e docs-serve docs-build

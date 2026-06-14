@@ -16,7 +16,7 @@ The Deployments screen lists all Deployment resources across all namespaces.
 
 ### Scale
 
-Click the **Scale** button on a deployment row. Enter the desired replica count and confirm. kube-ins patches the deployment's replica count immediately.
+Click the **Scale** button on a deployment row. Enter the desired replica count and confirm. Kube Inspector patches the deployment's replica count immediately.
 
 ### View / Edit YAML
 
