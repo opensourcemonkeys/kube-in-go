@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [v0.5.5-alpha] - 2026-06-14
+
+### Fixed
+- **CI / Packaging (Ubuntu 24.04)** — the Ubuntu 24.04 build now passes `WAILS_TAGS=webkit2_41` so Wails compiles against `webkit2gtk-4.1`. Previously the build failed because Ubuntu 24.04 no longer ships `webkit2gtk-4.0`, which Wails links against by default.
+
+---
+
 ## [v0.5.4-alpha] - 2026-06-14
 
 ### Changed
