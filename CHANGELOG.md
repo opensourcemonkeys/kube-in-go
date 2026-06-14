@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Security graph** — added a dedicated security graph view to visualize role and policy relationships.
+- **Events screen state persistence** — proof-of-concept state storage using Zustand for the events screen.
 
 ### Changed
 - **Security role mapping improvements** — enhanced role mapping handling for more accurate security rule display.
