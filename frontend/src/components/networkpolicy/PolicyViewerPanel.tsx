@@ -543,6 +543,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                         nodesDraggable
                         nodesConnectable={false}
                         elementsSelectable
+                        onlyRenderVisibleElements
                         style={{ background: 'var(--app)' }}
                     >
                         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />

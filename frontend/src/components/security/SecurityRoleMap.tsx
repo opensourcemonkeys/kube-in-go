@@ -540,6 +540,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                         nodesDraggable
                         nodesConnectable={false}
                         elementsSelectable
+                        onlyRenderVisibleElements
                         onNodeClick={(_, node) => setSelectedNodeId(prev => prev === node.id ? null : node.id)}
                         onNodeDoubleClick={(_, node) => openDetail(node.id)}
                         onPaneClick={() => setSelectedNodeId(null)}

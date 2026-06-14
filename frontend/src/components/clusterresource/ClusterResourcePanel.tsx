@@ -397,6 +397,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                         nodesDraggable
                         nodesConnectable={false}
                         elementsSelectable
+                        onlyRenderVisibleElements
                         onInit={inst => { rfRef.current = inst; }}
                         style={{ background: 'var(--app)' }}
                     >
