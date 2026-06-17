@@ -1,5 +1,5 @@
 import React from 'react';
-import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings } from 'react-icons/vsc';
+import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings, VscPulse } from 'react-icons/vsc';
 
 const S = { fontSize: '0.875rem' };
 
@@ -40,6 +40,7 @@ export const NAV_GROUPS: NavGroup[] = [
         { label: 'Storage Classes',    view: 'storageclasses',         icon: <VscBriefcase style={S} /> },
     ]},
     { key: 'cluster', label: 'CLUSTER', items: [
+        { label: 'Monitoring',      view: 'monitoring',     icon: <VscPulse style={S} /> },
         { label: 'Nodes',           view: 'nodes',          icon: <VscServer style={S} /> },
         { label: 'Namespaces',      view: 'namespaces',     icon: <VscTypeHierarchySub style={S} /> },
         { label: 'Events',          view: 'events',         icon: <VscBell style={S} /> },

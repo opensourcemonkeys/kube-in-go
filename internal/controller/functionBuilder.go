@@ -19,6 +19,20 @@ func (a *App) CheckForUpdate() models.UpdateInfo {
 	return bussiness.CheckForUpdate()
 }
 
+// SaveSnapshot prompts the user for a location (native Save dialog) and writes
+// the given PNG (data URL or base64). Returns the saved path, or "" if cancelled.
+func (a *App) SaveSnapshot(defaultName, dataURL string) (string, error) {
+	path, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           "Save snapshot",
+		DefaultFilename: defaultName,
+		Filters:         []runtime.FileFilter{{DisplayName: "PNG Image (*.png)", Pattern: "*.png"}},
+	})
+	if err != nil || path == "" {
+		return "", err
+	}
+	return bussiness.SaveSnapshotPNG(path, dataURL)
+}
+
 func (a *App) GetK8sSchema() string {
 	return bussiness.GetK8sSchema()
 }
@@ -29,6 +43,10 @@ func (a *App) GetK8sSchema() string {
 
 func (a *App) GetNodes(clusterName string) []models.NodeInfo {
 	return bussiness.GetNodes(clusterName)
+}
+
+func (a *App) GetMetricsSnapshot(clusterName string) (models.MetricsSnapshot, error) {
+	return bussiness.GetMetricsSnapshot(clusterName)
 }
 
 func (a *App) GetNamespaces(clusterName string) []models.NamespaceInfo {
