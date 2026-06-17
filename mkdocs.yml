@@ -80,3 +80,8 @@ nav:
 
 extra_css:
   - stylesheets/extra.css
+
+extra:
+  analytics:
+    provider: google
+    property: G-707GCW6202
