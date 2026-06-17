@@ -1,23 +1,37 @@
-import { useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscTerminal, VscQuestion, VscInfo } from 'react-icons/vsc';
+import { useEffect, useState } from 'react';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import {
     WindowMinimise,
     WindowToggleMaximise,
     Quit,
+    BrowserOpenURL,
 } from '../../../wailsjs/runtime/runtime';
+import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
+import { models } from '../../../wailsjs/go/models';
 import { useInstanceContext } from '../../contexts/InstanceContext';
 import { useTabContext } from '../../contexts/TabContext';
 import { useNextStep } from 'nextstepjs';
 import AboutModal from '../cluster/AboutModal';
 
+// Re-check for a newer release every 6 hours while the app stays open.
+const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
 function TitleBar() {
     const [maximised, setMaximised] = useState(false);
     const [aboutOpen, setAboutOpen] = useState(false);
+    const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
     const { selfInfo } = useInstanceContext();
     const { openTerminal, openApplyYaml } = useTabContext();
     const { startNextStep } = useNextStep();
+
+    useEffect(() => {
+        const check = () => CheckForUpdate().then(setUpdate).catch(() => { /* offline: ignore */ });
+        check();
+        const id = window.setInterval(check, UPDATE_CHECK_INTERVAL_MS);
+        return () => window.clearInterval(id);
+    }, []);
 
     const handleMaximise = () => {
         WindowToggleMaximise();
@@ -71,6 +85,18 @@ function TitleBar() {
                     onDoubleClick={handleMaximise}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMaximise(); } }}
                 />
+
+                {/* Update available (top-right, before window controls) */}
+                {update?.available && (
+                    <button
+                        className="tb-update"
+                        title={`Version ${update.latestVersion} is available — click to download`}
+                        onClick={() => BrowserOpenURL(update.downloadUrl)}
+                    >
+                        <VscCloudDownload size={12} />
+                        Update available
+                    </button>
+                )}
 
                 {/* Window controls */}
                 <div className="tb-controls">

@@ -60,6 +60,8 @@ test-e2e:
 docs-downloads:
 	@echo "Substituting version v$(VERSION) into docs/downloads.md"
 	@sed -i 's/__VERSION__/$(VERSION)/g' docs/downloads.md
+	@echo "Writing docs/version.json for v$(VERSION) (in-app update check)"
+	@printf '{"version":"%s","downloadUrl":"https://kubeinspector.com/downloads/"}\n' "$(VERSION)" > docs/version.json
 
 docs-serve: docs-downloads
 	mkdocs serve
