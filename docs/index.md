@@ -1,5 +1,5 @@
 ---
-title: Kube Inspector
+title: Kubernetes, in one window
 template: home.html
 hide:
   - navigation
