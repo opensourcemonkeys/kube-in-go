@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.6.0-alpha] - 2026-06-17
+
+### Added
+- **Monitoring dashboard** — new **Monitoring** screen under the Cluster menu with live cluster, node, pod, and workload CPU/memory usage charts, rolling time-series history, and filterable resource tables.
+- **Dashboard snapshot export** — save the Monitoring panel as a PNG snapshot for reporting or sharing.
+- **Update availability** — title bar now checks for newer releases and displays an update prompt with a download link.
+
+### Changed
+- **Cluster metrics collection** — improved monitoring by combining metrics-server data with Kubernetes objects for richer live resource usage reporting.
+
+---
+
 ## [v0.5.9-alpha] - 2026-06-15
 
 ### Changed
