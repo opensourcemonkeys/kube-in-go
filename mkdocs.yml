@@ -56,30 +56,51 @@ nav:
     - Installation: getting-started/installation.md
     - Adding Clusters: getting-started/cluster-setup.md
   - Downloads: downloads.md
-  - Workloads:
-    - Overview: workloads/index.md
-    - Pods: workloads/pods.md
-    - Deployments: workloads/deployments.md
-    - StatefulSets & ReplicaSets: workloads/statefulsets-replicasets.md
-    - DaemonSets: workloads/daemonsets.md
-    - Jobs & CronJobs: workloads/jobs-cronjobs.md
-  - Cluster:
-    - Namespaces: cluster/namespaces.md
-    - Nodes: cluster/nodes.md
-    - Resource Quotas: cluster/resource-quotas.md
-  - Networking:
-    - Network Policies: networking/network-policies.md
-  - Config & Secrets:
-    - ConfigMaps: config-secrets/configmaps.md
-    - Secrets: config-secrets/secrets.md
-  - Workspace:
-    - YAML Editor: workspace/yaml-editor.md
-    - Terminal: workspace/terminal.md
-    - Log Viewer: workspace/log-viewer.md
-    - Cluster Graph: workspace/cluster-graph.md
+  - Docs:
+    - Workloads:
+      - Overview: workloads/index.md
+      - Pods: workloads/pods.md
+      - Deployments: workloads/deployments.md
+      - StatefulSets & ReplicaSets: workloads/statefulsets-replicasets.md
+      - DaemonSets: workloads/daemonsets.md
+      - Jobs & CronJobs: workloads/jobs-cronjobs.md
+    - Networking:
+      - Services: networking/services.md
+      - Ingresses: networking/ingresses.md
+      - Ingress Classes: networking/ingress-classes.md
+      - Endpoints: networking/endpoints.md
+      - Network Policies: networking/network-policies.md
+    - Config & Secrets:
+      - ConfigMaps: config-secrets/configmaps.md
+      - Secrets: config-secrets/secrets.md
+    - Security:
+      - Service Accounts: security/service-accounts.md
+      - Roles: security/roles.md
+      - Role Bindings: security/role-bindings.md
+      - Security Role Map: security/security-role-map.md
+      - Vulnerability Scan: security/vulnerability-scan.md
+    - Storage:
+      - Persistent Volumes: storage/persistent-volumes.md
+      - Volume Claims: storage/volume-claims.md
+      - Storage Classes: storage/storage-classes.md
+    - Cluster:
+      - Monitoring: cluster/monitoring.md
+      - Nodes: cluster/nodes.md
+      - Namespaces: cluster/namespaces.md
+      - Events: cluster/events.md
+      - Resource Quotas: cluster/resource-quotas.md
+      - Limit Ranges: cluster/limit-ranges.md
+    - Workspace:
+      - YAML Editor: workspace/yaml-editor.md
+      - Terminal: workspace/terminal.md
+      - Log Viewer: workspace/log-viewer.md
+      - Cluster Graph: workspace/cluster-graph.md
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/reveal.js
 
 extra:
   analytics:

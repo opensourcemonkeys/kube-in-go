@@ -325,3 +325,102 @@
 
 /* Quick-links list */
 .ki-quicklinks { margin-bottom: 2rem; }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREENSHOT SHOWCASE — browser frame, hero float, scroll reveal
+   ════════════════════════════════════════════════════════════════ */
+
+/* macOS-style window frame around a screenshot */
+.ki-frame {
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid var(--ki-line2);
+  background: var(--ki-panel);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+.ki-frame__dots {
+  display: block;
+  height: 28px;
+  background: var(--ki-panel2);
+  border-bottom: 1px solid var(--ki-line);
+}
+.ki-frame__dots::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 13px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e07d6e;
+  box-shadow: 15px 0 0 #e2a85a, 30px 0 0 #5fc98a;
+}
+.ki-frame img { display: block; width: 100%; height: auto; }
+
+/* Hero screenshot: float gently, with a teal halo */
+.ki-hero__shot {
+  width: 100%;
+  max-width: 920px;
+  margin: 2.75rem auto 0;
+  perspective: 1400px;
+}
+.ki-hero__shot .ki-frame {
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 70px rgba(63, 200, 180, 0.14);
+}
+.ki-frame--float { animation: ki-float 6s ease-in-out infinite; }
+@keyframes ki-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+/* Large, full-width screenshots with the caption overlaid on the image */
+.ki-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 1040px;
+  margin: 1.5rem auto 2.5rem;
+}
+.ki-shot { position: relative; }
+.ki-shot .ki-frame img { display: block; width: 100%; height: auto; }
+
+/* Caption sits over the bottom of the screenshot on a dark gradient scrim */
+.ki-shot__text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3rem 1.75rem 1.4rem;
+  background: linear-gradient(to top, rgba(8, 11, 17, 0.94) 0%, rgba(8, 11, 17, 0.78) 42%, rgba(8, 11, 17, 0) 100%);
+  pointer-events: none;
+}
+.ki-shot__text h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: var(--ki-ink);
+}
+.ki-shot__text p {
+  margin: 0;
+  max-width: 64ch;
+  color: #c4ccda;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+/* Scroll-reveal: the whole shot rises + scales in, caption trails slightly */
+.ki-reveal {
+  opacity: 0;
+  transform: translateY(46px) scale(0.97);
+  transition: opacity 0.7s ease, transform 0.85s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.ki-reveal.in-view { opacity: 1; transform: none; }
+.ki-reveal .ki-shot__text { opacity: 0; transition: opacity 0.6s ease 0.25s; }
+.ki-reveal.in-view .ki-shot__text { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ki-frame--float { animation: none; }
+  .ki-reveal,
+  .ki-reveal .ki-shot__text { opacity: 1 !important; transform: none !important; transition: none; }
+}

@@ -47,6 +47,11 @@ models/
 
 > The backend has grown to cover most core Kubernetes resources — each has a parallel `business/<kind>.go`, `services/<kind>Services.go`, and `models/<kind>Info.go` triple (pods, deployments, daemonsets, statefulsets, jobs, cronjobs, services, endpoints, ingresses, configmaps, secrets, RBAC roles/bindings/service accounts, PVs/PVCs, storage classes, namespaces, nodes, events, quotas, limit ranges, etc.). The `securityGraph` feature (`business/securityGraph.go` → `services/securityGraphServices.go` → `models/securityGraphInfo.go`, surfaced by `components/security/SecurityRoleMap.tsx`) builds an RBAC subject→role→resource graph and needs both client and rest config (`NewK8sClientAndConfigForCluster`). The `trivy` vulnerability scanner (`business/trivy.go` → `services/trivyServices.go` → `models/trivyScanInfo.go`, surfaced by `components/security/TrivyScanner.tsx`) is different: instead of calling the k8s API it imports the **Trivy library directly** (`github.com/aquasecurity/trivy`). `services.ScanImage` hand-builds a `flag.Options` and runs `artifact.NewRunner(...).ScanImage(...)`; several non-obvious defaults are mandatory (`PackageOptions.PkgTypes`, `VulnSeveritySources: "auto"`, and the blank import `_ "modernc.org/sqlite"` for the Java/RPM DB) or scans silently return nothing. The cluster scan is implemented as the frontend listing all pod images (`TrivyListPodImages`) and scanning each via `TrivyScanImage` — there is no `trivy k8s` misconfig scan. Follow the existing triples when adding a resource — see "Adding a New Resource Type" below.
 
+> Three features go beyond the per-resource triples:
+> - **Live resource Monitoring** (`business/metrics.go` → `services/metricsServices.go` → `models/metricsInfo.go`, surfaced by `components/monitoring/main.tsx`). `GetMetricsSnapshot(clusterName)` returns one point-in-time `MetricsSnapshot` (cluster totals, nodes, pods, workloads) from metrics-server; pods carry per-container usage and a resolved top-level owner (ReplicaSet→Deployment) so the dashboard can drill down. metrics-server is point-in-time only, so trend charts are built **client-side**: the dashboard polls every ~4s and keeps a rolling time-series in `stores/metricsStore.ts` (in-memory, **not** persisted — contrast with `eventsStore`). Charts use PrimeReact's `Chart` (chart.js) with a linear time x-axis.
+> - **In-app update check** (`business/update.go` → `models/UpdateInfo`, `App.CheckForUpdate`): fetches `https://kubeinspector.com/version.json` and compares with `appVersion` via `golang.org/x/mod/semver`; the title bar shows an "Update available" pill linking to the downloads page. The manifest is generated from the git tag by the Makefile `docs-downloads` target and published with the site.
+> - **Window screenshot** (`App.SaveSnapshot` → `business/snapshot.go` → `services/snapshotServices.go`): the frontend renders a panel to a PNG via `html-to-image`, then the controller opens a native `runtime.SaveFileDialog` and the service writes the file (webview `a[download]` is unreliable in WebKitGTK).
+
 4. **Repository** (`internal/repository/`): Abstracts kubeconfig loading. Provides six constructors in two families:
    - `NewK8sClient()` / `NewK8sClientAndConfig()` / `NewMetricsClient()` — read the global active kubeconfig path (set via `SetActiveKubeconfig()`). Still used by cluster-management functions that don't have a per-tab cluster.
    - `NewK8sClientForCluster(clusterName)` / `NewK8sClientAndConfigForCluster(clusterName)` / `NewMetricsClientForCluster(clusterName)` — load `~/.kube-ins/{clusterName}.yaml` directly, **bypassing the global active path**. Used by all resource-fetching business functions so each panel stays pinned to its cluster regardless of which cluster the user has globally selected. Falls back to `NewK8sClient()` when `clusterName == ""`.
@@ -91,7 +96,7 @@ frontend/src/
 - **ClusterContext**: Loaded on app startup, persists active cluster selection. Polls `CheckClusterConnection()` every 20 seconds.
 - **TabContext**: Manages Dockview API for opening/closing panels. Each resource type (pods, deployments, etc.) opens as a panel.
 - **InstanceContext**: Polls `GetInstances()` every 3 seconds. Listens for `tab:received` Wails event and calls the registered `onPanelReceived` callback. `TabInstanceBridge` wires this to `TabContext.openReceivedPanel`.
-- **Zustand stores** (`frontend/src/stores/`): React Context holds app-wide state; per-tab view state that must survive a tab close/reopen uses Zustand instead. `eventsStore.ts` is the reference example — a `persist`-middleware store keyed by `events:${clusterName}` so each cluster's Events tab keeps its rows, filters, and toggles across app restarts (persisted to the Wails webview's localStorage). New persistent per-tab state should follow this keyed-by-panel-id pattern rather than living in component `useState`.
+- **Zustand stores** (`frontend/src/stores/`): React Context holds app-wide state; per-tab view state that must survive a tab close/reopen uses Zustand instead. `eventsStore.ts` is the reference example — a `persist`-middleware store keyed by `events:${clusterName}` so each cluster's Events tab keeps its rows, filters, and toggles across app restarts (persisted to the Wails webview's localStorage). New persistent per-tab state should follow this keyed-by-panel-id pattern rather than living in component `useState`. `metricsStore.ts` is the non-persisted counterpart — a plain (no `persist`) store, also keyed by cluster, holding the Monitoring dashboard's rolling time-series in memory only (ephemeral data that should reset on restart).
 
 **UI Framework**:
 - **Dockview** (v6): Resizable, draggable panel layout. Components are registered in `DockviewContainer.tsx` and instantiated by panel type string.
@@ -179,6 +184,15 @@ cd frontend
 npm run build
 ```
 
+### Documentation site (MkDocs)
+
+The marketing/docs site lives in `docs/` (MkDocs Material, config `mkdocs.yml`, custom theme overrides in `overrides/` + `docs/stylesheets/extra.css`). Build/preview with the Makefile (needs `pip install mkdocs-material`):
+```bash
+make docs-serve   # live-reload preview at http://127.0.0.1:8000
+make docs-build   # build to ./site (gitignored), --strict
+```
+`docs-build` first runs `docs-downloads`, which substitutes the git tag into the (git-ignored, generated) `docs/downloads.md` and writes `docs/version.json` (consumed by the in-app update check). On a git **tag** push, the `deploy-docs` job in `.github/workflows/build.yml` builds the site and `aws s3 sync`s it to the Cloudflare R2 bucket root, while `upload-r2` publishes the release artifacts under `/dist` on the same bucket (served at `kubeinspector.com`). Both R2 jobs need the `R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` secrets and the `R2_BUCKET` variable.
+
 ## Key Dependencies
 
 **Backend (Go)**:
@@ -190,6 +204,8 @@ npm run build
 - `sigs.k8s.io/yaml`: YAML marshaling
 - `gorilla/websocket`: WebSocket server/client used by the IPC hub
 - `google/uuid`: Unique instance IDs for the IPC hub
+- `github.com/aquasecurity/trivy`: Vulnerability scanner, imported as a library (pulls in `encoding/json/v2` → needs `GOEXPERIMENT=jsonv2`)
+- `golang.org/x/mod/semver`: Semantic-version compare for the in-app update check
 
 **Frontend**:
 - `react`, `react-dom`, `react-router-dom`: Core framework
@@ -199,7 +215,9 @@ npm run build
 - `@xterm/xterm`: Terminal emulation
 - `@melloware/react-logviewer`: Log streaming viewer
 - `reactflow`: Cluster graph visualization
-- `chart.js`: Charts (node metrics, etc.)
+- `chart.js`: Charts (node metrics, monitoring trends) — used via PrimeReact's `Chart` wrapper
+- `zustand`: Per-tab state stores (`stores/`, see Zustand note above)
+- `html-to-image`: Renders a panel to PNG for the monitoring "Take snapshot" feature
 
 ## Common Tasks
 

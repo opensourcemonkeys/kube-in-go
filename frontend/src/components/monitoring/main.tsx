@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Chart } from 'primereact/chart';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { SelectButton } from 'primereact/selectbutton';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
@@ -241,6 +240,16 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
     const memClusterPct = pct(c.memMi, c.memCapMi);
     const clusterPts = clip(buf?.cluster ?? []);
 
+    // TEMP (layout test): pretend there are 100 nodes. Remove this block and use
+    // (snap.nodes ?? []) in the Nodes map to restore real data.
+    const realNodes = snap.nodes ?? [];
+    const testNodes = realNodes.length
+        ? Array.from({ length: 100 }, (_, i) => {
+              const base = realNodes[i % realNodes.length];
+              return { ...base, name: `${base.name}-test${i + 1}` } as typeof base;
+          })
+        : [];
+
     const xMax = Date.now();
     const xMin = xMax - windowMin * 60_000;
     const clusterTrend = {
@@ -279,7 +288,7 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
                     {/* Nodes */}
                     <div className="mon-section-title">Nodes</div>
                     <div className="mon-nodes">
-                        {(snap.nodes ?? []).map((n) => {
+                        {testNodes.map((n) => {
                             const cp = pct(n.cpuMillis, n.cpuCapMillis);
                             const mp = pct(n.memMi, n.memCapMi);
                             const isSel = selected?.id === `node/${n.name}`;
@@ -296,9 +305,18 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
 
                     {/* Top consumers */}
                     <div className="mon-consumers-head">
-                        <div className="mon-section-title">Top consumers</div>
-                        <div className="mon-controls">
-                            <SelectButton value={mode} onChange={(e) => e.value && setMode(e.value)} options={[{ label: 'Pods', value: 'pods' }, { label: 'Workloads', value: 'workloads' }]} />
+                        <div
+                            className={`mon-switch mon-switch--${mode}`}
+                            role="switch"
+                            aria-checked={mode === 'workloads'}
+                            tabIndex={0}
+                            onClick={() => setMode((m) => (m === 'pods' ? 'workloads' : 'pods'))}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode((m) => (m === 'pods' ? 'workloads' : 'pods')); } }}
+                            title="Switch Pods / Workloads"
+                        >
+                            <span className="mon-switch__thumb" />
+                            <button type="button" className={`mon-switch__opt${mode === 'pods' ? ' is-active' : ''}`} onClick={(e) => { e.stopPropagation(); setMode('pods'); }}>Pods</button>
+                            <button type="button" className={`mon-switch__opt${mode === 'workloads' ? ' is-active' : ''}`} onClick={(e) => { e.stopPropagation(); setMode('workloads'); }}>Workloads</button>
                         </div>
                     </div>
                     <DataTable value={rows} size="small" dataKey="_id" scrollable scrollHeight="340px"

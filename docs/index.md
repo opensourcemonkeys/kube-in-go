@@ -58,6 +58,100 @@ hide:
 
 </div>
 
+## See it in action
+
+<div class="ki-showcase">
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/pods.png" alt="Pod list with live status and filters" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Every workload, one click away</h3>
+        <p>Pods, Deployments, StatefulSets and more in fast, filterable tables — namespaces, live status and inline actions at a glance.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/monitoring.png" alt="Live resource monitoring dashboard" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Live resource monitoring</h3>
+        <p>Watch cluster, node, pod and workload CPU &amp; memory over time, drill into the top consumers, and snapshot the view.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/security-role-map.png" alt="RBAC security role map graph" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>See who can touch what</h3>
+        <p>An interactive RBAC graph maps service accounts → roles → resources, so permissions are something you can actually read.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/network-policies.png" alt="Network policy ingress/egress diagram" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Network policies, drawn out</h3>
+        <p>Ingress and egress rules become a clear diagram — which pods are affected and what's allowed in and out — alongside the raw YAML.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/vulnerability-scan.png" alt="Trivy vulnerability scan results" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Scan images for CVEs</h3>
+        <p>Built-in Trivy scanning surfaces vulnerabilities per image, severity and fix version — for a single image or the whole cluster.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/yaml-editor.png" alt="Monaco YAML editor" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Edit manifests inline</h3>
+        <p>A Monaco-powered YAML editor with schema validation lets you view and apply changes without leaving the window.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/split-view.png" alt="Dockable split layout: resource list beside the YAML editor" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Your layout, your way</h3>
+        <p>Dockable, resizable panels: keep a resource list, its YAML and a terminal side by side — drag, split and dock tabs freely.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ki-shot ki-reveal">
+    <div class="ki-frame">
+      <span class="ki-frame__dots"></span>
+      <img src="assets/screenshots/terminal.png" alt="Multiple integrated terminals tiled in the workspace" loading="lazy" />
+      <div class="ki-shot__text">
+        <h3>Real terminals, built in</h3>
+        <p>Open as many integrated terminals as you need — run kubectl, exec into pods, tail logs — tiled right next to your resources.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 ## Get started
 
 <div class="ki-quicklinks" markdown>

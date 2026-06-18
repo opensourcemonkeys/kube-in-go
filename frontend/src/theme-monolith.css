@@ -676,7 +676,7 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .mon-card__pct { font-size: 26px; font-weight: 700; margin: 2px 0 6px; }
 .mon-trend { height: 120px; }
 
-.mon-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.mon-nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
 .mon-node { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color .12s, background .12s; }
 .mon-node:hover { background: var(--hover); }
 .mon-node--sel { border-color: var(--teal); }
@@ -687,6 +687,49 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 
 .mon-consumers-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .mon-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* Animated Pods ⇄ Workloads switch (sliding teal pill with a springy slide) */
+.mon-switch {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--panel2);
+  border: 1px solid var(--line2);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  outline: none;
+}
+.mon-switch:focus-visible { box-shadow: 0 0 0 2px rgba(63, 200, 180, .35); }
+.mon-switch__thumb {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 50%;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #62e3cf 0%, var(--teal) 100%);
+  box-shadow: 0 0 0 1px rgba(63, 200, 180, .4), 0 4px 16px rgba(63, 200, 180, .45);
+  transition: transform .36s cubic-bezier(.5, 1.5, .5, 1);
+  will-change: transform;
+}
+.mon-switch--workloads .mon-switch__thumb { transform: translateX(100%); }
+.mon-switch__opt {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 6px 20px;
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--ink2);
+  transition: color .25s ease;
+}
+.mon-switch__opt.is-active { color: var(--app); }
+.mon-switch__opt:hover:not(.is-active) { color: var(--ink); }
 
 .mon-cell { display: flex; align-items: center; gap: 8px; }
 .mon-cell__val { min-width: 78px; font-variant-numeric: tabular-nums; }
