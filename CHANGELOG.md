@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.6.2-alpha] - 2026-06-18
+
+### Added
+- **Documentation site overhaul** — navigation restructured into **Getting Started / Downloads / Docs**, with new user-guide pages (each illustrated with screenshots) for Networking (Services, Ingresses, Ingress Classes, Endpoints), Security (Service Accounts, Roles, Role Bindings, Security Role Map, Vulnerability Scan), Storage (Persistent Volumes, Volume Claims, Storage Classes) and Cluster (Monitoring, Events, Limit Ranges).
+- **Redesigned landing page** — an animated screenshot showcase that reveals features on scroll.
+
+### Changed
+- **Monitoring** — selectable chart **time window** (5 min – 2 hours) with a time-based axis and easier hover tooltips; an animated **Pods / Workloads** switch; **Take snapshot** now uses a native Save dialog (reliable across Linux/macOS/Windows).
+- **Installation guide** — download table and supported-OS list corrected to match the actual release artifacts: macOS added, both WebKitGTK 4.0 / 4.1 Linux builds documented, and untested distributions removed.
+
+---
+
+## [v0.6.1-alpha] - 2026-06-17
+
+### Added
+- **Documentation analytics** — Google Analytics on the docs site.
+
+### Changed
+- **Landing page** — home/index page updates.
+
+---
+
 ## [v0.6.0-alpha] - 2026-06-17
 
 ### Added
