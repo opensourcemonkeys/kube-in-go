@@ -326,6 +326,16 @@
 /* Quick-links list */
 .ki-quicklinks { margin-bottom: 2rem; }
 
+/* In-page screenshots on doc pages: framed, rounded, subtle shadow */
+.md-typeset img.doc-shot {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--ki-line2);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  margin: 0.75rem 0 1.25rem;
+}
+
 /* ════════════════════════════════════════════════════════════════
    SCREENSHOT SHOWCASE — browser frame, hero float, scroll reveal
    ════════════════════════════════════════════════════════════════ */

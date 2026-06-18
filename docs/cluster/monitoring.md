@@ -5,6 +5,8 @@ The Monitoring screen is a live resource-usage dashboard for the cluster, built 
 !!! warning "Requires metrics-server"
     Usage data comes from the Kubernetes metrics API. If [metrics-server](https://github.com/kubernetes-sigs/metrics-server) is not installed in the cluster, the screen shows a notice and no charts. Capacity (but not usage) may still be shown.
 
+![Resource monitoring dashboard](../assets/screenshots/monitoring.png){ .doc-shot }
+
 ## What's on screen
 
 - **Cluster summary** — total CPU and memory used vs. capacity, with a rolling usage trend.

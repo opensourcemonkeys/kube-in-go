@@ -2,6 +2,12 @@
 
 The YAML Editor workspace panel lets you apply arbitrary YAML to the active cluster — equivalent to running `kubectl apply -f`.
 
+![YAML editor](../assets/screenshots/yaml-editor.png){ .doc-shot }
+
+Panels are dockable, so you can keep the editor open right beside a resource list:
+
+![Editor docked beside a resource list](../assets/screenshots/split-view.png){ .doc-shot }
+
 ## Opening the Editor
 
 Click **YAML Editor** (or **Apply YAML**) in the sidebar under the Workspace section. The panel opens with an empty Monaco editor.

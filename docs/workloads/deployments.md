@@ -2,6 +2,8 @@
 
 The Deployments screen lists all Deployment resources across all namespaces.
 
+![Deployments screen](../assets/screenshots/deployments.png){ .doc-shot }
+
 ## Columns
 
 | Column | Description |

@@ -2,6 +2,8 @@
 
 The Terminal panel provides an integrated `kubectl` terminal directly inside Kube Inspector. It is powered by xterm.js and a server-side pseudo-terminal (pty).
 
+![Integrated terminals](../assets/screenshots/terminal.png){ .doc-shot }
+
 ## Opening the Terminal
 
 Click **Terminal** in the sidebar under the Workspace section. A terminal panel opens, already connected to a shell with `kubectl` available and configured against the active cluster.

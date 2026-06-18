@@ -2,6 +2,8 @@
 
 The Security Role Map turns the cluster's RBAC into an interactive graph, so you can read permissions instead of cross-referencing roles and bindings by hand.
 
+![Security Role Map graph](../assets/screenshots/security-role-map.png){ .doc-shot }
+
 ## What it shows
 
 The graph links four kinds of nodes:

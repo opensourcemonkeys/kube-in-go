@@ -2,6 +2,8 @@
 
 The Network Policies screen lists all `NetworkPolicy` resources across namespaces. For each policy you can inspect its rules and visualize traffic flow.
 
+![Network policy diagram](../assets/screenshots/network-policies.png){ .doc-shot }
+
 ## Columns
 
 | Column | Description |

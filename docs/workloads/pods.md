@@ -2,6 +2,8 @@
 
 The Pods screen lists all pods across all namespaces in the active cluster.
 
+![Pods screen](../assets/screenshots/pods.png){ .doc-shot }
+
 ## Columns
 
 | Column | Description |
