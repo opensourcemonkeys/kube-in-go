@@ -190,6 +190,32 @@ func StartLogStream(sessionId, namespace, podName, container string, client *kub
 	return nil
 }
 
+// GetPodLogsTail fetches the last `tail` lines of a pod/container's logs in a
+// single (non-streaming) read. Used by the AI assistant's get_pod_logs tool.
+func GetPodLogsTail(namespace, podName, container string, tail int64, client *kubernetes.Clientset) (string, error) {
+	if tail <= 0 {
+		tail = 200
+	}
+	req := client.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{
+		Container: container,
+		TailLines: &tail,
+	})
+	stream, err := req.Stream(context.Background())
+	if err != nil {
+		return "", fmt.Errorf("failed to read logs: %w", err)
+	}
+	defer stream.Close()
+
+	var sb strings.Builder
+	scanner := bufio.NewScanner(stream)
+	scanner.Buffer(make([]byte, 64*1024), 1024*1024)
+	for scanner.Scan() {
+		sb.WriteString(scanner.Text())
+		sb.WriteByte('\n')
+	}
+	return sb.String(), nil
+}
+
 func StopLogStream(sessionId string) {
 	logMu.Lock()
 	defer logMu.Unlock()

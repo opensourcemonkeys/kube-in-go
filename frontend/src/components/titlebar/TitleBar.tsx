@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
+import { Dropdown } from 'primereact/dropdown';
 import {
     WindowMinimise,
     WindowToggleMaximise,
@@ -12,6 +13,8 @@ import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useInstanceContext } from '../../contexts/InstanceContext';
 import { useTabContext } from '../../contexts/TabContext';
+import { useAiChatStore } from '../../stores/aiChatStore';
+import { useThemeStore, THEMES } from '../../stores/themeStore';
 import { useNextStep } from 'nextstepjs';
 import AboutModal from '../cluster/AboutModal';
 
@@ -25,6 +28,10 @@ function TitleBar() {
     const { selfInfo } = useInstanceContext();
     const { openTerminal, openApplyYaml } = useTabContext();
     const { startNextStep } = useNextStep();
+    const toggleAi = useAiChatStore((s) => s.toggle);
+    const aiOpen = useAiChatStore((s) => s.open);
+    const theme = useThemeStore((s) => s.theme);
+    const setTheme = useThemeStore((s) => s.setTheme);
 
     useEffect(() => {
         const check = () => CheckForUpdate().then(setUpdate).catch(() => { /* offline: ignore */ });
@@ -60,10 +67,10 @@ function TitleBar() {
             <div className="tb-root">
                 {/* Logo + title (fixed left) */}
                 <div className="tb-brand">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2.5 L20 7 V17 L12 21.5 L4 17 V7 Z" stroke="#3fc8b4" strokeWidth="1.5" strokeLinejoin="round"/>
-                        <path d="M12 12 V21.5 M4 7 L12 12 L20 7" stroke="#3fc8b4" strokeWidth="1.3" strokeLinejoin="round" opacity="0.7"/>
-                        <circle cx="12" cy="8.6" r="1.7" fill="#3fc8b4"/>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--teal)' }}>
+                        <path d="M12 2.5 L20 7 V17 L12 21.5 L4 17 V7 Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                        <path d="M12 12 V21.5 M4 7 L12 12 L20 7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" opacity="0.7"/>
+                        <circle cx="12" cy="8.6" r="1.7" fill="currentColor"/>
                     </svg>
                     <span className="tb-title">KUBE INSPECTOR</span>
                     {selfInfo && (
@@ -97,6 +104,26 @@ function TitleBar() {
                         Update available
                     </button>
                 )}
+
+                {/* Theme picker */}
+                <Dropdown
+                    className="tb-theme"
+                    panelClassName="tb-theme-panel"
+                    appendTo={document.body}
+                    value={theme}
+                    options={THEMES.map((t) => ({ label: t.label, value: t.id }))}
+                    onChange={(e) => setTheme(e.value)}
+                    title="Theme"
+                />
+
+                {/* AI assistant toggle */}
+                <button
+                    className={`tb-ai${aiOpen ? ' tb-ai--active' : ''}`}
+                    title="AI assistant"
+                    onClick={toggleAi}
+                >
+                    <VscHubot size={14} />
+                </button>
 
                 {/* Window controls */}
                 <div className="tb-controls">

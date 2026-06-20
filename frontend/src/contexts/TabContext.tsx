@@ -114,6 +114,7 @@ export interface ReceivedPanel {
 
 interface TabContextValue {
     registerApi: (api: DockviewApi) => void;
+    getApi: () => DockviewApi | null;
     openTab: (def: TabDef) => void;
     openYamlPanel: (def: YamlPanelDef) => void;
     openLogPanel: (def: LogPanelDef) => void;
@@ -148,6 +149,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     const registerApi = useCallback((api: DockviewApi) => {
         apiRef.current = api;
     }, []);
+
+    const getApi = useCallback(() => apiRef.current, []);
 
     const openTab = useCallback((def: TabDef) => {
         const api = apiRef.current;
@@ -500,7 +503,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
     }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openClusterResourceView, openApplyYaml]);
 
     return (
-        <TabContext.Provider value={{ registerApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
+        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
             {children}
         </TabContext.Provider>
     );

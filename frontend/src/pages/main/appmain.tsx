@@ -5,6 +5,7 @@ import TitleBar from '../../components/titlebar/TitleBar';
 import DockviewContainer from '../../components/workspace/DockviewContainer';
 import TabInstanceBridge from '../../components/workspace/TabInstanceBridge';
 import ClusterBar from '../../components/cluster/ClusterBar';
+import AiChat from '../../components/ai/AiChat';
 import { TabProvider } from '../../contexts/TabContext';
 import { ClusterProvider } from '../../contexts/ClusterContext';
 import { InstanceProvider } from '../../contexts/InstanceContext';
@@ -55,6 +56,7 @@ function Appmain() {
                     <InstanceProvider>
                     <TabProvider>
                         <TabInstanceBridge />
+                        <AiChat />
                         <div className="flex flex-column overflow-hidden" style={{ height: '100vh' }}>
                             <TitleBar />
                             <ClusterBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />

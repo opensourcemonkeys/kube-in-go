@@ -72,3 +72,12 @@ func StartLogStream(clusterName string, sessionId, podName, namespace, container
 func StopLogStream(sessionId string) {
 	services.StopLogStream(sessionId)
 }
+
+// GetPodLogsTail returns the last `tail` lines of a pod/container's logs in one read.
+func GetPodLogsTail(clusterName, namespace, podName, container string, tail int64) (string, error) {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return "", err
+	}
+	return services.GetPodLogsTail(namespace, podName, container, tail, client)
+}

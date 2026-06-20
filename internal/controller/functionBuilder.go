@@ -1,6 +1,11 @@
 package controller_app
 
 import (
+	"context"
+	"strings"
+	"sync"
+
+	"kube-ins/internal/ai"
 	bussiness "kube-ins/internal/business"
 	"kube-ins/internal/models"
 
@@ -31,6 +36,23 @@ func (a *App) SaveSnapshot(defaultName, dataURL string) (string, error) {
 		return "", err
 	}
 	return bussiness.SaveSnapshotPNG(path, dataURL)
+}
+
+// SaveReport prompts for a location and writes an HTML report to it. Returns the
+// saved path, or "" if the user cancelled.
+func (a *App) SaveReport(defaultName, content string) (string, error) {
+	path, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           "Save report",
+		DefaultFilename: defaultName,
+		Filters:         []runtime.FileFilter{{DisplayName: "HTML (*.html)", Pattern: "*.html"}},
+	})
+	if err != nil || path == "" {
+		return "", err
+	}
+	if !strings.HasSuffix(strings.ToLower(path), ".html") {
+		path += ".html"
+	}
+	return bussiness.SaveTextFile(path, content)
 }
 
 func (a *App) GetK8sSchema() string {
@@ -645,4 +667,181 @@ func (a *App) GetSelfInstanceInfo() models.InstanceInfo {
 
 func (a *App) TransferTab(targetInstanceId string, panel models.SerializedPanel) error {
 	return a.hub.TransferTab(targetInstanceId, panel)
+}
+
+// ============================================================================
+// AI Assistant (Ollama)
+// ============================================================================
+
+type aiSession struct {
+	cancel   context.CancelFunc
+	mu       sync.Mutex
+	confirms map[string]chan bool
+}
+
+var (
+	aiMu       sync.Mutex
+	aiSessions = map[string]*aiSession{}
+)
+
+// ListAiModels returns the models available on the given Ollama host.
+func (a *App) ListAiModels(host string) ([]string, error) {
+	return bussiness.ListAiModels(host)
+}
+
+// AiAvailable reports whether an Ollama server is reachable at host. The frontend
+// gates all assistant actions on this and otherwise prompts the user to install Ollama.
+func (a *App) AiAvailable(host string) bool {
+	return bussiness.AiAvailable(host)
+}
+
+// ListAiModelCatalog returns downloadable + installed models for the model manager.
+func (a *App) ListAiModelCatalog(host string) ([]models.OllamaModelInfo, error) {
+	return bussiness.ListAiModelCatalog(host)
+}
+
+// ListAiModelTags returns the registry tags (size variants) of a base model.
+func (a *App) ListAiModelTags(name string) ([]string, error) {
+	return bussiness.ListAiModelTags(name)
+}
+
+// AiModelSupportsTools reports whether the model can do function calling.
+func (a *App) AiModelSupportsTools(host, model string) bool {
+	return bussiness.AiModelSupportsTools(host, model)
+}
+
+var (
+	aiPullMu      sync.Mutex
+	aiPullCancels = map[string]context.CancelFunc{}
+)
+
+// PullAiModel downloads a model, streaming progress to the frontend via
+// ai:pull / ai:pull-done / ai:pull-error events (payload carries the model name).
+func (a *App) PullAiModel(host, model string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	aiPullMu.Lock()
+	if old, ok := aiPullCancels[model]; ok {
+		old()
+	}
+	aiPullCancels[model] = cancel
+	aiPullMu.Unlock()
+
+	go func() {
+		defer func() {
+			aiPullMu.Lock()
+			delete(aiPullCancels, model)
+			aiPullMu.Unlock()
+			cancel()
+		}()
+
+		onProgress := func(status string, total, completed int64) {
+			var percent float64
+			if total > 0 {
+				percent = float64(completed) / float64(total) * 100
+			}
+			runtime.EventsEmit(a.ctx, "ai:pull", map[string]any{
+				"model": model, "status": status, "total": total, "completed": completed, "percent": percent,
+			})
+		}
+
+		if err := bussiness.PullAiModel(ctx, host, model, onProgress); err != nil {
+			runtime.EventsEmit(a.ctx, "ai:pull-error", map[string]any{"model": model, "error": err.Error()})
+			return
+		}
+		runtime.EventsEmit(a.ctx, "ai:pull-done", map[string]any{"model": model})
+	}()
+
+	return nil
+}
+
+// StopAiPull cancels an in-flight model download.
+func (a *App) StopAiPull(model string) error {
+	aiPullMu.Lock()
+	cancel, ok := aiPullCancels[model]
+	aiPullMu.Unlock()
+	if ok {
+		cancel()
+	}
+	return nil
+}
+
+// StartAiChat runs the streaming chat + tool loop for one user turn. Tokens,
+// tool activity, confirmation requests and completion are pushed to the frontend
+// via ai:token/ai:tool/ai:confirm/ai:done/ai:error events suffixed with sessionId.
+func (a *App) StartAiChat(sessionId, host, model, clusterName, messagesJSON, contextJSON string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	sess := &aiSession{cancel: cancel, confirms: map[string]chan bool{}}
+
+	aiMu.Lock()
+	if old, ok := aiSessions[sessionId]; ok {
+		old.cancel()
+	}
+	aiSessions[sessionId] = sess
+	aiMu.Unlock()
+
+	go func() {
+		defer func() {
+			aiMu.Lock()
+			delete(aiSessions, sessionId)
+			aiMu.Unlock()
+			cancel()
+		}()
+
+		emitToken := func(s string) { runtime.EventsEmit(a.ctx, "ai:token:"+sessionId, s) }
+		emitTool := func(ev ai.ToolEvent) { runtime.EventsEmit(a.ctx, "ai:tool:"+sessionId, ev) }
+		awaitConfirm := func(id, name string, args map[string]any) bool {
+			ch := make(chan bool, 1)
+			sess.mu.Lock()
+			sess.confirms[id] = ch
+			sess.mu.Unlock()
+			runtime.EventsEmit(a.ctx, "ai:confirm:"+sessionId, map[string]any{"id": id, "name": name, "args": args})
+			select {
+			case ok := <-ch:
+				return ok
+			case <-ctx.Done():
+				return false
+			}
+		}
+
+		if err := bussiness.RunAiChat(ctx, host, model, clusterName, messagesJSON, contextJSON, emitToken, emitTool, awaitConfirm); err != nil {
+			runtime.EventsEmit(a.ctx, "ai:error:"+sessionId, err.Error())
+			return
+		}
+		runtime.EventsEmit(a.ctx, "ai:done:"+sessionId, "")
+	}()
+
+	return nil
+}
+
+// ConfirmToolCall delivers the user's approve/deny decision for a pending
+// mutating tool call to the waiting agent loop.
+func (a *App) ConfirmToolCall(sessionId, callId string, approved bool) error {
+	aiMu.Lock()
+	sess, ok := aiSessions[sessionId]
+	aiMu.Unlock()
+	if !ok {
+		return nil
+	}
+	sess.mu.Lock()
+	ch, ok := sess.confirms[callId]
+	if ok {
+		delete(sess.confirms, callId)
+	}
+	sess.mu.Unlock()
+	if ok {
+		ch <- approved
+	}
+	return nil
+}
+
+// StopAiChat cancels an in-flight chat session.
+func (a *App) StopAiChat(sessionId string) error {
+	aiMu.Lock()
+	sess, ok := aiSessions[sessionId]
+	aiMu.Unlock()
+	if ok {
+		sess.cancel()
+	}
+	return nil
 }
