@@ -6,7 +6,7 @@ import (
 	runtimedebug "runtime/debug"
 )
 
-var appVersion = "1.0.0"
+var appVersion = "0.6.3-alpha"
 
 var trackedDeps = []string{
 	"github.com/wailsapp/wails/v2",

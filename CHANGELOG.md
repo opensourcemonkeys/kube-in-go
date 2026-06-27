@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.6.3-alpha] - 2026-06-27
+
+### Added
+- **AI Assistant improvements** — Ollama-backed chat experience with model discovery, pull flow, and cluster-aware tool actions.
+- **Security scanning enhancements** — expanded Trivy-based image and cluster scan workflow with richer result handling.
+
+### Changed
+- **Security UI** — Trivy scanner view and scan result models were refined for clearer vulnerability reporting.
+- **App experience** — theme handling, title bar interactions, and related UI polish were improved across the desktop experience.
+
 ## [v0.6.2-alpha] - 2026-06-18
 
 ### Added
