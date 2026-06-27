@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+<!-- Expose the app version so the header version chip (version-chip.js) can read it. -->
+{% block extrahead %}
+  {{ super() }}
+  {% if config.extra.app_version %}
+  <meta name="ki-app-version" content="{{ config.extra.app_version }}">
+  {% endif %}
+{% endblock %}
+
 <!-- Alpha notice — full-width strip in the header, just below the navigation/menu bar. -->
 {% block tabs %}
   {{ super() }}

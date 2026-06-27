@@ -106,6 +106,7 @@ hooks:
 extra_javascript:
   - javascripts/reveal.js
   - javascripts/changelog.js
+  - javascripts/version-chip.js
 
 extra:
   analytics:

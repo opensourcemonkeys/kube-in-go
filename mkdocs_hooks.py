@@ -8,12 +8,46 @@ Each version's body is left as Markdown wrapped in HTML (md_in_html is enabled i
 mkdocs.yml), so the `### Added/Changed/...` bullets render with the normal theme.
 """
 
+import json
 import os
 import re
+import subprocess
 
 import markdown as _md
 
 MARKER = "<!-- KI_CHANGELOG -->"
+
+
+def _app_version(config):
+    """Resolve the current app version for the header chip.
+
+    Prefers the generated docs/version.json (written by `make docs-downloads`),
+    falling back to the latest git tag so a bare `mkdocs serve` still works.
+    """
+    root = os.path.dirname(config["config_file_path"])
+    try:
+        with open(os.path.join(root, "docs", "version.json"), "r", encoding="utf-8") as fh:
+            ver = json.load(fh).get("version")
+            if ver:
+                return ver if ver.startswith("v") else "v" + ver
+    except (OSError, ValueError):
+        pass
+    try:
+        tag = subprocess.check_output(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            cwd=root,
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+        if tag:
+            return tag
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    return ""
+
+
+def on_config(config):
+    config["extra"]["app_version"] = _app_version(config)
+    return config
 
 # "## [v0.6.3-alpha] - 2026-06-27"
 _VERSION_RE = re.compile(r"^##\s+\[(?P<ver>[^\]]+)\]\s*(?:-\s*(?P<date>.+))?$")
