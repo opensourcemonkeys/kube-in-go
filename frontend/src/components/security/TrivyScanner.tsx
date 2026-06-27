@@ -326,16 +326,66 @@ function vulnToFinding(r: VulnRow): DetailFinding {
     };
 }
 
-// ─── SummaryBar ───────────────────────────────────────────────────────────────
+// ─── SummaryGrid ──────────────────────────────────────────────────────────────
 
-function SummaryBar({ label, counts }: { label: string; counts: Record<string, number> }) {
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    if (total === 0) return null;
+type SummaryCategory = { label: string; counts: Record<string, number> };
+
+// A count cell — colored by its severity, dimmed when zero.
+function SeverityCount({ sev, value }: { sev: string; value: number }) {
+    const active = value > 0;
     return (
-        <div className="flex align-items-center gap-2 flex-wrap">
-            <span className="text-color-secondary text-sm font-semibold">{label}:</span>
-            {SEVERITIES.map((s) => counts[s] ? <Tag key={s} value={`${s}: ${counts[s]}`} severity={severitySeverity(s)} /> : null)}
-            <Tag value={`Total: ${total}`} />
+        <div
+            className="flex flex-column align-items-center justify-content-center border-round py-2 px-1"
+            style={{
+                background: active ? `${SEVERITY_HEX[sev]}22` : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${active ? `${SEVERITY_HEX[sev]}66` : 'rgba(255,255,255,0.06)'}`,
+                minWidth: 0,
+            }}
+        >
+            <span
+                className="font-semibold"
+                style={{ fontSize: '1.1rem', lineHeight: 1.1, color: active ? SEVERITY_HEX[sev] : 'var(--ink, #888)', opacity: active ? 1 : 0.4 }}
+            >
+                {value}
+            </span>
+            <span className="text-xs uppercase font-semibold mt-1" style={{ color: SEVERITY_HEX[sev], opacity: active ? 0.85 : 0.35 }}>
+                {sev}
+            </span>
+        </div>
+    );
+}
+
+// Aligned grid of all finding categories: one row per category, one column per
+// severity (plus a Total), so the counts line up neatly instead of wrapping.
+function SummaryGrid({ categories }: { categories: SummaryCategory[] }) {
+    const visible = categories.filter((c) => Object.values(c.counts).reduce((a, b) => a + b, 0) > 0);
+    if (visible.length === 0) return null;
+    return (
+        <div className="flex flex-column gap-2">
+            {visible.map((cat) => {
+                const total = Object.values(cat.counts).reduce((a, b) => a + b, 0);
+                return (
+                    <div
+                        key={cat.label}
+                        className="grid grid-nogutter align-items-center gap-2 p-2 border-round"
+                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
+                        <div className="col-12 md:col-2 flex align-items-center gap-2">
+                            <span className="font-semibold text-sm">{cat.label}</span>
+                            <Tag value={`${total}`} rounded />
+                        </div>
+                        <div className="col-12 md:col-10">
+                            <div className="grid grid-nogutter" style={{ gap: 8 }}>
+                                {SEVERITIES.map((s) => (
+                                    <div key={s} style={{ flex: '1 1 0', minWidth: 64 }}>
+                                        <SeverityCount sev={s} value={cat.counts[s] || 0} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -761,7 +811,7 @@ function K8sSecurityTab({
                         {scanning && <span className="trivy-console__caret" />}
                     </div>
                     {vulnProgress && (
-                        <ProgressBar value={Math.round((vulnProgress.current / vulnProgress.total) * 100)} style={{ height: 6 }} />
+                        <ProgressBar value={Math.round((vulnProgress.current / vulnProgress.total) * 100)} showValue={false} style={{ height: 6 }} />
                     )}
                 </div>
             )}
@@ -770,11 +820,13 @@ function K8sSecurityTab({
 
             {/* Summary */}
             {totalFindings > 0 && (
-                <div className="flex flex-column gap-1">
-                    <SummaryBar label="Misconfigs" counts={misconfigSummary} />
-                    <SummaryBar label="Vulnerabilities" counts={vulnSummary} />
-                    <SummaryBar label="Secrets" counts={secretSummary} />
-                </div>
+                <SummaryGrid
+                    categories={[
+                        { label: 'Misconfigs', counts: misconfigSummary },
+                        { label: 'Vulnerabilities', counts: vulnSummary },
+                        { label: 'Secrets', counts: secretSummary },
+                    ]}
+                />
             )}
 
             {/* Results sub-tabs */}
@@ -858,7 +910,7 @@ function ImageScanTab({
                         <span className="trivy-console__text">{scanner.log}</span>
                         <span className="trivy-console__caret" />
                     </div>
-                    <ProgressBar value={Math.round((scanner.progress.current / scanner.progress.total) * 100)} style={{ height: 6 }} />
+                    <ProgressBar value={Math.round((scanner.progress.current / scanner.progress.total) * 100)} showValue={false} style={{ height: 6 }} />
                 </div>
             )}
 

@@ -56,6 +56,7 @@ nav:
     - Installation: getting-started/installation.md
     - Adding Clusters: getting-started/cluster-setup.md
   - Downloads: downloads.md
+  - Changelog: changelog.md
   - Docs:
     - Workloads:
       - Overview: workloads/index.md
@@ -99,8 +100,12 @@ nav:
 extra_css:
   - stylesheets/extra.css
 
+hooks:
+  - mkdocs_hooks.py
+
 extra_javascript:
   - javascripts/reveal.js
+  - javascripts/changelog.js
 
 extra:
   analytics:

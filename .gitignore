@@ -15,3 +15,4 @@ e2e_tests/__pycache__/*
 report.html
 docs/version.json
 docs/downloads.md
+__pycache__
