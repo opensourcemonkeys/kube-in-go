@@ -6,6 +6,7 @@ import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { Message } from 'primereact/message';
 import { TabView, TabPanel } from 'primereact/tabview';
@@ -155,6 +156,176 @@ function SeverityTag({ sev }: { sev: string }) {
     return <Tag value={sev} severity={severitySeverity(sev)} />;
 }
 
+// ─── Finding detail modal ─────────────────────────────────────────────────────
+
+// Trivy does not provide remediation for detected secrets, so we surface curated
+// guidance keyed by the secret category (falling back to generic advice).
+function secretRemediation(category: string, _ruleID: string): string {
+    const c = (category || '').toLowerCase();
+    const generic =
+        'Treat this credential as compromised. Rotate/revoke it immediately at the provider, ' +
+        'remove the literal value from the manifest, and purge it from Git history (e.g. git filter-repo / BFG). ' +
+        'Store the secret in a Kubernetes Secret (or External Secrets / Sealed Secrets / a vault) and ' +
+        'inject it via envFrom or a mounted volume instead of hardcoding it.';
+    if (c.includes('aws'))
+        return 'Rotate this AWS key in IAM (deactivate then delete the exposed access key) and audit CloudTrail for misuse. ' + generic;
+    if (c.includes('gcp') || c.includes('google'))
+        return 'Revoke this Google Cloud service-account key and create a new one; review IAM audit logs for misuse. ' + generic;
+    if (c.includes('private') || c.includes('rsa') || c.includes('ssh'))
+        return 'Consider this private key compromised: revoke/replace the key pair and rotate anything it protected. ' + generic;
+    if (c.includes('token') || c.includes('jwt') || c.includes('github'))
+        return 'Revoke this token at the issuing service and generate a new one with least-privilege scopes. ' + generic;
+    return generic;
+}
+
+type DetailFinding = {
+    kind: 'misconfig' | 'secret' | 'vuln';
+    severity: string;
+    title: string;
+    idLabel: string; // e.g. "KSV001" | "CVE-2023-1234" | rule id
+    resource: { kind: string; name: string; namespace: string };
+    description: string;
+    details: string;
+    recommendation: string;
+    references: string[];
+    externalUrl: string;
+};
+
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+    if (!value) return null;
+    return (
+        <div className="flex flex-column gap-1">
+            <span className="text-color-secondary text-xs uppercase font-semibold">{label}</span>
+            <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: mono ? 'monospace' : undefined }}>{value}</span>
+        </div>
+    );
+}
+
+function FindingDetailDialog({ finding, onHide }: { finding: DetailFinding | null; onHide: () => void }) {
+    if (!finding) return null;
+    const res = finding.resource;
+    const resourceLine = [res.kind, res.namespace ? `${res.namespace}/${res.name}` : res.name]
+        .filter(Boolean)
+        .join('  •  ');
+    return (
+        <Dialog
+            visible={!!finding}
+            onHide={onHide}
+            dismissableMask
+            style={{ width: 'min(960px, 94vw)' }}
+            header={
+                <div className="flex align-items-center gap-2 flex-wrap">
+                    <SeverityTag sev={finding.severity} />
+                    {finding.idLabel && <span className="font-semibold">{finding.idLabel}</span>}
+                    <span className="text-color-secondary">{finding.title}</span>
+                </div>
+            }
+        >
+            <div className="flex flex-column gap-3">
+                <DetailRow label="Resource" value={resourceLine} />
+                <DetailRow label="Description" value={finding.description} />
+                <DetailRow label="Details" value={finding.details} mono={finding.kind === 'secret'} />
+
+                <div
+                    className="flex flex-column gap-1 p-3 border-round"
+                    style={{ background: 'rgba(74, 123, 181, 0.12)', border: '1px solid rgba(74, 123, 181, 0.4)' }}
+                >
+                    <span className="text-xs uppercase font-semibold" style={{ color: SEVERITY_HEX.LOW }}>
+                        Recommendation
+                    </span>
+                    <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        {finding.recommendation || 'No specific remediation available.'}
+                    </span>
+                </div>
+
+                {finding.references.length > 0 && (
+                    <div className="flex flex-column gap-1">
+                        <span className="text-color-secondary text-xs uppercase font-semibold">References</span>
+                        <ul className="m-0 pl-3 flex flex-column gap-1">
+                            {finding.references.map((url) => (
+                                <li key={url}>
+                                    <a className="text-primary cursor-pointer" style={{ wordBreak: 'break-all' }} onClick={() => BrowserOpenURL(url)}>
+                                        {url}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {finding.externalUrl && (
+                    <div>
+                        <Button
+                            label="Open advisory"
+                            icon={<VscLinkExternal className="mr-2" />}
+                            size="small"
+                            outlined
+                            onClick={() => BrowserOpenURL(finding.externalUrl)}
+                        />
+                    </div>
+                )}
+            </div>
+        </Dialog>
+    );
+}
+
+// ─── Row → DetailFinding adapters ─────────────────────────────────────────────
+
+function misconfigToFinding(r: MisconfigRow): DetailFinding {
+    return {
+        kind: 'misconfig',
+        severity: r.severity,
+        title: r.title,
+        idLabel: r.checkID,
+        resource: { kind: r.resourceKind, name: r.resourceName, namespace: r.namespace },
+        description: r.description,
+        details: r.message,
+        recommendation: r.resolution,
+        references: r.references,
+        externalUrl: r.primaryURL,
+    };
+}
+
+function secretToFinding(r: SecretRow): DetailFinding {
+    const masked = r.match ? r.match.replace(/.(?=.{4})/g, '*') : '';
+    return {
+        kind: 'secret',
+        severity: r.severity,
+        title: r.title,
+        idLabel: r.ruleID,
+        resource: { kind: r.resourceKind, name: r.resourceName, namespace: r.namespace },
+        description: r.category ? `Detected secret category: ${r.category}` : '',
+        details: masked ? `Match: ${masked}` : '',
+        recommendation: secretRemediation(r.category, r.ruleID),
+        references: [],
+        externalUrl: '',
+    };
+}
+
+function vulnToFinding(r: VulnRow): DetailFinding {
+    const recommendation = r.fixedVersion
+        ? `Upgrade package "${r.pkgName}" from ${r.installedVersion || '?'} to ${r.fixedVersion} (or later).`
+        : 'No fixed version is available yet. Track the advisory below and apply a fix when released, or mitigate by restricting exposure.';
+    const details = [
+        `Package: ${r.pkgName}`,
+        `Installed: ${r.installedVersion || '—'}`,
+        `Fixed: ${r.fixedVersion || '—'}`,
+        r.publishedDate ? `Published: ${r.publishedDate}` : '',
+    ].filter(Boolean).join('\n');
+    return {
+        kind: 'vuln',
+        severity: r.severity,
+        title: r.title,
+        idLabel: r.vulnerabilityID,
+        resource: { kind: r.resourceKind, name: r.resourceName, namespace: r.resourceNs },
+        description: r.description,
+        details,
+        recommendation,
+        references: r.references || [],
+        externalUrl: vulnUrl(r.vulnerabilityID, r.primaryURL),
+    };
+}
+
 // ─── SummaryBar ───────────────────────────────────────────────────────────────
 
 function SummaryBar({ label, counts }: { label: string; counts: Record<string, number> }) {
@@ -194,6 +365,7 @@ const defaultMisconfigFilters: DataTableFilterMeta = {
 function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: boolean }) {
     const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultMisconfigFilters);
+    const [selected, setSelected] = useState<DetailFinding | null>(null);
 
     const sorted = useMemo(
         () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
@@ -201,6 +373,7 @@ function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: bo
     );
 
     return (
+        <>
         <DataTable
             value={sorted}
             dataKey="_uid"
@@ -214,6 +387,8 @@ function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: bo
             globalFilter={globalFilter}
             globalFilterFields={['checkID', 'resourceKind', 'resourceName', 'namespace', 'title', 'message']}
             filterDisplay="menu"
+            onRowDoubleClick={(e) => setSelected(misconfigToFinding(e.data as MisconfigRow))}
+            rowClassName={() => 'cursor-pointer'}
             emptyMessage={scanning ? 'Scanning…' : 'No misconfigurations found. Run a scan.'}
             header={
                 <div className="flex justify-content-end">
@@ -229,6 +404,8 @@ function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: bo
             <Column field="title" header="Title" />
             <Column field="resolution" header="Resolution" style={{ maxWidth: 300 }} />
         </DataTable>
+        <FindingDetailDialog finding={selected} onHide={() => setSelected(null)} />
+        </>
     );
 }
 
@@ -244,6 +421,7 @@ const defaultSecretFilters: DataTableFilterMeta = {
 function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean }) {
     const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultSecretFilters);
+    const [selected, setSelected] = useState<DetailFinding | null>(null);
 
     const sorted = useMemo(
         () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
@@ -251,6 +429,7 @@ function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean 
     );
 
     return (
+        <>
         <DataTable
             value={sorted}
             dataKey="_uid"
@@ -264,6 +443,8 @@ function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean 
             globalFilter={globalFilter}
             globalFilterFields={['ruleID', 'category', 'resourceKind', 'resourceName', 'namespace', 'title', 'match']}
             filterDisplay="menu"
+            onRowDoubleClick={(e) => setSelected(secretToFinding(e.data as SecretRow))}
+            rowClassName={() => 'cursor-pointer'}
             emptyMessage={scanning ? 'Scanning…' : 'No secrets found. Run a scan.'}
             header={
                 <div className="flex justify-content-end">
@@ -280,6 +461,8 @@ function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean 
             <Column field="title" header="Title" />
             <Column field="match" header="Match" style={{ maxWidth: 220, fontFamily: 'monospace', fontSize: '0.8em' }} />
         </DataTable>
+        <FindingDetailDialog finding={selected} onHide={() => setSelected(null)} />
+        </>
     );
 }
 
@@ -308,6 +491,7 @@ const fixedBody = (r: VulnRow) =>
 function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scanning: boolean; showImageColumn: boolean }) {
     const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultVulnFilters);
+    const [selected, setSelected] = useState<DetailFinding | null>(null);
 
     const sorted = useMemo(
         () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
@@ -315,6 +499,7 @@ function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scann
     );
 
     return (
+        <>
         <DataTable
             value={sorted}
             dataKey="_uid"
@@ -328,6 +513,8 @@ function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scann
             globalFilter={globalFilter}
             globalFilterFields={['vulnerabilityID', 'pkgName', 'image', 'title', 'resourceName']}
             filterDisplay="menu"
+            onRowDoubleClick={(e) => setSelected(vulnToFinding(e.data as VulnRow))}
+            rowClassName={() => 'cursor-pointer'}
             emptyMessage={scanning ? 'Scanning images…' : 'No vulnerabilities found. Run a scan.'}
             header={
                 <div className="flex justify-content-end">
@@ -345,6 +532,8 @@ function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scann
             <Column field="resourceName" header="Resource" sortable filter />
             <Column field="title" header="Title" />
         </DataTable>
+        <FindingDetailDialog finding={selected} onHide={() => setSelected(null)} />
+        </>
     );
 }
 
