@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.6.4-alpha] - 2026-06-27
+
+### Added
+- **Vulnerability detail view** — clicking a CVE in the **Vulnerability Scan** screen now opens a detail panel with the full description, published date, fixed version, and external reference links; the underlying scan model was extended with `description`, `references`, and `publishedDate` (and richer fields for Kubernetes misconfiguration findings).
+- **Changelog page** — the documentation site now has an interactive changelog **timeline** (`docs/changelog.md`, generated from `CHANGELOG.md` by `mkdocs_hooks.py`) where each release can be expanded, plus a **version chip** in the site header.
+
+### Changed
+- **Workspace layout** — the standalone cluster bar was removed; cluster selection now lives inside the sidebar and the **sidebar toggle moved into the title bar**, giving a cleaner, more compact top area.
+
+---
+
 ## [v0.6.3-alpha] - 2026-06-27
 
 ### Added
