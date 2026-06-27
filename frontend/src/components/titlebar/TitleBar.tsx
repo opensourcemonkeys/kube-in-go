@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
-import { Dropdown } from 'primereact/dropdown';
 import {
     WindowMinimise,
     WindowToggleMaximise,
@@ -56,6 +55,22 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true }: TitleBarProps) {
             items: [
                 { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml() },
                 { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal() },
+                { separator: true },
+                {
+                    label: 'AI Assistant (experimental)',
+                    icon: <VscHubot size={13} />,
+                    className: aiOpen ? 'tb-menu-active' : undefined,
+                    command: () => toggleAi(),
+                },
+                {
+                    label: 'Theme',
+                    icon: <VscSymbolColor size={13} />,
+                    items: THEMES.map((t) => ({
+                        label: t.label,
+                        icon: t.id === theme ? <VscCheck size={13} /> : undefined,
+                        command: () => setTheme(t.id),
+                    })),
+                },
             ],
         },
         {
@@ -118,26 +133,6 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true }: TitleBarProps) {
                         Update available
                     </button>
                 )}
-
-                {/* Theme picker */}
-                <Dropdown
-                    className="tb-theme"
-                    panelClassName="tb-theme-panel"
-                    appendTo={document.body}
-                    value={theme}
-                    options={THEMES.map((t) => ({ label: t.label, value: t.id }))}
-                    onChange={(e) => setTheme(e.value)}
-                    title="Theme"
-                />
-
-                {/* AI assistant toggle */}
-                <button
-                    className={`tb-ai${aiOpen ? ' tb-ai--active' : ''}`}
-                    title="AI assistant"
-                    onClick={toggleAi}
-                >
-                    <VscHubot size={14} />
-                </button>
 
                 {/* Window controls */}
                 <div className="tb-controls">
