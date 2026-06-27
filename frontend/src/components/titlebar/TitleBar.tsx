@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import { Dropdown } from 'primereact/dropdown';
@@ -21,7 +21,12 @@ import AboutModal from '../cluster/AboutModal';
 // Re-check for a newer release every 6 hours while the app stays open.
 const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
-function TitleBar() {
+interface TitleBarProps {
+    onToggleSidebar?: () => void;
+    sidebarOpen?: boolean;
+}
+
+function TitleBar({ onToggleSidebar, sidebarOpen = true }: TitleBarProps) {
     const [maximised, setMaximised] = useState(false);
     const [aboutOpen, setAboutOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
@@ -65,6 +70,15 @@ function TitleBar() {
     return (
         <>
             <div className="tb-root">
+                {/* Sidebar toggle (far left) */}
+                <button
+                    className="tb-sidebar-toggle"
+                    onClick={onToggleSidebar}
+                    title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+                >
+                    <VscLayoutSidebarLeft size={14} />
+                </button>
+
                 {/* Logo + title (fixed left) */}
                 <div className="tb-brand">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: 'var(--teal)' }}>

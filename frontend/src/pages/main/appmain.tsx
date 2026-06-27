@@ -58,8 +58,7 @@ function Appmain() {
                         <TabInstanceBridge />
                         <AiChat />
                         <div className="flex flex-column overflow-hidden" style={{ height: '100vh' }}>
-                            <TitleBar />
-                            <ClusterBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+                            <TitleBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
                             <div className="flex-1 min-h-0" style={{ position: 'relative', overflow: 'hidden' }}>
 
                                 {/* Hover trigger zone — only active when sidebar is collapsed */}
@@ -96,6 +95,7 @@ function Appmain() {
                                     onMouseEnter={onEnter}
                                     onMouseLeave={onLeave}
                                 >
+                                    <ClusterBar />
                                     <SideMenu />
                                 </div>
 

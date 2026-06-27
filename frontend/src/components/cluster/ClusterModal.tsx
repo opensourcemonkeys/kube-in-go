@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
@@ -144,7 +145,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
         }
     };
 
-    return (
+    return createPortal(
         <div className="cluster-modal-overlay">
             <button
                 type="button"
@@ -341,6 +342,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                     />
                 </div>
             </dialog>
-        </div>
+        </div>,
+        document.body
     );
 }
