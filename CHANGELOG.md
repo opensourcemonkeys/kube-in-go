@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Terminal UI (TUI)** — a new `tview`-based terminal interface that mirrors the desktop app (resource menu, tables, cluster add/select/delete, YAML view/edit, delete, pod logs and exec) on a single focused screen. It reuses the same `internal/business` functions as the GUI, so no new service endpoints were added. Ships two ways:
+  - **Standalone CLI** — a separate, webview-free `kube-ins-tui` binary (`cmd/tui`) with its own packages (`make build-tui*`, `make pkg-tui-deb`/`pkg-tui-rpm`). No `libwebkit2gtk` dependency.
+  - **CLI Mode in the GUI** — an **Open ▸ CLI Mode** action opens a fullscreen terminal (xterm.js) running the TUI over the dockview/menu (which stay mounted underneath). The GUI re-execs itself with `--tui` in a pty; quitting the TUI restores the desktop UI.
+- Cross-platform, k9s-style single-key shortcuts (`/` filter, `r` refresh, `y` yaml, `e` edit, `d` delete, `l` logs, `s` shell, `c` cluster, `?` help) shown as hints in the top bar.
+
 ## [v0.6.4-alpha] - 2026-06-27
 
 ### Added

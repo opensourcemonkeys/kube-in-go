@@ -6,6 +6,7 @@ import DockviewContainer from '../../components/workspace/DockviewContainer';
 import TabInstanceBridge from '../../components/workspace/TabInstanceBridge';
 import ClusterBar from '../../components/cluster/ClusterBar';
 import AiChat from '../../components/ai/AiChat';
+import CliModeOverlay from '../../components/climode/CliModeOverlay';
 import { TabProvider } from '../../contexts/TabContext';
 import { ClusterProvider } from '../../contexts/ClusterContext';
 import { InstanceProvider } from '../../contexts/InstanceContext';
@@ -19,6 +20,7 @@ function Appmain() {
         localStorage.getItem(SIDEBAR_OPEN_KEY) !== 'false'
     );
     const [hovered, setHovered] = useState(false);
+    const [cliMode, setCliMode] = useState(false);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const toggleSidebar = () => {
@@ -58,8 +60,12 @@ function Appmain() {
                         <TabInstanceBridge />
                         <AiChat />
                         <div className="flex flex-column overflow-hidden" style={{ height: '100vh' }}>
-                            <TitleBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+                            <TitleBar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} onToggleCli={() => setCliMode(true)} />
                             <div className="flex-1 min-h-0" style={{ position: 'relative', overflow: 'hidden' }}>
+
+                                {/* CLI mode: fullscreen terminal UI over the workspace. Dockview +
+                                    menu stay mounted underneath so their state survives the toggle. */}
+                                {cliMode && <CliModeOverlay onClose={() => setCliMode(false)} />}
 
                                 {/* Hover trigger zone — only active when sidebar is collapsed */}
                                 {!sidebarOpen && (

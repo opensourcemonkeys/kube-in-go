@@ -388,6 +388,29 @@ func (a *App) CloseTerminalSession(id string) error {
 }
 
 // ============================================================================
+// CLI Mode (fullscreen terminal UI hosted in the GUI)
+// ============================================================================
+
+func (a *App) CreateCliModeSession(id string) error {
+	return bussiness.CreateCliModeSession(id,
+		func(data string) { runtime.EventsEmit(a.ctx, "climode:output:"+id, data) },
+		func() { runtime.EventsEmit(a.ctx, "climode:exit:"+id) },
+	)
+}
+
+func (a *App) WriteToCliModeSession(id string, data string) error {
+	return bussiness.WriteToCliModeSession(id, data)
+}
+
+func (a *App) ResizeCliModeSession(id string, cols int, rows int) error {
+	return bussiness.ResizeCliModeSession(id, cols, rows)
+}
+
+func (a *App) CloseCliModeSession(id string) error {
+	return bussiness.CloseCliModeSession(id)
+}
+
+// ============================================================================
 // Network Screen: Network Policies
 // ============================================================================
 

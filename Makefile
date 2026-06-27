@@ -27,6 +27,22 @@ build-mac:
 dev:
 	wails dev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'"
 
+# ── Standalone terminal UI (kube-ins-tui) ────────────────────────
+# A webview-free native CLI binary (cmd/tui). Plain `go build` — no wails, no
+# frontend embed — so it carries no webkit2gtk dependency. GOEXPERIMENT=jsonv2
+# is still required because internal/business transitively imports Trivy.
+build-tui:
+	go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui ./cmd/tui
+
+build-tui-linux:
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui ./cmd/tui
+
+build-tui-windows:
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui.exe ./cmd/tui
+
+build-tui-mac:
+	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui ./cmd/tui
+
 pkg-deb: build-linux
 	mkdir -p $(DIST)
 	VERSION=$(VERSION) $(NFPM) pkg --packager deb --config ./build/nfpm.yaml --target $(DIST)/
@@ -40,7 +56,15 @@ pkg-windows: build-windows
 pkg-mac: build-mac
 	cd build/dmg-builder && npm install --silent && VERSION=$(VERSION) node build.js
 
-pkg-all: pkg-deb pkg-rpm pkg-windows pkg-mac
+pkg-tui-deb: build-tui-linux
+	mkdir -p $(DIST)
+	VERSION=$(VERSION) $(NFPM) pkg --packager deb --config ./build/nfpm-tui.yaml --target $(DIST)/
+
+pkg-tui-rpm: build-tui-linux
+	mkdir -p $(DIST)
+	VERSION=$(VERSION) $(NFPM) pkg --packager rpm --config ./build/nfpm-tui.yaml --target $(DIST)/
+
+pkg-all: pkg-deb pkg-rpm pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm
 
 clean:
 	rm -rf ./build/bin ./dist
@@ -69,4 +93,4 @@ docs-serve: docs-downloads
 docs-build: docs-downloads
 	mkdocs build --clean --strict
 
-.PHONY: build build-linux build-windows build-mac dev pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-all clean test-e2e docs-downloads docs-serve docs-build
+.PHONY: build build-linux build-windows build-mac dev build-tui build-tui-linux build-tui-windows build-tui-mac pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-tui-deb pkg-tui-rpm pkg-all clean test-e2e docs-downloads docs-serve docs-build

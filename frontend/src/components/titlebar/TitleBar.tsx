@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import {
@@ -23,9 +23,10 @@ const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 interface TitleBarProps {
     onToggleSidebar?: () => void;
     sidebarOpen?: boolean;
+    onToggleCli?: () => void;
 }
 
-function TitleBar({ onToggleSidebar, sidebarOpen = true }: TitleBarProps) {
+function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBarProps) {
     const [maximised, setMaximised] = useState(false);
     const [aboutOpen, setAboutOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
@@ -55,6 +56,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true }: TitleBarProps) {
             items: [
                 { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml() },
                 { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal() },
+                { label: 'CLI Mode',    icon: <VscScreenFull size={13} />,  command: () => onToggleCli?.() },
                 { separator: true },
                 {
                     label: 'AI Assistant (experimental)',

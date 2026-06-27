@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
 	"embed"
+	"fmt"
+	"os"
+
+	"kube-ins/internal/business"
 	app_controller "kube-ins/internal/controller"
+	"kube-ins/internal/tui"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -14,6 +20,19 @@ import (
 var assets embed.FS
 
 func main() {
+	// CLI mode: when launched with --tui (used both by `kube-ins --tui` and by
+	// the GUI's "CLI mode", which re-execs this binary in a pty), run the
+	// terminal UI instead of bootstrapping Wails/webview.
+	for _, arg := range os.Args[1:] {
+		if arg == "--tui" || arg == "tui" {
+			if err := tui.Run(context.Background(), business.GetAppInfo().AppVersion); err != nil {
+				fmt.Fprintln(os.Stderr, "kube-ins:", err)
+				os.Exit(1)
+			}
+			return
+		}
+	}
+
 	// Create an instance of the app structure
 	app := app_controller.NewApp()
 
