@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { VscPlay, VscShield, VscRefresh, VscLinkExternal, VscExport } from 'react-icons/vsc';
+import { VscPlay, VscShield, VscLinkExternal, VscExport, VscStopCircle } from 'react-icons/vsc';
 
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -9,19 +9,30 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Message } from 'primereact/message';
 import { TabView, TabPanel } from 'primereact/tabview';
-import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { MultiSelect } from 'primereact/multiselect';
 import { ProgressBar } from 'primereact/progressbar';
 import { FilterMatchMode } from 'primereact/api';
-import { BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
+import { BrowserOpenURL, EventsOn } from '../../../wailsjs/runtime/runtime';
 
-import { GetNamespaces, TrivyListPodImages, TrivyScanImage, SaveReport } from '../../../wailsjs/go/controller_app/App';
+import {
+    TrivyListPodImages,
+    TrivyScanImage,
+    TrivyStartK8sScan,
+    TrivyStopK8sScan,
+    TrivyListPodImagesWithContext,
+    SaveReport,
+} from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type VulnRow = {
     _uid: string;
     image: string;
+    resourceKind: string;
+    resourceName: string;
+    resourceNs: string;
     target: string;
     vulnerabilityID: string;
     pkgName: string;
@@ -32,34 +43,68 @@ type VulnRow = {
     primaryURL: string;
 };
 
+type MisconfigRow = {
+    _uid: string;
+    resourceKind: string;
+    resourceName: string;
+    namespace: string;
+    checkID: string;
+    severity: string;
+    title: string;
+    message: string;
+    resolution: string;
+};
+
+type SecretRow = {
+    _uid: string;
+    resourceKind: string;
+    resourceName: string;
+    namespace: string;
+    ruleID: string;
+    category: string;
+    severity: string;
+    title: string;
+    match: string;
+};
+
+// Matches models.TrivyK8sScanResult emitted via Wails event
+type K8sScanResult = {
+    misconfigs: Array<{
+        resourceKind: string; resourceName: string; namespace: string;
+        checkID: string; severity: string; title: string; message: string; resolution: string; status: string;
+    }>;
+    secrets: Array<{
+        resourceKind: string; resourceName: string; namespace: string;
+        ruleID: string; category: string; severity: string; title: string; match: string;
+    }>;
+    misconfigSummary: Record<string, number>;
+    secretSummary: Record<string, number>;
+    resourceCount: number;
+    scannedAt: string;
+};
+
 type Progress = { current: number; total: number; image: string } | null;
 type PushToast = (severity: 'success' | 'warn' | 'error', summary: string, detail?: string) => void;
+
+// ─── Shared constants & helpers ───────────────────────────────────────────────
 
 const SEVERITY_ORDER: Record<string, number> = {
     CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2, UNKNOWN: 1,
 };
 const SEVERITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'];
-
-const DB_INFO = 'The first scan downloads the Trivy vulnerability database and may take a few minutes.';
+const SEVERITY_HEX: Record<string, string> = {
+    CRITICAL: '#b3261e', HIGH: '#d9534f', MEDIUM: '#e2a85a', LOW: '#4a7bb5', UNKNOWN: '#888',
+};
 
 function severitySeverity(sev: string): 'danger' | 'warning' | 'info' | undefined {
     switch (sev) {
-        case 'CRITICAL':
-        case 'HIGH':
-            return 'danger';
-        case 'MEDIUM':
-            return 'warning';
-        case 'LOW':
-            return 'info';
-        default:
-            return undefined;
+        case 'CRITICAL': case 'HIGH': return 'danger';
+        case 'MEDIUM': return 'warning';
+        case 'LOW': return 'info';
+        default: return undefined;
     }
 }
 
-// Trivy's PrimaryURL for CVEs (e.g. https://avd.aquasec.com/nvd/cve-2022-32221)
-// is a redirect stub that 404s in a browser. Link to the official CVE.org
-// record instead. Non-CVE IDs (GHSA, etc.) keep their PrimaryURL, which points
-// at a valid advisory.
 function vulnUrl(id: string, primaryURL: string): string {
     if (/^CVE-\d{4}-\d+$/i.test(id || '')) {
         return `https://www.cve.org/CVERecord?id=${id.toUpperCase()}`;
@@ -67,13 +112,16 @@ function vulnUrl(id: string, primaryURL: string): string {
     return primaryURL || '';
 }
 
-function rowsFromResult(image: string, res: models.TrivyScanResult): VulnRow[] {
+function rowsFromResult(imgInfo: models.TrivyK8sImageInfo, res: models.TrivyScanResult): VulnRow[] {
     const out: VulnRow[] = [];
     (res.targets || []).forEach((t) => {
         (t.vulnerabilities || []).forEach((v, i) => {
             out.push({
-                _uid: `${image}|${t.target}|${v.vulnerabilityID}|${v.pkgName}|${i}`,
-                image,
+                _uid: `${imgInfo.image}|${t.target}|${v.vulnerabilityID}|${v.pkgName}|${i}`,
+                image: imgInfo.image,
+                resourceKind: imgInfo.resourceKind || '',
+                resourceName: imgInfo.resourceName || '',
+                resourceNs: imgInfo.namespace || '',
                 target: t.target,
                 vulnerabilityID: v.vulnerabilityID,
                 pkgName: v.pkgName,
@@ -88,91 +136,31 @@ function rowsFromResult(image: string, res: models.TrivyScanResult): VulnRow[] {
     return out;
 }
 
-const SEVERITY_HEX: Record<string, string> = {
-    CRITICAL: '#b3261e', HIGH: '#d9534f', MEDIUM: '#e2a85a', LOW: '#4a7bb5', UNKNOWN: '#888',
-};
-
 const escapeHtml = (s: string) =>
     String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
 
-// Build a standalone, printable HTML vulnerability report from the findings.
-function buildHtmlReport(scope: string, clusterName: string, rows: VulnRow[]): string {
-    const sorted = [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0));
-    const counts: Record<string, number> = {};
-    for (const r of rows) counts[r.severity] = (counts[r.severity] || 0) + 1;
-    const generated = new Date().toLocaleString();
+// ─── SeverityTag ──────────────────────────────────────────────────────────────
 
-    const summary = SEVERITIES.filter((s) => counts[s])
-        .map((s) => `<span class="badge" style="background:${SEVERITY_HEX[s]}">${s}: ${counts[s]}</span>`)
-        .join(' ') || '<span class="muted">No vulnerabilities found.</span>';
-
-    const body = sorted.map((r) => {
-        const url = vulnUrl(r.vulnerabilityID, r.primaryURL);
-        const id = url
-            ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(r.vulnerabilityID)}</a>`
-            : escapeHtml(r.vulnerabilityID);
-        return `<tr>
-      <td><span class="sev" style="background:${SEVERITY_HEX[r.severity] || '#888'}">${escapeHtml(r.severity)}</span></td>
-      <td>${id}</td>
-      <td>${escapeHtml(r.image)}</td>
-      <td>${escapeHtml(r.pkgName)}</td>
-      <td>${escapeHtml(r.installedVersion)}</td>
-      <td>${escapeHtml(r.fixedVersion) || '—'}</td>
-      <td>${escapeHtml(r.title)}</td>
-    </tr>`;
-    }).join('\n');
-
-    return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<title>Vulnerability report — ${escapeHtml(scope)} — ${escapeHtml(clusterName)}</title>
-<style>
-  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; color: #1a1a1a; }
-  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
-  .meta { color: #666; margin: 0 0 1rem; font-size: .9rem; }
-  .summary { margin: 0 0 1.25rem; display: flex; flex-wrap: wrap; gap: .4rem; }
-  .badge, .sev { color: #fff; border-radius: 4px; padding: 2px 8px; font-size: .8rem; font-weight: 600; white-space: nowrap; }
-  .sev { font-size: .72rem; }
-  table { border-collapse: collapse; width: 100%; font-size: .85rem; }
-  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #e3e3e3; vertical-align: top; }
-  th { background: #f4f4f5; position: sticky; top: 0; }
-  tr:hover td { background: #fafafa; }
-  a { color: #0b6bcb; }
-  .muted { color: #888; }
-</style></head>
-<body>
-  <h1>Vulnerability report — ${escapeHtml(scope)}</h1>
-  <p class="meta">Cluster: <b>${escapeHtml(clusterName)}</b> · Generated ${escapeHtml(generated)} · ${rows.length} finding(s)</p>
-  <div class="summary">${summary}</div>
-  <table>
-    <thead><tr><th>Severity</th><th>Vulnerability</th><th>Image</th><th>Package</th><th>Installed</th><th>Fixed</th><th>Title</th></tr></thead>
-    <tbody>
-${body}
-    </tbody>
-  </table>
-</body></html>`;
+function SeverityTag({ sev }: { sev: string }) {
+    return <Tag value={sev} severity={severitySeverity(sev)} />;
 }
 
-const defaultFilters: DataTableFilterMeta = {
-    severity: { value: null, matchMode: FilterMatchMode.IN },
-    vulnerabilityID: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    pkgName: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    image: { value: null, matchMode: FilterMatchMode.CONTAINS },
-};
+// ─── SummaryBar ───────────────────────────────────────────────────────────────
 
-// ---- cell renderers (module scope: they don't close over component state) ----
-const severityBody = (r: VulnRow) => <Tag value={r.severity} severity={severitySeverity(r.severity)} />;
-const cveBody = (r: VulnRow) => {
-    const url = vulnUrl(r.vulnerabilityID, r.primaryURL);
-    return url ? (
-        <a className="flex align-items-center gap-1 text-primary cursor-pointer" onClick={() => BrowserOpenURL(url)}>
-            {r.vulnerabilityID} <VscLinkExternal />
-        </a>
-    ) : (
-        <span>{r.vulnerabilityID}</span>
+function SummaryBar({ label, counts }: { label: string; counts: Record<string, number> }) {
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    if (total === 0) return null;
+    return (
+        <div className="flex align-items-center gap-2 flex-wrap">
+            <span className="text-color-secondary text-sm font-semibold">{label}:</span>
+            {SEVERITIES.map((s) => counts[s] ? <Tag key={s} value={`${s}: ${counts[s]}`} severity={severitySeverity(s)} /> : null)}
+            <Tag value={`Total: ${total}`} />
+        </div>
     );
-};
-const fixedBody = (r: VulnRow) =>
-    r.fixedVersion ? <span>{r.fixedVersion}</span> : <span className="text-color-secondary">—</span>;
+}
+
+// ─── Shared filter templates ──────────────────────────────────────────────────
+
 const severityFilterTemplate = (options: any) => (
     <MultiSelect
         value={options.value}
@@ -183,8 +171,310 @@ const severityFilterTemplate = (options: any) => (
     />
 );
 
-// useImageScanner encapsulates the per-tab scan state and the sequential scan
-// loop, so each tab (Cluster / Image / Pod) keeps its own independent results.
+// ─── MisconfigTable ───────────────────────────────────────────────────────────
+
+const defaultMisconfigFilters: DataTableFilterMeta = {
+    severity: { value: null, matchMode: FilterMatchMode.IN },
+    checkID: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    resourceKind: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    resourceName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace: { value: null, matchMode: FilterMatchMode.CONTAINS },
+};
+
+function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: boolean }) {
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultMisconfigFilters);
+
+    const sorted = useMemo(
+        () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
+        [rows]
+    );
+
+    return (
+        <DataTable
+            value={sorted}
+            dataKey="_uid"
+            size="small"
+            scrollable
+            paginator
+            rows={50}
+            rowsPerPageOptions={[25, 50, 100]}
+            filters={filters}
+            onFilter={(e) => setFilters(e.filters)}
+            globalFilter={globalFilter}
+            globalFilterFields={['checkID', 'resourceKind', 'resourceName', 'namespace', 'title', 'message']}
+            filterDisplay="menu"
+            emptyMessage={scanning ? 'Scanning…' : 'No misconfigurations found. Run a scan.'}
+            header={
+                <div className="flex justify-content-end">
+                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
+                </div>
+            }
+        >
+            <Column field="severity" header="Severity" body={(r: MisconfigRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
+            <Column field="checkID" header="Check" sortable filter style={{ width: 100 }} />
+            <Column field="resourceKind" header="Kind" sortable filter style={{ width: 120 }} />
+            <Column field="resourceName" header="Resource" sortable filter />
+            <Column field="namespace" header="Namespace" sortable filter style={{ width: 130 }} />
+            <Column field="title" header="Title" />
+            <Column field="resolution" header="Resolution" style={{ maxWidth: 300 }} />
+        </DataTable>
+    );
+}
+
+// ─── SecretTable ──────────────────────────────────────────────────────────────
+
+const defaultSecretFilters: DataTableFilterMeta = {
+    severity: { value: null, matchMode: FilterMatchMode.IN },
+    ruleID: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    resourceKind: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    resourceName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+};
+
+function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean }) {
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultSecretFilters);
+
+    const sorted = useMemo(
+        () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
+        [rows]
+    );
+
+    return (
+        <DataTable
+            value={sorted}
+            dataKey="_uid"
+            size="small"
+            scrollable
+            paginator
+            rows={50}
+            rowsPerPageOptions={[25, 50, 100]}
+            filters={filters}
+            onFilter={(e) => setFilters(e.filters)}
+            globalFilter={globalFilter}
+            globalFilterFields={['ruleID', 'category', 'resourceKind', 'resourceName', 'namespace', 'title', 'match']}
+            filterDisplay="menu"
+            emptyMessage={scanning ? 'Scanning…' : 'No secrets found. Run a scan.'}
+            header={
+                <div className="flex justify-content-end">
+                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
+                </div>
+            }
+        >
+            <Column field="severity" header="Severity" body={(r: SecretRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
+            <Column field="ruleID" header="Rule ID" sortable filter style={{ width: 160 }} />
+            <Column field="category" header="Category" sortable style={{ width: 160 }} />
+            <Column field="resourceKind" header="Kind" sortable filter style={{ width: 120 }} />
+            <Column field="resourceName" header="Resource" sortable filter />
+            <Column field="namespace" header="Namespace" sortable style={{ width: 130 }} />
+            <Column field="title" header="Title" />
+            <Column field="match" header="Match" style={{ maxWidth: 220, fontFamily: 'monospace', fontSize: '0.8em' }} />
+        </DataTable>
+    );
+}
+
+// ─── VulnTable ────────────────────────────────────────────────────────────────
+
+const defaultVulnFilters: DataTableFilterMeta = {
+    severity: { value: null, matchMode: FilterMatchMode.IN },
+    vulnerabilityID: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    pkgName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    image: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    resourceKind: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    resourceName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+};
+
+const cveBody = (r: VulnRow) => {
+    const url = vulnUrl(r.vulnerabilityID, r.primaryURL);
+    return url ? (
+        <a className="flex align-items-center gap-1 text-primary cursor-pointer" onClick={() => BrowserOpenURL(url)}>
+            {r.vulnerabilityID} <VscLinkExternal />
+        </a>
+    ) : <span>{r.vulnerabilityID}</span>;
+};
+const fixedBody = (r: VulnRow) =>
+    r.fixedVersion ? <span>{r.fixedVersion}</span> : <span className="text-color-secondary">—</span>;
+
+function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scanning: boolean; showImageColumn: boolean }) {
+    const [globalFilter, setGlobalFilter] = useState('');
+    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultVulnFilters);
+
+    const sorted = useMemo(
+        () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
+        [rows]
+    );
+
+    return (
+        <DataTable
+            value={sorted}
+            dataKey="_uid"
+            size="small"
+            scrollable
+            paginator
+            rows={50}
+            rowsPerPageOptions={[25, 50, 100]}
+            filters={filters}
+            onFilter={(e) => setFilters(e.filters)}
+            globalFilter={globalFilter}
+            globalFilterFields={['vulnerabilityID', 'pkgName', 'image', 'title', 'resourceName']}
+            filterDisplay="menu"
+            emptyMessage={scanning ? 'Scanning images…' : 'No vulnerabilities found. Run a scan.'}
+            header={
+                <div className="flex justify-content-end">
+                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
+                </div>
+            }
+        >
+            <Column field="severity" header="Severity" body={(r: VulnRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
+            <Column field="vulnerabilityID" header="Vulnerability" body={cveBody} sortable filter style={{ width: 170 }} />
+            <Column field="pkgName" header="Package" sortable filter />
+            <Column field="installedVersion" header="Installed" style={{ width: 110 }} />
+            <Column field="fixedVersion" header="Fixed" body={fixedBody} style={{ width: 110 }} />
+            {showImageColumn && <Column field="image" header="Image" sortable filter style={{ maxWidth: 280 }} />}
+            <Column field="resourceKind" header="Kind" sortable filter style={{ width: 110 }} />
+            <Column field="resourceName" header="Resource" sortable filter />
+            <Column field="title" header="Title" />
+        </DataTable>
+    );
+}
+
+// ─── useK8sScan hook ──────────────────────────────────────────────────────────
+
+function useK8sScan(clusterName: string, pushToast: PushToast) {
+    const [misconfigRows, setMisconfigRows] = useState<MisconfigRow[]>([]);
+    const [secretRows, setSecretRows] = useState<SecretRow[]>([]);
+    const [vulnRows, setVulnRows] = useState<VulnRow[]>([]);
+    const [misconfigSummary, setMisconfigSummary] = useState<Record<string, number>>({});
+    const [secretSummary, setSecretSummary] = useState<Record<string, number>>({});
+    const [vulnSummary, setVulnSummary] = useState<Record<string, number>>({});
+    const [scanning, setScanning] = useState(false);
+    const [log, setLog] = useState('');
+    const [vulnProgress, setVulnProgress] = useState<Progress>(null);
+    const [error, setError] = useState('');
+
+    // Stable scanId for the lifetime of this hook instance (one panel = one session)
+    const scanId = useMemo(() => Math.random().toString(36).slice(2), []);
+
+    // Wire Wails event listeners once on mount
+    useEffect(() => {
+        const offProgress = EventsOn(`trivy:k8s:progress:${scanId}`, (p: { phase: string; current: number; total: number; message: string }) => {
+            setLog(`[${p.phase}] ${p.message} (${p.current}/${p.total})`);
+        });
+
+        const offDone = EventsOn(`trivy:k8s:done:${scanId}`, (result: K8sScanResult) => {
+            const mc: MisconfigRow[] = (result.misconfigs || []).map((m, i) => ({
+                _uid: `mc|${m.resourceKind}|${m.resourceName}|${m.namespace}|${m.checkID}|${i}`,
+                resourceKind: m.resourceKind,
+                resourceName: m.resourceName,
+                namespace: m.namespace,
+                checkID: m.checkID,
+                severity: (m.severity || 'UNKNOWN').toUpperCase(),
+                title: m.title,
+                message: m.message,
+                resolution: m.resolution,
+            }));
+            const sc: SecretRow[] = (result.secrets || []).map((s, i) => ({
+                _uid: `sec|${s.resourceKind}|${s.resourceName}|${s.namespace}|${s.ruleID}|${i}`,
+                resourceKind: s.resourceKind,
+                resourceName: s.resourceName,
+                namespace: s.namespace,
+                ruleID: s.ruleID,
+                category: s.category,
+                severity: (s.severity || 'UNKNOWN').toUpperCase(),
+                title: s.title,
+                match: s.match,
+            }));
+            setMisconfigRows(mc);
+            setSecretRows(sc);
+            setMisconfigSummary(result.misconfigSummary || {});
+            setSecretSummary(result.secretSummary || {});
+        });
+
+        const offError = EventsOn(`trivy:k8s:error:${scanId}`, (err: string) => {
+            setError(err);
+            pushToast('error', 'K8s scan failed', err);
+        });
+
+        return () => { offProgress(); offDone(); offError(); };
+    }, [scanId]);
+
+    const startScan = async (namespace: string) => {
+        setScanning(true);
+        setError('');
+        setMisconfigRows([]);
+        setSecretRows([]);
+        setVulnRows([]);
+        setMisconfigSummary({});
+        setSecretSummary({});
+        setVulnSummary({});
+        setVulnProgress(null);
+
+        try {
+            // Phase 1: misconfig + secret (async via events; runs concurrently with phase 2)
+            setLog('[fetch] Starting K8s resource scan…');
+            TrivyStartK8sScan(scanId, clusterName, namespace).catch((e: any) => {
+                setError(String(e));
+                pushToast('error', 'K8s scan failed', String(e));
+            });
+
+            // Phase 2: vulnerability (sequential image scanning)
+            setLog('[vuln] Listing pod images…');
+            let images: models.TrivyK8sImageInfo[] = [];
+            try {
+                images = await TrivyListPodImagesWithContext(clusterName, namespace);
+            } catch (e: any) {
+                pushToast('warn', 'Could not list images', String(e));
+            }
+
+            if (images.length > 0) {
+                const acc: VulnRow[] = [];
+                const summ: Record<string, number> = {};
+                for (let i = 0; i < images.length; i++) {
+                    const imgInfo = images[i];
+                    setVulnProgress({ current: i + 1, total: images.length, image: imgInfo.image });
+                    setLog(`[vuln] [${i + 1}/${images.length}] scanning ${imgInfo.image}${i === 0 ? '  ·  (first run may download vuln DB)' : '…'}`);
+                    try {
+                        const res = await TrivyScanImage(clusterName, imgInfo.image);
+                        if (res.error) {
+                            pushToast('warn', `Scan issue: ${imgInfo.image}`, res.error);
+                        } else {
+                            const found = rowsFromResult(imgInfo, res);
+                            acc.push(...found);
+                            for (const r of found) summ[r.severity] = (summ[r.severity] || 0) + 1;
+                            setVulnRows([...acc]);
+                            setVulnSummary({ ...summ });
+                        }
+                    } catch (e: any) {
+                        pushToast('error', `Failed to scan ${imgInfo.image}`, String(e));
+                    }
+                }
+                setLog(`[vuln] ✓ done — ${acc.length} finding(s) across ${images.length} image(s)`);
+            } else {
+                setLog('[vuln] No images found to scan.');
+            }
+        } finally {
+            setScanning(false);
+            setVulnProgress(null);
+        }
+    };
+
+    const stopScan = () => {
+        TrivyStopK8sScan(scanId).catch(() => {});
+        setScanning(false);
+        setVulnProgress(null);
+        setLog('Scan cancelled.');
+    };
+
+    return {
+        misconfigRows, secretRows, vulnRows,
+        misconfigSummary, secretSummary, vulnSummary,
+        scanning, log, vulnProgress, error,
+        startScan, stopScan,
+    };
+}
+
+// ─── useImageScanner (for standalone Image Scan tab) ──────────────────────────
+
 function useImageScanner(clusterName: string, pushToast: PushToast) {
     const [rows, setRows] = useState<VulnRow[]>([]);
     const [scanning, setScanning] = useState(false);
@@ -192,14 +482,8 @@ function useImageScanner(clusterName: string, pushToast: PushToast) {
     const [log, setLog] = useState('');
     const [error, setError] = useState('');
 
-    // Scan images sequentially, appending results incrementally so the user
-    // sees progress (the first scan downloads the vulnerability DB). `log` is a
-    // single-line, console-style status of the current scan stage.
     const scanImages = async (images: string[]) => {
-        if (images.length === 0) {
-            setError('No images found to scan.');
-            return;
-        }
+        if (images.length === 0) { setError('No images found.'); return; }
         setError('');
         setRows([]);
         setScanning(true);
@@ -214,22 +498,19 @@ function useImageScanner(clusterName: string, pushToast: PushToast) {
                     const res = await TrivyScanImage(clusterName, image);
                     if (res.error) {
                         pushToast('warn', `Scan issue: ${image}`, res.error);
-                        setLog(`[${i + 1}/${images.length}] ${image}  ·  ${res.error}`);
                     } else {
-                        const found = rowsFromResult(image, res);
+                        // plain image scan — no resource context
+                        const fakeInfo: models.TrivyK8sImageInfo = { image, resourceKind: '', resourceName: '', namespace: '' };
+                        const found = rowsFromResult(fakeInfo, res);
                         acc.push(...found);
                         setRows([...acc]);
-                        setLog(`[${i + 1}/${images.length}] ${image}  ·  ${found.length} finding(s)`);
                     }
                 } catch (e: any) {
                     pushToast('error', `Failed to scan ${image}`, String(e));
-                    setLog(`[${i + 1}/${images.length}] ${image}  ·  failed`);
                 }
             }
             setLog(`✓ done — ${acc.length} finding(s) across ${images.length} image(s)`);
-            if (acc.length === 0) {
-                pushToast('success', 'No vulnerabilities found', `${images.length} image(s) scanned clean.`);
-            }
+            if (acc.length === 0) pushToast('success', 'No vulnerabilities found');
         } finally {
             setScanning(false);
             setProgress(null);
@@ -239,164 +520,123 @@ function useImageScanner(clusterName: string, pushToast: PushToast) {
     return { rows, scanning, progress, log, error, setError, scanImages };
 }
 
-type Scanner = ReturnType<typeof useImageScanner>;
+// ─── K8s Security Scan Tab ────────────────────────────────────────────────────
 
-// ResultsTable renders the severity summary + filterable vulnerability table
-// shared by all three tabs.
-function ResultsTable({
-    rows,
-    scanning,
-    progress,
-    log,
-    error,
-    showImageColumn,
-    clusterName,
-    scope,
+function K8sSecurityTab({
+    scan,
 }: {
-    rows: VulnRow[];
-    scanning: boolean;
-    progress: Progress;
-    log: string;
-    error: string;
-    showImageColumn: boolean;
-    clusterName: string;
-    scope: string;
+    scan: ReturnType<typeof useK8sScan>;
 }) {
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
+    const {
+        misconfigRows, secretRows, vulnRows,
+        misconfigSummary, secretSummary, vulnSummary,
+        scanning, log, vulnProgress, error,
+        startScan, stopScan,
+    } = scan;
 
-    const exportHtml = async () => {
-        const html = buildHtmlReport(scope, clusterName, rows);
-        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-        const name = `vuln-report-${scope}-${clusterName}-${stamp}.html`.toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
-        try {
-            await SaveReport(name, html);
-        } catch (e) {
-            console.error('export failed:', e);
-        }
-    };
-
-    const summary = useMemo(() => {
-        const counts: Record<string, number> = {};
-        for (const r of rows) counts[r.severity] = (counts[r.severity] || 0) + 1;
-        return counts;
-    }, [rows]);
-
-    const sortedRows = useMemo(
-        () => [...rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0)),
-        [rows]
-    );
+    const totalFindings = misconfigRows.length + secretRows.length + vulnRows.length;
 
     return (
         <div className="flex flex-column gap-3">
-            <Message severity="info" text={DB_INFO} />
-            {error && <Message severity="error" text={error} />}
+            {/* Controls — always scans the whole cluster (all namespaces) */}
+            <div className="flex flex-wrap align-items-center gap-2">
+                {!scanning ? (
+                    <Button label="Scan cluster" icon={<VscPlay />} onClick={() => startScan('')} />
+                ) : (
+                    <Button label="Stop" icon={<VscStopCircle />} severity="danger" outlined onClick={stopScan} />
+                )}
+                <span className="text-color-secondary text-sm">
+                    Scans all namespaces for misconfigurations, hardcoded secrets and image vulnerabilities.
+                </span>
+            </div>
 
-            {scanning && progress && (
+            {/* Progress */}
+            {log && (
                 <div className="flex flex-column gap-1">
                     <div className="trivy-console">
                         <span className="trivy-console__prompt">›</span>
                         <span className="trivy-console__text">{log}</span>
-                        <span className="trivy-console__caret" />
+                        {scanning && <span className="trivy-console__caret" />}
                     </div>
-                    <ProgressBar value={Math.round((progress.current / progress.total) * 100)} style={{ height: 6 }} />
-                </div>
-            )}
-
-            {rows.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                    {SEVERITIES.map((s) =>
-                        summary[s] ? <Tag key={s} value={`${s}: ${summary[s]}`} severity={severitySeverity(s)} /> : null
+                    {vulnProgress && (
+                        <ProgressBar value={Math.round((vulnProgress.current / vulnProgress.total) * 100)} style={{ height: 6 }} />
                     )}
-                    <Tag value={`Total: ${rows.length}`} />
                 </div>
             )}
 
-            <DataTable
-                value={sortedRows}
-                dataKey="_uid"
-                size="small"
-                scrollable
-                paginator
-                rows={50}
-                rowsPerPageOptions={[25, 50, 100]}
-                filters={filters}
-                onFilter={(e) => setFilters(e.filters)}
-                globalFilter={globalFilter}
-                globalFilterFields={['vulnerabilityID', 'pkgName', 'image', 'title']}
-                filterDisplay="menu"
-                emptyMessage={scanning ? 'Scanning…' : 'No vulnerabilities to show. Run a scan.'}
-                header={
-                    <div className="flex justify-content-end align-items-center gap-2">
-                        <Button
-                            label="Export HTML"
-                            icon={<VscExport />}
-                            outlined
-                            size="small"
-                            disabled={rows.length === 0}
-                            onClick={exportHtml}
-                            tooltip="Save these findings as an HTML report"
-                        />
-                        <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
-                    </div>
-                }
-            >
-                <Column field="severity" header="Severity" body={severityBody} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
-                <Column field="vulnerabilityID" header="Vulnerability" body={cveBody} sortable filter style={{ width: 170 }} />
-                <Column field="pkgName" header="Package" sortable filter />
-                <Column field="installedVersion" header="Installed" />
-                <Column field="fixedVersion" header="Fixed" body={fixedBody} />
-                {showImageColumn && <Column field="image" header="Image" sortable filter />}
-                <Column field="title" header="Title" />
-            </DataTable>
+            {error && <Message severity="error" text={error} />}
+
+            {/* Summary */}
+            {totalFindings > 0 && (
+                <div className="flex flex-column gap-1">
+                    <SummaryBar label="Misconfigs" counts={misconfigSummary} />
+                    <SummaryBar label="Vulnerabilities" counts={vulnSummary} />
+                    <SummaryBar label="Secrets" counts={secretSummary} />
+                </div>
+            )}
+
+            {/* Results sub-tabs */}
+            <TabView>
+                <TabPanel header={`Misconfigs${misconfigRows.length ? ` (${misconfigRows.length})` : ''}`}>
+                    <MisconfigTable rows={misconfigRows} scanning={scanning} />
+                </TabPanel>
+                <TabPanel header={`Vulnerabilities${vulnRows.length ? ` (${vulnRows.length})` : ''}`}>
+                    <VulnTable rows={vulnRows} scanning={scanning} showImageColumn />
+                </TabPanel>
+                <TabPanel header={`Secrets${secretRows.length ? ` (${secretRows.length})` : ''}`}>
+                    <SecretTable rows={secretRows} scanning={scanning} />
+                </TabPanel>
+            </TabView>
         </div>
     );
 }
 
-// ---- Tab 1: scan every image running in the cluster ----
-function ClusterScanTab({ clusterName, scanner }: { clusterName: string; scanner: Scanner }) {
-    const run = async () => {
-        if (scanner.scanning) return;
-        try {
-            const images = await TrivyListPodImages(clusterName, '');
-            await scanner.scanImages(images || []);
-        } catch (e: any) {
-            scanner.setError(`Failed to list images: ${String(e)}`);
-        }
-    };
+// ─── Image Scan Tab (standalone image scan, unchanged logic) ──────────────────
 
-    return (
-        <div className="flex flex-column gap-3">
-            <div className="flex align-items-center gap-2">
-                <span className="text-color-secondary text-sm">
-                    Scans every distinct image used by pods across all namespaces in <b>{clusterName}</b>.
-                </span>
-                <Button label="Scan cluster" icon={<VscPlay />} onClick={run} loading={scanner.scanning} />
-            </div>
-            <ResultsTable rows={scanner.rows} scanning={scanner.scanning} progress={scanner.progress} log={scanner.log} error={scanner.error} showImageColumn clusterName={clusterName} scope="cluster" />
-        </div>
-    );
-}
-
-// ---- Tab 2: scan a single user-entered image ----
-function ImageScanTab({ clusterName, scanner, pushToast, imageInput, setImageInput }: {
+function ImageScanTab({
+    clusterName,
+    scanner,
+    imageInput,
+    setImageInput,
+    pushToast,
+}: {
     clusterName: string;
-    scanner: Scanner;
-    pushToast: PushToast;
+    scanner: ReturnType<typeof useImageScanner>;
     imageInput: string;
     setImageInput: (v: string) => void;
+    pushToast: PushToast;
 }) {
     const run = () => {
         const ref = imageInput.trim();
-        if (!ref) {
-            pushToast('warn', 'Enter an image', 'e.g. nginx:1.25 or registry/repo:tag');
-            return;
-        }
+        if (!ref) { pushToast('warn', 'Enter an image', 'e.g. nginx:1.25 or registry/repo:tag'); return; }
         scanner.scanImages([ref]);
     };
 
+    const exportHtml = async () => {
+        const counts: Record<string, number> = {};
+        for (const r of scanner.rows) counts[r.severity] = (counts[r.severity] || 0) + 1;
+        const sorted = [...scanner.rows].sort((a, b) => (SEVERITY_ORDER[b.severity] || 0) - (SEVERITY_ORDER[a.severity] || 0));
+        const body = sorted.map((r) => {
+            const url = vulnUrl(r.vulnerabilityID, r.primaryURL);
+            const id = url ? `<a href="${escapeHtml(url)}">${escapeHtml(r.vulnerabilityID)}</a>` : escapeHtml(r.vulnerabilityID);
+            return `<tr><td>${escapeHtml(r.severity)}</td><td>${id}</td><td>${escapeHtml(r.pkgName)}</td><td>${escapeHtml(r.installedVersion)}</td><td>${escapeHtml(r.fixedVersion) || '—'}</td><td>${escapeHtml(r.title)}</td></tr>`;
+        }).join('\n');
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Vuln report</title></head><body><table><thead><tr><th>Severity</th><th>CVE</th><th>Package</th><th>Installed</th><th>Fixed</th><th>Title</th></tr></thead><tbody>${body}</tbody></table></body></html>`;
+        const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+        try { await SaveReport(`vuln-report-image-${clusterName}-${stamp}.html`, html); } catch { /* ignore */ }
+    };
+
+    const summary = useMemo(() => {
+        const counts: Record<string, number> = {};
+        for (const r of scanner.rows) counts[r.severity] = (counts[r.severity] || 0) + 1;
+        return counts;
+    }, [scanner.rows]);
+
     return (
         <div className="flex flex-column gap-3">
+            <Message severity="info" text="The first scan downloads the Trivy vulnerability database and may take a few minutes." />
+            {scanner.error && <Message severity="error" text={scanner.error} />}
+
             <div className="flex flex-wrap align-items-center gap-2">
                 <InputText
                     value={imageInput}
@@ -408,94 +648,54 @@ function ImageScanTab({ clusterName, scanner, pushToast, imageInput, setImageInp
                 />
                 <Button label="Scan image" icon={<VscPlay />} onClick={run} loading={scanner.scanning} />
             </div>
-            <ResultsTable rows={scanner.rows} scanning={scanner.scanning} progress={scanner.progress} log={scanner.log} error={scanner.error} showImageColumn={false} clusterName={clusterName} scope="image" />
-        </div>
-    );
-}
 
-// ---- Tab 3: list a namespace's images, scan all or one ----
-function PodImagesTab({ clusterName, scanner, pushToast, namespace, setNamespace, namespaceOptions, podImages, setPodImages }: {
-    clusterName: string;
-    scanner: Scanner;
-    pushToast: PushToast;
-    namespace: string;
-    setNamespace: (v: string) => void;
-    namespaceOptions: { label: string; value: string }[];
-    podImages: string[];
-    setPodImages: (v: string[]) => void;
-}) {
-    const loadImages = async () => {
-        if (!namespace) return;
-        try {
-            const images = await TrivyListPodImages(clusterName, namespace);
-            setPodImages(images || []);
-        } catch (e: any) {
-            pushToast('error', 'Failed to list images', String(e));
-        }
-    };
+            {scanner.scanning && scanner.progress && (
+                <div className="flex flex-column gap-1">
+                    <div className="trivy-console">
+                        <span className="trivy-console__prompt">›</span>
+                        <span className="trivy-console__text">{scanner.log}</span>
+                        <span className="trivy-console__caret" />
+                    </div>
+                    <ProgressBar value={Math.round((scanner.progress.current / scanner.progress.total) * 100)} style={{ height: 6 }} />
+                </div>
+            )}
 
-    return (
-        <div className="flex flex-column gap-3">
-            <div className="flex flex-wrap align-items-center gap-2">
-                <Dropdown
-                    value={namespace}
-                    options={namespaceOptions}
-                    onChange={(e) => setNamespace(e.value)}
-                    filter
-                    placeholder="Select namespace"
-                    disabled={scanner.scanning}
-                    style={{ minWidth: 220 }}
-                />
-                <Button label="Load images" icon={<VscRefresh />} outlined onClick={loadImages} disabled={scanner.scanning || !namespace} />
+            {scanner.rows.length > 0 && (
+                <div className="flex flex-wrap gap-2 align-items-center">
+                    {SEVERITIES.map((s) => summary[s] ? <Tag key={s} value={`${s}: ${summary[s]}`} severity={severitySeverity(s)} /> : null)}
+                    <Tag value={`Total: ${scanner.rows.length}`} />
+                </div>
+            )}
+
+            <div className="flex justify-content-end">
                 <Button
-                    label="Scan all"
-                    icon={<VscPlay />}
-                    onClick={() => scanner.scanImages(podImages)}
-                    loading={scanner.scanning}
-                    disabled={podImages.length === 0}
+                    label="Export HTML"
+                    icon={<VscExport />}
+                    outlined
+                    size="small"
+                    disabled={scanner.rows.length === 0}
+                    onClick={exportHtml}
                 />
             </div>
 
-            {podImages.length > 0 && (
-                <DataTable value={podImages.map((img) => ({ image: img }))} size="small" scrollable scrollHeight="180px">
-                    <Column field="image" header={`Images in ${namespace} (${podImages.length})`} />
-                    <Column
-                        header=""
-                        style={{ width: 120 }}
-                        body={(r: { image: string }) => (
-                            <Button label="Scan" size="small" text icon={<VscPlay />} disabled={scanner.scanning} onClick={() => scanner.scanImages([r.image])} />
-                        )}
-                    />
-                </DataTable>
-            )}
-
-            <ResultsTable rows={scanner.rows} scanning={scanner.scanning} progress={scanner.progress} log={scanner.log} error={scanner.error} showImageColumn clusterName={clusterName} scope="pod" />
+            <VulnTable rows={scanner.rows} scanning={scanner.scanning} showImageColumn={false} />
         </div>
     );
 }
+
+// ─── Root component ───────────────────────────────────────────────────────────
 
 export default function TrivyScanner({ clusterName }: { clusterName: string }) {
     const toast = useRef<Toast | null>(null);
     const pushToast: PushToast = (severity, summary, detail) =>
         toast.current?.show({ severity, summary, detail, life: 4000 });
 
-    // All scan state lives here in the always-mounted parent, so each tab keeps
-    // its own results table and inputs even though TabView unmounts inactive panels.
-    const cluster = useImageScanner(clusterName, pushToast);
-    const image = useImageScanner(clusterName, pushToast);
-    const pod = useImageScanner(clusterName, pushToast);
+    // Scan state is lifted here so it survives switching between the top-level
+    // tabs — PrimeReact's TabView unmounts the inactive panel, which would
+    // otherwise destroy the hook, stop the running scan and clear the tables.
     const [imageInput, setImageInput] = useState('');
-    const [namespace, setNamespace] = useState('');
-    const [namespaceOptions, setNamespaceOptions] = useState<{ label: string; value: string }[]>([]);
-    const [podImages, setPodImages] = useState<string[]>([]);
-
-    useEffect(() => {
-        GetNamespaces(clusterName)
-            .then((items: models.NamespaceInfo[]) =>
-                setNamespaceOptions((items || []).map((n: any) => ({ label: n.name, value: n.name })))
-            )
-            .catch(() => setNamespaceOptions([]));
-    }, [clusterName]);
+    const k8sScan = useK8sScan(clusterName, pushToast);
+    const imageScanner = useImageScanner(clusterName, pushToast);
 
     return (
         <div className="flex flex-column h-full p-3 gap-3" style={{ overflow: 'auto' }}>
@@ -503,19 +703,22 @@ export default function TrivyScanner({ clusterName }: { clusterName: string }) {
 
             <div className="flex align-items-center gap-2">
                 <VscShield size={18} />
-                <span className="font-semibold">Vulnerability Scan</span>
+                <span className="font-semibold">Security Scan</span>
                 <span className="text-color-secondary text-sm">• {clusterName}</span>
             </div>
 
             <TabView>
-                <TabPanel header="Cluster Scan">
-                    <ClusterScanTab clusterName={clusterName} scanner={cluster} />
+                <TabPanel header="K8s Security">
+                    <K8sSecurityTab scan={k8sScan} />
                 </TabPanel>
                 <TabPanel header="Image Scan">
-                    <ImageScanTab clusterName={clusterName} scanner={image} pushToast={pushToast} imageInput={imageInput} setImageInput={setImageInput} />
-                </TabPanel>
-                <TabPanel header="Pod Images">
-                    <PodImagesTab clusterName={clusterName} scanner={pod} pushToast={pushToast} namespace={namespace} setNamespace={setNamespace} namespaceOptions={namespaceOptions} podImages={podImages} setPodImages={setPodImages} />
+                    <ImageScanTab
+                        clusterName={clusterName}
+                        scanner={imageScanner}
+                        imageInput={imageInput}
+                        setImageInput={setImageInput}
+                        pushToast={pushToast}
+                    />
                 </TabPanel>
             </TabView>
         </div>

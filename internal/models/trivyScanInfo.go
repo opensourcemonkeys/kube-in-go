@@ -30,3 +30,57 @@ type TrivyScanResult struct {
 	ScannedAt   string         `json:"scannedAt"`
 	Error       string         `json:"error"`
 }
+
+// TrivyK8sMisconfigFinding is one failing KSV* check from a filesystem scan.
+type TrivyK8sMisconfigFinding struct {
+	ResourceKind string `json:"resourceKind"`
+	ResourceName string `json:"resourceName"`
+	Namespace    string `json:"namespace"`
+	CheckID      string `json:"checkID"`
+	Severity     string `json:"severity"`
+	Title        string `json:"title"`
+	Message      string `json:"message"`
+	Resolution   string `json:"resolution"`
+	Status       string `json:"status"` // "FAIL" | "EXCEPTION"
+}
+
+// TrivyK8sSecretFinding is one detected secret in a resource's YAML.
+type TrivyK8sSecretFinding struct {
+	ResourceKind string `json:"resourceKind"`
+	ResourceName string `json:"resourceName"`
+	Namespace    string `json:"namespace"`
+	RuleID       string `json:"ruleID"`
+	Category     string `json:"category"`
+	Severity     string `json:"severity"`
+	Title        string `json:"title"`
+	Match        string `json:"match"`
+}
+
+// TrivyK8sScanResult is the result of the filesystem-based misconfig+secret scan.
+type TrivyK8sScanResult struct {
+	ClusterName      string                     `json:"clusterName"`
+	Namespace        string                     `json:"namespace"`
+	Misconfigs       []TrivyK8sMisconfigFinding `json:"misconfigs"`
+	Secrets          []TrivyK8sSecretFinding    `json:"secrets"`
+	MisconfigSummary map[string]int             `json:"misconfigSummary"`
+	SecretSummary    map[string]int             `json:"secretSummary"`
+	ResourceCount    int                        `json:"resourceCount"`
+	ScannedAt        string                     `json:"scannedAt"`
+	Error            string                     `json:"error"`
+}
+
+// TrivyK8sImageInfo enriches a plain image string with the resource that uses it.
+type TrivyK8sImageInfo struct {
+	Image        string `json:"image"`
+	ResourceKind string `json:"resourceKind"`
+	ResourceName string `json:"resourceName"`
+	Namespace    string `json:"namespace"`
+}
+
+// TrivyScanProgress is sent via Wails events during a long scan.
+type TrivyScanProgress struct {
+	Phase   string `json:"phase"` // "fetch" | "misconfig" | "secret"
+	Current int    `json:"current"`
+	Total   int    `json:"total"`
+	Message string `json:"message"`
+}

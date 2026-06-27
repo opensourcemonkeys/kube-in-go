@@ -599,6 +599,71 @@ func (a *App) TrivyListPodImages(clusterName, namespace string) ([]string, error
 	return bussiness.TrivyListPodImages(clusterName, namespace)
 }
 
+// TrivyListPodImagesWithContext returns pod images with owner resource context
+// (Deployment, StatefulSet, etc.) for the vulnerability tab.
+func (a *App) TrivyListPodImagesWithContext(clusterName, namespace string) ([]models.TrivyK8sImageInfo, error) {
+	return bussiness.TrivyListPodImagesWithContext(clusterName, namespace)
+}
+
+// K8s misconfig + secret scan — async, streams progress via Wails events.
+// Events emitted (all suffixed with scanId):
+//
+//	"trivy:k8s:progress:{scanId}" → models.TrivyScanProgress
+//	"trivy:k8s:done:{scanId}"     → *models.TrivyK8sScanResult
+//	"trivy:k8s:error:{scanId}"    → string
+
+var (
+	k8sScanMu      sync.Mutex
+	k8sScanCancels = map[string]context.CancelFunc{}
+)
+
+// TrivyStartK8sScan starts an async misconfig+secret cluster scan. Returns
+// immediately; results arrive via Wails events.
+func (a *App) TrivyStartK8sScan(scanId, clusterName, namespace string) error {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	k8sScanMu.Lock()
+	if old, ok := k8sScanCancels[scanId]; ok {
+		old()
+	}
+	k8sScanCancels[scanId] = cancel
+	k8sScanMu.Unlock()
+
+	go func() {
+		defer func() {
+			k8sScanMu.Lock()
+			delete(k8sScanCancels, scanId)
+			k8sScanMu.Unlock()
+			cancel()
+		}()
+
+		onProgress := func(phase string, current, total int, msg string) {
+			runtime.EventsEmit(a.ctx, "trivy:k8s:progress:"+scanId, models.TrivyScanProgress{
+				Phase: phase, Current: current, Total: total, Message: msg,
+			})
+		}
+
+		result, err := bussiness.TrivyScanK8sResources(ctx, clusterName, namespace, onProgress)
+		if err != nil {
+			runtime.EventsEmit(a.ctx, "trivy:k8s:error:"+scanId, err.Error())
+			return
+		}
+		runtime.EventsEmit(a.ctx, "trivy:k8s:done:"+scanId, result)
+	}()
+	return nil
+}
+
+// TrivyStopK8sScan cancels an in-flight K8s scan.
+func (a *App) TrivyStopK8sScan(scanId string) error {
+	k8sScanMu.Lock()
+	cancel, ok := k8sScanCancels[scanId]
+	k8sScanMu.Unlock()
+	if ok {
+		cancel()
+	}
+	return nil
+}
+
 func (a *App) GetObjectYaml(clusterName, group, resource, namespace, name string) (string, error) {
 	return bussiness.GetObjectYaml(clusterName, group, resource, namespace, name)
 }
