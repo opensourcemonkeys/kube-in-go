@@ -446,11 +446,15 @@
   color: var(--ki-ink2);
 }
 
+/* Let the changelog page use the full width (Material caps content at ~61rem) */
+.md-main:has(.ki-cl-timeline) .md-main__inner { max-width: 1280px; }
+.md-main:has(.ki-cl-timeline) .md-content { max-width: none; }
+
 .ki-cl-timeline {
   --ki-cl-progress: 0;
   --ki-cl-gap: 2.4rem;
   position: relative;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 1.4rem auto 3rem;
   padding: 0.5rem 0;
 }
