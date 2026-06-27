@@ -40,7 +40,10 @@ type VulnRow = {
     fixedVersion: string;
     severity: string;
     title: string;
+    description: string;
     primaryURL: string;
+    references: string[];
+    publishedDate: string;
 };
 
 type MisconfigRow = {
@@ -52,7 +55,10 @@ type MisconfigRow = {
     severity: string;
     title: string;
     message: string;
+    description: string;
     resolution: string;
+    primaryURL: string;
+    references: string[];
 };
 
 type SecretRow = {
@@ -71,7 +77,8 @@ type SecretRow = {
 type K8sScanResult = {
     misconfigs: Array<{
         resourceKind: string; resourceName: string; namespace: string;
-        checkID: string; severity: string; title: string; message: string; resolution: string; status: string;
+        checkID: string; severity: string; title: string; message: string;
+        description: string; resolution: string; primaryURL: string; references: string[]; status: string;
     }>;
     secrets: Array<{
         resourceKind: string; resourceName: string; namespace: string;
@@ -129,7 +136,10 @@ function rowsFromResult(imgInfo: models.TrivyK8sImageInfo, res: models.TrivyScan
                 fixedVersion: v.fixedVersion,
                 severity: (v.severity || 'UNKNOWN').toUpperCase(),
                 title: v.title,
+                description: v.description || '',
                 primaryURL: v.primaryURL,
+                references: v.references || [],
+                publishedDate: v.publishedDate || '',
             });
         });
     });
@@ -371,7 +381,10 @@ function useK8sScan(clusterName: string, pushToast: PushToast) {
                 severity: (m.severity || 'UNKNOWN').toUpperCase(),
                 title: m.title,
                 message: m.message,
+                description: m.description || '',
                 resolution: m.resolution,
+                primaryURL: m.primaryURL || '',
+                references: m.references || [],
             }));
             const sc: SecretRow[] = (result.secrets || []).map((s, i) => ({
                 _uid: `sec|${s.resourceKind}|${s.resourceName}|${s.namespace}|${s.ruleID}|${i}`,

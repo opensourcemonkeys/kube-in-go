@@ -2,13 +2,16 @@ package models
 
 // TrivyVulnerability is a single vulnerability finding surfaced to the frontend.
 type TrivyVulnerability struct {
-	VulnerabilityID  string `json:"vulnerabilityID"`
-	PkgName          string `json:"pkgName"`
-	InstalledVersion string `json:"installedVersion"`
-	FixedVersion     string `json:"fixedVersion"`
-	Severity         string `json:"severity"` // CRITICAL/HIGH/MEDIUM/LOW/UNKNOWN
-	Title            string `json:"title"`
-	PrimaryURL       string `json:"primaryURL"`
+	VulnerabilityID  string   `json:"vulnerabilityID"`
+	PkgName          string   `json:"pkgName"`
+	InstalledVersion string   `json:"installedVersion"`
+	FixedVersion     string   `json:"fixedVersion"`
+	Severity         string   `json:"severity"` // CRITICAL/HIGH/MEDIUM/LOW/UNKNOWN
+	Title            string   `json:"title"`
+	Description      string   `json:"description"`
+	PrimaryURL       string   `json:"primaryURL"`
+	References       []string `json:"references"`
+	PublishedDate    string   `json:"publishedDate"`
 }
 
 // TrivyTarget groups findings for one scan target (an OS layer, a language
@@ -33,15 +36,18 @@ type TrivyScanResult struct {
 
 // TrivyK8sMisconfigFinding is one failing KSV* check from a filesystem scan.
 type TrivyK8sMisconfigFinding struct {
-	ResourceKind string `json:"resourceKind"`
-	ResourceName string `json:"resourceName"`
-	Namespace    string `json:"namespace"`
-	CheckID      string `json:"checkID"`
-	Severity     string `json:"severity"`
-	Title        string `json:"title"`
-	Message      string `json:"message"`
-	Resolution   string `json:"resolution"`
-	Status       string `json:"status"` // "FAIL" | "EXCEPTION"
+	ResourceKind string   `json:"resourceKind"`
+	ResourceName string   `json:"resourceName"`
+	Namespace    string   `json:"namespace"`
+	CheckID      string   `json:"checkID"`
+	Severity     string   `json:"severity"`
+	Title        string   `json:"title"`
+	Message      string   `json:"message"`
+	Description  string   `json:"description"`
+	Resolution   string   `json:"resolution"`
+	PrimaryURL   string   `json:"primaryURL"`
+	References   []string `json:"references"`
+	Status       string   `json:"status"` // "FAIL" | "EXCEPTION"
 }
 
 // TrivyK8sSecretFinding is one detected secret in a resource's YAML.

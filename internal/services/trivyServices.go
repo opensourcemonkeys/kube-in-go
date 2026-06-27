@@ -474,7 +474,10 @@ func mapK8sReport(report types.Report, clusterName, namespace string, resources 
 				Severity:     m.Severity,
 				Title:        m.Title,
 				Message:      m.Message,
+				Description:  m.Description,
 				Resolution:   m.Resolution,
+				PrimaryURL:   m.PrimaryURL,
+				References:   m.References,
 				Status:       string(m.Status),
 			})
 			res.MisconfigSummary[m.Severity]++
@@ -668,6 +671,10 @@ func mapReport(kind, ref string, report types.Report) *models.TrivyScanResult {
 			Type:   string(r.Type),
 		}
 		for _, v := range r.Vulnerabilities {
+			published := ""
+			if v.PublishedDate != nil {
+				published = v.PublishedDate.Format("2006-01-02")
+			}
 			t.Vulnerabilities = append(t.Vulnerabilities, models.TrivyVulnerability{
 				VulnerabilityID:  v.VulnerabilityID,
 				PkgName:          v.PkgName,
@@ -675,7 +682,10 @@ func mapReport(kind, ref string, report types.Report) *models.TrivyScanResult {
 				FixedVersion:     v.FixedVersion,
 				Severity:         v.Severity,
 				Title:            v.Title,
+				Description:      v.Description,
 				PrimaryURL:       v.PrimaryURL,
+				References:       v.References,
+				PublishedDate:    published,
 			})
 			res.Summary[v.Severity]++
 		}
