@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [v0.7.0-alpha] - 2026-06-28
 
 ### Added
 - **Terminal UI (TUI)** — a new `tview`-based terminal interface that mirrors the desktop app (resource menu, tables, cluster add/select/delete, YAML view/edit, delete, pod logs and exec) on a single focused screen. It reuses the same `internal/business` functions as the GUI, so no new service endpoints were added. Ships two ways:
@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - **Release artifact names** — the desktop binary/installers are now published as `kube-inspector-*` (was `kube-ins-*`) and the CLI as `kube-inspector-cli-*`.
+
+---
 
 ## [v0.6.4-alpha] - 2026-06-27
 
