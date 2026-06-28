@@ -14,6 +14,11 @@ import (
 // showClusters is the landing screen: a table of configured clusters with
 // add/delete/select/view actions backed by the business cluster functions.
 func (a *App) showClusters() {
+	// Leaving the workspace: tear down the describe pane and stop the resource
+	// list's background auto-refresh.
+	a.closeDescribe()
+	a.stopAutoRefresh()
+
 	table := tview.NewTable().
 		SetBorders(false).
 		SetSelectable(true, false).
@@ -72,7 +77,7 @@ func (a *App) showClusters() {
 				return nil
 			}
 			a.cluster = n
-			a.showMenu()
+			a.showWorkspace()
 			return nil
 		case tcell.KeyEsc:
 			a.app.Stop()

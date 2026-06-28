@@ -40,6 +40,79 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
         term.loadAddon(fitAddon);
         term.open(containerRef.current);
 
+        // Clipboard helpers. The TUI runs with mouse capture disabled (the backend
+        // sets KUBEINS_TUI_NOMOUSE) so drag-to-select works natively in xterm here.
+        // navigator.clipboard can be unavailable/blocked in the WebKitGTK webview,
+        // so fall back to a hidden-textarea execCommand copy.
+        const writeClipboard = (text: string) => {
+            if (!text) return;
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(text).catch(() => execCopy(text));
+            } else {
+                execCopy(text);
+            }
+        };
+        const execCopy = (text: string) => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+            } catch {
+                /* ignore */
+            }
+            document.body.removeChild(ta);
+            term.focus();
+        };
+        const pasteClipboard = () => {
+            navigator.clipboard
+                ?.readText()
+                .then((text) => {
+                    if (text) WriteToCliModeSession(sessionId, text).catch(() => {});
+                })
+                .catch(() => {});
+        };
+
+        // Copy selection on Ctrl/Cmd+Shift+C, paste on Ctrl/Cmd+Shift+V. Plain
+        // Ctrl+C is left untouched so it still sends SIGINT to the TUI.
+        term.attachCustomKeyEventHandler((e) => {
+            if (e.type !== 'keydown') return true;
+            const combo = (e.ctrlKey && e.shiftKey) || e.metaKey;
+            if (!combo) return true;
+            const k = e.key.toLowerCase();
+            if (k === 'c' && term.hasSelection()) {
+                writeClipboard(term.getSelection());
+                e.preventDefault();
+                return false;
+            }
+            if (k === 'v') {
+                pasteClipboard();
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        });
+
+        // Auto-copy on drag-select (release), and right-click to paste.
+        const el = containerRef.current;
+        const onMouseUp = () => {
+            if (term.hasSelection()) writeClipboard(term.getSelection());
+        };
+        const onContextMenu = (ev: MouseEvent) => {
+            ev.preventDefault();
+            if (term.hasSelection()) {
+                writeClipboard(term.getSelection());
+                term.clearSelection();
+            } else {
+                pasteClipboard();
+            }
+        };
+        el.addEventListener('mouseup', onMouseUp);
+        el.addEventListener('contextmenu', onContextMenu);
+
         const fitTimer = setTimeout(() => {
             fitAddon.fit();
             ResizeCliModeSession(sessionId, term.cols, term.rows).catch(() => {});
@@ -74,6 +147,8 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
             offExit();
             onData.dispose();
             observer.disconnect();
+            el.removeEventListener('mouseup', onMouseUp);
+            el.removeEventListener('contextmenu', onContextMenu);
             CloseCliModeSession(sessionId).catch(() => {});
             term.dispose();
         };

@@ -18,6 +18,7 @@ require (
 	k8s.io/api v0.36.1
 	k8s.io/apimachinery v0.36.1
 	k8s.io/client-go v0.36.1
+	k8s.io/kubectl v0.36.0
 	k8s.io/metrics v0.36.1
 	modernc.org/sqlite v1.50.1
 	sigs.k8s.io/yaml v1.6.0
@@ -146,6 +147,7 @@ require (
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/extism/go-sdk v1.7.1 // indirect
+	github.com/fatih/camelcase v1.0.0 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fluxcd/cli-utils v1.2.0 // indirect
@@ -429,9 +431,9 @@ require (
 	k8s.io/apiserver v0.36.0 // indirect
 	k8s.io/cli-runtime v0.36.0 // indirect
 	k8s.io/component-base v0.36.0 // indirect
+	k8s.io/component-helpers v0.36.0 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260319004828-5883c5ee87b9 // indirect
-	k8s.io/kubectl v0.36.0 // indirect
 	k8s.io/streaming v0.36.1 // indirect
 	k8s.io/utils v0.0.0-20260319190234-28399d86e0b5 // indirect
 	modernc.org/libc v1.72.3 // indirect

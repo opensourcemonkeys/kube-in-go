@@ -1,10 +1,11 @@
 VERSION := $(shell git describe --tags --abbrev=0 | sed 's/^v//')
-LDFLAGS := -X 'kube-ins/internal/business.appVersion=$(VERSION)'
+LDFLAGS := -X 'kube-ins/internal/business.appVersion=$(VERSION)' -s -w
 
 # The Trivy library (security scanner) depends on encoding/json/v2, which is
 # gated behind the jsonv2 GOEXPERIMENT on Go 1.26. Export it so every wails/go
 # invocation in this Makefile (build, dev, packaging) compiles it.
 export GOEXPERIMENT := jsonv2
+export GOFLAGS := -trimpath -buildvcs=false
 NFPM    := nfpm
 DIST    := ./dist
 
@@ -27,24 +28,30 @@ build-mac:
 dev:
 	wails dev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'"
 
+# Hızlı TUI geliştirme: webview-free CLI'yi doğrudan çalıştırır. Vite tarzı hot
+# reload yoktur (TUI terminali tam ekran ele geçirir); döngü: düzenle → q ile çık
+# → tekrar `make dev-tui`. Go build cache sayesinde ilk derlemeden sonra hızlıdır.
+dev-tui:
+	go run $(GOFLAGS) -tags tui -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'" ./cmd/tui
+
 # ── Standalone terminal UI (kube-inspector-cli) ──────────────────
 # A webview-free native CLI binary (cmd/tui). Plain `go build` — no wails, no
 # frontend embed — so it carries no webkit2gtk dependency. GOEXPERIMENT=jsonv2
 # is still required because internal/business transitively imports Trivy.
 build-tui:
-	go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli ./cmd/tui
+	go build $(GOFLAGS) -tags tui -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli ./cmd/tui
 
 build-tui-linux:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli ./cmd/tui
+	GOOS=linux GOARCH=amd64 go build $(GOFLAGS) -tags tui -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli ./cmd/tui
 
 build-tui-windows:
-	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli.exe ./cmd/tui
+	GOOS=windows GOARCH=amd64 go build $(GOFLAGS) -tags tui -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli.exe ./cmd/tui
 
 # Universal macOS CLI binary (Apple Silicon + Intel). Uses lipo, so this target
 # only runs on macOS (same constraint as build-mac).
 build-tui-mac:
-	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli-amd64 ./cmd/tui
-	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli-arm64 ./cmd/tui
+	GOOS=darwin GOARCH=amd64 go build $(GOFLAGS) -tags tui -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli-amd64 ./cmd/tui
+	GOOS=darwin GOARCH=arm64 go build $(GOFLAGS) -tags tui -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli-arm64 ./cmd/tui
 	lipo -create -output build/bin/kube-inspector-cli build/bin/kube-inspector-cli-amd64 build/bin/kube-inspector-cli-arm64
 	rm -f build/bin/kube-inspector-cli-amd64 build/bin/kube-inspector-cli-arm64
 
@@ -98,4 +105,4 @@ docs-serve: docs-downloads
 docs-build: docs-downloads
 	mkdocs build --clean --strict
 
-.PHONY: build build-linux build-windows build-mac dev build-tui build-tui-linux build-tui-windows build-tui-mac pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-tui-deb pkg-tui-rpm pkg-all clean test-e2e docs-downloads docs-serve docs-build
+.PHONY: build build-linux build-windows build-mac dev dev-tui build-tui build-tui-linux build-tui-windows build-tui-mac pkg-deb pkg-rpm pkg-windows pkg-mac pkg-linux pkg-tui-deb pkg-tui-rpm pkg-all clean test-e2e docs-downloads docs-serve docs-build

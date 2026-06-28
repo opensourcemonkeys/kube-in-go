@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
+	"k8s.io/kubectl/pkg/describe"
 	"sigs.k8s.io/yaml"
 )
 
@@ -92,6 +93,40 @@ func UpdateObjectYaml(config *rest.Config, group, resource, namespace, name, yam
 	}
 	_, err = ri.Update(context.TODO(), u, metav1.UpdateOptions{})
 	return err
+}
+
+// GetObjectDescribe renders the full `kubectl describe` output for a single
+// object identified by (resource, namespace, name), using kubectl's own
+// describers (k8s.io/kubectl/pkg/describe) over the API — no subprocess. The
+// plural resource is resolved to its GroupKind via the REST mapper (empty group
+// so the mapper picks the right API group from the plural, matching TUI views).
+func GetObjectDescribe(config *rest.Config, resource, namespace, name string) (string, error) {
+	_, mapper, err := newDynamicAndMapper(config)
+	if err != nil {
+		return "", err
+	}
+	gvr, err := mapper.ResourceFor(schema.GroupVersionResource{Resource: resource})
+	if err != nil {
+		return "", err
+	}
+	gvk, err := mapper.KindFor(gvr)
+	if err != nil {
+		return "", err
+	}
+
+	describer, ok := describe.DescriberFor(gvk.GroupKind(), config)
+	if !ok {
+		// Fall back to the generic (table-style) describer for kinds without a
+		// dedicated describer (e.g. CRDs).
+		if mapping, mErr := mapper.RESTMapping(gvk.GroupKind(), gvk.Version); mErr == nil {
+			describer, ok = describe.GenericDescriberFor(mapping, config)
+		}
+	}
+	if !ok {
+		return fmt.Sprintf("describe not available for %s", gvk.Kind), nil
+	}
+
+	return describer.Describe(namespace, name, describe.DescriberSettings{ShowEvents: true, ChunkSize: 500})
 }
 
 func cleanUnstructured(u *unstructured.Unstructured) {

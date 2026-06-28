@@ -1,3 +1,6 @@
+//go:build !tui
+// +build !tui
+
 package services_k8sclient
 
 import (
@@ -23,8 +26,8 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	sigsyaml "sigs.k8s.io/yaml"
 	_ "modernc.org/sqlite" // registers the "sqlite" driver used by Trivy's RPM/Java DB
+	sigsyaml "sigs.k8s.io/yaml"
 )
 
 // ListPodImages returns the distinct container images (including init and

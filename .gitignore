@@ -1,6 +1,7 @@
 build/bin
 node_modules
 frontend/dist
+tui/
 frontend/wailsjs/runtime
 frontend/wailsjs/go
 .claude

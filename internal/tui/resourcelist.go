@@ -3,18 +3,18 @@ package tui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-// openResource builds and shows the generic table screen for a registered view.
-func (a *App) openResource(view string) {
+// buildResource builds the generic table body for a registered view and wires
+// its key handling. It returns the body primitive (mounted into the workspace's
+// right pane by loadResource), the table to focus, and the status-bar hints.
+// The caller (loadResource) is responsible for mounting it and setting focus.
+func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string) {
 	def := a.registry[view]
-	if def == nil {
-		a.flash("Error", "unknown view: "+view, colDanger)
-		return
-	}
 
 	table := tview.NewTable().
 		SetBorders(false).
@@ -22,6 +22,7 @@ func (a *App) openResource(view string) {
 		SetFixed(1, 0)
 	table.SetBackgroundColor(colBg)
 	table.SetBorder(true).SetBorderColor(colBorder).SetTitle(" " + def.title + " ")
+	focusBorder(table.Box)
 
 	filter := tview.NewInputField().SetLabel(" / ")
 	filter.SetLabelColor(colTeal)
@@ -36,6 +37,9 @@ func (a *App) openResource(view string) {
 	statusCol := statusColumnIndex(def.headers)
 
 	render := func(query string) {
+		// Preserve the selected row across re-renders so the live auto-refresh
+		// (and filtering) doesn't yank the cursor back to the top every tick.
+		prevRow, _ := table.GetSelection()
 		table.Clear()
 		for c, h := range def.headers {
 			table.SetCell(0, c, headerCell(h))
@@ -59,13 +63,21 @@ func (a *App) openResource(view string) {
 		if len(shown) == 0 {
 			table.SetCell(1, 0, tview.NewTableCell(" (no items) ").SetTextColor(colMuted).SetSelectable(false))
 		} else {
-			table.Select(1, 0)
+			if prevRow < 1 {
+				prevRow = 1
+			}
+			if prevRow > len(shown) {
+				prevRow = len(shown)
+			}
+			table.Select(prevRow, 0)
 		}
 		table.SetTitle(fmt.Sprintf(" %s (%d) ", def.title, len(shown)))
 	}
 
 	reload := func() {
+		start := time.Now()
 		rows, err := def.list(a.cluster)
+		a.updateRate(time.Since(start), err == nil)
 		if err != nil {
 			a.flash("Error", err.Error(), colDanger)
 		}
@@ -73,6 +85,41 @@ func (a *App) openResource(view string) {
 		render(filter.GetText())
 	}
 	reload()
+
+	// Auto-refresh: poll the list on an interval in the background so the table
+	// stays live without the user pressing 'r'. The fetch runs off the UI thread;
+	// only the re-render and rate readout are marshalled back onto it via
+	// QueueUpdateDraw (which is where allRows/shown are mutated, same as the
+	// manual reload — so there is no concurrent access). The goroutine exits when
+	// loadResource/showClusters closes the stop channel.
+	stop := make(chan struct{})
+	a.refreshStop = stop
+	go func() {
+		ticker := time.NewTicker(a.refreshRate)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-stop:
+				return
+			case <-ticker.C:
+				start := time.Now()
+				rows, err := def.list(a.cluster)
+				elapsed := time.Since(start)
+				select {
+				case <-stop: // view was swapped while the fetch was in flight
+					return
+				default:
+				}
+				a.app.QueueUpdateDraw(func() {
+					a.updateRate(elapsed, err == nil)
+					if err == nil {
+						allRows = rows
+						render(filter.GetText())
+					}
+				})
+			}
+		}
+	}()
 
 	selected := func() (rowData, bool) {
 		r, _ := table.GetSelection()
@@ -82,6 +129,20 @@ func (a *App) openResource(view string) {
 		}
 		return shown[idx], true
 	}
+
+	// While the describe pane is open, moving the selection retargets it to the
+	// newly highlighted row and triggers an immediate refresh.
+	table.SetSelectionChangedFunc(func(r, _ int) {
+		if !a.describeOpen {
+			return
+		}
+		idx := r - 1
+		if idx < 0 || idx >= len(shown) {
+			return
+		}
+		a.setDescribeTarget(def, shown[idx], view)
+		a.kickDescribe()
+	})
 
 	openFilter := func() {
 		body.AddItem(filter, 1, 0, false)
@@ -105,7 +166,9 @@ func (a *App) openResource(view string) {
 		return ev
 	})
 
-	back := func() { a.showMenu() }
+	// On the split workspace the menu is always visible to the left, so "back"
+	// just returns focus to it rather than swapping screens.
+	back := func() { a.app.SetFocus(a.tree) }
 
 	hints := hintList
 	if def.isPods {
@@ -114,17 +177,37 @@ func (a *App) openResource(view string) {
 
 	table.SetInputCapture(func(ev *tcell.EventKey) *tcell.EventKey {
 		switch ev.Key() {
+		case tcell.KeyLeft:
+			// Left arrow: move focus back to the menu pane.
+			a.app.SetFocus(a.tree)
+			return nil
+		case tcell.KeyRight:
+			// Right arrow: move focus into the describe pane to scroll it.
+			if a.describeOpen && a.describeText != nil {
+				a.app.SetFocus(a.describeText)
+			}
+			return nil
 		case tcell.KeyEnter:
-			if r, ok := selected(); ok && def.getYAML != nil {
-				a.showYaml(def, r, view)
+			if r, ok := selected(); ok {
+				a.showDescribe(def, r, view)
 			}
 			return nil
 		case tcell.KeyEsc:
+			if a.describeOpen {
+				a.closeDescribe()
+				a.app.SetFocus(table)
+				return nil
+			}
 			back()
 			return nil
 		case tcell.KeyRune:
 			switch ev.Rune() {
 			case 'q':
+				if a.describeOpen {
+					a.closeDescribe()
+					a.app.SetFocus(table)
+					return nil
+				}
 				back()
 				return nil
 			case 'c':
@@ -227,9 +310,7 @@ func (a *App) openResource(view string) {
 		hints = strings.Join(extra, "  ") + "  " + hints
 	}
 
-	a.setStatus(def.title, hints)
-	a.resourceBody = body
-	a.push("resource", body)
+	return body, table, hints
 }
 
 // statusColumnIndex finds the STATUS column so it can be colorized; -1 if none.

@@ -24,15 +24,30 @@ const helpText = `[teal::b]kube-ins TUI — keyboard shortcuts[-:-:-]
 [teal]Resource list[-]
   /             filter rows
   r             refresh
-  y or Enter    view YAML
+  Enter         describe (side panel)
+  →             focus describe panel (scroll)
+  y             view YAML
   e             edit YAML
   d             delete (with confirmation)
   l             logs        (pods)
   s             shell/exec  (pods)
 
+[teal]Describe panel[-]
+  →             focus panel to scroll
+  ↑/↓ or j/k    scroll (g/G top/bottom)
+  ← / Esc / q   back to list
+  ↑/↓ in list   retargets panel (live updates)
+  (nodes/pods/workloads show live CPU/RAM on top)
+
+[teal]YAML viewer[-]
+  /             search in document
+  n / N         next / previous match
+  g / G         jump to top / bottom
+  e             edit
+
 [teal]YAML editor[-]
-  F2            save changes
-  Esc           cancel
+  Ctrl+O        save changes
+  Ctrl+X        exit (asks if unsaved)
 
 [grey]Press any key to close[-]`
 
@@ -46,5 +61,5 @@ func (a *App) showHelp() {
 		a.closeModal("help")
 		return nil
 	})
-	a.modal("help", tv, 60, 32)
+	a.modal("help", tv, 60, 46)
 }

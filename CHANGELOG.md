@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.8.0-alpha] - 2026-06-28
+
+### Added
+- **Inspect window in CLI** — a new inspect/detail view was added to the CLI screen so users can inspect selected resources more conveniently.
+
+### Changed
+- **CLI/TUI build size optimization** — the terminal-only build now excludes Trivy and desktop/Wails-specific code paths, resulting in a much smaller standalone binary.
+- **Release packaging improvements** — production builds now strip debug symbols and avoid VCS metadata in the binary, which reduces artifact size for distribution.
+
+### Fixed
+- **Large standalone CLI binary** — the `kube-inspector-cli` artifact is now built with lighter defaults so it is more practical to ship and install.
+
+---
+
 ## [v0.7.0-alpha] - 2026-06-28
 
 ### Added

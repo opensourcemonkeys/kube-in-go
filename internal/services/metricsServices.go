@@ -114,10 +114,24 @@ func GetMetricsSnapshot(client *kubernetes.Clientset, mc *metricsclient.Clientse
 	for _, p := range pods.Items {
 		key := p.Namespace + "/" + p.Name
 		ownerKind, ownerName := resolveOwner(p.OwnerReferences, p.Namespace, rsToDeploy)
+
+		// Sum container resource limits for this pod (for usage-vs-limit %).
+		var cpuLimit, memLimit int64
+		for _, c := range p.Spec.Containers {
+			if q := c.Resources.Limits.Cpu(); q != nil {
+				cpuLimit += q.MilliValue()
+			}
+			if q := c.Resources.Limits.Memory(); q != nil {
+				memLimit += q.Value() / miDivisor
+			}
+		}
+
 		if i, ok := podIndex[key]; ok {
 			snap.Pods[i].Node = p.Spec.NodeName
 			snap.Pods[i].OwnerKind = ownerKind
 			snap.Pods[i].OwnerName = ownerName
+			snap.Pods[i].CpuLimitMillis = cpuLimit
+			snap.Pods[i].MemLimitMi = memLimit
 		}
 		if u, ok := podUsage[key]; ok && ownerKind != "" {
 			k := wkey{ownerKind, p.Namespace, ownerName}
@@ -128,6 +142,8 @@ func GetMetricsSnapshot(client *kubernetes.Clientset, mc *metricsclient.Clientse
 			}
 			w.CpuMillis += u.cpu
 			w.MemMi += u.mem
+			w.CpuLimitMillis += cpuLimit
+			w.MemLimitMi += memLimit
 			w.Pods++
 		}
 	}

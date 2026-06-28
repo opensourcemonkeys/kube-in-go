@@ -11,7 +11,7 @@ type ContainerUsage struct {
 // dashboard. Capacity fields are only meaningful for "cluster" and "node";
 // Owner*/Containers are only populated for "pod" rows (for drill-down).
 type ResourceUsage struct {
-	Kind         string `json:"kind"`      // "cluster" | "node" | "pod" | "workload"
+	Kind         string `json:"kind"` // "cluster" | "node" | "pod" | "workload"
 	Name         string `json:"name"`
 	Namespace    string `json:"namespace"` // empty for cluster/node
 	Node         string `json:"node"`      // node a pod runs on
@@ -19,10 +19,14 @@ type ResourceUsage struct {
 	MemMi        int64  `json:"memMi"`     // usage
 	CpuCapMillis int64  `json:"cpuCapMillis"`
 	MemCapMi     int64  `json:"memCapMi"`
-	Pods         int    `json:"pods"` // workloads: number of contributing pods
+	// Limit sums (pod/workload): aggregated container resources.limits. Zero when
+	// no limits are set, in which case a usage-vs-limit percentage is undefined.
+	CpuLimitMillis int64 `json:"cpuLimitMillis"`
+	MemLimitMi     int64 `json:"memLimitMi"`
+	Pods           int   `json:"pods"` // workloads: number of contributing pods
 
 	// Pod-only (for drill-down); omitted elsewhere.
-	OwnerKind  string           `json:"ownerKind,omitempty"`  // resolved top-level owner (e.g. "Deployment")
+	OwnerKind  string           `json:"ownerKind,omitempty"` // resolved top-level owner (e.g. "Deployment")
 	OwnerName  string           `json:"ownerName,omitempty"`
 	Containers []ContainerUsage `json:"containers,omitempty"`
 }

@@ -15,6 +15,16 @@ func GetObjectYaml(clusterName, group, resource, namespace, name string) (string
 	return services.GetObjectYaml(config, group, resource, namespace, name)
 }
 
+// GetObjectDescribe returns the full `kubectl describe` text for any object
+// identified by (resource, namespace, name) — backs the TUI describe panel.
+func GetObjectDescribe(clusterName, resource, namespace, name string) (string, error) {
+	_, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)
+	if err != nil {
+		return "", err
+	}
+	return services.GetObjectDescribe(config, resource, namespace, name)
+}
+
 // UpdateObjectYaml applies edited YAML to the identified object.
 func UpdateObjectYaml(clusterName, group, resource, namespace, name, yamlContent string) error {
 	_, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)

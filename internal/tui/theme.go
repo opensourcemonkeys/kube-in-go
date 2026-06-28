@@ -14,7 +14,8 @@ var (
 	colMuted   = tcell.NewHexColor(0x8b95a7) // secondary text
 	colTeal    = tcell.NewHexColor(0x2dd4bf) // --teal accent
 	colTealDim = tcell.NewHexColor(0x14302e) // selection background
-	colBorder  = tcell.NewHexColor(0x2a323d)
+	colBorder       = tcell.NewHexColor(0x2a323d)
+	colBorderActive = tcell.NewHexColor(0x6b7689) // focused pane border (lighter)
 	colDanger  = tcell.NewHexColor(0xf87171)
 	colWarn    = tcell.NewHexColor(0xfbbf24)
 	colOk      = tcell.NewHexColor(0x34d399)
