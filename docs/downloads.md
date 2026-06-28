@@ -13,21 +13,21 @@ Kube Inspector ships in two flavours:
 
 ### Linux — Debian / Ubuntu (.deb)
 
-- **Debian / Ubuntu 22.04** — [Download](/dist/kube-inspector-__VERSION__-debian-amd64-ubuntu-22.04-amd64.deb){ .md-button }
-- **Debian / Ubuntu 24.04** — [Download](/dist/kube-inspector-__VERSION__-debian-amd64-ubuntu-24.04-amd64.deb){ .md-button }
+- **Debian / Ubuntu 22.04** — [Download](/dist/kube-inspector-__VERSION__-debian-amd64-ubuntu-22.04-amd64.deb)
+- **Debian / Ubuntu 24.04** — [Download](/dist/kube-inspector-__VERSION__-debian-amd64-ubuntu-24.04-amd64.deb)
 
 ### Linux — RHEL / Fedora (.rpm)
 
-- **RHEL 9 / Fedora** — [Download](/dist/kube-inspector-__VERSION__-rhel9-x86_64.rpm){ .md-button }
-- **RHEL 10 / Fedora** — [Download](/dist/kube-inspector-__VERSION__-rhel10-x86_64.rpm){ .md-button }
+- **RHEL 9 / Fedora** — [Download](/dist/kube-inspector-__VERSION__-rhel9-x86_64.rpm)
+- **RHEL 10 / Fedora** — [Download](/dist/kube-inspector-__VERSION__-rhel10-x86_64.rpm)
 
 ### Windows
 
-- **Windows (installer)** — [Download](/dist/kube-inspector-__VERSION__-windows-amd64.exe){ .md-button }
+- **Windows (installer)** — [Download](/dist/kube-inspector-__VERSION__-windows-amd64.exe)
 
 ### macOS
 
-- **macOS (Universal)** — [Download](/dist/kube-inspector-__VERSION__-macos-universal.dmg){ .md-button }
+- **macOS (Universal)** — [Download](/dist/kube-inspector-__VERSION__-macos-universal.dmg)
 
 ---
 
@@ -37,14 +37,14 @@ The CLI has **no WebKitGTK dependency** — one Linux package fits every distro.
 
 ### Linux
 
-- **Portable binary (.tar.gz)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-amd64.tar.gz){ .md-button }
-- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-cli-__VERSION__-debian-amd64.deb){ .md-button }
-- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-x86_64.rpm){ .md-button }
+- **Portable binary (.tar.gz)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-amd64.tar.gz)
+- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-cli-__VERSION__-debian-amd64.deb)
+- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-x86_64.rpm)
 
 ### Windows
 
-- **Windows** — [Download](/dist/kube-inspector-cli-__VERSION__-windows-amd64.exe){ .md-button }
+- **Windows** — [Download](/dist/kube-inspector-cli-__VERSION__-windows-amd64.exe)
 
 ### macOS
 
-- **macOS (Universal)** — [Download](/dist/kube-inspector-cli-__VERSION__-macos-universal.tar.gz){ .md-button }
+- **macOS (Universal)** — [Download](/dist/kube-inspector-cli-__VERSION__-macos-universal.tar.gz)
