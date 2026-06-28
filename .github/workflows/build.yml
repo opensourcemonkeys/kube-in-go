@@ -57,8 +57,21 @@ jobs:
       - name: Rename Packages with Platform (ubuntu-22.04)
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          mv dist/kube-ins_${VERSION}_amd64.deb dist/kube-ins-${VERSION}-debian-amd64-ubuntu-22.04-amd64.deb || true
-          mv dist/kube-ins-${VERSION}-1.x86_64.rpm dist/kube-ins-${VERSION}-rhel9-x86_64.rpm || true
+          mv dist/kube-inspector_${VERSION}_amd64.deb dist/kube-inspector-${VERSION}-debian-amd64-ubuntu-22.04-amd64.deb || true
+          mv dist/kube-inspector-${VERSION}-1.x86_64.rpm dist/kube-inspector-${VERSION}-rhel9-x86_64.rpm || true
+
+      # The CLI (kube-inspector-cli) links no webview, so a single deb/rpm/tarball
+      # works on every Linux distro — no per-WebKitGTK variants needed.
+      - name: Build & Package CLI (kube-inspector-cli)
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          make build-tui-linux
+          make pkg-tui-deb
+          make pkg-tui-rpm
+          mkdir -p dist
+          tar -czf dist/kube-inspector-cli-${VERSION}-linux-amd64.tar.gz -C build/bin kube-inspector-cli
+          mv dist/kube-inspector-cli_${VERSION}_amd64.deb dist/kube-inspector-cli-${VERSION}-debian-amd64.deb || true
+          mv dist/kube-inspector-cli-${VERSION}-1.x86_64.rpm dist/kube-inspector-cli-${VERSION}-linux-x86_64.rpm || true
 
       - name: Upload Linux Packages (ubuntu-22.04)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -107,8 +120,8 @@ jobs:
       - name: Rename Packages with Platform (ubuntu-24.04)
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          mv dist/kube-ins_${VERSION}_amd64.deb dist/kube-ins-${VERSION}-debian-amd64-ubuntu-24.04-amd64.deb || true
-          mv dist/kube-ins-${VERSION}-1.x86_64.rpm dist/kube-ins-${VERSION}-rhel10-x86_64.rpm || true
+          mv dist/kube-inspector_${VERSION}_amd64.deb dist/kube-inspector-${VERSION}-debian-amd64-ubuntu-24.04-amd64.deb || true
+          mv dist/kube-inspector-${VERSION}-1.x86_64.rpm dist/kube-inspector-${VERSION}-rhel10-x86_64.rpm || true
 
       - name: Upload Linux Packages (ubuntu-24.04)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -151,7 +164,14 @@ jobs:
         shell: bash
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          mv build/bin/kube-ins-amd64-installer.exe build/bin/kube-ins-${VERSION}-windows-amd64.exe
+          mv build/bin/kube-inspector-amd64-installer.exe build/bin/kube-inspector-${VERSION}-windows-amd64.exe
+
+      - name: Build CLI (kube-inspector-cli)
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          make build-tui-windows
+          mv build/bin/kube-inspector-cli.exe build/bin/kube-inspector-cli-${VERSION}-windows-amd64.exe
 
       - name: Upload Windows Installer
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -184,11 +204,20 @@ jobs:
       - name: Build and Package
         run: make pkg-mac
 
-      - name: Upload macOS DMG
+      - name: Build CLI (kube-inspector-cli)
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          make build-tui-mac
+          mkdir -p dist
+          tar -czf dist/kube-inspector-cli-${VERSION}-macos-universal.tar.gz -C build/bin kube-inspector-cli
+
+      - name: Upload macOS Artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: macos-dmg
-          path: dist/*-macos-universal.dmg
+          path: |
+            dist/*-macos-universal.dmg
+            dist/kube-inspector-cli-*-macos-universal.tar.gz
 
   # ==========================================
   # STAGE 2: RELEASE

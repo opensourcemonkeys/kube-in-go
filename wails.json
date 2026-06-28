@@ -1,13 +1,13 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "kube-ins",
-  "outputfilename": "kube-ins",
+  "name": "kube-inspector",
+  "outputfilename": "kube-inspector",
   "frontend:install": "npm install",
   "frontend:build": "npm run build",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "Hakan Yorulmaz",
-    "email": "hakanyorulmaz94@gmail.com"
+    "name": "",
+    "email": ""
   }
 }

@@ -1,28 +1,28 @@
 # ==========================================
-# kube-ins-tui — standalone terminal UI package
+# kube-inspector-cli — standalone terminal UI package
 # Unlike the desktop app (build/nfpm.yaml) this binary links no webview, so it
 # has NO webkit2gtk dependency and ships only the CLI binary.
 # ==========================================
-name: "kube-ins-tui"
+name: "kube-inspector-cli"
 version: "${VERSION}"
 version_schema: none
 arch: "amd64"
 platform: "linux"
-maintainer: "Hakan Yorulmaz <hakanyorulmaz94@gmail.com>"
-description: "Terminal UI for managing Kubernetes clusters (kube-ins CLI)."
+maintainer: "hakanyorulmaz"
+description: "Terminal UI for managing Kubernetes clusters (Kube Inspector CLI)."
 homepage: "https://kubeinspector.com"
 license: "GPL-3.0"
-vendor: "Hakan Yorulmaz"
+vendor: "hakanyorulmaz"
 
 contents:
-  - src: "./build/bin/kube-ins-tui"
-    dst: "/usr/local/bin/kube-ins-tui"
+  - src: "./build/bin/kube-inspector-cli"
+    dst: "/usr/local/bin/kube-inspector-cli"
     packager: deb
     file_info:
       mode: 0o755
 
-  - src: "./build/bin/kube-ins-tui"
-    dst: "/usr/local/bin/kube-ins-tui"
+  - src: "./build/bin/kube-inspector-cli"
+    dst: "/usr/local/bin/kube-inspector-cli"
     packager: rpm
     file_info:
       mode: 0o755

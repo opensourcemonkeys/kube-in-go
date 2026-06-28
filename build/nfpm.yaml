@@ -1,56 +1,56 @@
 # ==========================================
 # 1. PACKAGE METADATA
 # ==========================================
-name: "kube-ins"
+name: "kube-inspector"
 version: "${VERSION}"
 version_schema: none
 arch: "amd64"
 platform: "linux"
-maintainer: "Hakan Yorulmaz <hakanyorulmaz94@gmail.com>"
+maintainer: "hakanyorulmaz"
 description: "A visual desktop client for managing Kubernetes clusters."
 homepage: "https://kubeinspector.com"
 license: "GPL-3.0"
-vendor: "Hakan Yorulmaz"
+vendor: "hakanyorulmaz"
 
 # ==========================================
 # 2. PACKAGE CONTENTS
 # ==========================================
 contents:
   # Linux binary (deb and rpm only)
-  - src: "./build/bin/kube-ins"
-    dst: "/usr/local/bin/kube-ins"
+  - src: "./build/bin/kube-inspector"
+    dst: "/usr/local/bin/kube-inspector"
     packager: deb
     file_info:
       mode: 0o755
 
-  - src: "./build/bin/kube-ins"
-    dst: "/usr/local/bin/kube-ins"
+  - src: "./build/bin/kube-inspector"
+    dst: "/usr/local/bin/kube-inspector"
     packager: rpm
     file_info:
       mode: 0o755
 
   # GNOME / KDE application menu shortcut (deb and rpm only)
-  - src: "./build/kube-ins.desktop"
-    dst: "/usr/share/applications/kube-ins.desktop"
+  - src: "./build/kube-inspector.desktop"
+    dst: "/usr/share/applications/kube-inspector.desktop"
     packager: deb
     file_info:
       mode: 0o644
 
-  - src: "./build/kube-ins.desktop"
-    dst: "/usr/share/applications/kube-ins.desktop"
+  - src: "./build/kube-inspector.desktop"
+    dst: "/usr/share/applications/kube-inspector.desktop"
     packager: rpm
     file_info:
       mode: 0o644
 
   # Application icon for Linux system menu (deb and rpm only)
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/512x512/apps/kube-ins.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/kube-inspector.png"
     packager: deb
     file_info:
       mode: 0o644
 
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/512x512/apps/kube-ins.png"
+    dst: "/usr/share/icons/hicolor/512x512/apps/kube-inspector.png"
     packager: rpm
     file_info:
       mode: 0o644

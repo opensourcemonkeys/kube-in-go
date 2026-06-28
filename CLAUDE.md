@@ -148,6 +148,15 @@ Clusters are stored as YAML files in `~/.kube-ins/` with a `.yaml` extension (e.
 2. This updates the global active path used by `NewK8sClient()` / `NewK8sClientAndConfig()` / `NewMetricsClient()`.
 3. Newly opened panels pass the selected cluster name through `clusterName` and call `NewK8sClientForCluster(clusterName)` directly — so the global path matters only for the cluster-management functions (listing clusters, checking connections, etc.).
 
+### TUI / CLI Mode
+
+The `tview` terminal UI (`internal/tui/`) is an alternative front end that drives the **same `internal/business` functions** the GUI uses (no new service endpoints). It ships two ways:
+
+- **Standalone CLI** — `cmd/tui/main.go` calls `tui.Run(...)` and imports **no Wails**, so `go build ./cmd/tui` produces a webview-free binary (output name `kube-inspector-cli`) with **no `libwebkit2gtk`/`libgtk` dependency**. Built/packaged by `make build-tui*` and `make pkg-tui-deb`/`pkg-tui-rpm` (separate `build/nfpm-cli.yaml`, no webkit `depends:`). Keep `internal/tui` + `cmd/tui` Wails-free — `grep -rn "wailsapp/wails" internal/tui cmd/tui` must stay empty.
+- **CLI Mode inside the GUI** — the root `main.go` checks for a `--tui` flag *before* bootstrapping Wails; if present it runs `tui.Run(...)` and returns. The **Open ▸ CLI Mode** title-bar action mounts `CliModeOverlay.tsx` (fullscreen xterm.js) over the dockview/menu (which stay mounted underneath so their state survives). The backend `CreateCliModeSession` (`services/cliModeServices.go` → `business/cliMode.go` → controller) re-execs `os.Executable() --tui` in a **pty** (mirroring `terminalServices.go`), streaming `climode:output:{id}` and, on pty close, `climode:exit:{id}` so the overlay auto-restores the GUI.
+
+**Patterns/caveats:** `registry.go::buildRegistry()` is the single place that maps each `view` to its `business.*` functions — add a resource by appending one `resourceDef`. Streaming reuses the GUI's callback functions directly (`StartLogStream`, `CreatePodExecSession`) — only the *controller* layer is Wails-bound. Importing `internal/business` transitively pulls Trivy → the TUI binary is large and **must** build with `GOEXPERIMENT=jsonv2`. The GUI CLI-mode pty relies on `creack/pty` (limited on Windows). Both the TUI and GUI read/write the shared `~/.kube-ins/.active`, so changing the active cluster in CLI mode persists for the GUI.
+
 ## Build & Run
 
 > **`GOEXPERIMENT=jsonv2` is required to compile.** The Trivy scanner library pulls in `encoding/json/v2`, which is gated behind the `jsonv2` GOEXPERIMENT on Go 1.26 (the project is on `go 1.26.3`). The `Makefile` exports it for every target (`export GOEXPERIMENT := jsonv2`) and CI sets it in the workflow `env:`. If you run bare `go build`/`go test`/`wails` outside `make`, prefix with `GOEXPERIMENT=jsonv2` or the build fails with `build constraints exclude all Go files in .../encoding/json/v2`.
@@ -178,6 +187,11 @@ make build           # current platform
 make build-linux     # linux/amd64
 make build-windows   # windows/amd64 (with NSIS installer)
 make build-mac       # darwin/universal
+
+make build-tui          # standalone terminal UI (current platform, webview-free)
+make build-tui-linux    # kube-inspector-cli linux/amd64
+make build-tui-windows  # kube-inspector-cli windows/amd64
+make build-tui-mac      # kube-inspector-cli darwin/universal
 ```
 
 Output goes to `build/bin/`.
@@ -186,10 +200,12 @@ The Makefile injects the version from git tags: `git describe --tags --abbrev=0`
 
 **Packaging** (requires `nfpm` on PATH):
 ```bash
-make pkg-deb    # .deb package
-make pkg-rpm    # .rpm package
-make pkg-mac    # .dmg (runs build/dmg-builder/build.js)
-make pkg-all    # all platforms
+make pkg-deb     # .deb package
+make pkg-rpm     # .rpm package
+make pkg-mac     # .dmg (runs build/dmg-builder/build.js)
+make pkg-tui-deb # kube-inspector-cli .deb (no webkit dependency)
+make pkg-tui-rpm # kube-inspector-cli .rpm (no webkit dependency)
+make pkg-all     # all platforms (incl. the TUI deb/rpm)
 ```
 
 Packages go to `./dist/`.

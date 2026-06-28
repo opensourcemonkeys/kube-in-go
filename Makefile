@@ -27,21 +27,26 @@ build-mac:
 dev:
 	wails dev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'"
 
-# ── Standalone terminal UI (kube-ins-tui) ────────────────────────
+# ── Standalone terminal UI (kube-inspector-cli) ──────────────────
 # A webview-free native CLI binary (cmd/tui). Plain `go build` — no wails, no
 # frontend embed — so it carries no webkit2gtk dependency. GOEXPERIMENT=jsonv2
 # is still required because internal/business transitively imports Trivy.
 build-tui:
-	go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui ./cmd/tui
+	go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli ./cmd/tui
 
 build-tui-linux:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui ./cmd/tui
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli ./cmd/tui
 
 build-tui-windows:
-	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui.exe ./cmd/tui
+	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli.exe ./cmd/tui
 
+# Universal macOS CLI binary (Apple Silicon + Intel). Uses lipo, so this target
+# only runs on macOS (same constraint as build-mac).
 build-tui-mac:
-	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-ins-tui ./cmd/tui
+	GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli-amd64 ./cmd/tui
+	GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o build/bin/kube-inspector-cli-arm64 ./cmd/tui
+	lipo -create -output build/bin/kube-inspector-cli build/bin/kube-inspector-cli-amd64 build/bin/kube-inspector-cli-arm64
+	rm -f build/bin/kube-inspector-cli-amd64 build/bin/kube-inspector-cli-arm64
 
 pkg-deb: build-linux
 	mkdir -p $(DIST)
@@ -58,11 +63,11 @@ pkg-mac: build-mac
 
 pkg-tui-deb: build-tui-linux
 	mkdir -p $(DIST)
-	VERSION=$(VERSION) $(NFPM) pkg --packager deb --config ./build/nfpm-tui.yaml --target $(DIST)/
+	VERSION=$(VERSION) $(NFPM) pkg --packager deb --config ./build/nfpm-cli.yaml --target $(DIST)/
 
 pkg-tui-rpm: build-tui-linux
 	mkdir -p $(DIST)
-	VERSION=$(VERSION) $(NFPM) pkg --packager rpm --config ./build/nfpm-tui.yaml --target $(DIST)/
+	VERSION=$(VERSION) $(NFPM) pkg --packager rpm --config ./build/nfpm-cli.yaml --target $(DIST)/
 
 pkg-all: pkg-deb pkg-rpm pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm
 

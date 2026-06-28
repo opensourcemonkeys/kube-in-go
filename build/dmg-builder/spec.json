@@ -12,7 +12,7 @@
       "x": 140,
       "y": 150,
       "type": "file",
-      "path": "../../build/bin/kube-ins.app"
+      "path": "../../build/bin/kube-inspector.app"
     },
     {
       "x": 400,

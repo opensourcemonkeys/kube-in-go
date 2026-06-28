@@ -6,15 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Terminal UI (TUI)** — a new `tview`-based terminal interface that mirrors the desktop app (resource menu, tables, cluster add/select/delete, YAML view/edit, delete, pod logs and exec) on a single focused screen. It reuses the same `internal/business` functions as the GUI, so no new service endpoints were added. Ships two ways:
-  - **Standalone CLI** — a separate, webview-free `kube-ins-tui` binary (`cmd/tui`) with its own packages (`make build-tui*`, `make pkg-tui-deb`/`pkg-tui-rpm`). No `libwebkit2gtk` dependency.
+  - **Standalone CLI** — a separate, webview-free `kube-inspector-cli` binary (`cmd/tui`) with its own packages (`make build-tui*`, `make pkg-tui-deb`/`pkg-tui-rpm`). No `libwebkit2gtk` dependency.
   - **CLI Mode in the GUI** — an **Open ▸ CLI Mode** action opens a fullscreen terminal (xterm.js) running the TUI over the dockview/menu (which stay mounted underneath). The GUI re-execs itself with `--tui` in a pty; quitting the TUI restores the desktop UI.
 - Cross-platform, k9s-style single-key shortcuts (`/` filter, `r` refresh, `y` yaml, `e` edit, `d` delete, `l` logs, `s` shell, `c` cluster, `?` help) shown as hints in the top bar.
+
+### Changed
+- **Release artifact names** — the desktop binary/installers are now published as `kube-inspector-*` (was `kube-ins-*`) and the CLI as `kube-inspector-cli-*`.
 
 ## [v0.6.4-alpha] - 2026-06-27
 
 ### Added
 - **Vulnerability detail view** — clicking a CVE in the **Vulnerability Scan** screen now opens a detail panel with the full description, published date, fixed version, and external reference links; the underlying scan model was extended with `description`, `references`, and `publishedDate` (and richer fields for Kubernetes misconfiguration findings).
-- **Changelog page** — the documentation site now has an interactive changelog **timeline** (`docs/changelog.md`, generated from `CHANGELOG.md` by `mkdocs_hooks.py`) where each release can be expanded, plus a **version chip** in the site header.
 
 ### Changed
 - **Workspace layout** — the standalone cluster bar was removed; cluster selection now lives inside the sidebar and the **sidebar toggle moved into the title bar**, giving a cleaner, more compact top area.
@@ -33,23 +35,8 @@ All notable changes to this project will be documented in this file.
 
 ## [v0.6.2-alpha] - 2026-06-18
 
-### Added
-- **Documentation site overhaul** — navigation restructured into **Getting Started / Downloads / Docs**, with new user-guide pages (each illustrated with screenshots) for Networking (Services, Ingresses, Ingress Classes, Endpoints), Security (Service Accounts, Roles, Role Bindings, Security Role Map, Vulnerability Scan), Storage (Persistent Volumes, Volume Claims, Storage Classes) and Cluster (Monitoring, Events, Limit Ranges).
-- **Redesigned landing page** — an animated screenshot showcase that reveals features on scroll.
-
 ### Changed
 - **Monitoring** — selectable chart **time window** (5 min – 2 hours) with a time-based axis and easier hover tooltips; an animated **Pods / Workloads** switch; **Take snapshot** now uses a native Save dialog (reliable across Linux/macOS/Windows).
-- **Installation guide** — download table and supported-OS list corrected to match the actual release artifacts: macOS added, both WebKitGTK 4.0 / 4.1 Linux builds documented, and untested distributions removed.
-
----
-
-## [v0.6.1-alpha] - 2026-06-17
-
-### Added
-- **Documentation analytics** — Google Analytics on the docs site.
-
-### Changed
-- **Landing page** — home/index page updates.
 
 ---
 
@@ -76,8 +63,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Vulnerability scanning (Trivy)** — a new **Vulnerability Scan** screen under the Security menu that integrates the Trivy library directly. Three tabs: a full-cluster scan (every image running across namespaces), a single-image scan, and per-namespace pod images. Results show a severity summary and a filterable, sortable table of CVEs (linked to cve.org), grouped by image.
-- **Documentation website** — a MkDocs Material site under `docs/` with a custom "monolith" dark theme matching the desktop app: an animated landing hero (aurora glow + title shimmer) with a prominent **Download** call-to-action, a streamlined top nav (Getting Started → Downloads, no Home/GitHub clutter), and a site-wide alpha notice. Build/preview locally with `make docs-build` / `make docs-serve`.
-- **Release distribution (Cloudflare R2)** — release artifacts are published to an R2 bucket under `/dist`, and a per-platform **Downloads** page (Linux `.deb`/`.rpm`, Windows, macOS) is generated from the release tag and deployed with the site on every tag.
+- **Release distribution (Cloudflare R2)** — release artifacts are published to an R2 bucket under `/dist`.
 
 ### Changed
 - **Rebranded to "Kube Inspector"** — all user-facing names (window title, title bar, About dialog, documentation) now read *Kube Inspector*. Internal identifiers (the `kube-ins` module/binary/package names and the `~/.kube-ins` config directory) are unchanged.
@@ -210,12 +196,6 @@ All notable changes to this project will be documented in this file.
 - Windows installer filename includes version and platform: `kube-ins-<version>-windows-amd64.exe`
 - NSIS (`makensis`) added to PATH after winget install step to fix "Cannot create installer: makensis not found" error
 - GitHub Actions pipeline consolidated: Linux build and packaging merged into a single job
-
-#### Documentation
-- Installation guide updated: replaced EOL distro versions (Ubuntu 20.04, Debian 10, Fedora 36/37, openSUSE 15.4/15.5, etc.) with currently supported releases
-- Linux dependency install commands corrected: runtime packages used instead of `-dev` packages; WebKitGTK 4.0/4.1 split by distro version
-- Windows section updated to reflect NSIS installer workflow instead of plain binary
-- Download table updated with current file naming format
 
 ---
 

@@ -8,12 +8,12 @@ Get the package for your platform from the [Downloads](../downloads.md) page:
 
 | Platform | File |
 |---|---|
-| Linux — Debian / Ubuntu 22.04 | `kube-ins-<version>-debian-amd64-ubuntu-22.04-amd64.deb` |
-| Linux — Debian / Ubuntu 24.04 | `kube-ins-<version>-debian-amd64-ubuntu-24.04-amd64.deb` |
-| Linux — RHEL 9 / Fedora | `kube-ins-<version>-rhel9-x86_64.rpm` |
-| Linux — RHEL 10 / Fedora | `kube-ins-<version>-rhel10-x86_64.rpm` |
-| macOS (Universal) | `kube-ins-<version>-macos-universal.dmg` |
-| Windows | `kube-ins-<version>-windows-amd64.exe` |
+| Linux — Debian / Ubuntu 22.04 | `kube-inspector-<version>-debian-amd64-ubuntu-22.04-amd64.deb` |
+| Linux — Debian / Ubuntu 24.04 | `kube-inspector-<version>-debian-amd64-ubuntu-24.04-amd64.deb` |
+| Linux — RHEL 9 / Fedora | `kube-inspector-<version>-rhel9-x86_64.rpm` |
+| Linux — RHEL 10 / Fedora | `kube-inspector-<version>-rhel10-x86_64.rpm` |
+| macOS (Universal) | `kube-inspector-<version>-macos-universal.dmg` |
+| Windows | `kube-inspector-<version>-windows-amd64.exe` |
 
 !!! note "Two Linux builds"
     The **22.04 / rhel9** packages link against WebKitGTK **4.0**; the **24.04 / rhel10** packages against WebKitGTK **4.1**. Pick the one that matches your distribution's WebKitGTK version (see below).
@@ -54,29 +54,29 @@ Kube Inspector uses a WebKit-based webview (via [Wails](https://wails.io)). A We
 === "Debian / Ubuntu"
     ```bash
     # 22.04 (WebKitGTK 4.0)
-    sudo dpkg -i kube-ins-<version>-debian-amd64-ubuntu-22.04-amd64.deb
+    sudo dpkg -i kube-inspector-<version>-debian-amd64-ubuntu-22.04-amd64.deb
     # 24.04 (WebKitGTK 4.1)
-    sudo dpkg -i kube-ins-<version>-debian-amd64-ubuntu-24.04-amd64.deb
+    sudo dpkg -i kube-inspector-<version>-debian-amd64-ubuntu-24.04-amd64.deb
     ```
 
 === "RHEL / Fedora"
     ```bash
     # RHEL 9 / older Fedora (WebKitGTK 4.0)
-    sudo rpm -i kube-ins-<version>-rhel9-x86_64.rpm
+    sudo rpm -i kube-inspector-<version>-rhel9-x86_64.rpm
     # RHEL 10 / newer Fedora (WebKitGTK 4.1)
-    sudo rpm -i kube-ins-<version>-rhel10-x86_64.rpm
+    sudo rpm -i kube-inspector-<version>-rhel10-x86_64.rpm
     ```
 
 ## macOS
 
-Open `kube-ins-<version>-macos-universal.dmg` and drag **Kube Inspector** into your Applications folder. The build is a universal binary (Apple Silicon and Intel) and needs no extra runtime library.
+Open `kube-inspector-<version>-macos-universal.dmg` and drag **Kube Inspector** into your Applications folder. The build is a universal binary (Apple Silicon and Intel) and needs no extra runtime library.
 
 !!! note "Gatekeeper"
     The app is unsigned, so macOS may block the first launch. Right-click the app → **Open** and confirm, or allow it under **System Settings → Privacy & Security**.
 
 ## Windows
 
-Run `kube-ins-<version>-windows-amd64.exe` and follow the installation wizard.
+Run `kube-inspector-<version>-windows-amd64.exe` and follow the installation wizard.
 
 !!! note "Windows SmartScreen"
     Windows may show a SmartScreen warning for unsigned binaries. Click **More info → Run anyway** to proceed.

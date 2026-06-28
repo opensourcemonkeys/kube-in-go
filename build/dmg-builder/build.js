@@ -9,7 +9,7 @@ if (!version) {
 }
 
 const distDir = path.resolve(__dirname, '../../dist');
-const output = path.join(distDir, `kube-ins-${version}-macos-universal.dmg`);
+const output = path.join(distDir, `kube-inspector-${version}-macos-universal.dmg`);
 
 fs.mkdirSync(distDir, { recursive: true });
 
