@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.8.1-alpha] - 2026-07-05
+
+### Changed
+- **Unified resource list views** — all ~21 table-based resource screens (pods, deployments, services, configmaps, secrets, RBAC, storage, networking, …) were rebuilt on a shared `ResourceListView` component and `useResourceList` hook. Filtering, polling (paused while a tab is backgrounded), multi-select delete, and toasts now behave identically across every screen, and ~2,600 lines of duplicated table code were removed.
+- **Website refresh** — styling and home page refinements on the documentation site.
+
+---
+
 ## [v0.8.0-alpha] - 2026-06-28
 
 ### Added
