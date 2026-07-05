@@ -144,33 +144,31 @@
   background: linear-gradient(180deg, var(--ki-panel) 0%, var(--ki-app) 100%);
   border-bottom: 1px solid var(--ki-line);
 }
-/* Animated aurora glow drifting behind the hero title */
+/* Static, soft aurora glow behind the hero title (no motion) */
 .ki-hero::before {
   content: "";
   position: absolute;
-  inset: -45% -15%;
+  inset: -30% -20% auto;
+  height: 92%;
   z-index: 0;
   background:
-    radial-gradient(38% 50% at 30% 35%, rgba(63, 200, 180, 0.30), transparent 60%),
-    radial-gradient(34% 46% at 70% 42%, rgba(110, 168, 230, 0.22), transparent 60%),
-    radial-gradient(30% 42% at 50% 68%, rgba(167, 139, 214, 0.18), transparent 60%);
-  filter: blur(42px);
-  animation: ki-aurora 16s ease-in-out infinite alternate;
+    radial-gradient(44% 56% at 50% 28%, rgba(63, 200, 180, 0.17), transparent 62%),
+    radial-gradient(40% 48% at 78% 40%, rgba(110, 168, 230, 0.09), transparent 60%);
+  filter: blur(52px);
   pointer-events: none;
 }
-/* Faint moving grid, faded out toward the edges */
+/* Faint static grid, faded out toward the edges — texture, not motion */
 .ki-hero::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   background-image:
-    linear-gradient(rgba(63, 200, 180, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(63, 200, 180, 0.05) 1px, transparent 1px);
-  background-size: 44px 44px;
-  -webkit-mask-image: radial-gradient(62% 60% at 50% 38%, #000 25%, transparent 78%);
-  mask-image: radial-gradient(62% 60% at 50% 38%, #000 25%, transparent 78%);
-  animation: ki-grid 24s linear infinite;
+    linear-gradient(rgba(63, 200, 180, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 200, 180, 0.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(60% 56% at 50% 32%, #000 18%, transparent 76%);
+  mask-image: radial-gradient(60% 56% at 50% 32%, #000 18%, transparent 76%);
   pointer-events: none;
 }
 .ki-hero__inner {
@@ -180,13 +178,13 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 4.5rem 1rem 4rem;
+  padding: 5.5rem 1rem 4.5rem;
 }
 .ki-hero__logo {
-  width: 84px;
-  height: 84px;
-  margin-bottom: 1.25rem;
-  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.45));
+  width: 76px;
+  height: 76px;
+  margin-bottom: 1.6rem;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
 }
 /* Site-wide alpha notice — full-width strip below the navigation/menu bar */
 .ki-alpha-strip {
@@ -213,39 +211,20 @@
 }
 .ki-hero__title {
   margin: 0;
-  font-size: 3rem;
-  line-height: 1.1;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(90deg, var(--ki-ink) 0%, var(--ki-teal) 50%, var(--ki-ink) 100%);
-  background-size: 200% auto;
+  font-size: 3.5rem;
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, var(--ki-ink) 0%, #b7c4d6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: ki-shimmer 7s linear infinite;
-}
-
-@keyframes ki-aurora {
-  0%   { transform: translate3d(-4%, -2%, 0) rotate(0deg)  scale(1.05); }
-  50%  { transform: translate3d(4%, 3%, 0)  rotate(8deg)  scale(1.16); }
-  100% { transform: translate3d(-2%, 2%, 0) rotate(-6deg) scale(1.08); }
-}
-@keyframes ki-grid {
-  from { background-position: 0 0, 0 0; }
-  to   { background-position: 44px 44px, 44px 44px; }
-}
-@keyframes ki-shimmer {
-  to { background-position: 200% center; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ki-hero::before,
-  .ki-hero::after,
-  .ki-hero__title { animation: none; }
 }
 .ki-hero__tagline {
-  margin: 1rem 0 0;
-  max-width: 38rem;
-  font-size: 1.15rem;
+  margin: 1.25rem 0 0;
+  max-width: 40rem;
+  font-size: 1.2rem;
+  line-height: 1.55;
   color: var(--ki-ink2);
 }
 .ki-hero__cta {
@@ -253,7 +232,7 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   justify-content: center;
-  margin-top: 2rem;
+  margin-top: 2.4rem;
 }
 .ki-hero__cta .md-button {
   min-width: 9.5rem;
@@ -272,52 +251,61 @@
   border-radius: 10px;
   background: linear-gradient(135deg, #62e3cf 0%, var(--ki-teal) 55%, #2bb6a2 100%);
   box-shadow:
-    0 0 0 1px rgba(63, 200, 180, 0.45),
-    0 10px 28px rgba(63, 200, 180, 0.38);
-  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
-  animation: ki-cta-glow 3s ease-in-out infinite;
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 8px 24px rgba(63, 200, 180, 0.26);
+  transition: transform 0.18s ease, box-shadow 0.22s ease, filter 0.22s ease;
 }
 .ki-hero__cta .md-button--primary:hover,
 [data-md-color-scheme="slate"] .ki-hero__cta .md-typeset .md-button--primary:hover {
   transform: translateY(-2px);
-  filter: brightness(1.06);
+  filter: brightness(1.05);
   color: var(--ki-app);
   box-shadow:
-    0 0 0 1px rgba(63, 200, 180, 0.65),
-    0 14px 36px rgba(63, 200, 180, 0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 14px 34px rgba(63, 200, 180, 0.42);
 }
 .ki-hero__cta .md-button--primary:active {
   transform: translateY(0);
 }
 
-@keyframes ki-cta-glow {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(63, 200, 180, 0.40), 0 10px 26px rgba(63, 200, 180, 0.30); }
-  50%      { box-shadow: 0 0 0 1px rgba(63, 200, 180, 0.65), 0 12px 34px rgba(63, 200, 180, 0.58); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ki-hero__cta .md-button--primary { animation: none; }
-}
-
-/* Hide the auto-rendered page H1 on the landing page (hero supplies it) */
-.md-typeset .ki-features { margin-top: 1rem; }
+/* Hide the auto-rendered page H1 on the landing page (the hero supplies it) */
+.md-content__inner:has(.ki-features) > h1:first-child { display: none; }
+.md-typeset .ki-features { margin-top: 1.5rem; }
 
 @media screen and (max-width: 44.9375em) {
-  .ki-hero__title { font-size: 2.1rem; }
-  .ki-hero__inner { padding: 3rem 1rem; }
+  .ki-hero__title { font-size: 2.25rem; }
+  .ki-hero__tagline { font-size: 1.05rem; }
+  .ki-hero__inner { padding: 3.25rem 1rem 3rem; }
+  .ki-hero__logo { width: 64px; height: 64px; margin-bottom: 1.25rem; }
 }
 
-/* Feature cards — lift on hover, teal top accent (slate scheme) */
+/* Feature cards — subtle lift on hover, teal top accent (slate scheme) */
 [data-md-color-scheme="slate"] .md-typeset .ki-features > ul > li,
 [data-md-color-scheme="slate"] .md-typeset .grid.cards > ul > li {
+  position: relative;
   background: var(--ki-panel);
   border: 1px solid var(--ki-line);
-  border-radius: 10px;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+/* Hairline teal accent along the top edge, revealed on hover */
+[data-md-color-scheme="slate"] .md-typeset .ki-features > ul > li::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ki-teal), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 [data-md-color-scheme="slate"] .md-typeset .ki-features > ul > li:hover {
-  border-color: var(--ki-teal);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+  border-color: var(--ki-line2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+}
+[data-md-color-scheme="slate"] .md-typeset .ki-features > ul > li:hover::before {
+  opacity: 1;
 }
 .md-typeset .ki-features .lg.middle {
   color: var(--ki-teal);
@@ -405,12 +393,6 @@
   text-transform: uppercase;
   color: var(--ki-ink2);
 }
-.ki-frame--float { animation: ki-float 6s ease-in-out infinite; }
-@keyframes ki-float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
-}
-
 /* Large, full-width screenshots with the caption overlaid on the image */
 .ki-showcase {
   display: flex;
@@ -446,20 +428,34 @@
   line-height: 1.55;
 }
 
-/* Scroll-reveal: the whole shot rises + scales in, caption trails slightly */
+/* Scroll-reveal: a single, gentle rise-and-fade on first view (no loop) */
 .ki-reveal {
   opacity: 0;
-  transform: translateY(46px) scale(0.97);
-  transition: opacity 0.7s ease, transform 0.85s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .ki-reveal.in-view { opacity: 1; transform: none; }
-.ki-reveal .ki-shot__text { opacity: 0; transition: opacity 0.6s ease 0.25s; }
+.ki-reveal .ki-shot__text { opacity: 0; transition: opacity 0.5s ease 0.2s; }
 .ki-reveal.in-view .ki-shot__text { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ki-frame--float { animation: none; }
   .ki-reveal,
   .ki-reveal .ki-shot__text { opacity: 1 !important; transform: none !important; transition: none; }
+}
+
+/* Mobile: the overlaid caption gets cramped — drop it below the image as a
+   static block so it stays readable on narrow screens. */
+@media screen and (max-width: 44.9375em) {
+  .ki-showcase { gap: 1.75rem; }
+  .ki-shot__text {
+    position: static;
+    padding: 0.85rem 0.15rem 0.2rem;
+    background: none;
+  }
+  .ki-shot__text h3 { font-size: 1.2rem; }
+  .ki-shot__text p { font-size: 0.92rem; }
+  /* Caption is part of the flow now, so no separate fade */
+  .ki-reveal .ki-shot__text { opacity: 1; }
 }
 
 /* Version chip next to the header title (injected by version-chip.js).
@@ -567,11 +563,8 @@
   border-color: var(--ki-teal);
   box-shadow: 0 0 0 4px rgba(63, 200, 180, 0.16), 0 0 14px rgba(63, 200, 180, 0.55);
 }
-.ki-cl-item.is-open .ki-cl-node { animation: ki-cl-pulse 2.4s ease-in-out infinite; }
-
-@keyframes ki-cl-pulse {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(63, 200, 180, 0.16), 0 0 14px rgba(63, 200, 180, 0.55); }
-  50%      { box-shadow: 0 0 0 7px rgba(63, 200, 180, 0.05), 0 0 18px rgba(63, 200, 180, 0.75); }
+.ki-cl-item.is-open .ki-cl-node {
+  box-shadow: 0 0 0 5px rgba(63, 200, 180, 0.12), 0 0 16px rgba(63, 200, 180, 0.7);
 }
 
 /* Clickable header */

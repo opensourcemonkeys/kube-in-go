@@ -8,6 +8,18 @@ import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { useResourceList, ResourceRow } from '../../lib/useResourceList';
 
+// PrimeReact's DataTable finds its columns via React.Children.toArray(children),
+// which flattens arrays but NOT Fragments. The `columns` render-prop returns a
+// single <>…</> Fragment, so we must unwrap it into a keyed array here — otherwise
+// the data columns are invisible and the table renders empty.
+function toColumnArray(node: React.ReactNode): React.ReactNode {
+    const children =
+        React.isValidElement(node) && node.type === React.Fragment
+            ? (node as React.ReactElement<{ children?: React.ReactNode }>).props.children
+            : node;
+    return React.Children.toArray(children);
+}
+
 export interface ColumnsContext<T extends ResourceRow> {
     items: T[];
     /** Unique IN-filter options ({label,value}) for a given row field. */
@@ -140,7 +152,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                 {deletable && (
                     <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
                 )}
-                {columns({ items, buildInOptions })}
+                {toColumnArray(columns({ items, buildInOptions }))}
             </DataTable>
 
             {deletable && (
