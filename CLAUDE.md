@@ -85,7 +85,9 @@ frontend/src/
 │   │   ├── ViewPanel.tsx, YamlEditorPanel.tsx, ApplyYamlPanel.tsx, etc.
 │   ├── transfer/
 │   │   └── InstancePickerMenu.tsx (portal context menu for selecting transfer target)
-│   ├── pod/, deployment/, networkpolicy/ (resource-specific views)
+│   ├── pod/, deployment/, networkpolicy/ (resource-specific views — thin configs over ResourceListView)
+│   ├── shared/
+│   │   └── ResourceListView.tsx (generic list shell: toolbar + DataTable + delete dialog + toast)
 │   ├── terminal/ (xterm.js wrapper)
 │   ├── logs/ (react-logviewer wrapper)
 │   ├── cluster/ (cluster selection UI)
@@ -94,8 +96,13 @@ frontend/src/
 │   ├── ClusterContext.tsx (manages cluster list, active cluster, connection health checks)
 │   ├── TabContext.tsx (manages dockview panel lifecycle and routing)
 │   └── InstanceContext.tsx (multi-instance discovery, panel transfer via IPC hub)
-└── lib/ (Monaco editor theme, utilities)
+└── lib/ (Monaco editor theme, utilities, useResourceList.ts, usePanelActive.ts)
 ```
+
+**Shared resource-list scaffold**: Almost every resource view (`pod`, `deployment`, `service`, `role`, …, ~21 of them) is a thin config over two shared pieces instead of a hand-copied DataTable clone:
+- `lib/useResourceList.ts` — a generic hook owning the fetch/poll loop, filter/selection state, the multi-select delete flow (with toasts), and `usePanelActive`-based visibility gating (polling pauses while the Dockview tab is backgrounded). Effect deps are `clusterName`/`pollInterval`/active, so it does not rely on remount-per-tab to pick up cluster changes.
+- `components/shared/ResourceListView.tsx` — the presentational shell (toolbar, `DataTable`, delete `Dialog`, `Toast`) that calls `useResourceList` internally and takes a `columns` render-prop (`{ items, buildInOptions }`). Pass `deleter`/`deleteLabel` for deletable resources, `dataKey` when names collide across namespaces.
+When adding a resource, follow this pattern (see "Adding a New Resource Type"). Only genuinely bespoke layouts stay hand-written: `node/main.tsx` (cards + cordon/drain), `resourcequota/main.tsx` (usage bars over `GetNamespaces`), `events/main.tsx` (zustand store), `monitoring/main.tsx` (dashboard).
 
 **State Management**:
 - **ClusterContext**: Loaded on app startup, persists active cluster selection. Polls `CheckClusterConnection()` every 20 seconds.
@@ -289,9 +296,11 @@ make docs-build   # build to ./site (gitignored), --strict
    ```
 
 5. **Create frontend component** (`frontend/src/components/service/main.tsx`):
-   - `export default function ServiceListComponent({ clusterName }: { clusterName: string })`
-   - Call `GetServices(clusterName)` via Wails bindings
-   - Pass `clusterName` to all `openYamlPanel` / `openLogPanel` calls and include it in `referencePanel: \`services:${clusterName}\``
+   - `export default function ServiceListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi })`
+   - **Build it on `ResourceListView` (`components/shared/ResourceListView.tsx`) — do not hand-roll the DataTable/fetch/poll/delete/toast scaffold.** Render `<ResourceListView<models.ServiceInfo> fetcher={GetServices} createFrom={models.ServiceInfo.createFrom} deleter={DeleteService} .../>` and provide the `columns` render-prop (which receives `{ items, buildInOptions }` — use `buildInOptions('namespace')` etc. for `IN`-filter `MultiSelect` options). `ResourceListView` internally calls `useResourceList` (`lib/useResourceList.ts`), which owns the fetch/poll loop, `usePanelActive` visibility gating, and the multi-select delete flow. Pass `deleter`/`deleteLabel` only for deletable resources; omit for read-only ones. Use `dataKey` when names collide across namespaces (see `configmap/main.tsx`, keyed by a synthetic `_uid`).
+   - Pass `clusterName` to all `openYamlPanel` / `openLogPanel` calls (via `onRowDoubleClick` and column action bodies) and include it in `referencePanel: \`services:${clusterName}\``
+   - **Thread `api`**: `ViewPanel.tsx` must pass `api={api}` to the component so `usePanelActive` can pause polling while the tab is backgrounded.
+   - Only resources with a genuinely different layout stay hand-written (e.g. `node/main.tsx` cards, `resourcequota/main.tsx` usage bars, `events/main.tsx` zustand store, `monitoring/main.tsx` dashboard). Everything else that is "a filterable table of a list endpoint" should use `ResourceListView`.
 
 6. **Register in Dockview** (`frontend/src/components/workspace/DockviewContainer.tsx`):
    ```js

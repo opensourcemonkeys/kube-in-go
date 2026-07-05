@@ -1,18 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-
-import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
-import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import type { DockviewPanelApi } from 'dockview';
+import { DataTableFilterMeta } from 'primereact/datatable';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { Button } from 'primereact/button';
-import { Toast } from 'primereact/toast';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetPersistentVolumes } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import ResourceListView from '../shared/ResourceListView';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
 
@@ -32,126 +27,40 @@ const defaultFilters: DataTableFilterMeta = {
     storage_class_name: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function PersistentVolumeListComponent({ clusterName }: { clusterName: string }) {
-    const [items, setItems] = useState<models.PersistentVolumeInfo[]>([]);
-    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
-    const toast = useRef<Toast | null>(null);
+export default function PersistentVolumeListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const { openYamlPanel } = useTabContext();
-
-    const statusOptions = useMemo(() =>
-        [...new Set(items.map(i => i.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
-        [items]
-    );
-    const storageClassOptions = useMemo(() =>
-        [...new Set(items.map(i => i.storage_class_name).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
-        [items]
-    );
-
-    const load = async () => {
-        try {
-            const data = await GetPersistentVolumes(clusterName);
-            setItems((data ?? []).map((d: any) => models.PersistentVolumeInfo.createFrom(d)));
-        } catch {
-            setItems([]);
-        }
-    };
-
-    useEffect(() => {
-        load();
-        const id = window.setInterval(load, 5000);
-        return () => window.clearInterval(id);
-    }, []);
-
-    const handleRowDoubleClick = (pv: models.PersistentVolumeInfo) => {
-        openYamlPanel({ clusterName,
-            resourceKind: 'persistentvolume',
-            name: pv.name,
-            namespace: '',
-            referencePanel: `persistentvolumes:${clusterName}`,
-        });
-    };
+    const referencePanel = `persistentvolumes:${clusterName}`;
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="bottom-right" />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0 }}>Persistent Volumes</h3>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-                    <Button
-                        icon={<VscClearAll size={16} />}
-                        text
-                        severity="secondary"
-                        onClick={() => setFilters(defaultFilters)}
-                        tooltip="Clear filters"
-                        tooltipOptions={{ position: 'left' }}
-                    />
-                </div>
-            </div>
-
-            <DataTable
-                value={items}
-                dataKey="name"
-                onRowDoubleClick={(e: any) => handleRowDoubleClick(e.data as models.PersistentVolumeInfo)}
-                filters={filters}
-                onFilter={(e) => setFilters(e.filters)}
-                filterDisplay="row"
-                stripedRows
-                showGridlines
-                resizableColumns
-                scrollable
-                scrollHeight="flex"
-                emptyMessage="No persistent volumes found"
-            >
-                <Column
-                    field="name"
-                    header="Name"
-                    sortable
-                    filter
-                    filterField="name"
-                    filterPlaceholder="Search name"
-                    showFilterMenu={false}
-                    style={{ minWidth: '16rem' }}
-                />
-                <Column
-                    field="status"
-                    header="Status"
-                    sortable
-                    filter
-                    filterField="status"
-                    showFilterMenu={false}
-                    style={{ minWidth: '8rem' }}
-                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
-                    )}
-                    body={(row: models.PersistentVolumeInfo) => (
-                        <Tag value={row.status} severity={getStatusSeverity(row.status)} />
-                    )}
-                />
-                <Column field="capacity" header="Capacity" sortable style={{ minWidth: '8rem' }} />
-                <Column
-                    header="Access Modes"
-                    style={{ minWidth: '10rem' }}
-                    body={(row: models.PersistentVolumeInfo) =>
-                        (row.access_modes ?? []).join(', ') || '-'
-                    }
-                />
-                <Column field="reclaim_policy" header="Reclaim Policy" sortable style={{ minWidth: '10rem' }} />
-                <Column
-                    field="storage_class_name"
-                    header="Storage Class"
-                    sortable
-                    filter
-                    filterField="storage_class_name"
-                    showFilterMenu={false}
-                    style={{ minWidth: '12rem' }}
-                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={storageClassOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
-                    )}
-                />
-                <Column field="volume_mode" header="Volume Mode" sortable style={{ minWidth: '9rem' }} />
-                <Column field="claim_ref" header="Claim" style={{ minWidth: '16rem' }} />
-            </DataTable>
-        </div>
+        <ResourceListView<models.PersistentVolumeInfo>
+            title="Persistent Volumes"
+            clusterName={clusterName}
+            api={api}
+            fetcher={GetPersistentVolumes}
+            createFrom={models.PersistentVolumeInfo.createFrom}
+            pollInterval={5000}
+            defaultFilters={defaultFilters}
+            emptyMessage="No persistent volumes found"
+            onRowDoubleClick={(pv) => openYamlPanel({ clusterName, resourceKind: 'persistentvolume', name: pv.name, namespace: '', referencePanel })}
+            columns={({ buildInOptions }) => (
+                <>
+                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '16rem' }} />
+                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '8rem' }}
+                        body={(row: models.PersistentVolumeInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="capacity" header="Capacity" sortable style={{ minWidth: '8rem' }} />
+                    <Column header="Access Modes" style={{ minWidth: '10rem' }} body={(row: models.PersistentVolumeInfo) => (row.access_modes ?? []).join(', ') || '-'} />
+                    <Column field="reclaim_policy" header="Reclaim Policy" sortable style={{ minWidth: '10rem' }} />
+                    <Column field="storage_class_name" header="Storage Class" sortable filter filterField="storage_class_name" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('storage_class_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="volume_mode" header="Volume Mode" sortable style={{ minWidth: '9rem' }} />
+                    <Column field="claim_ref" header="Claim" style={{ minWidth: '16rem' }} />
+                </>
+            )}
+        />
     );
 }

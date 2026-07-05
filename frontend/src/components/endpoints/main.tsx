@@ -1,16 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
-import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
+import type { DockviewPanelApi } from 'dockview';
+import { DataTableFilterMeta } from 'primereact/datatable';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { Button } from 'primereact/button';
-import { Toast } from 'primereact/toast';
 import { MultiSelect } from 'primereact/multiselect';
 import { FilterMatchMode } from 'primereact/api';
 import { GetEndpoints } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import ResourceListView from '../shared/ResourceListView';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -42,130 +39,36 @@ const formatPorts = (subsets: models.EndpointSubsetInfo[]): string => {
     return ports.length > 0 ? ports.join(', ') : '-';
 };
 
-export default function EndpointListComponent({ clusterName }: { clusterName: string }) {
-    const [endpoints, setEndpoints] = useState<models.EndpointInfo[]>([]);
-    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
-    const toast = useRef<Toast | null>(null);
+export default function EndpointListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const { openYamlPanel } = useTabContext();
-
-    const namespaceOptions = useMemo(() =>
-        [...new Set(endpoints.map(e => e.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
-        [endpoints]
-    );
-
-    const loadEndpoints = async () => {
-        try {
-            const items = await GetEndpoints(clusterName);
-            setEndpoints(items.map((item: any) => models.EndpointInfo.createFrom(item)));
-        } catch (error) {
-            console.error('Failed to load endpoints:', error);
-            setEndpoints([]);
-        }
-    };
-
-    useEffect(() => {
-        loadEndpoints();
-        const intervalId = window.setInterval(loadEndpoints, 2000);
-        return () => window.clearInterval(intervalId);
-    }, []);
-
-    const handleRowDoubleClick = (ep: models.EndpointInfo) => {
-        openYamlPanel({ clusterName,
-            resourceKind: 'endpoint',
-            name: ep.name,
-            namespace: ep.namespace,
-            referencePanel: `endpoints:${clusterName}`,
-        });
-    };
+    const referencePanel = `endpoints:${clusterName}`;
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="bottom-right" />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0 }}>Endpoint List</h3>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-                    <Button
-                        icon={<VscClearAll size={16} />}
-                        text
-                        severity="secondary"
-                        onClick={() => setFilters(defaultFilters)}
-                        tooltip="Clear filters"
-                        tooltipOptions={{ position: 'left' }}
-                    />
-                </div>
-            </div>
-
-            <DataTable
-                value={endpoints}
-                dataKey="name"
-                onRowDoubleClick={(e: any) => handleRowDoubleClick(e.data as models.EndpointInfo)}
-                filters={filters}
-                onFilter={(e) => setFilters(e.filters)}
-                filterDisplay="row"
-                stripedRows
-                showGridlines
-                resizableColumns
-                scrollable
-                scrollHeight="flex"
-                emptyMessage="No endpoints found"
-            >
-                <Column
-                    field="name"
-                    header="Name"
-                    sortable
-                    filter
-                    filterField="name"
-                    filterPlaceholder="Search name"
-                    showFilterMenu={false}
-                    style={{ minWidth: '14rem' }}
-                />
-                <Column
-                    field="namespace"
-                    header="Namespace"
-                    sortable
-                    filter
-                    filterField="namespace"
-                    showFilterMenu={false}
-                    style={{ minWidth: '10rem' }}
-                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
-                    )}
-                />
-                <Column
-                    header="Addresses"
-                    style={{ minWidth: '18rem' }}
-                    body={(row: models.EndpointInfo) => formatAddresses(row.subsets)}
-                />
-                <Column
-                    header="Ports"
-                    style={{ minWidth: '16rem' }}
-                    body={(row: models.EndpointInfo) => formatPorts(row.subsets)}
-                />
-                <Column
-                    field="ready"
-                    header="Ready"
-                    sortable
-                    style={{ minWidth: '7rem' }}
-                    body={(row: models.EndpointInfo) => (
-                        <Tag
-                            value={String(row.ready)}
-                            severity={row.ready > 0 ? 'success' : 'secondary'}
-                        />
-                    )}
-                />
-                <Column
-                    field="not_ready"
-                    header="Not Ready"
-                    sortable
-                    style={{ minWidth: '7rem' }}
-                    body={(row: models.EndpointInfo) => (
-                        row.not_ready > 0
-                            ? <Tag value={String(row.not_ready)} severity="warning" />
-                            : <span style={{ color: 'var(--ink3)' }}>0</span>
-                    )}
-                />
-            </DataTable>
-        </div>
+        <ResourceListView<models.EndpointInfo>
+            title="Endpoint List"
+            clusterName={clusterName}
+            api={api}
+            fetcher={GetEndpoints}
+            createFrom={models.EndpointInfo.createFrom}
+            pollInterval={2000}
+            defaultFilters={defaultFilters}
+            emptyMessage="No endpoints found"
+            onRowDoubleClick={(ep) => openYamlPanel({ clusterName, resourceKind: 'endpoint', name: ep.name, namespace: ep.namespace, referencePanel })}
+            columns={({ buildInOptions }) => (
+                <>
+                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column header="Addresses" style={{ minWidth: '18rem' }} body={(row: models.EndpointInfo) => formatAddresses(row.subsets)} />
+                    <Column header="Ports" style={{ minWidth: '16rem' }} body={(row: models.EndpointInfo) => formatPorts(row.subsets)} />
+                    <Column field="ready" header="Ready" sortable style={{ minWidth: '7rem' }}
+                        body={(row: models.EndpointInfo) => <Tag value={String(row.ready)} severity={row.ready > 0 ? 'success' : 'secondary'} />} />
+                    <Column field="not_ready" header="Not Ready" sortable style={{ minWidth: '7rem' }}
+                        body={(row: models.EndpointInfo) => (row.not_ready > 0 ? <Tag value={String(row.not_ready)} severity="warning" /> : <span style={{ color: 'var(--ink3)' }}>0</span>)} />
+                </>
+            )}
+        />
     );
 }

@@ -1,86 +1,44 @@
-import { useEffect, useMemo, useState } from 'react';
-import { VscClearAll } from 'react-icons/vsc';
-import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
+import type { DockviewPanelApi } from 'dockview';
+import { DataTableFilterMeta } from 'primereact/datatable';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetServiceAccounts } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import ResourceListView from '../shared/ResourceListView';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
     namespace: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function ServiceAccountListComponent({ clusterName }: { clusterName: string }) {
-    const [items, setItems] = useState<models.ServiceAccountInfo[]>([]);
-    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
+export default function ServiceAccountListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const { openYamlPanel } = useTabContext();
-
-    const namespaceOptions = useMemo(() =>
-        [...new Set(items.map(i => i.namespace).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
-        [items]
-    );
-
-    const load = async () => {
-        try {
-            const data = await GetServiceAccounts(clusterName);
-            setItems(data.map((d: any) => models.ServiceAccountInfo.createFrom(d)));
-        } catch {
-            setItems([]);
-        }
-    };
-
-    useEffect(() => {
-        load();
-        const id = window.setInterval(load, 10000);
-        return () => window.clearInterval(id);
-    }, []);
+    const referencePanel = `serviceaccounts:${clusterName}`;
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0 }}>Service Account List</h3>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-                    <Button
-                        icon={<VscClearAll size={16} />}
-                        text
-                        severity="secondary"
-                        onClick={() => setFilters(defaultFilters)}
-                        tooltip="Clear filters"
-                        tooltipOptions={{ position: 'left' }}
-                    />
-                </div>
-            </div>
-
-            <DataTable
-                value={items}
-                dataKey="name"
-                filters={filters}
-                onFilter={e => setFilters(e.filters)}
-                filterDisplay="row"
-                onRowDoubleClick={(e: any) => {
-                    const sa = e.data as models.ServiceAccountInfo;
-                    openYamlPanel({ clusterName,
-            resourceKind: 'serviceaccount', name: sa.name, namespace: sa.namespace, referencePanel: `serviceaccounts:${clusterName}` });
-                }}
-                stripedRows
-                showGridlines
-                resizableColumns
-                scrollable
-                scrollHeight="flex"
-                emptyMessage="No service accounts found"
-            >
-                <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }} filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
-                    )} />
-                <Column field="secrets" header="Secrets" sortable style={{ minWidth: '7rem' }} />
-                <Column field="created_at" header="Created" sortable style={{ minWidth: '12rem' }} />
-            </DataTable>
-        </div>
+        <ResourceListView<models.ServiceAccountInfo>
+            title="Service Account List"
+            clusterName={clusterName}
+            api={api}
+            fetcher={GetServiceAccounts}
+            createFrom={models.ServiceAccountInfo.createFrom}
+            pollInterval={10000}
+            defaultFilters={defaultFilters}
+            emptyMessage="No service accounts found"
+            onRowDoubleClick={(sa) => openYamlPanel({ clusterName, resourceKind: 'serviceaccount', name: sa.name, namespace: sa.namespace, referencePanel })}
+            columns={({ buildInOptions }) => (
+                <>
+                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="secrets" header="Secrets" sortable style={{ minWidth: '7rem' }} />
+                    <Column field="created_at" header="Created" sortable style={{ minWidth: '12rem' }} />
+                </>
+            )}
+        />
     );
 }

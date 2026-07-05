@@ -1,19 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-
-import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
-import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import type { DockviewPanelApi } from 'dockview';
+import { DataTableFilterMeta } from 'primereact/datatable';
+import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Tag } from 'primereact/tag';
-import { Toast } from 'primereact/toast';
-import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { GetNamespaces, DeleteNamespace } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import ResourceListView from '../shared/ResourceListView';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -30,172 +24,33 @@ const defaultFilters: DataTableFilterMeta = {
     status: { value: null, matchMode: FilterMatchMode.IN },
 };
 
-export default function NamespaceListComponent({ clusterName }: { clusterName: string }) {
-    const [namespaces, setNamespaces] = useState<models.NamespaceInfo[]>([]);
-    const [selectedNamespaces, setSelectedNamespaces] = useState<models.NamespaceInfo[]>([]);
-    const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
-    const toast = useRef<Toast | null>(null);
+export default function NamespaceListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const { openYamlPanel } = useTabContext();
-
-    const statusOptions = useMemo(() =>
-        [...new Set(namespaces.map(n => n.status).filter(Boolean))].sort().map(v => ({ label: v, value: v })),
-        [namespaces]
-    );
-
-    const loadNamespaces = async () => {
-        try {
-            const items = await GetNamespaces(clusterName);
-            setNamespaces(items.map((item: any) => models.NamespaceInfo.createFrom(item)));
-        } catch (error) {
-            console.error('Failed to load namespaces:', error);
-            setNamespaces([]);
-        }
-    };
-
-    useEffect(() => {
-        loadNamespaces();
-        const id = window.setInterval(loadNamespaces, 10000);
-        return () => window.clearInterval(id);
-    }, []);
-
-    const openDeleteDialog = () => {
-        if (selectedNamespaces.length > 0) setDeleteDialogVisible(true);
-    };
-
-    const handleDeleteSelected = async () => {
-        if (selectedNamespaces.length === 0) { setDeleteDialogVisible(false); return; }
-
-        setDeleting(true);
-        const toDelete = [...selectedNamespaces];
-
-        for (const ns of toDelete) {
-            try {
-                await DeleteNamespace(clusterName, ns.name);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Deleted successfully',
-                    detail: `${ns.name} deleted`,
-                    life: 2500,
-                });
-            } catch {
-                toast.current?.show({
-                    severity: 'error',
-                    summary: 'Delete failed',
-                    detail: `${ns.name} could not be deleted`,
-                    life: 3500,
-                });
-            }
-        }
-
-        setSelectedNamespaces([]);
-        setDeleteDialogVisible(false);
-        setDeleting(false);
-        await loadNamespaces();
-    };
-
-    const handleRowDoubleClick = (ns: models.NamespaceInfo) => {
-        openYamlPanel({ clusterName,
-            resourceKind: 'namespace',
-            name: ns.name,
-            namespace: '',
-            referencePanel: `namespaces:${clusterName}`,
-        });
-    };
-
-    const deleteDialogFooter = (
-        <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<VscClose size={16} />} text onClick={() => setDeleteDialogVisible(false)} disabled={deleting} />
-            <Button label="Delete" icon={<VscTrash size={16} />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
-        </div>
-    );
+    const referencePanel = `namespaces:${clusterName}`;
 
     return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="bottom-right" />
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0 }}>Namespace List</h3>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
-                    <Button
-                        icon={<VscClearAll size={16} />}
-                        text
-                        severity="secondary"
-                        onClick={() => setFilters(defaultFilters)}
-                        tooltip="Clear filters"
-                        tooltipOptions={{ position: 'left' }}
-                    />
-                    <Button
-                        label="Delete Selected"
-                        icon={<VscTrash size={16} />}
-                        severity="danger"
-                        onClick={openDeleteDialog}
-                        disabled={selectedNamespaces.length === 0 || deleting}
-                    />
-                </div>
-            </div>
-
-            <DataTable
-                value={namespaces}
-                dataKey="name"
-                selectionMode="multiple"
-                selection={selectedNamespaces}
-                onSelectionChange={(e) => setSelectedNamespaces(Array.isArray(e.value) ? e.value : [])}
-                onRowDoubleClick={(e: any) => handleRowDoubleClick(e.data as models.NamespaceInfo)}
-                filters={filters}
-                onFilter={(e) => setFilters(e.filters)}
-                filterDisplay="row"
-                stripedRows
-                showGridlines
-                resizableColumns
-                scrollable
-                scrollHeight="flex"
-                emptyMessage="No namespaces found"
-            >
-                <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
-                <Column
-                    field="name"
-                    header="Name"
-                    sortable
-                    filter
-                    filterField="name"
-                    filterPlaceholder="Search name"
-                    showFilterMenu={false}
-                    style={{ minWidth: '14rem' }}
-                />
-                <Column
-                    field="status"
-                    header="Status"
-                    sortable
-                    filter
-                    filterField="status"
-                    showFilterMenu={false}
-                    style={{ minWidth: '9rem' }}
-                    filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={statusOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
-                    )}
-                    body={(rowData: models.NamespaceInfo) => (
-                        <Tag value={rowData.status} severity={getStatusSeverity(rowData.status)} />
-                    )}
-                />
-            </DataTable>
-
-            <Dialog
-                header="Delete Namespace Confirmation"
-                visible={deleteDialogVisible}
-                style={{ width: '30rem' }}
-                modal
-                footer={deleteDialogFooter}
-                onHide={() => { if (!deleting) setDeleteDialogVisible(false); }}
-            >
-                <p className="m-0 mb-3">Do you want to delete the selected namespaces?</p>
-                <ul className="m-0 pl-3">
-                    {selectedNamespaces.map((ns) => (
-                        <li key={ns.name}>{ns.name}</li>
-                    ))}
-                </ul>
-            </Dialog>
-        </div>
+        <ResourceListView<models.NamespaceInfo>
+            title="Namespace List"
+            clusterName={clusterName}
+            api={api}
+            fetcher={GetNamespaces}
+            createFrom={models.NamespaceInfo.createFrom}
+            deleter={DeleteNamespace}
+            deleteLabel="namespace"
+            pollInterval={10000}
+            defaultFilters={defaultFilters}
+            emptyMessage="No namespaces found"
+            onRowDoubleClick={(ns) => openYamlPanel({ clusterName, resourceKind: 'namespace', name: ns.name, namespace: '', referencePanel })}
+            columns={({ buildInOptions }) => (
+                <>
+                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '9rem' }}
+                        body={(row: models.NamespaceInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                </>
+            )}
+        />
     );
 }
