@@ -10,6 +10,7 @@ import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
 import { ApplyYaml } from '../../../wailsjs/go/controller_app/App';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
+import { ensureK8sYamlIntellisense, k8sYamlSuggestOptions } from '../../lib/k8sYamlIntellisense';
 
 export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string, never>>) {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -26,6 +27,7 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
         // so it always refers to the newest ApplyYamlPanel instance.
         (window as unknown as Record<string, unknown>).__kubeInsYamlEditor = editor;
         requestAnimationFrame(() => editor.layout());
+        ensureK8sYamlIntellisense();
     };
 
     const handleApply = async () => {
@@ -130,6 +132,7 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                         theme={MONOLITH_THEME}
                         onMount={handleMount}
                         options={{
+                            ...k8sYamlSuggestOptions,
                             minimap: { enabled: false },
                             fontSize: 13,
                             scrollBeyondLastLine: false,
