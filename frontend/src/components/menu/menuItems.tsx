@@ -1,5 +1,5 @@
 import React from 'react';
-import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings, VscPulse } from 'react-icons/vsc';
+import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings, VscPulse, VscListTree } from 'react-icons/vsc';
 
 const S = { fontSize: '0.875rem' };
 
@@ -46,6 +46,7 @@ export const NAV_GROUPS: NavGroup[] = [
         { label: 'Events',          view: 'events',         icon: <VscBell style={S} /> },
         { label: 'Resource Quotas', view: 'resourcequotas', icon: <VscGraph style={S} /> },
         { label: 'Limit Ranges',    view: 'limitranges',    icon: <VscSettings style={S} /> },
+        { label: 'CRDs',            view: 'crds',           icon: <VscListTree style={S} /> },
     ]},
 ];
 

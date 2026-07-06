@@ -33,3 +33,13 @@ func UpdateObjectYaml(clusterName, group, resource, namespace, name, yamlContent
 	}
 	return services.UpdateObjectYaml(config, group, resource, namespace, name, yamlContent)
 }
+
+// DeleteObject deletes any object identified by (group, resource, namespace,
+// name) — used to delete CRDs and custom resource instances from the CRD view.
+func DeleteObject(clusterName, group, resource, namespace, name string) error {
+	_, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.DeleteObject(config, group, resource, namespace, name)
+}

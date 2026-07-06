@@ -695,6 +695,19 @@ func (a *App) UpdateObjectYaml(clusterName, group, resource, namespace, name, ya
 	return bussiness.UpdateObjectYaml(clusterName, group, resource, namespace, name, yamlContent)
 }
 
+func (a *App) DeleteObject(clusterName, group, resource, namespace, name string) error {
+	return bussiness.DeleteObject(clusterName, group, resource, namespace, name)
+}
+
+// CRDs: list definitions and their custom resource instances (CRD view).
+func (a *App) GetCRDs(clusterName string) ([]models.CRDInfo, error) {
+	return bussiness.GetCRDs(clusterName)
+}
+
+func (a *App) GetCustomResources(clusterName, group, resource string) ([]models.CustomResourceInfo, error) {
+	return bussiness.GetCustomResources(clusterName, group, resource)
+}
+
 // ============================================================================
 // Utility Functions: Resource Relationships & Navigation
 // ============================================================================

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { DockviewPanelApi } from 'dockview';
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
@@ -19,6 +19,10 @@ function toColumnArray(node: React.ReactNode): React.ReactNode {
             : node;
     return React.Children.toArray(children);
 }
+
+// Must match the fixed row height enforced by theme-monolith.css
+// (.p-datatable-tbody > tr > td { height: 40px }).
+const ROW_HEIGHT = 40;
 
 export interface ColumnsContext<T extends ResourceRow> {
     items: T[];
@@ -89,6 +93,34 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
 
     const deletable = !!deleter;
 
+    // PrimeReact's VirtualScroller derives its visible row count from the viewport
+    // height captured at init() time. With scrollHeight="flex" that height is
+    // purely CSS-flex-derived and the scroller only re-measures on a *window*
+    // resize whose pixel height actually differs (virtualscroller.js onResize:
+    // `isDiffHeight = height !== defaultHeight`). Inside a Dockview panel the flex
+    // height is stable after the first paint, so when the panel is wide the
+    // scroller measures once (often before data arrives) and never re-renders —
+    // the table stays empty until the window is resized. Feeding an *explicit*
+    // measured pixel scrollHeight instead makes every height change re-run the
+    // scroller's init() (useUpdateEffect on props.scrollHeight), and ResizeObserver
+    // — unlike window.resize — also fires on Dockview splitter drags / tab show.
+    const tableWrapRef = useRef<HTMLDivElement>(null);
+    const [scrollHeight, setScrollHeight] = useState<string>('flex');
+    useEffect(() => {
+        const el = tableWrapRef.current;
+        if (!el) return;
+        let last = -1;
+        const observer = new ResizeObserver((entries) => {
+            const height = Math.round(entries[0]?.contentRect.height ?? 0);
+            // Ignore 0 (tab backgrounded/hidden) so we keep the last good height.
+            if (height === 0 || height === last) return;
+            last = height;
+            setScrollHeight(`${height}px`);
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
     // PrimeReact's DataTable selection props are a discriminated union; spreading a
     // conditionally-typed object keeps TS from trying to resolve `selectionMode` as
     // `'multiple' | undefined` (which fails overload resolution).
@@ -134,26 +166,29 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                 </div>
             </div>
 
-            <DataTable
-                value={items}
-                dataKey={dataKey}
-                {...selectionProps}
-                onRowDoubleClick={onRowDoubleClick ? (e: any) => onRowDoubleClick(e.data as T) : undefined}
-                filters={filters}
-                onFilter={(e) => setFilters(e.filters)}
-                filterDisplay="row"
-                stripedRows
-                showGridlines
-                resizableColumns
-                scrollable
-                scrollHeight="flex"
-                emptyMessage={emptyMessage}
-            >
-                {deletable && (
-                    <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
-                )}
-                {toColumnArray(columns({ items, buildInOptions }))}
-            </DataTable>
+            <div ref={tableWrapRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <DataTable
+                    value={items}
+                    dataKey={dataKey}
+                    {...selectionProps}
+                    onRowDoubleClick={onRowDoubleClick ? (e: any) => onRowDoubleClick(e.data as T) : undefined}
+                    filters={filters}
+                    onFilter={(e) => setFilters(e.filters)}
+                    filterDisplay="row"
+                    stripedRows
+                    showGridlines
+                    resizableColumns
+                    scrollable
+                    scrollHeight={scrollHeight}
+                    virtualScrollerOptions={{ itemSize: ROW_HEIGHT }}
+                    emptyMessage={emptyMessage}
+                >
+                    {deletable && (
+                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
+                    )}
+                    {toColumnArray(columns({ items, buildInOptions }))}
+                </DataTable>
+            </div>
 
             {deletable && (
                 <Dialog

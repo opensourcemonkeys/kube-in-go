@@ -31,7 +31,6 @@ const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
     namespace: { value: null, matchMode: FilterMatchMode.IN },
     status:    { value: null, matchMode: FilterMatchMode.IN },
-    replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
 export default function StatefulSetListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -63,7 +62,7 @@ export default function StatefulSetListComponent({ clusterName, api }: { cluster
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Replicas" sortable sortField="replicas" filter filterField="replicas" filterPlaceholder="Total replicas" showFilterMenu={false} dataType="numeric" style={{ minWidth: '9rem' }}
+                    <Column header="Replicas" sortable sortField="replicas" style={{ minWidth: '9rem' }}
                         body={(row: models.StatefulSetInfo) => <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />} />
                     <Column header="Updated" sortable sortField="updated_replicas" style={{ minWidth: '8rem' }}
                         body={(row: models.StatefulSetInfo) => <Tag value={`${row.current_replicas} current / ${row.updated_replicas} updated`} severity={row.current_replicas === row.updated_replicas ? 'success' : 'warning'} />} />

@@ -30,7 +30,6 @@ const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
     namespace: { value: null, matchMode: FilterMatchMode.IN },
     status:    { value: null, matchMode: FilterMatchMode.IN },
-    replicas:  { value: null, matchMode: FilterMatchMode.EQUALS },
 };
 
 export default function ReplicaSetListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -62,7 +61,7 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Replicas" sortable sortField="replicas" filter filterField="replicas" filterPlaceholder="Total replicas" showFilterMenu={false} dataType="numeric" style={{ minWidth: '9rem' }}
+                    <Column header="Replicas" sortable sortField="replicas" style={{ minWidth: '9rem' }}
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />} />
                     <Column header="Available" sortable sortField="available_replicas" style={{ minWidth: '8rem' }}
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />} />
