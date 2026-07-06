@@ -85,21 +85,36 @@ func (a *App) showWorkspace() {
 	a.loadResource("pods")
 }
 
-// loadResource builds the generic list for a view and mounts it in the right
-// pane, replacing whatever was there, then focuses it.
+// loadResource resolves a menu view and mounts it in the right pane. Views
+// without a list backend (monitoring, apply yaml) are dispatched to their
+// bespoke pane builders before the registry lookup.
 func (a *App) loadResource(view string) {
+	switch view {
+	case "monitoring":
+		a.loadMonitoring()
+		return
+	case "applyyaml":
+		a.loadApplyYaml()
+		return
+	}
 	def := a.registry[view]
 	if def == nil {
 		a.flash("Error", "unknown view: "+view, colDanger)
 		return
 	}
+	a.mountResource(def)
+}
 
+// mountResource builds the generic list for a def (registered or a drill-down
+// child) and mounts it in the right pane, replacing whatever was there, then
+// focuses it.
+func (a *App) mountResource(def *resourceDef) {
 	// Tear down the describe pane and stop the previous list's auto-refresh before
 	// building (and starting) the next one's, so only the visible list polls.
 	a.closeDescribe()
 	a.stopAutoRefresh()
 
-	body, table, hints := a.buildResource(view)
+	body, table, hints := a.buildResource(def)
 	a.content.Clear()
 	a.content.AddItem(body, 0, 1, true)
 	a.resourceBody = body

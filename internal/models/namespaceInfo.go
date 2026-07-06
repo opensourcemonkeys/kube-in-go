@@ -13,6 +13,15 @@ type ResourceQuotaInfo struct {
 	Entries []ResourceQuotaEntry `json:"entries"`
 }
 
+// NamespacedResourceQuota is a flat quota row for cross-namespace listings
+// (used by the TUI); NamespaceInfo above keeps quotas nested per namespace for
+// the desktop's namespace view.
+type NamespacedResourceQuota struct {
+	Namespace string               `json:"namespace"`
+	Name      string               `json:"name"`
+	Entries   []ResourceQuotaEntry `json:"entries"`
+}
+
 type NamespaceInfo struct {
 	Name           string              `json:"name"`
 	Status         string              `json:"status"`

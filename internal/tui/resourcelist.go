@@ -9,13 +9,13 @@ import (
 	"github.com/rivo/tview"
 )
 
-// buildResource builds the generic table body for a registered view and wires
-// its key handling. It returns the body primitive (mounted into the workspace's
-// right pane by loadResource), the table to focus, and the status-bar hints.
-// The caller (loadResource) is responsible for mounting it and setting focus.
-func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string) {
-	def := a.registry[view]
-
+// buildResource builds the generic table body for a resource def and wires its
+// key handling. It returns the body primitive (mounted into the workspace's
+// right pane by mountResource), the table to focus, and the status-bar hints.
+// The caller (mountResource) is responsible for mounting it and setting focus.
+// The def may be a dynamically constructed child (drill-down) that is not in
+// the registry.
+func (a *App) buildResource(def *resourceDef) (tview.Primitive, *tview.Table, string) {
 	table := tview.NewTable().
 		SetBorders(false).
 		SetSelectable(true, false).
@@ -140,7 +140,7 @@ func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string)
 		if idx < 0 || idx >= len(shown) {
 			return
 		}
-		a.setDescribeTarget(def, shown[idx], view)
+		a.setDescribeTarget(def, shown[idx], def.view)
 		a.kickDescribe()
 	})
 
@@ -167,12 +167,22 @@ func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string)
 	})
 
 	// On the split workspace the menu is always visible to the left, so "back"
-	// just returns focus to it rather than swapping screens.
-	back := func() { a.app.SetFocus(a.tree) }
+	// just returns focus to it rather than swapping screens. On a drilled-into
+	// child list it returns to the parent list instead.
+	back := func() {
+		if def.parent != "" {
+			a.loadResource(def.parent)
+			return
+		}
+		a.app.SetFocus(a.tree)
+	}
 
 	hints := hintList
 	if def.isPods {
 		hints = hintListPod
+	}
+	if def.drill != nil {
+		hints = hintListDrill
 	}
 
 	table.SetInputCapture(func(ev *tcell.EventKey) *tcell.EventKey {
@@ -189,7 +199,13 @@ func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string)
 			return nil
 		case tcell.KeyEnter:
 			if r, ok := selected(); ok {
-				a.showDescribe(def, r, view)
+				if def.drill != nil {
+					if child := def.drill(a.cluster, r); child != nil {
+						a.mountResource(child)
+					}
+					return nil
+				}
+				a.showDescribe(def, r, def.view)
 			}
 			return nil
 		case tcell.KeyEsc:
@@ -221,7 +237,7 @@ func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string)
 				return nil
 			case 'y':
 				if r, ok := selected(); ok && def.getYAML != nil {
-					a.showYaml(def, r, view)
+					a.showYaml(def, r, def.view)
 				}
 				return nil
 			case 'e':
@@ -230,7 +246,7 @@ func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string)
 						a.flash("Not editable", def.title+" cannot be edited from the TUI", colWarn)
 						return nil
 					}
-					a.editYaml(def, r, view)
+					a.editYaml(def, r, def.view)
 				}
 				return nil
 			case 'd':
@@ -255,14 +271,14 @@ func (a *App) buildResource(view string) (tview.Primitive, *tview.Table, string)
 			case 'l':
 				if def.isPods {
 					if r, ok := selected(); ok {
-						a.showLogs(r, view)
+						a.showLogs(r, def.view)
 					}
 				}
 				return nil
 			case 's':
 				if def.isPods {
 					if r, ok := selected(); ok {
-						a.execPod(r, view)
+						a.execPod(r, def.view)
 					}
 				}
 				return nil

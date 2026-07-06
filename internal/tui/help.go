@@ -24,7 +24,7 @@ const helpText = `[teal::b]kube-ins TUI — keyboard shortcuts[-:-:-]
 [teal]Resource list[-]
   /             filter rows
   r             refresh
-  Enter         describe (side panel)
+  Enter         describe (CRDs: open instances)
   →             focus describe panel (scroll)
   y             view YAML
   e             edit YAML
@@ -45,9 +45,13 @@ const helpText = `[teal::b]kube-ins TUI — keyboard shortcuts[-:-:-]
   g / G         jump to top / bottom
   e             edit
 
-[teal]YAML editor[-]
-  Ctrl+O        save changes
+[teal]YAML editor / Apply YAML[-]
+  Ctrl+O        save changes / apply buffer
   Ctrl+X        exit (asks if unsaved)
+
+[teal]Monitoring[-]
+  r             refresh now (auto-refreshes every 4s)
+  g / G         jump to top / bottom
 
 [grey]Press any key to close[-]`
 
@@ -61,5 +65,5 @@ func (a *App) showHelp() {
 		a.closeModal("help")
 		return nil
 	})
-	a.modal("help", tv, 60, 46)
+	a.modal("help", tv, 60, 50)
 }

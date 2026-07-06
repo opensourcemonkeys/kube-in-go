@@ -9,11 +9,13 @@ import (
 )
 
 // rowData is one table row: name/namespace identify the object for actions,
-// cells are the display columns (aligned with resourceDef.headers).
+// cells are the display columns (aligned with resourceDef.headers). ref carries
+// the source model for views whose rows drill down into a child list (CRDs).
 type rowData struct {
 	name      string
 	namespace string
 	cells     []string
+	ref       any
 }
 
 // rowAction is an extra per-row verb beyond the standard yaml/edit/delete set
@@ -38,6 +40,13 @@ type resourceDef struct {
 	updateYAML func(cluster, name, namespace, yaml string) error
 	del        func(cluster, name, namespace string) error
 	actions    []rowAction
+	// drill, when set, makes Enter open a child list built from the row instead
+	// of the describe pane (used by CRDs to open a kind's instances). The child
+	// def is constructed on the fly and never registered.
+	drill func(cluster string, row rowData) *resourceDef
+	// parent names the registry view Esc/q returns to on a drilled-into child
+	// list; empty on top-level views (where back just refocuses the menu).
+	parent string
 }
 
 type menuItem struct {
@@ -75,8 +84,9 @@ func dash(s string) string {
 }
 
 // buildRegistry returns the menu groups (mirroring the GUI NAV_GROUPS) and a
-// lookup of view -> resourceDef. Views without a list backend (security graph,
-// trivy, monitoring, resource quotas) are intentionally omitted for v1.
+// lookup of view -> resourceDef. "monitoring" and "applyyaml" are menu-only
+// views dispatched to bespoke panes by loadResource (no registry entry); the
+// security graph and trivy views are intentionally omitted for now.
 func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 	defs := []*resourceDef{
 		{
@@ -85,8 +95,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, p := range business.GetPods(c) {
-					rows = append(rows, rowData{p.Name, p.Namespace,
-						[]string{p.Namespace, p.Name, string(p.Status), iN(len(p.Containers)), dash(p.CreatedAt)}})
+					rows = append(rows, rowData{name: p.Name, namespace: p.Namespace,
+						cells: []string{p.Namespace, p.Name, string(p.Status), iN(len(p.Containers)), dash(p.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -99,8 +109,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, d := range business.GetDeployments(c) {
-					rows = append(rows, rowData{d.Name, d.Namespace,
-						[]string{d.Namespace, d.Name, fmt.Sprintf("%d/%d", d.ReadyReplicas, d.Replicas), i32(d.UpdatedReplicas), i32(d.AvailableReplicas), dash(d.CreatedAt)}})
+					rows = append(rows, rowData{name: d.Name, namespace: d.Namespace,
+						cells: []string{d.Namespace, d.Name, fmt.Sprintf("%d/%d", d.ReadyReplicas, d.Replicas), i32(d.UpdatedReplicas), i32(d.AvailableReplicas), dash(d.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -112,8 +122,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, s := range business.GetStatefulSets(c) {
-					rows = append(rows, rowData{s.Name, s.Namespace,
-						[]string{s.Namespace, s.Name, fmt.Sprintf("%d/%d", s.ReadyReplicas, s.Replicas), dash(s.CreatedAt)}})
+					rows = append(rows, rowData{name: s.Name, namespace: s.Namespace,
+						cells: []string{s.Namespace, s.Name, fmt.Sprintf("%d/%d", s.ReadyReplicas, s.Replicas), dash(s.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -125,8 +135,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, r := range business.GetReplicaSets(c) {
-					rows = append(rows, rowData{r.Name, r.Namespace,
-						[]string{r.Namespace, r.Name, fmt.Sprintf("%d/%d", r.ReadyReplicas, r.Replicas), dash(r.CreatedAt)}})
+					rows = append(rows, rowData{name: r.Name, namespace: r.Namespace,
+						cells: []string{r.Namespace, r.Name, fmt.Sprintf("%d/%d", r.ReadyReplicas, r.Replicas), dash(r.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -138,8 +148,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, d := range business.GetDaemonSets(c) {
-					rows = append(rows, rowData{d.Name, d.Namespace,
-						[]string{d.Namespace, d.Name, i32(d.DesiredNumberScheduled), i32(d.NumberReady), i32(d.NumberAvailable), dash(d.CreatedAt)}})
+					rows = append(rows, rowData{name: d.Name, namespace: d.Namespace,
+						cells: []string{d.Namespace, d.Name, i32(d.DesiredNumberScheduled), i32(d.NumberReady), i32(d.NumberAvailable), dash(d.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -151,8 +161,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, j := range business.GetJobs(c) {
-					rows = append(rows, rowData{j.Name, j.Namespace,
-						[]string{j.Namespace, j.Name, fmt.Sprintf("%d/%d", j.Succeeded, j.Completions), dash(j.Status), dash(j.CreatedAt)}})
+					rows = append(rows, rowData{name: j.Name, namespace: j.Namespace,
+						cells: []string{j.Namespace, j.Name, fmt.Sprintf("%d/%d", j.Succeeded, j.Completions), dash(j.Status), dash(j.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -164,8 +174,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, cj := range business.GetCronJobs(c) {
-					rows = append(rows, rowData{cj.Name, cj.Namespace,
-						[]string{cj.Namespace, cj.Name, dash(cj.Schedule), boolStr(cj.Suspend), iN(cj.ActiveCount), dash(cj.CreatedAt)}})
+					rows = append(rows, rowData{name: cj.Name, namespace: cj.Namespace,
+						cells: []string{cj.Namespace, cj.Name, dash(cj.Schedule), boolStr(cj.Suspend), iN(cj.ActiveCount), dash(cj.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -181,8 +191,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 					for _, p := range s.Ports {
 						ports = append(ports, fmt.Sprintf("%d/%s", p.Port, p.Protocol))
 					}
-					rows = append(rows, rowData{s.Name, s.Namespace,
-						[]string{s.Namespace, s.Name, dash(s.Type), dash(s.ClusterIP), join(ports), dash(s.CreatedAt)}})
+					rows = append(rows, rowData{name: s.Name, namespace: s.Namespace,
+						cells: []string{s.Namespace, s.Name, dash(s.Type), dash(s.ClusterIP), join(ports), dash(s.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -198,8 +208,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 					for _, r := range ig.Rules {
 						hosts = append(hosts, r.Host)
 					}
-					rows = append(rows, rowData{ig.Name, ig.Namespace,
-						[]string{ig.Namespace, ig.Name, dash(ig.ClassName), join(hosts), dash(ig.Address), dash(ig.CreatedAt)}})
+					rows = append(rows, rowData{name: ig.Name, namespace: ig.Namespace,
+						cells: []string{ig.Namespace, ig.Name, dash(ig.ClassName), join(hosts), dash(ig.Address), dash(ig.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -211,8 +221,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, ic := range business.GetIngressClasses(c) {
-					rows = append(rows, rowData{ic.Name, "",
-						[]string{ic.Name, dash(ic.Controller), boolStr(ic.IsDefault), dash(ic.CreatedAt)}})
+					rows = append(rows, rowData{name: ic.Name, namespace: "",
+						cells: []string{ic.Name, dash(ic.Controller), boolStr(ic.IsDefault), dash(ic.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -224,8 +234,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, e := range business.GetEndpoints(c) {
-					rows = append(rows, rowData{e.Name, e.Namespace,
-						[]string{e.Namespace, e.Name, iN(e.Ready), iN(e.NotReady), dash(e.CreatedAt)}})
+					rows = append(rows, rowData{name: e.Name, namespace: e.Namespace,
+						cells: []string{e.Namespace, e.Name, iN(e.Ready), iN(e.NotReady), dash(e.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -237,8 +247,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, n := range business.GetNetworkPolicies(c) {
-					rows = append(rows, rowData{n.Name, n.Namespace,
-						[]string{n.Namespace, n.Name, dash(n.PodSelector), join(n.PolicyTypes), dash(n.CreatedAt)}})
+					rows = append(rows, rowData{name: n.Name, namespace: n.Namespace,
+						cells: []string{n.Namespace, n.Name, dash(n.PodSelector), join(n.PolicyTypes), dash(n.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -250,8 +260,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, cm := range business.GetConfigMaps(c) {
-					rows = append(rows, rowData{cm.Name, cm.Namespace,
-						[]string{cm.Namespace, cm.Name, iN(cm.DataCount), dash(cm.CreatedAt)}})
+					rows = append(rows, rowData{name: cm.Name, namespace: cm.Namespace,
+						cells: []string{cm.Namespace, cm.Name, iN(cm.DataCount), dash(cm.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -263,8 +273,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, s := range business.GetSecrets(c) {
-					rows = append(rows, rowData{s.Name, s.Namespace,
-						[]string{s.Namespace, s.Name, dash(s.Type), iN(s.DataCount), dash(s.CreatedAt)}})
+					rows = append(rows, rowData{name: s.Name, namespace: s.Namespace,
+						cells: []string{s.Namespace, s.Name, dash(s.Type), iN(s.DataCount), dash(s.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -276,8 +286,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, sa := range business.GetServiceAccounts(c) {
-					rows = append(rows, rowData{sa.Name, sa.Namespace,
-						[]string{sa.Namespace, sa.Name, iN(sa.Secrets), dash(sa.CreatedAt)}})
+					rows = append(rows, rowData{name: sa.Name, namespace: sa.Namespace,
+						cells: []string{sa.Namespace, sa.Name, iN(sa.Secrets), dash(sa.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -289,8 +299,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, r := range business.GetRoles(c) {
-					rows = append(rows, rowData{r.Name, r.Namespace,
-						[]string{r.Namespace, r.Name, iN(len(r.Rules)), dash(r.CreatedAt)}})
+					rows = append(rows, rowData{name: r.Name, namespace: r.Namespace,
+						cells: []string{r.Namespace, r.Name, iN(len(r.Rules)), dash(r.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -302,8 +312,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, rb := range business.GetRoleBindings(c) {
-					rows = append(rows, rowData{rb.Name, rb.Namespace,
-						[]string{rb.Namespace, rb.Name, dash(rb.RoleRefName), dash(rb.CreatedAt)}})
+					rows = append(rows, rowData{name: rb.Name, namespace: rb.Namespace,
+						cells: []string{rb.Namespace, rb.Name, dash(rb.RoleRefName), dash(rb.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -315,8 +325,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, pv := range business.GetPersistentVolumes(c) {
-					rows = append(rows, rowData{pv.Name, "",
-						[]string{pv.Name, dash(pv.Status), dash(pv.Capacity), dash(pv.ReclaimPolicy), dash(pv.StorageClassName), dash(pv.CreatedAt)}})
+					rows = append(rows, rowData{name: pv.Name, namespace: "",
+						cells: []string{pv.Name, dash(pv.Status), dash(pv.Capacity), dash(pv.ReclaimPolicy), dash(pv.StorageClassName), dash(pv.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -328,8 +338,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, pvc := range business.GetPersistentVolumeClaims(c) {
-					rows = append(rows, rowData{pvc.Name, pvc.Namespace,
-						[]string{pvc.Namespace, pvc.Name, dash(pvc.Status), dash(pvc.VolumeName), dash(pvc.Request), dash(pvc.CreatedAt)}})
+					rows = append(rows, rowData{name: pvc.Name, namespace: pvc.Namespace,
+						cells: []string{pvc.Namespace, pvc.Name, dash(pvc.Status), dash(pvc.VolumeName), dash(pvc.Request), dash(pvc.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -341,8 +351,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, sc := range business.GetStorageClasses(c) {
-					rows = append(rows, rowData{sc.Name, "",
-						[]string{sc.Name, dash(sc.Provisioner), dash(sc.ReclaimPolicy), dash(sc.VolumeBindingMode), boolStr(sc.IsDefault)}})
+					rows = append(rows, rowData{name: sc.Name, namespace: "",
+						cells: []string{sc.Name, dash(sc.Provisioner), dash(sc.ReclaimPolicy), dash(sc.VolumeBindingMode), boolStr(sc.IsDefault)}})
 				}
 				return rows, nil
 			},
@@ -358,8 +368,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 					if n.Unschedulable {
 						status += ",SchedDisabled"
 					}
-					rows = append(rows, rowData{n.Name, "",
-						[]string{n.Name, dash(status), dash(n.InternalIP), dash(n.KubeletVersion), dash(n.CreatedAt)}})
+					rows = append(rows, rowData{name: n.Name, namespace: "",
+						cells: []string{n.Name, dash(status), dash(n.InternalIP), dash(n.KubeletVersion), dash(n.CreatedAt)}})
 				}
 				return rows, nil
 			},
@@ -377,7 +387,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, ns := range business.GetNamespaces(c) {
-					rows = append(rows, rowData{ns.Name, "", []string{ns.Name, dash(ns.Status)}})
+					rows = append(rows, rowData{name: ns.Name, namespace: "", cells: []string{ns.Name, dash(ns.Status)}})
 				}
 				return rows, nil
 			},
@@ -390,10 +400,40 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, e := range business.GetEvents(c) {
-					rows = append(rows, rowData{e.Name, e.Namespace,
-						[]string{e.Namespace, dash(e.Type), dash(e.Reason), dash(e.Object), dash(e.Message), i32(e.Count)}})
+					rows = append(rows, rowData{name: e.Name, namespace: e.Namespace,
+						cells: []string{e.Namespace, dash(e.Type), dash(e.Reason), dash(e.Object), dash(e.Message), i32(e.Count)}})
 				}
 				return rows, nil
+			},
+		},
+		{
+			view: "resourcequotas", title: "Resource Quotas", namespaced: true,
+			headers: []string{"NAMESPACE", "NAME", "RESOURCE", "USED", "HARD", "USE%"},
+			// One row per tracked resource entry: rows of a multi-entry quota share
+			// name/namespace, so y/e/d on any of them targets the same quota object.
+			list: func(c string) ([]rowData, error) {
+				quotas, err := business.GetResourceQuotas(c)
+				if err != nil {
+					return nil, err
+				}
+				var rows []rowData
+				for _, q := range quotas {
+					if len(q.Entries) == 0 {
+						rows = append(rows, rowData{name: q.Name, namespace: q.Namespace,
+							cells: []string{q.Namespace, q.Name, "-", "-", "-", "-"}})
+						continue
+					}
+					for _, e := range q.Entries {
+						rows = append(rows, rowData{name: q.Name, namespace: q.Namespace,
+							cells: []string{q.Namespace, q.Name, e.Resource, e.Used, e.Hard, textBar(e.UsedNum, e.HardNum, 10)}})
+					}
+				}
+				return rows, nil
+			},
+			getYAML:    business.GetResourceQuotaYaml,
+			updateYAML: business.UpdateResourceQuotaYaml,
+			del: func(c, name, ns string) error {
+				return business.DeleteObject(c, "", "resourcequotas", ns, name)
 			},
 		},
 		{
@@ -402,12 +442,38 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, lr := range business.GetLimitRanges(c) {
-					rows = append(rows, rowData{lr.Name, lr.Namespace,
-						[]string{lr.Namespace, lr.Name, iN(len(lr.Limits)), dash(lr.CreatedAt)}})
+					rows = append(rows, rowData{name: lr.Name, namespace: lr.Namespace,
+						cells: []string{lr.Namespace, lr.Name, iN(len(lr.Limits)), dash(lr.CreatedAt)}})
 				}
 				return rows, nil
 			},
 			getYAML: business.GetLimitRangeYaml, updateYAML: business.UpdateLimitRangeYaml,
+		},
+		{
+			view: "crds", title: "CRDs", namespaced: false,
+			headers: []string{"NAME", "GROUP", "KIND", "SCOPE", "VERSION", "AGE"},
+			list: func(c string) ([]rowData, error) {
+				crds, err := business.GetCRDs(c)
+				if err != nil {
+					return nil, err
+				}
+				var rows []rowData
+				for _, crd := range crds {
+					rows = append(rows, rowData{name: crd.Name, ref: crd,
+						cells: []string{crd.Name, dash(crd.Group), dash(crd.Kind), dash(crd.Scope), dash(crd.Version), dash(crd.Age)}})
+				}
+				return rows, nil
+			},
+			getYAML: func(c, name, _ string) (string, error) {
+				return business.GetObjectYaml(c, "apiextensions.k8s.io", "customresourcedefinitions", "", name)
+			},
+			updateYAML: func(c, name, _, yaml string) error {
+				return business.UpdateObjectYaml(c, "apiextensions.k8s.io", "customresourcedefinitions", "", name, yaml)
+			},
+			del: func(c, name, _ string) error {
+				return business.DeleteObject(c, "apiextensions.k8s.io", "customresourcedefinitions", "", name)
+			},
+			drill: crdChildDef,
 		},
 	}
 
@@ -422,7 +488,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 		{"CONFIG & SECRETS", []menuItem{{"ConfigMaps", "configmaps"}, {"Secrets", "secrets"}}},
 		{"SECURITY", []menuItem{{"Service Accounts", "serviceaccounts"}, {"Roles", "roles"}, {"Role Bindings", "rolebindings"}}},
 		{"STORAGE", []menuItem{{"Persistent Volumes", "persistentvolumes"}, {"Volume Claims", "persistentvolumeclaims"}, {"Storage Classes", "storageclasses"}}},
-		{"CLUSTER", []menuItem{{"Nodes", "nodes"}, {"Namespaces", "namespaces"}, {"Events", "events"}, {"Limit Ranges", "limitranges"}}},
+		{"CLUSTER", []menuItem{{"Monitoring", "monitoring"}, {"Nodes", "nodes"}, {"Namespaces", "namespaces"}, {"Events", "events"}, {"Resource Quotas", "resourcequotas"}, {"Limit Ranges", "limitranges"}, {"CRDs", "crds"}, {"Apply YAML", "applyyaml"}}},
 	}
 
 	return groups, reg

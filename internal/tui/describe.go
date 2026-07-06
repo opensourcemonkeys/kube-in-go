@@ -303,6 +303,21 @@ func barColumn(p float64, has bool) []string {
 	return out
 }
 
+// textBar renders a compact single-color usage gauge for table cells (which
+// don't parse dynamic-color tags), e.g. "██████░░░░  62%"; "-" when there is
+// no denominator.
+func textBar(used, denom int64, width int) string {
+	p, has := pct(used, denom)
+	if !has {
+		return "-"
+	}
+	filled := int((p/100)*float64(width) + 0.5)
+	if filled > width {
+		filled = width
+	}
+	return strings.Repeat("█", filled) + strings.Repeat("░", width-filled) + fmt.Sprintf(" %3.0f%%", p)
+}
+
 func barColor(p float64) tcell.Color {
 	switch {
 	case p >= 90:
