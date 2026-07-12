@@ -12,7 +12,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - **Resource list filtering** — refined DataTable filter behavior across the shared resource list views.
 - **Sidebar cluster-management navigation** — repositioned so the managed-cluster nav sits correctly.
-- **Docs & SEO** — added per-page meta descriptions, a richer homepage, `robots.txt` with AI-crawler opt-in, and structured metadata for better search / LLM discoverability.
 
 ---
 
