@@ -10,10 +10,20 @@ env:
   # The Trivy security-scanner library pulls in encoding/json/v2, which is
   # gated behind the jsonv2 GOEXPERIMENT on Go 1.26.
   GOEXPERIMENT: jsonv2
+  # ==========================================
+  # CLOUDFLARE R2 CREDENTIALS (GLOBAL)
+  # ==========================================
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: auto
+  AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+  AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+  R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+  R2_BUCKET: ${{ vars.R2_BUCKET }}
 
 jobs:
   # ==========================================
-  # STAGE 1: BUILD & PACKAGE
+  # STAGE 1: BUILD & PACKAGE (DIRECT TO R2)
   # ==========================================
 
   build-linux:
@@ -60,8 +70,6 @@ jobs:
           mv dist/kube-inspector_${VERSION}_amd64.deb dist/kube-inspector-${VERSION}-debian-amd64-ubuntu-22.04-amd64.deb || true
           mv dist/kube-inspector-${VERSION}-1.x86_64.rpm dist/kube-inspector-${VERSION}-rhel9-x86_64.rpm || true
 
-      # The CLI (kube-inspector-cli) links no webview, so a single deb/rpm/tarball
-      # works on every Linux distro — no per-WebKitGTK variants needed.
       - name: Build & Package CLI (kube-inspector-cli)
         run: |
           VERSION=${GITHUB_REF_NAME#v}
@@ -73,12 +81,12 @@ jobs:
           mv dist/kube-inspector-cli_${VERSION}_amd64.deb dist/kube-inspector-cli-${VERSION}-debian-amd64.deb || true
           mv dist/kube-inspector-cli-${VERSION}-1.x86_64.rpm dist/kube-inspector-cli-${VERSION}-linux-x86_64.rpm || true
 
-      - name: Upload Linux Packages (ubuntu-22.04)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: linux-packages-ubuntu-22.04
-          path: dist/
-          retention-days: 5
+      - name: Upload to Cloudflare R2
+        if: github.ref_type == 'tag'
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          aws s3 sync dist/ "s3://${R2_BUCKET}/dist/" --endpoint-url "$ENDPOINT" --no-progress
 
   build-linux-24:
     name: Build & Package (Linux - Ubuntu 24.04)
@@ -124,11 +132,12 @@ jobs:
           mv dist/kube-inspector_${VERSION}_amd64.deb dist/kube-inspector-${VERSION}-debian-amd64-ubuntu-24.04-amd64.deb || true
           mv dist/kube-inspector-${VERSION}-1.x86_64.rpm dist/kube-inspector-${VERSION}-rhel10-x86_64.rpm || true
 
-      - name: Upload Linux Packages (ubuntu-24.04)
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: linux-packages-ubuntu-24.04
-          path: dist/
+      - name: Upload to Cloudflare R2
+        if: github.ref_type == 'tag'
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          aws s3 sync dist/ "s3://${R2_BUCKET}/dist/" --endpoint-url "$ENDPOINT" --no-progress
 
   build-windows:
     name: Build & Package (Windows)
@@ -174,11 +183,13 @@ jobs:
           make build-tui-windows
           mv build/bin/kube-inspector-cli.exe build/bin/kube-inspector-cli-${VERSION}-windows-amd64.exe
 
-      - name: Upload Windows Installer
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: windows-installer
-          path: build/bin/*-windows-amd64.exe
+      - name: Upload to Cloudflare R2
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          aws s3 sync build/bin/ "s3://${R2_BUCKET}/dist/" --exclude "*" --include "*-windows-amd64.exe" --endpoint-url "$ENDPOINT" --no-progress
 
   build-macos:
     name: Build & Package (macOS)
@@ -212,20 +223,19 @@ jobs:
           mkdir -p dist
           tar -czf dist/kube-inspector-cli-${VERSION}-macos-universal.tar.gz -C build/bin kube-inspector-cli
 
-      - name: Upload macOS Artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: macos-dmg
-          path: |
-            dist/*-macos-universal.dmg
-            dist/kube-inspector-cli-*-macos-universal.tar.gz
+      - name: Upload to Cloudflare R2
+        if: github.ref_type == 'tag'
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          aws s3 sync dist/ "s3://${R2_BUCKET}/dist/" --endpoint-url "$ENDPOINT" --no-progress
 
   # ==========================================
-  # STAGE 2: RELEASE
+  # STAGE 2: RELEASE (SOURCE CODE ONLY)
   # ==========================================
 
   release:
-    name: Release
+    name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: [build-linux, build-linux-24, build-windows, build-macos]
     permissions:
@@ -234,30 +244,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Download Linux Packages (ubuntu-22.04)
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: linux-packages-ubuntu-22.04
-          path: dist/
-
-      - name: Download Linux Packages (ubuntu-24.04)
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: linux-packages-ubuntu-24.04
-          path: dist/
-
-      - name: Download Windows Installer
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: windows-installer
-          path: dist/
-
-      - name: Download macOS DMG
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: macos-dmg
-          path: dist/
-
       - name: Extract Release Notes
         run: |
           TAG="${GITHUB_REF_NAME}"
@@ -265,88 +251,21 @@ jobs:
             | sed '/^[[:space:]]*$/d' > /tmp/release_notes.md
           cat /tmp/release_notes.md
 
-      - name: Create Release and Upload Artifacts
+      - name: Create Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         if: github.ref_type == 'tag'
         with:
           body_path: /tmp/release_notes.md
-          files: "dist/*"
-
-  # ==========================================
-  # STAGE 2b: PUBLISH TO CLOUDFLARE R2
-  # ==========================================
-  # Mirrors the built installers/packages to an R2 bucket (S3-compatible).
-  # Required repo secrets:  R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
-  # Required repo variable:  R2_BUCKET   (Settings → Secrets and variables → Actions → Variables)
-
-  upload-r2:
-    name: Upload to R2
-    runs-on: ubuntu-latest
-    needs: [build-linux, build-linux-24, build-windows, build-macos]
-    if: github.ref_type == 'tag'
-    steps:
-      - name: Download Linux Packages (ubuntu-22.04)
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: linux-packages-ubuntu-22.04
-          path: dist/
-
-      - name: Download Linux Packages (ubuntu-24.04)
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: linux-packages-ubuntu-24.04
-          path: dist/
-
-      - name: Download Windows Installer
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: windows-installer
-          path: dist/
-
-      - name: Download macOS DMG
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: macos-dmg
-          path: dist/
-
-      - name: Upload to Cloudflare R2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: auto
-          # Newer aws-cli v2 adds trailing checksums that R2 rejects; request them only when required.
-          AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
-          AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_BUCKET: ${{ vars.R2_BUCKET }}
-        run: |
-          set -euo pipefail
-          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-          echo "Artifacts to publish:"
-          ls -lh dist/
-          # Publish to /dist on the website bucket; --delete keeps only the latest release's files.
-          echo "Uploading to s3://${R2_BUCKET}/dist/ ..."
-          aws s3 sync dist/ "s3://${R2_BUCKET}/dist/" \
-            --endpoint-url "$ENDPOINT" --no-progress
+          # files parametresi kaldırıldı. GitHub sadece otomatik kaynak kodlarını (.zip/.tar.gz) ekleyecek.
 
   # ==========================================
   # STAGE 2c: BUILD & PUBLISH DOCS WEBSITE
   # ==========================================
-  # Builds the MkDocs site and publishes it to the R2 bucket root. Runs after
-  # upload-r2 so the auto-generated Downloads page links (/dist/<file>) resolve.
   deploy-docs:
     name: Build & deploy docs to R2
     runs-on: ubuntu-latest
-    needs: [upload-r2]
+    needs: [build-linux, build-linux-24, build-windows, build-macos]
     if: github.ref_type == 'tag'
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: auto
-      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
-      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
-      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-      R2_BUCKET: ${{ vars.R2_BUCKET }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -356,8 +275,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      # System libraries required by the Material "social" plugin (Cairo + Pango)
-      # to render the og:image / twitter:image social cards.
       - name: Install image libraries (Cairo/Pango) for social cards
         run: |
           sudo apt-get update
@@ -367,10 +284,6 @@ jobs:
       - name: Install MkDocs Material
         run: pip install "mkdocs-material[imaging]"
 
-      # The Downloads page is generated from the git tag inside `make docs-build`
-      # (see the docs-downloads target), so nothing extra is needed here.
-      # CI=true (set by GitHub Actions) enables the social plugin via its
-      # `enabled: !ENV [CI, false]` gate in mkdocs.yml.
       - name: Build site
         run: make docs-build
 
