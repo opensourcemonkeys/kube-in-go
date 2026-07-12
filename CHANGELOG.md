@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.9.0-alpha] - 2026-07-12
+
+### Added
+- **Custom Resource Definitions (CRDs) screen** — a new workspace view lists the cluster's CRDs and row-expands to each CRD's live instances. Any object (a CRD or a custom-resource instance) can be viewed, edited, deleted, or described generically by (group, resource, namespace, name) through the dynamic client — the same generic path the Security Role Map and TUI describe reuse.
+- **Kubernetes YAML IntelliSense** — the YAML editor and Apply-YAML panels now share a Kubernetes-aware completion/validation helper (`k8sYamlIntellisense`) for smarter editing.
+- **CLI / TUI additions** — the terminal UI gained CRDs, an apply-YAML (empty editor) window, Resource Quotas, and a Monitoring screen, further closing the gap with the desktop app.
+
+### Changed
+- **Resource list filtering** — refined DataTable filter behavior across the shared resource list views.
+- **Sidebar cluster-management navigation** — repositioned so the managed-cluster nav sits correctly.
+- **Docs & SEO** — added per-page meta descriptions, a richer homepage, `robots.txt` with AI-crawler opt-in, and structured metadata for better search / LLM discoverability.
+
+---
+
 ## [v0.8.1-alpha] - 2026-07-05
 
 ### Changed
