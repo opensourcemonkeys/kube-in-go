@@ -78,6 +78,7 @@ jobs:
         with:
           name: linux-packages-ubuntu-22.04
           path: dist/
+          retention-days: 5
 
   build-linux-24:
     name: Build & Package (Linux - Ubuntu 24.04)

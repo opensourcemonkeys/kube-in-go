@@ -14,7 +14,8 @@ func GetPods(clusterName string) []models.PodInfo {
 	if err != nil {
 		fmt.Println(err)
 	}
-	podItem, err := services.GetPods("", client)
+	mc, _ := repository.NewMetricsClientForCluster(clusterName)
+	podItem, err := services.GetPods("", client, mc)
 	if err != nil {
 		fmt.Println(err)
 	}

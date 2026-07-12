@@ -20,10 +20,28 @@ const getStatusSeverity = (status: string) => {
     }
 };
 
+const getOwnerSeverity = (kind: string) => {
+    switch (kind) {
+        case 'Deployment':  return 'info';
+        case 'ReplicaSet':  return 'info';
+        case 'StatefulSet': return 'warning';
+        case 'DaemonSet':   return 'success';
+        case 'Job':         return 'secondary';
+        case 'CronJob':     return 'secondary';
+        default:            return 'contrast'; // bare pod
+    }
+};
+
+// Live usage formatting, mirroring the Monitoring dashboard.
+// usage < 0 means metrics-server is unavailable.
+const fmtCpu = (m: number) => (m < 0 ? '—' : m >= 1000 ? `${(m / 1000).toFixed(2)} cores` : `${m} m`);
+const fmtMem = (mi: number) => (mi < 0 ? '—' : mi >= 1024 ? `${(mi / 1024).toFixed(1)} GiB` : `${mi} MiB`);
+
 const defaultFilters: DataTableFilterMeta = {
-    name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.IN },
-    status:    { value: null, matchMode: FilterMatchMode.IN },
+    name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace:  { value: null, matchMode: FilterMatchMode.IN },
+    status:     { value: null, matchMode: FilterMatchMode.IN },
+    owner_kind: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function DataTableComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -45,17 +63,29 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
             onRowDoubleClick={(pod) => openYamlPanel({ clusterName, resourceKind: 'pod', name: pod.name, namespace: pod.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '13rem', maxWidth: '13rem' }}
+                        body={(row: models.PodInfo) => <span title={row.name} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.name}</span>} />
+                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '8rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '9rem' }}
+                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '7.5rem' }}
                         body={(row: models.PodInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="" style={{ width: '6rem', textAlign: 'center' }}
+                    <Column field="owner_kind" header="Owner" sortable filter filterField="owner_kind" showFilterMenu={false} style={{ minWidth: '7.5rem' }}
+                        body={(row: models.PodInfo) => <Tag value={row.owner_kind || 'Pod'} severity={getOwnerSeverity(row.owner_kind)} />}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('owner_kind')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="cpu_millis" header="CPU" sortable style={{ minWidth: '5.5rem' }}
+                        body={(row: models.PodInfo) => fmtCpu(row.cpu_millis)} />
+                    <Column field="mem_mi" header="Memory" sortable style={{ minWidth: '5.5rem' }}
+                        body={(row: models.PodInfo) => fmtMem(row.mem_mi)} />
+                    <Column field="pod_ip" header="Pod IP" sortable style={{ minWidth: '8rem' }}
+                        body={(row: models.PodInfo) => <span style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{row.pod_ip || '—'}</span>} />
+                    <Column header="" style={{ width: '5rem', textAlign: 'center' }}
                         body={(row: models.PodInfo) => (
                             <div style={{ display: 'flex', gap: '0.2rem', justifyContent: 'center' }}>
                                 <Button text size="small" severity="secondary" style={{ padding: '0.2rem' }}

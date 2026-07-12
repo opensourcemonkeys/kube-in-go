@@ -168,6 +168,14 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
 
             <div ref={tableWrapRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <DataTable
+                    // The virtual scroller captures its viewport height once at init time.
+                    // When a panel is auto-opened during app launch, that init can run before
+                    // the flex layout has a real height (scrollHeight still "flex"), so rows
+                    // render into the DOM but are clipped/hidden and never recover. Remounting
+                    // once a measured pixel height is available forces a fresh init with the
+                    // correct height, after which normal value updates render rows. (Manually
+                    // opened panels already mount into a settled layout, so they never hit this.)
+                    key={scrollHeight === 'flex' ? 'measuring' : 'measured'}
                     value={items}
                     dataKey={dataKey}
                     {...selectionProps}
