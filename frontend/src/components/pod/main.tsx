@@ -42,6 +42,7 @@ const defaultFilters: DataTableFilterMeta = {
     namespace:  { value: null, matchMode: FilterMatchMode.IN },
     status:     { value: null, matchMode: FilterMatchMode.IN },
     owner_kind: { value: null, matchMode: FilterMatchMode.IN },
+    pod_ip:    { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function DataTableComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -83,8 +84,12 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
                         body={(row: models.PodInfo) => fmtCpu(row.cpu_millis)} />
                     <Column field="mem_mi" header="Memory" sortable style={{ minWidth: '5.5rem' }}
                         body={(row: models.PodInfo) => fmtMem(row.mem_mi)} />
-                    <Column field="pod_ip" header="Pod IP" sortable style={{ minWidth: '8rem' }}
-                        body={(row: models.PodInfo) => <span style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>{row.pod_ip || '—'}</span>} />
+                    <Column field="pod_ip" header="Pod IP" sortable filter filterField="pod_ip" showFilterMenu={false} style={{ minWidth: '8rem' }}
+                        body={(row: models.PodInfo) => <span style={{  fontSize: '0.8rem' }}>{row.pod_ip || '—'}</span>} 
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('pod_ip')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )}
+                        />
                     <Column header="" style={{ width: '5rem', textAlign: 'center' }}
                         body={(row: models.PodInfo) => (
                             <div style={{ display: 'flex', gap: '0.2rem', justifyContent: 'center' }}>
