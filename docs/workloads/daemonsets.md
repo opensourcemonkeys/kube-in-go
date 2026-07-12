@@ -1,3 +1,7 @@
+---
+description: View, edit YAML for, and delete Kubernetes DaemonSets in Kube Inspector, with rollout and per-node status at a glance.
+---
+
 # DaemonSets
 
 DaemonSets ensure that a copy of a pod runs on every (or a subset of) nodes in the cluster. Common uses are log collectors, monitoring agents, and network plugins.

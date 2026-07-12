@@ -1,3 +1,7 @@
+---
+description: Download Kube Inspector — the free Kubernetes desktop client — and the kube-inspector-cli terminal UI for Windows, macOS, and Linux.
+---
+
 # Downloads
 
 Latest installers and packages for **v__VERSION__**.

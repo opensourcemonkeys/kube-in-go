@@ -1,3 +1,7 @@
+---
+description: Run kubectl and exec into pods with integrated, tiled terminals inside Kube Inspector's dockable workspace.
+---
+
 # Terminal
 
 The Terminal panel provides an integrated `kubectl` terminal directly inside Kube Inspector. It is powered by xterm.js and a server-side pseudo-terminal (pty).

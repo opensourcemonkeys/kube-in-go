@@ -1,3 +1,7 @@
+---
+description: Keyboard shortcuts and usage for Kube Inspector CLI — navigate resources, view and edit YAML, delete, stream logs, and exec into pods from the terminal.
+---
+
 # CLI Usage & Shortcuts
 
 Launch the CLI by running `kube-inspector-cli` (or **Open ▸ CLI Mode** in the desktop app). You start on the **Clusters** screen and navigate inward; each screen replaces the previous one. The top bar always shows a breadcrumb on the left and the available shortcuts for the current screen on the right.

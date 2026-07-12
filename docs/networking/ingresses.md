@@ -1,3 +1,7 @@
+---
+description: View Kubernetes Ingress resources, their hosts, paths, and backend services in Kube Inspector.
+---
+
 # Ingresses
 
 The Ingresses screen lists all `Ingress` resources across namespaces, showing how external traffic is routed to services.

@@ -1,3 +1,7 @@
+---
+description: Live CPU and memory monitoring for your Kubernetes cluster, nodes, pods, and workloads in Kube Inspector, with trend charts and top-consumer drill-down.
+---
+
 # Monitoring
 
 The Monitoring screen is a live resource-usage dashboard for the cluster, built from **metrics-server**.

@@ -1,0 +1,55 @@
+# robots.txt for kubeinspector.com
+# We WANT to be indexed by search engines and cited by AI/LLM search.
+# This file is copied verbatim into the built site root by MkDocs.
+
+# Default: allow every crawler full access.
+User-agent: *
+Allow: /
+
+# ---------------------------------------------------------------------------
+# AI / LLM crawlers — explicitly opted IN so the docs can be indexed and cited
+# by ChatGPT, Claude, Perplexity, Google AI Overviews, Apple Intelligence, etc.
+# ---------------------------------------------------------------------------
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+Sitemap: https://kubeinspector.com/sitemap.xml

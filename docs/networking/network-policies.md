@@ -1,3 +1,7 @@
+---
+description: Visualize Kubernetes NetworkPolicy ingress and egress rules as clear diagrams in Kube Inspector, alongside the raw YAML.
+---
+
 # Network Policies
 
 The Network Policies screen lists all `NetworkPolicy` resources across namespaces. For each policy you can inspect its rules and visualize traffic flow.

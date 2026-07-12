@@ -1,3 +1,7 @@
+---
+description: Add and switch between Kubernetes clusters in Kube Inspector by pointing it at your existing kubeconfig files.
+---
+
 # Adding Clusters
 
 Kube Inspector stores each cluster as a separate kubeconfig file under `~/.kube-ins/`. You can add, edit, and switch between clusters at any time.

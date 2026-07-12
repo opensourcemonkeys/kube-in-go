@@ -1,3 +1,7 @@
+---
+description: List Kubernetes IngressClass resources and their controllers in Kube Inspector.
+---
+
 # Ingress Classes
 
 The Ingress Classes screen lists cluster-scoped `IngressClass` resources — the controllers available to handle ingresses.

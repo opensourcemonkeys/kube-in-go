@@ -1,3 +1,7 @@
+---
+description: Manage Kubernetes Deployments in Kube Inspector — inspect replicas and rollout status, edit YAML, and delete.
+---
+
 # Deployments
 
 The Deployments screen lists all Deployment resources across all namespaces.

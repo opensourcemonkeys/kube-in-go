@@ -1,3 +1,7 @@
+---
+description: List and inspect Kubernetes Services — type, cluster IP, ports, and selectors — in Kube Inspector.
+---
+
 # Services
 
 The Services screen lists all `Service` resources across namespaces in the active cluster.

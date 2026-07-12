@@ -1,3 +1,7 @@
+---
+description: Install Kube Inspector, the free visual desktop client for Kubernetes, on Linux, macOS, or Windows.
+---
+
 # Installation
 
 Kube Inspector ships as a self-contained binary for **Linux, macOS and Windows**. On Linux, one system library (WebKitGTK) is required at runtime; macOS and Windows need no extra dependency.

@@ -1,3 +1,7 @@
+---
+description: Stream and search Kubernetes pod logs in real time with the Kube Inspector log viewer.
+---
+
 # Log Viewer
 
 The Log Viewer streams pod logs in real time inside Kube Inspector. It works for both individual pods and workload-level resources (Deployments, StatefulSets, etc.).

@@ -1,4 +1,5 @@
 ---
+description: Release notes and version history for Kube Inspector, the visual desktop client for Kubernetes.
 title: Changelog
 hide:
   - navigation

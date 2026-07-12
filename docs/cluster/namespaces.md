@@ -1,3 +1,7 @@
+---
+description: List and inspect Kubernetes namespaces in Kube Inspector, and scope any resource view to a single namespace across your clusters.
+---
+
 # Namespaces
 
 The Namespaces screen lists all namespaces in the active cluster.

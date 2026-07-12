@@ -1,11 +1,20 @@
-"""MkDocs build hook: render the Changelog timeline from the repo's CHANGELOG.md.
+"""MkDocs build hooks.
 
-Keeps a single source of truth — the changelog page (`docs/changelog.md`) carries
-only an intro plus a `<!-- KI_CHANGELOG -->` marker, and this hook replaces that
-marker at build time with a timeline of all releases parsed from CHANGELOG.md.
+Two responsibilities:
 
-Each version's body is left as Markdown wrapped in HTML (md_in_html is enabled in
-mkdocs.yml), so the `### Added/Changed/...` bullets render with the normal theme.
+1. **Changelog timeline** — keep a single source of truth: the changelog page
+   (`docs/changelog.md`) carries only an intro plus a `<!-- KI_CHANGELOG -->`
+   marker, and this hook replaces that marker at build time with a timeline of
+   all releases parsed from CHANGELOG.md. Each version's body is left as Markdown
+   wrapped in HTML (md_in_html is enabled in mkdocs.yml), so the
+   `### Added/Changed/...` bullets render with the normal theme.
+
+2. **llms.txt / llms-full.txt** — generate the two llmstxt.org discovery files
+   (`on_post_build`) so LLM search (ChatGPT, Claude, Perplexity, Google AI) can
+   cheaply find and ingest the docs. `llms.txt` is a compact, link-only index of
+   every page grouped by nav section; `llms-full.txt` is the entire docs corpus
+   concatenated as plain Markdown. Both are derived from the resolved nav and the
+   page sources, so they stay in sync with the docs automatically.
 """
 
 import json
@@ -182,3 +191,187 @@ def on_page_markdown(markdown, page, config, files):
         return markdown.replace(MARKER, "_No releases found._")
 
     return markdown.replace(MARKER, _build_timeline(versions))
+
+
+# ===========================================================================
+# llms.txt / llms-full.txt  (https://llmstxt.org)
+# ===========================================================================
+
+# One-line pitch reused at the top of both files.
+_LLMS_INTRO = (
+    "Kube Inspector is a free, open-source visual desktop client for managing "
+    "Kubernetes clusters on Windows, macOS, and Linux. Browse, inspect, edit "
+    "YAML for, and delete every core Kubernetes resource; stream logs, exec into "
+    "pods, scan images for vulnerabilities, and visualize RBAC — across multiple "
+    "clusters at once. It also ships a webview-free terminal UI (kube-inspector-cli)."
+)
+
+# Captured from on_nav so on_post_build can emit pages in nav order/grouping.
+_NAV = None
+
+
+def on_nav(nav, config, files):
+    global _NAV
+    _NAV = nav
+    return nav
+
+
+_FRONTMATTER_RE = re.compile(r"^---\s*\n.*?\n---\s*\n", re.DOTALL)
+
+
+def _strip_frontmatter(text):
+    """Remove a leading YAML front-matter block, if present."""
+    return _FRONTMATTER_RE.sub("", text, count=1)
+
+
+def _page_source(page, config):
+    """Return a page's Markdown body (front matter stripped, changelog expanded)."""
+    try:
+        with open(page.file.abs_src_path, "r", encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError:
+        return ""
+    text = _strip_frontmatter(text)
+    # The changelog body is a build-time marker — inline the raw CHANGELOG.md so
+    # llms-full.txt carries the real release notes as plain Markdown.
+    if MARKER in text:
+        changelog = _read_changelog(config)
+        text = text.replace(MARKER, changelog.strip() if changelog else "")
+    return text.strip()
+
+
+def _first_paragraph(md):
+    """Best-effort one-line summary: first prose paragraph of a Markdown body."""
+    for raw in md.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        # Skip structural / non-prose lines.
+        if line.startswith(("#", "<", ">", "!!!", "???", "|", "-", "*", "[", "```", ":")):
+            continue
+        # Collapse inline emphasis markers and whitespace.
+        line = re.sub(r"[*_`]", "", line)
+        line = re.sub(r"\s+", " ", line).strip()
+        if len(line) > 200:
+            line = line[:197].rstrip() + "..."
+        return line
+    return ""
+
+
+def _abs_url(config, page):
+    base = (config.get("site_url") or "").rstrip("/")
+    url = page.abs_url or "/"
+    return base + url
+
+
+def _ordered_pages():
+    """Walk the captured nav → list of (section_title, page) in document order."""
+    ordered = []
+
+    def walk(items, parent):
+        for item in items:
+            if getattr(item, "is_section", False):
+                walk(item.children, item.title)
+            elif getattr(item, "is_page", False) and item.file.is_documentation_page():
+                ordered.append((parent, item))
+
+    if _NAV is not None:
+        walk(_NAV.items, None)
+    return ordered
+
+
+def _page_description(page, config):
+    """Prefer the page's `description:` front matter, else its first paragraph."""
+    desc = (page.meta or {}).get("description")
+    if desc:
+        return re.sub(r"\s+", " ", str(desc)).strip()
+    return _first_paragraph(_page_source(page, config))
+
+
+def _write_llms_txt(config, ordered):
+    """Compact, link-only index grouped by nav section (the llms.txt spec)."""
+    base = (config.get("site_url") or "").rstrip("/")
+    lines = [
+        "# Kube Inspector",
+        "",
+        f"> {config.get('site_description', '').strip()}",
+        "",
+        _LLMS_INTRO,
+        "",
+    ]
+
+    def bullet(page):
+        title = page.title or page.file.src_uri
+        desc = _page_description(page, config)
+        suffix = f": {desc}" if desc else ""
+        return f"- [{title}]({_abs_url(config, page)}){suffix}"
+
+    # Top-level (parent-less) pages are scattered through the nav order; collect
+    # them under one leading "Overview" heading instead of repeating it.
+    top_level = [p for parent, p in ordered if not parent]
+    if top_level:
+        lines.append("## Overview")
+        lines.append("")
+        lines.extend(bullet(p) for p in top_level)
+        lines.append("")
+
+    current = None
+    for section, page in ordered:
+        if not section:
+            continue
+        if section != current:
+            lines.append(f"## {section}")
+            lines.append("")
+            current = section
+        lines.append(bullet(page))
+    lines.append("")
+
+    lines.append("## Full text")
+    lines.append("")
+    lines.append(
+        f"- [Complete documentation]({base}/llms-full.txt): "
+        "every page above concatenated as a single Markdown file."
+    )
+    lines.append("")
+
+    with open(os.path.join(config["site_dir"], "llms.txt"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines))
+
+
+def _write_llms_full_txt(config, ordered):
+    """The entire docs corpus as one plain-Markdown file."""
+    base = (config.get("site_url") or "").rstrip("/")
+    parts = [
+        "# Kube Inspector — Full Documentation",
+        "",
+        f"> {config.get('site_description', '').strip()}",
+        "",
+        _LLMS_INTRO,
+        "",
+        f"Source: {base or 'https://kubeinspector.com'}",
+        "",
+    ]
+    for _, page in ordered:
+        body = _page_source(page, config)
+        if not body:
+            continue
+        title = page.title or page.file.src_uri
+        parts.append("---")
+        parts.append("")
+        parts.append(f"# {title}")
+        parts.append("")
+        parts.append(f"URL: {_abs_url(config, page)}")
+        parts.append("")
+        parts.append(body)
+        parts.append("")
+
+    with open(os.path.join(config["site_dir"], "llms-full.txt"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(parts))
+
+
+def on_post_build(config):
+    ordered = _ordered_pages()
+    if not ordered:
+        return
+    _write_llms_txt(config, ordered)
+    _write_llms_full_txt(config, ordered)

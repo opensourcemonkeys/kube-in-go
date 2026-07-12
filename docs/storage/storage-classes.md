@@ -1,3 +1,7 @@
+---
+description: View Kubernetes StorageClasses and their provisioners and parameters in Kube Inspector.
+---
+
 # Storage Classes
 
 The Storage Classes screen lists cluster-scoped `StorageClass` resources — the provisioners available for dynamic volume provisioning.

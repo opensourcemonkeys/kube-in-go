@@ -1,3 +1,7 @@
+---
+description: Manage every Kubernetes workload — Pods, Deployments, StatefulSets, ReplicaSets, DaemonSets, Jobs, and CronJobs — in Kube Inspector.
+---
+
 # Workloads
 
 The Workloads section covers all Kubernetes compute resources. Each resource type has its own screen accessible from the sidebar.

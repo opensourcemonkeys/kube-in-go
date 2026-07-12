@@ -1,3 +1,7 @@
+---
+description: View and edit Kubernetes ConfigMaps in Kube Inspector with a friendly key-value editor — no manual YAML wrangling required.
+---
+
 # ConfigMaps
 
 The ConfigMaps screen lists all `ConfigMap` resources across namespaces.

@@ -1,3 +1,7 @@
+---
+description: Kube Inspector CLI (kube-inspector-cli) is a fast, keyboard-driven terminal UI for Kubernetes — the desktop app's workflow with no WebKitGTK dependency, ideal over SSH.
+---
+
 # Kube Inspector CLI
 
 **Kube Inspector CLI** (`kube-inspector-cli`) is a terminal user interface for managing Kubernetes clusters. It brings the desktop app's workflow — a resource menu, sortable tables, YAML view/edit, deletes, live logs and pod exec — to a single, keyboard-driven terminal screen.

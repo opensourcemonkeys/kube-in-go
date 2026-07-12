@@ -1,3 +1,7 @@
+---
+description: View Kubernetes LimitRange objects and their default and min/max resource constraints per namespace in Kube Inspector.
+---
+
 # Limit Ranges
 
 The Limit Ranges screen lists `LimitRange` resources — the per-namespace defaults and bounds applied to containers and pods.

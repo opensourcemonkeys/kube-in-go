@@ -355,11 +355,21 @@ jobs:
         with:
           python-version: '3.12'
 
+      # System libraries required by the Material "social" plugin (Cairo + Pango)
+      # to render the og:image / twitter:image social cards.
+      - name: Install image libraries (Cairo/Pango) for social cards
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libfreetype6-dev libffi-dev \
+            libjpeg-dev libpng-dev libz-dev libpango1.0-dev
+
       - name: Install MkDocs Material
-        run: pip install mkdocs-material
+        run: pip install "mkdocs-material[imaging]"
 
       # The Downloads page is generated from the git tag inside `make docs-build`
       # (see the docs-downloads target), so nothing extra is needed here.
+      # CI=true (set by GitHub Actions) enables the social plugin via its
+      # `enabled: !ENV [CI, false]` gate in mkdocs.yml.
       - name: Build site
         run: make docs-build
 

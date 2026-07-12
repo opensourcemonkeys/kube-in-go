@@ -1,3 +1,7 @@
+---
+description: Explore RBAC as an interactive graph in Kube Inspector, mapping service accounts and users to roles and the resources they can access.
+---
+
 # Security Role Map
 
 The Security Role Map turns the cluster's RBAC into an interactive graph, so you can read permissions instead of cross-referencing roles and bindings by hand.

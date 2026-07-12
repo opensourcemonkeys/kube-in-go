@@ -1,3 +1,7 @@
+---
+description: List and inspect Kubernetes ServiceAccounts and their secrets in Kube Inspector.
+---
+
 # Service Accounts
 
 The Service Accounts screen lists all `ServiceAccount` resources across namespaces.

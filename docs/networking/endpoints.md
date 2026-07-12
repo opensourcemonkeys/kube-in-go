@@ -1,3 +1,7 @@
+---
+description: Inspect Kubernetes Endpoints in Kube Inspector to see which pod IPs and ports back each Service.
+---
+
 # Endpoints
 
 The Endpoints screen lists `Endpoints` resources — the actual pod addresses backing each service.

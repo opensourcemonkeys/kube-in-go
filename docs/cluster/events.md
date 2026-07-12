@@ -1,3 +1,7 @@
+---
+description: Browse, filter, and follow Kubernetes events per namespace in Kube Inspector, with a persistent event stream for every connected cluster.
+---
+
 # Events
 
 The Events screen streams cluster `Event` objects, refreshed every few seconds — the fastest way to see what Kubernetes is doing or complaining about.

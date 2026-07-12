@@ -1,3 +1,7 @@
+---
+description: View and manage Kubernetes StatefulSets and ReplicaSets — replicas, rollout, and YAML — in Kube Inspector.
+---
+
 # StatefulSets & ReplicaSets
 
 ## StatefulSets

@@ -1,3 +1,7 @@
+---
+description: View and edit Kubernetes Secrets in Kube Inspector with an automatic base64 decode/encode key-value editor.
+---
+
 # Secrets
 
 The Secrets screen lists all `Secret` resources across namespaces.

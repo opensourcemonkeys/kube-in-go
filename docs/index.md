@@ -1,10 +1,13 @@
 ---
 title: Kubernetes, in one window
+description: Kube Inspector is a free, open-source visual desktop client for Kubernetes — manage pods, deployments, RBAC, secrets and more across clusters on Windows, macOS and Linux.
 template: home.html
 hide:
   - navigation
   - toc
 ---
+
+**Kube Inspector** is a free, open-source **visual desktop client for Kubernetes** that runs on Windows, macOS, and Linux. It gives you a fast, filterable view of every core Kubernetes resource — pods, deployments, services, config maps, secrets, RBAC and more — with an inline YAML editor, a built-in kubectl terminal, live log streaming, resource monitoring, RBAC visualization, and image vulnerability scanning, all across multiple clusters at once. Prefer the terminal? The same features ship as a webview-free CLI, `kube-inspector-cli`.
 
 <div class="grid cards ki-features" markdown>
 
@@ -161,3 +164,25 @@ hide:
 - [Manage workloads](workloads/index.md) — your day-to-day resource views.
 
 </div>
+
+## Frequently asked questions
+
+### What is Kube Inspector?
+
+Kube Inspector is a free, open-source desktop application for viewing and managing Kubernetes clusters through a visual interface — a graphical alternative to running `kubectl` by hand. It runs on Windows, macOS, and Linux.
+
+### Is Kube Inspector free?
+
+Yes. Kube Inspector is free and open source.
+
+### Which platforms does it support?
+
+Native desktop builds for Windows, macOS, and Linux, plus a webview-free terminal UI (`kube-inspector-cli`) for servers and SSH sessions. See the [downloads page](downloads.md).
+
+### Does it work with any Kubernetes cluster?
+
+Yes. Kube Inspector reads your existing kubeconfig files, so it works with any conformant cluster — local (kind, minikube, k3s) or managed (EKS, GKE, AKS, and more). See [adding clusters](getting-started/cluster-setup.md).
+
+### Does Kube Inspector send my cluster data anywhere?
+
+No. It talks directly to your clusters' API servers from your machine using your kubeconfig — there is no backend service in between.

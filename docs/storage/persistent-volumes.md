@@ -1,3 +1,7 @@
+---
+description: Inspect Kubernetes PersistentVolumes — capacity, access modes, reclaim policy, and status — in Kube Inspector.
+---
+
 # Persistent Volumes
 
 The Persistent Volumes screen lists cluster-scoped `PersistentVolume` (PV) resources.

@@ -35,6 +35,20 @@ theme:
     - content.code.highlight
     - content.code.inline
 
+plugins:
+  # Adding a `plugins:` block disables the implicit default search plugin, so it
+  # must be listed explicitly.
+  - search
+  # Social/link-preview cards (og:image, twitter:image). Requires the imaging
+  # extras (Cairo + Pango) — only enabled in CI (CI=true) so a local
+  # `mkdocs serve` without those system libraries still works.
+  - social:
+      enabled: !ENV [CI, false]
+      cards_layout_options:
+        background_color: "#080b11"
+        color: "#e7eaf0"
+        font_family: Inter
+
 markdown_extensions:
   - admonition
   - pymdownx.details

@@ -1,3 +1,7 @@
+---
+description: View Kubernetes Role and ClusterRole permission rules in Kube Inspector.
+---
+
 # Roles
 
 The Roles screen lists namespaced `Role` resources and their permission rules.

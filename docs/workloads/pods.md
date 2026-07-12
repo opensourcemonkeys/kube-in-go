@@ -1,3 +1,7 @@
+---
+description: Inspect, edit YAML, stream logs, and exec into Kubernetes pods from Kube Inspector's visual desktop client.
+---
+
 # Pods
 
 The Pods screen lists all pods across all namespaces in the active cluster.

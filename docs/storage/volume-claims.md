@@ -1,3 +1,7 @@
+---
+description: Inspect Kubernetes PersistentVolumeClaims, their bound volumes, capacity, and status in Kube Inspector.
+---
+
 # Volume Claims
 
 The Volume Claims screen lists `PersistentVolumeClaim` (PVC) resources across namespaces.

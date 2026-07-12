@@ -6,6 +6,42 @@
   {% if config.extra.app_version %}
   <meta name="ki-app-version" content="{{ config.extra.app_version }}">
   {% endif %}
+
+  <!-- Structured data (JSON-LD) — helps Google rich results and gives LLM search
+       clean, machine-readable facts about the app. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "Kube Inspector",
+        "description": "{{ config.site_description }}",
+        "url": "{{ config.site_url }}",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Windows, macOS, Linux",
+        "downloadUrl": "{{ config.site_url }}downloads/",
+        "softwareHelp": "{{ config.site_url }}getting-started/installation/",
+        "screenshot": "{{ config.site_url }}assets/screenshots/pods.png",
+        "image": "{{ config.site_url }}assets/logo.png"{% if config.extra.app_version %},
+        "softwareVersion": "{{ config.extra.app_version }}"{% endif %},
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "keywords": "Kubernetes, kubectl GUI, Kubernetes desktop client, k8s dashboard, cluster management, pods, deployments, RBAC, vulnerability scan"
+      },
+      {
+        "@type": "WebSite",
+        "name": "{{ config.site_name }}",
+        "url": "{{ config.site_url }}",
+        "description": "{{ config.site_description }}"
+      }
+    ]
+  }
+  </script>
 {% endblock %}
 
 <!-- Alpha notice — full-width strip in the header, just below the navigation/menu bar. -->

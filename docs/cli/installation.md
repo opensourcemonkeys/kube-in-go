@@ -1,3 +1,7 @@
+---
+description: Install kube-inspector-cli, the webview-free Kubernetes terminal UI, on Linux, macOS, or Windows via package, binary, or from source.
+---
+
 # CLI Installation
 
 The Kube Inspector CLI (`kube-inspector-cli`) is a single self-contained binary for **Linux, macOS and Windows**. Unlike the desktop app it has **no WebKitGTK / webview dependency** — there is nothing extra to install.

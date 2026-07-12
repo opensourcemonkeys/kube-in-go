@@ -1,3 +1,7 @@
+---
+description: Inspect Kubernetes nodes in Kube Inspector — capacity, conditions, and status — and cordon or drain a node directly from the desktop app.
+---
+
 # Nodes
 
 The Nodes screen shows all nodes in the cluster as cards. Each card displays the node's health, hardware details, and live CPU/RAM usage.

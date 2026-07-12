@@ -1,3 +1,7 @@
+---
+description: Inspect Kubernetes Jobs and CronJobs, their schedules and completion status, in Kube Inspector.
+---
+
 # Jobs & CronJobs
 
 ## Jobs

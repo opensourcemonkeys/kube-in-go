@@ -1,3 +1,7 @@
+---
+description: Visualize your Kubernetes cluster as an interactive resource graph in Kube Inspector to see how objects relate.
+---
+
 # Cluster Graph
 
 The Cluster Graph provides a visual overview of the resources in your cluster and the relationships between them.

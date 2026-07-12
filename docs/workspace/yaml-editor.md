@@ -1,3 +1,7 @@
+---
+description: Edit and apply Kubernetes manifests inline with a Monaco YAML editor and schema validation in Kube Inspector.
+---
+
 # YAML Editor
 
 The YAML Editor workspace panel lets you apply arbitrary YAML to the active cluster — equivalent to running `kubectl apply -f`.

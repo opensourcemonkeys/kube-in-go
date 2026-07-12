@@ -1,3 +1,7 @@
+---
+description: Inspect Kubernetes RoleBindings and ClusterRoleBindings and the subjects they grant access to in Kube Inspector.
+---
+
 # Role Bindings
 
 The Role Bindings screen lists `RoleBinding` resources — the link between a role and the subjects that hold it.

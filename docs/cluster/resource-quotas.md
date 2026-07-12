@@ -1,3 +1,7 @@
+---
+description: See Kubernetes ResourceQuota usage per namespace as clear used-vs-limit bars in Kube Inspector.
+---
+
 # Resource Quotas
 
 The Resource Quotas screen shows all `ResourceQuota` objects grouped by namespace. Only namespaces that have at least one quota defined are shown.
