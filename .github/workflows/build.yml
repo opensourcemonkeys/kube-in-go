@@ -294,7 +294,11 @@ jobs:
           echo "Publishing site/ to s3://${R2_BUCKET}/ (preserving dist/*) ..."
           aws s3 sync site/ "s3://${R2_BUCKET}/" \
             --endpoint-url "$ENDPOINT" \
-            --delete --exclude "dist/*" --no-progress
+            --delete \
+            --exclude "dist/*" \
+            --exclude "dcount.json" \
+            --exclude "vcount.json" \
+            --no-progress
 
   # ==========================================
   # STAGE 3: END-TO-END TESTS
