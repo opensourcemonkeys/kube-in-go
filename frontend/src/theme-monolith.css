@@ -304,6 +304,45 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
   box-shadow: 0 0 0 1px rgba(63,200,180,.4), 0 2px 10px rgba(63,200,180,.35);
 }
 .tb-update:hover { filter: brightness(1.08); box-shadow: 0 0 0 1px rgba(63,200,180,.6), 0 3px 14px rgba(63,200,180,.5); }
+/* ── Exec container picker (pod list terminal button) ─────────────────────── */
+.exec-container-menu.p-menu {
+  background: var(--panel2);
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  padding: 5px;
+  min-width: 236px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .5), 0 0 0 1px rgba(0, 0, 0, .2);
+  animation: exec-menu-in .13s ease-out;
+}
+@keyframes exec-menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.exec-container-menu.p-menu .p-menu-list { padding: 0; }
+.exec-container-menu .p-submenu-header {
+  background: transparent;
+  color: var(--ink3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: 7px 11px 6px;
+  margin: 0 0 2px;
+  border-bottom: 1px solid var(--line);
+}
+.exec-container-menu .p-menuitem { margin: 1px 0; }
+.exec-container-menu .p-menuitem-link {
+  padding: 7px 11px;
+  border-radius: 8px;
+  border-left: 2px solid transparent;
+  transition: background .1s ease, border-color .1s ease;
+}
+.exec-container-menu .p-menuitem-link:hover,
+.exec-container-menu .p-menuitem.p-focus > .p-menuitem-content > .p-menuitem-link,
+.exec-container-menu .p-menuitem.p-focus > .p-menuitem-link {
+  background: color-mix(in srgb, var(--teal) 12%, var(--hover));
+  border-left-color: var(--teal);
+}
 .tb-actions { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; }
 .tb-actions .p-menubar { background: transparent; border: none; padding: 0; height: 100%; border-radius: 0; }
 .tb-actions .p-menubar .p-menubar-root-list { gap: 0; height: 100%; padding: 0; }
