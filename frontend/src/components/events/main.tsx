@@ -87,6 +87,32 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
     const [selectedEvent, setSelectedEvent] = useState<models.EventInfo | null>(null);
     const toast = useRef<Toast | null>(null);
 
+    // PrimeReact's VirtualScroller captures its viewport height once at init()
+    // time. With scrollHeight="flex" that height is purely CSS-flex-derived and
+    // the scroller only re-measures on a *window* resize whose pixel height
+    // differs — so inside a Dockview panel it often measures once (before data
+    // arrives) and the table stays empty until the window is resized. Feeding an
+    // explicit measured pixel height (via ResizeObserver, which unlike
+    // window.resize also fires on tab show / splitter drags) and remounting once
+    // a real height exists forces a correct init. Mirrors ResourceListView.
+    const tableWrapRef = useRef<HTMLDivElement>(null);
+    const [scrollHeight, setScrollHeight] = useState<string>('flex');
+    useEffect(() => {
+        if (!active) return;
+        const el = tableWrapRef.current;
+        if (!el) return;
+        let last = -1;
+        const observer = new ResizeObserver((entries) => {
+            const height = Math.round(entries[0]?.contentRect.height ?? 0);
+            // Ignore 0 (tab backgrounded/hidden) so we keep the last good height.
+            if (height === 0 || height === last) return;
+            last = height;
+            setScrollHeight(`${height}px`);
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [active, showTable]);
+
     const loadEvents = async () => {
         try {
             const items = await GetEvents(clusterName);
@@ -144,13 +170,16 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 </div>
             </div>
 
-            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div ref={tableWrapRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {!showTable ? (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <ProgressSpinner style={{ width: 40, height: 40 }} strokeWidth="4" />
                 </div>
             ) : (
             <DataTable
+                // Remount once a measured pixel height is available so the virtual
+                // scroller re-runs init() with a real viewport height (see note above).
+                key={scrollHeight === 'flex' ? 'measuring' : 'measured'}
                 value={displayedEvents}
                 dataKey="name"
                 filters={filters}
@@ -160,7 +189,7 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 showGridlines
                 resizableColumns
                 scrollable
-                scrollHeight="flex"
+                scrollHeight={scrollHeight}
                 virtualScrollerOptions={{ itemSize: 46 }}
                 emptyMessage="No events found"
                 sortField="last_timestamp"

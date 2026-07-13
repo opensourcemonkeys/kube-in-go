@@ -17,7 +17,32 @@ function toColumnArray(node: React.ReactNode): React.ReactNode {
         React.isValidElement(node) && node.type === React.Fragment
             ? (node as React.ReactElement<{ children?: React.ReactNode }>).props.children
             : node;
-    return React.Children.toArray(children);
+    // Action columns (the control-button column) are declared with an empty
+    // header and carry no `field`. They have a fixed width and must not be
+    // user-resizable. In PrimeReact's default "fit" resize mode the action
+    // column is the last one (no resizer of its own), but dragging the column
+    // *before* it steals width from it — so we tag both the action column and
+    // its left neighbour and hide both resize handles via theme CSS.
+    const arr = React.Children.toArray(children);
+    const isActionColumn = (node: React.ReactNode) => {
+        if (!React.isValidElement(node)) return false;
+        const p = node.props as { header?: React.ReactNode; field?: string };
+        return (p.header === '' || p.header == null) && !p.field;
+    };
+    const tag = new Set<number>();
+    arr.forEach((child, i) => {
+        if (isActionColumn(child)) {
+            tag.add(i);
+            if (i > 0) tag.add(i - 1);
+        }
+    });
+    return arr.map((child, i) => {
+        if (!tag.has(i) || !React.isValidElement(child)) return child;
+        const props = child.props as { headerClassName?: string };
+        return React.cloneElement(child as React.ReactElement<any>, {
+            headerClassName: [props.headerClassName, 'ktable-actions-col'].filter(Boolean).join(' '),
+        });
+    });
 }
 
 // Must match the fixed row height enforced by theme-monolith.css

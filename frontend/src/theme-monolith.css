@@ -78,6 +78,10 @@ html[data-theme="hello-kitty"] {
 }
 
 /* ── Base ────────────────────────────────────────────────────*/
+/* Smooth scrolling for every scroll container in the app. The root is
+   overflow:hidden, so the real scroll lives in nested panes (sidebar,
+   modals, DataTable bodies, dashboards …) — apply it universally. */
+* { scroll-behavior: smooth; }
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--app); color: var(--ink); font-family: var(--font-family); -webkit-font-smoothing: antialiased; }
 #root { height: 100%; overflow: hidden; background: var(--app); }
 .tnum { font-variant-numeric: tabular-nums; }
@@ -235,6 +239,8 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .p-datatable .p-sortable-column.p-highlight { background: var(--panel); color: var(--teal); }
 .p-datatable .p-column-resizer { width: 3px; background: transparent; border-right: 2px solid var(--line2); }
 .p-datatable .p-column-resizer:hover { border-right-color: var(--teal); }
+/* Control-button (action) columns have a fixed width — disable their resize handle. */
+.p-datatable th.ktable-actions-col .p-column-resizer { display: none; pointer-events: none; }
 
 /* ── Tag ─────────────────────────────────────────────────────*/
 .p-tag { border-radius: 9999px; font-size: 11px; font-weight: 500; padding: 2px 8px; border: 1px solid; }
