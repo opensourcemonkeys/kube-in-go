@@ -83,6 +83,18 @@ func podToInfo(pod corev1.Pod, rsToDeploy map[string]string, podUsage map[string
 		containers = append(containers, c.Name)
 	}
 
+	// Per-container live status: init containers first, then regular ones (kubectl order).
+	containerStatuses := make([]models.ContainerStatusInfo, 0, len(pod.Status.InitContainerStatuses)+len(pod.Status.ContainerStatuses))
+	var restarts int32
+	for _, cs := range pod.Status.InitContainerStatuses {
+		containerStatuses = append(containerStatuses, mapContainerStatus(cs, true))
+		restarts += cs.RestartCount
+	}
+	for _, cs := range pod.Status.ContainerStatuses {
+		containerStatuses = append(containerStatuses, mapContainerStatus(cs, false))
+		restarts += cs.RestartCount
+	}
+
 	ownerKind, _ := resolveOwner(pod.OwnerReferences, pod.Namespace, rsToDeploy)
 
 	cpuUsage, memUsage := int64(-1), int64(-1)
@@ -97,9 +109,11 @@ func podToInfo(pod corev1.Pod, rsToDeploy map[string]string, podUsage map[string
 	return models.PodInfo{
 		Name:       pod.Name,
 		Namespace:  pod.Namespace,
-		Status:     getPodStatus(pod),
-		Containers: containers,
-		CreatedAt:  pod.CreationTimestamp.Time.Format(time.RFC3339),
+		Status:            getPodStatus(pod),
+		Containers:        containers,
+		ContainerStatuses: containerStatuses,
+		Restarts:          restarts,
+		CreatedAt:         pod.CreationTimestamp.Time.Format(time.RFC3339),
 		PodIP:      pod.Status.PodIP,
 		OwnerKind:  ownerKind,
 		CpuMillis:  cpuUsage,
@@ -120,4 +134,26 @@ func getPodStatus(pod corev1.Pod) models.PodStatus {
 	default:
 		return models.PodStatus(pod.Status.Phase)
 	}
+}
+
+// mapContainerStatus flattens a k8s ContainerStatus into the frontend model,
+// resolving the current State ("Running"/"Waiting"/"Terminated") and its reason.
+func mapContainerStatus(cs corev1.ContainerStatus, init bool) models.ContainerStatusInfo {
+	info := models.ContainerStatusInfo{
+		Name:         cs.Name,
+		Ready:        cs.Ready,
+		RestartCount: cs.RestartCount,
+		Init:         init,
+	}
+	switch {
+	case cs.State.Running != nil:
+		info.State = "Running"
+	case cs.State.Waiting != nil:
+		info.State = "Waiting"
+		info.Reason = cs.State.Waiting.Reason
+	case cs.State.Terminated != nil:
+		info.State = "Terminated"
+		info.Reason = cs.State.Terminated.Reason
+	}
+	return info
 }

@@ -32,6 +32,15 @@ const getOwnerSeverity = (kind: string) => {
     }
 };
 
+// Per-container status dot color: green=ready, orange=running-but-not-ready,
+// grey=completed/terminated cleanly, red=waiting/error.
+const containerDotColor = (c: models.ContainerStatusInfo) => {
+    if (c.ready) return 'var(--green, #5fc98a)';
+    if (c.state === 'Terminated' && c.reason === 'Completed') return '#9ca3af';
+    if (c.state === 'Running') return 'var(--amber, #e2a85a)';
+    return 'var(--red, #e07d6e)';
+};
+
 // Live usage formatting, mirroring the Monitoring dashboard.
 // usage < 0 means metrics-server is unavailable.
 const fmtCpu = (m: number) => (m < 0 ? '—' : m >= 1000 ? `${(m / 1000).toFixed(2)} cores` : `${m} m`);
@@ -90,6 +99,24 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
                             <MultiSelect value={options.value} options={buildInOptions('pod_ip')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )}
                         />
+                    <Column header="Containers" style={{ minWidth: '7rem' }}
+                        body={(row: models.PodInfo) => {
+                            const cs = row.container_statuses || [];
+                            if (cs.length === 0) return <span style={{ opacity: 0.5 }}>—</span>;
+                            return (
+                                <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                    {cs.map((c) => (
+                                        <span key={(c.init ? 'init:' : '') + c.name}
+                                            title={`${c.init ? '[init] ' : ''}${c.name}: ${c.state || 'Unknown'}${c.reason ? ` (${c.reason})` : ''}${c.restart_count > 0 ? ` — ${c.restart_count} restart` : ''}`}
+                                            style={{ width: 10, height: 10, display: 'inline-block', borderRadius: c.init ? 2 : '50%', background: containerDotColor(c) }} />
+                                    ))}
+                                </div>
+                            );
+                        }} />
+                    <Column field="restarts" header="Restarts" sortable style={{ minWidth: '5.5rem' }}
+                        body={(row: models.PodInfo) => (
+                            <span style={{ color: row.restarts > 0 ? 'var(--amber, #e2a85a)' : 'inherit', fontWeight: row.restarts > 0 ? 600 : 400 }}>{row.restarts}</span>
+                        )} />
                     <Column header="" style={{ width: '5rem', textAlign: 'center' }}
                         body={(row: models.PodInfo) => (
                             <div style={{ display: 'flex', gap: '0.2rem', justifyContent: 'center' }}>

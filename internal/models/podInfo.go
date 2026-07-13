@@ -10,12 +10,28 @@ const (
 	PodStatusTerminating PodStatus = "Terminating"
 )
 
+// ContainerStatusInfo is one container's live status, used by the pod list's
+// per-container status dots. Covers both init and regular containers.
+type ContainerStatusInfo struct {
+	Name         string `json:"name"`
+	Ready        bool   `json:"ready"`
+	State        string `json:"state"`  // "Running" | "Waiting" | "Terminated"
+	Reason       string `json:"reason"` // e.g. CrashLoopBackOff, ImagePullBackOff, Completed
+	RestartCount int32  `json:"restart_count"`
+	Init         bool   `json:"init"` // true for init containers
+}
+
 type PodInfo struct {
 	Name       string    `json:"name"`
 	Namespace  string    `json:"namespace"`
 	Status     PodStatus `json:"status"`
 	Containers []string  `json:"containers"`
 	CreatedAt  string    `json:"created_at"`
+
+	// Per-container live status (init containers first, then regular). Empty when
+	// the pod has not been scheduled/started yet.
+	ContainerStatuses []ContainerStatusInfo `json:"container_statuses"`
+	Restarts          int32                 `json:"restarts"` // sum across all containers (init + regular)
 
 	PodIP     string `json:"pod_ip"`
 	OwnerKind string `json:"owner_kind"` // "Deployment"/"StatefulSet"/"DaemonSet"/"Job"/... ("" = bare pod)
