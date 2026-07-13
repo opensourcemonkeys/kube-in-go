@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.10.0-alpha] - 2026-07-13
+
+### Added
+- **Overview screen** — a new default workspace tab gives an at-a-glance summary of the cluster when a panel first opens, sharing the usage helpers (`lib/usage.tsx`) with the Monitoring dashboard.
+- **Multi-pod exec** — the Pods screen can now open an exec/shell session across multiple selected pods at once.
+- **Pod container status column** — the Pods table now surfaces per-container status, backed by new fields on `PodInfo` and the pod service layer.
+
+### Changed
+- **Events & resource list scrolling** — smoother scroll behavior in the Events screen and the shared `ResourceListView`.
+
+### Fixed
+- **Build fixes** — resolved build issues.
+
+---
+
 ## [v0.9.0-alpha] - 2026-07-12
 
 ### Added
