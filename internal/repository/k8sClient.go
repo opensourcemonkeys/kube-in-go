@@ -124,13 +124,13 @@ func getK8sConfig() (*rest.Config, error) {
 	}
 
 	kubeconfig := os.Getenv("KUBECONFIG")
-	if kubeconfig == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, err
-		}
-		kubeconfig = filepath.Join(home, ".kube", "config")
-	}
+	// if kubeconfig == "" {
+	// 	home, err := os.UserHomeDir()
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	kubeconfig = filepath.Join(home, ".kube", "config")
+	// }
 
 	config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
