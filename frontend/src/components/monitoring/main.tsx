@@ -12,6 +12,7 @@ import { toPng } from 'html-to-image';
 import { GetMetricsSnapshot, SaveSnapshot } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useMetricsStore, ClusterPoint, EntityPoint } from '../../stores/metricsStore';
+import { fmtCpu, fmtMem, pct, getUsageColor, UsageBarChart, CssBar } from '../../lib/usage';
 
 const POLL_MS = 4000;
 
@@ -33,23 +34,9 @@ const defaultFilters = (): DataTableFilterMeta => ({
 });
 
 // ── formatting ──────────────────────────────────────────────────────
-const fmtCpu = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(2)} cores` : `${m} m`);
-const fmtMem = (mi: number) => (mi >= 1024 ? `${(mi / 1024).toFixed(1)} GiB` : `${mi} MiB`);
 const fmtTime = (t: number) => new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-const pct = (used: number, cap: number) => (cap > 0 ? Math.min((used / cap) * 100, 100) : 0);
-const getUsageColor = (p: number) => (p < 60 ? '#5fc98a' : p < 80 ? '#e2a85a' : '#e07d6e');
 
 // ── chart options ───────────────────────────────────────────────────
-const barOptions = {
-    indexAxis: 'y' as const,
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false as const,
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: { x: { stacked: true, display: false, min: 0, max: 100 }, y: { stacked: true, display: false } },
-    events: [] as any[],
-};
-
 // Time-based x-axis fixed to [xMin, xMax] so charts always span the selected
 // window (data points are positioned by their real timestamp).
 const lineOptions = (suggestedMax?: number, xMin?: number, xMax?: number) => ({
@@ -83,22 +70,6 @@ const lineOptions = (suggestedMax?: number, xMin?: number, xMax?: number) => ({
 });
 
 // ── small reusable bits ─────────────────────────────────────────────
-function UsageBarChart({ p }: { p: number }) {
-    const color = getUsageColor(p);
-    const data = {
-        labels: [''],
-        datasets: [
-            { data: [p], backgroundColor: [color], borderRadius: 3, borderSkipped: false as const },
-            { data: [100 - p], backgroundColor: ['#252e3f'], borderRadius: 0, borderSkipped: false as const },
-        ],
-    };
-    return <div style={{ flex: 1, height: 14, minWidth: 60 }}><Chart type="bar" data={data} options={barOptions} style={{ height: 14 }} /></div>;
-}
-
-function CssBar({ p }: { p: number }) {
-    return <div className="mon-bar"><div className="mon-bar__fill" style={{ width: `${p}%`, background: getUsageColor(p) }} /></div>;
-}
-
 // A compact row list (container breakdown / member pods) with CPU+Mem bars.
 type BdRow = { id: string; label: string; sub?: string; cpu: number; mem: number; onClick?: () => void };
 function BreakdownList({ rows, cpuMax, memMax, empty }: { rows: BdRow[]; cpuMax: number; memMax: number; empty: string }) {

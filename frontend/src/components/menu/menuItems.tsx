@@ -1,5 +1,5 @@
 import React from 'react';
-import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings, VscPulse, VscListTree } from 'react-icons/vsc';
+import { VscCircleLarge, VscCopy, VscDatabase, VscDesktopDownload, VscPlay, VscCalendar, VscSync, VscGlobe, VscTypeHierarchySub, VscGitCompare, VscShield, VscBug, VscNote, VscKey, VscAccount, VscLock, VscLink, VscFolder, VscInbox, VscBriefcase, VscServer, VscBell, VscGraph, VscSettings, VscPulse, VscListTree, VscDashboard } from 'react-icons/vsc';
 
 const S = { fontSize: '0.875rem' };
 
@@ -7,6 +7,7 @@ export type NavItem = { label: string; view: string; icon: React.ReactNode };
 export type NavGroup = { key: string; label: string; items: NavItem[] };
 
 export const NAV_GROUPS: NavGroup[] = [
+
     { key: 'workloads', label: 'WORKLOADS', items: [
         { label: 'Pods',         view: 'pods',         icon: <VscCircleLarge style={S} /> },
         { label: 'Deployments',  view: 'deployments',  icon: <VscCopy style={S} /> },
@@ -40,6 +41,7 @@ export const NAV_GROUPS: NavGroup[] = [
         { label: 'Storage Classes',    view: 'storageclasses',         icon: <VscBriefcase style={S} /> },
     ]},
     { key: 'cluster', label: 'CLUSTER', items: [
+        { label: 'Overview', view: 'overview', icon: <VscDashboard style={S} /> },
         { label: 'Monitoring',      view: 'monitoring',     icon: <VscPulse style={S} /> },
         { label: 'Nodes',           view: 'nodes',          icon: <VscServer style={S} /> },
         { label: 'Namespaces',      view: 'namespaces',     icon: <VscTypeHierarchySub style={S} /> },

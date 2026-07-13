@@ -833,6 +833,21 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .mon-bar { flex: 1; height: 6px; min-width: 50px; background: #252e3f; border-radius: 3px; overflow: hidden; }
 .mon-bar__fill { height: 100%; border-radius: 3px; transition: width .25s; }
 
+/* Overview dashboard */
+.ov-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.ov-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; text-align: left; transition: border-color .12s, background .12s; }
+.ov-tile:hover { background: var(--hover); border-color: var(--teal); }
+.ov-tile__icon { color: var(--ink2); font-size: 15px; }
+.ov-tile__num { font-size: 26px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.ov-tile__label { font-size: 12px; color: var(--ink2); }
+.ov-node__head { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.ov-node__head .mon-node__name { margin-bottom: 0; flex: 1; min-width: 0; }
+.ov-node__meta { font-size: 10.5px; color: var(--ink2); margin-bottom: 6px; }
+.ov-badge { font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 10px; white-space: nowrap; }
+.ov-badge--ok { color: #5fc98a; background: rgba(95,201,138,.14); }
+.ov-badge--err { color: #e07d6e; background: rgba(224,125,110,.14); }
+.ov-badge--warn { color: #e2a85a; background: rgba(226,168,90,.14); }
+
 /* Layout: dashboard on the left, detail drawer on the right */
 .mon-layout { display: flex; gap: 14px; align-items: flex-start; }
 .mon-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }

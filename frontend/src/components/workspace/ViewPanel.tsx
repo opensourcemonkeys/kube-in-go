@@ -27,6 +27,7 @@ import RoleBindingListComponent from '../rolebinding/main';
 import SecurityRoleMap from '../security/SecurityRoleMap';
 import TrivyScanner from '../security/TrivyScanner';
 import MonitoringDashboard from '../monitoring/main';
+import OverviewDashboard from '../overview/main';
 import CrdListComponent from '../crd/main';
 
 interface ViewPanelParams {
@@ -66,6 +67,7 @@ export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanel
     if (view === 'securityrolemap') return <SecurityRoleMap clusterName={cn} />;
     if (view === 'trivy') return <TrivyScanner clusterName={cn} />;
     if (view === 'monitoring') return <MonitoringDashboard clusterName={cn} />;
+    if (view === 'overview') return <OverviewDashboard clusterName={cn} api={api} />;
     if (view === 'crds') return <CrdListComponent clusterName={cn} api={api} />;
 
     return (

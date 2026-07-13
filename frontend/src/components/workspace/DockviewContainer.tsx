@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { VscPackage } from 'react-icons/vsc';
+import { VscDashboard } from 'react-icons/vsc';
 import { DockviewReact, DockviewReadyEvent } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
 import { useTabContext } from '../../contexts/TabContext';
@@ -56,7 +56,7 @@ export default function DockviewContainer() {
     const onReady = (event: DockviewReadyEvent) => {
         registerApi(event.api);
         (event.api as any).updateOptions({ dndStrategy: 'pointer' });
-        openTab({ view: 'pods', title: 'Pods', clusterName: activeCluster, icon: <VscPackage size={16} /> });
+        openTab({ view: 'overview', title: 'Overview', clusterName: activeCluster, icon: <VscDashboard size={16} /> });
     };
 
     return (
