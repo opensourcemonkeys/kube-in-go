@@ -116,11 +116,11 @@ frontend/src/
 ├── components/
 │   ├── workspace/
 │   │   ├── DockviewContainer.tsx (panel manager, routes panel IDs to components)
-│   │   ├── FloatableTab.tsx (custom Dockview tab header — right-click to transfer panel)
+│   │   ├── FloatableTab.tsx (custom Dockview tab header — drag out or right-click to move a panel)
 │   │   ├── TabInstanceBridge.tsx (zero-render bridge: wires InstanceContext → TabContext)
 │   │   ├── ViewPanel.tsx, YamlEditorPanel.tsx, ApplyYamlPanel.tsx, etc.
 │   ├── transfer/
-│   │   └── InstancePickerMenu.tsx (portal context menu for selecting transfer target)
+│   │   └── InstancePickerMenu.tsx (portal context menu: undock / another window / another instance)
 │   ├── pod/, deployment/, networkpolicy/ (resource-specific views — thin configs over ResourceListView)
 │   ├── shared/
 │   │   └── ResourceListView.tsx (generic list shell: toolbar + DataTable + delete dialog + toast)
@@ -158,7 +158,7 @@ When adding a resource, follow this pattern (see "Adding a New Resource Type"). 
 **Registered Dockview panel types** (in `DockviewContainer.tsx`):
 `view`, `yamlEditor`, `terminal`, `applyYaml`, `logViewer`, `policyViewer`, `clusterResource`, `configMapEditor`, `secretEditor`, `podExec`, `roleEditor`, `roleBindingEditor`, `objectYaml`
 
-`FloatableTab` is registered as `defaultTabComponent` — it replaces the default Dockview tab header for all panels. Right-clicking a tab (when other instances are connected) shows `InstancePickerMenu` to transfer the panel. Panels whose component type is `terminal` or `podExec` are non-transferable.
+`FloatableTab` is registered as `defaultTabComponent` — it replaces the default Dockview tab header for all panels. A tab can be **dragged out of the window** or right-clicked for `InstancePickerMenu` (undock / another window of this process / another instance). Panels whose component type is `terminal` or `podExec` are non-transferable. See "Moving panels between windows and instances" below.
 
 **Event Streaming**: The frontend listens to Wails events for real-time updates:
 - `terminal:output:${id}` for terminal output
@@ -411,7 +411,13 @@ The CI `e2e` job spins up an ephemeral `kind` cluster, writes its kubeconfig to 
   - Exec panels: `exec:${clusterName}:${namespace}/${name}:${container}`
   - Policy viewer: `policy:${clusterName}:${namespace}/${name}`
 - **Error recovery**: Frontend gracefully handles Wails call failures and displays toasts
-- **Multi-instance tab transfer**: Right-clicking any tab (except `terminal`/`podExec`) shows a picker to send the panel to another running instance. The sender calls `TransferTab(targetId, SerializedPanel)` on the backend; the hub routes it via WebSocket; the receiver emits `tab:received` which `InstanceContext` delivers to `TabContext.openReceivedPanel`. `TabInstanceBridge` is the glue component that connects the two contexts without prop drilling. Instance names ("Instance 1", "Instance 2", ...) are assigned by the server in connection order and broadcast to all clients.
+- **Moving panels between windows and instances**: A panel can travel to another **window** of this Electron process or to another **instance** (process). Both paths serialize it identically (`SerializedPanel`: `componentType` + `title` + `params`) and both end at `TabContext.openReceivedPanel`, but they are otherwise separate — because *windows are invisible to Go*. One Electron process spawns one sidecar, which mints one `InstanceID`, so a second `BrowserWindow` is **not** a second hub instance and cannot be addressed by `TransferTab`.
+  - **Window → window** (undock, drag-out, or the menu's window entries): pure Electron IPC, `shell:undockPanel` / `shell:sendPanel` in `electron/main.cjs`, reached from React through `lib/shellWindows.ts`. The hub is not involved. An undocked window is seeded via `--kube-ins-initial-panel=<percent-encoded json>` in `additionalArguments`, which `DockviewContainer.onReady` opens instead of the Overview tab. It is percent-encoded rather than base64 because the preload is **sandboxed and has no `Buffer`** to decode with.
+  - **A moved panel's `params` must survive structured clone.** The window path goes over Electron IPC, which throws `An object could not be cloned` on anything exotic and — because both the drag-out and the undock handler are `async`/void — fails *silently*, looking exactly like a dead feature. View panels store their sidebar icon as a **React element** in `params` (`TabContext.openTab`), so `FloatableTab.serialize()` strips `icon` and JSON round-trips the rest; `openReceivedPanel` looks the icon up again by `view` from `NAV_GROUPS`. The hub path never caught this because JSON drops a React element quietly. Keep new panel params to plain data.
+  - **Instance → instance**: unchanged — `TransferTab(targetId, SerializedPanel)` → hub WebSocket → `tab:received`.
+  - **Only window 1 listens to `tab:received`** (`isPrimaryWindow()` in `InstanceContext`). `Server.Emit` broadcasts to every `/events` client, and all windows of a process share one sidecar, so without this guard one transfer opens the panel in every window at once.
+  - **Drag-out detection**: dockview runs tab drags on pointer events (`dndStrategy: 'pointer'`), so there is no `dataTransfer` to carry across a window boundary and no `setPointerCapture` (verified in `dockview-core@6.6.1`). `FloatableTab` therefore watches for a `pointerup` **outside the viewport** — which dockview ignores, having hit no drop target — and routes the panel itself. The inside/outside test uses client coords against `innerWidth/innerHeight` (window-relative, so DPI scaling and Wayland cannot skew it); *where* the pointer landed is resolved by `shell:windowAtCursor`, which reads `screen.getCursorScreenPoint()` in the **main process** for the same reason. Releasing over a sibling window moves the panel there; releasing over nothing opens a new window.
+- **Electron windows are per-`event.sender`**: `main.cjs` keeps a `windows` Map, not a single `win`. Every `ipcMain` handler resolves its window via `BrowserWindow.fromWebContents(event.sender)` — a shared global would make the second window's titlebar drive the first. Instance names ("Instance 1", "Instance 2", ...) are still assigned by the hub server in connection order and broadcast to all clients.
 - **Dockview tab insertion at index**: When opening a sub-panel (YAML, logs, exec, etc.) from within an existing panel, `positionAfter()` in `TabContext` uses `direction: 'within'` + `index: refIndex + 1` to insert the new tab immediately to the right of the source panel within the same group.
 - **`FloatableTab` component type detection**: Uses `panelId.startsWith('cluster-resource-view')` (prefix match) rather than exact equality, because cluster resource view IDs encode the cluster name (`cluster-resource-view:${clusterName}`).
 - **Module-level body helpers** (e.g., `DaemonSetActionsBody`, `NodeCard`): When a DataTable column body renderer needs `clusterName`, it must be received as an explicit prop — it cannot close over `clusterName` from the parent component since it is defined at module scope.

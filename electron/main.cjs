@@ -22,7 +22,7 @@ if (typeof electron === 'string') {
   process.exit(1);
 }
 
-const { app, BrowserWindow, dialog, shell, ipcMain, protocol, net } = electron;
+const { app, BrowserWindow, dialog, shell, ipcMain, protocol, net, screen } = electron;
 const { spawn } = require('child_process');
 const path = require('path');
 const WebSocket = require('ws');
@@ -52,10 +52,19 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 let sidecar = null;
-let win = null;
 let serverURL = null;
 let shellToken = null;
 let quitting = false;
+
+// Every window in this process shares the one sidecar, so they are a single
+// "instance" as far as internal/ipc is concerned. Moving a tab between them
+// therefore never touches the hub — it is plain main->renderer IPC, addressed
+// by the window id below. The hub is only involved when the target is another
+// *process* (see TransferTab in FloatableTab.tsx).
+const windows = new Map(); // windowId -> BrowserWindow
+let nextWindowId = 1;
+
+const PRIMARY_WINDOW_ID = 1;
 
 // Set by electron/dev.cjs to the address of the Go server it already started
 // (go run -tags kubeinsdev, pinned port). When present we attach to that one
@@ -216,7 +225,11 @@ function connectShellChannel() {
 
     const opts = req.opts || {};
     try {
-      const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      // Parent it to whichever window the user is looking at; the Go side has
+      // no notion of windows, so focus is the best signal we have.
+      const parent =
+        BrowserWindow.getFocusedWindow() ?? windows.get(PRIMARY_WINDOW_ID) ?? null;
+      const { canceled, filePath } = await dialog.showSaveDialog(parent, {
         title: opts.Title || 'Save',
         defaultPath: opts.DefaultName || undefined,
         filters: toFilters(opts),
@@ -280,13 +293,55 @@ function registerAppProtocol() {
   });
 }
 
-function createWindow() {
+// Places an undocked window near the cursor without letting it hang off the
+// display it was dropped on.
+function boundsNearCursor(width, height) {
+  const point = screen.getCursorScreenPoint();
+  const area = screen.getDisplayNearestPoint(point).workArea;
+  const clamp = (v, lo, hi) => Math.round(Math.max(lo, Math.min(v, hi)));
+  return {
+    x: clamp(point.x - Math.round(width / 3), area.x, area.x + area.width - width),
+    y: clamp(point.y - 16, area.y, area.y + area.height - height),
+  };
+}
+
+// `panel` is a SerializedPanel (internal/models/instanceModels.go) when this
+// window is being undocked from an existing one; the renderer opens it instead
+// of the default Overview tab.
+function createWindow({ panel } = {}) {
   // Dev uses the Vite server directly (its origin is already stable).
   const target = process.env.KUBE_INS_DEV_URL || `${APP_ORIGIN}/`;
 
-  win = new BrowserWindow({
-    width: 1024,
-    height: 768,
+  const id = nextWindowId++;
+  const width = 1024;
+  const height = 768;
+
+  // The renderer needs the sidecar's real address for the event WebSocket:
+  // ws:// cannot travel through the app:// handler, so that one connection is
+  // made directly and is therefore cross-origin.
+  //
+  // Not in dev: the page comes from Vite, whose dev server already proxies
+  // /events (ws: true, changeOrigin) to the Go server. Passing the address
+  // here would make wailsBridge.ts open the socket straight at the Go port
+  // with Origin: http://localhost:5173, which originAllowed rejects.
+  //
+  // The window id and seed panel are unrelated to that, so they go through in
+  // dev too — preload has no other way to learn which window it is in.
+  const args = [`--kube-ins-window-id=${id}`];
+  if (!devRPC) args.push(`--kube-ins-rpc-url=${serverURL}`);
+  if (panel) {
+    // Percent-encoded rather than base64: preload runs sandboxed, where there
+    // is no Buffer to decode it with. This keeps the argument free of spaces
+    // and quotes while staying unicode-safe.
+    args.push(
+      `--kube-ins-initial-panel=${encodeURIComponent(JSON.stringify(panel))}`,
+    );
+  }
+
+  const win = new BrowserWindow({
+    width,
+    height,
+    ...(panel ? boundsNearCursor(width, height) : {}),
     frame: false, // custom titlebar, see components/titlebar/TitleBar.tsx
     backgroundColor: '#060e20',
     show: false, // avoid a white flash before React mounts
@@ -295,24 +350,20 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      // The renderer needs the sidecar's real address for the event
-      // WebSocket: ws:// cannot travel through the app:// handler, so that one
-      // connection is made directly and is therefore cross-origin.
-      //
-      // Not in dev: the page comes from Vite, whose dev server already proxies
-      // /events (ws: true, changeOrigin) to the Go server. Passing the address
-      // here would make wailsBridge.ts open the socket straight at the Go port
-      // with Origin: http://localhost:5173, which originAllowed rejects.
-      additionalArguments: devRPC ? [] : [`--kube-ins-rpc-url=${serverURL}`],
+      additionalArguments: args,
     },
   });
 
+  windows.set(id, win);
+
   win.once('ready-to-show', () => win.show());
   win.on('closed', () => {
-    win = null;
+    windows.delete(id);
   });
 
   // Keep the app pinned to its own origin; anything else opens in the browser.
+  // Undocked windows are created through shell:undockPanel, not window.open,
+  // so denying every popup stays correct.
   const allowedOrigin = new URL(target).origin;
   win.webContents.setWindowOpenHandler(({ url }) => {
     openExternal(url);
@@ -328,12 +379,13 @@ function createWindow() {
   // Real window state, so the titlebar's restore icon cannot desync from the
   // OS (snap, double-click, keyboard shortcuts).
   const pushMaximised = () =>
-    win?.webContents.send('kube-ins:maximised', win.isMaximized());
+    win.isDestroyed() || win.webContents.send('kube-ins:maximised', win.isMaximized());
   for (const ev of ['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen']) {
     win.on(ev, pushMaximised);
   }
 
   win.loadURL(target);
+  return win;
 }
 
 function openExternal(url) {
@@ -344,13 +396,197 @@ function openExternal(url) {
   } catch {}
 }
 
+// Always act on the window the message came from. With more than one window a
+// shared global would make the second window's titlebar drive the first.
+const senderWindow = (event) => BrowserWindow.fromWebContents(event.sender);
+
 ipcMain.on('shell:openURL', (_e, url) => openExternal(url));
-ipcMain.on('shell:minimise', () => win?.minimize());
-ipcMain.on('shell:toggleMaximise', () =>
-  win?.isMaximized() ? win.unmaximize() : win?.maximize(),
-);
-ipcMain.on('shell:quit', () => app.quit());
-ipcMain.handle('shell:isMaximised', () => win?.isMaximized() ?? false);
+ipcMain.on('shell:minimise', (e) => senderWindow(e)?.minimize());
+ipcMain.on('shell:toggleMaximise', (e) => {
+  const win = senderWindow(e);
+  if (!win) return;
+  win.isMaximized() ? win.unmaximize() : win.maximize();
+});
+// Wails' Quit binding, which every window's custom titlebar X routes to. With
+// one window it ends the app, so that is what it used to call — but each
+// undocked window has the same titlebar, and app.quit() took all of them down
+// with it. Close only the sender; window-all-closed below quits once the last
+// window is gone, so single-window behaviour is unchanged.
+ipcMain.on('shell:quit', (e) => senderWindow(e)?.close());
+ipcMain.handle('shell:isMaximised', (e) => senderWindow(e)?.isMaximized() ?? false);
+
+// --- Drag ghost outside the window -----------------------------------------
+//
+// Dockview's own drag ghost is a DOM node, so the window clips it and the tab
+// appears to vanish the moment it is dragged out — exactly when the user needs
+// the feedback most. This mirrors it with a real OS-level window.
+//
+// The cursor is polled here rather than fed in from the renderer: pointer
+// delivery outside the window is not something to rely on, and main already
+// knows every window's bounds, so it can decide on its own when the pointer
+// has left the source window and the mirror should take over.
+
+const GHOST_WIDTH = 220;
+const GHOST_HEIGHT = 36;
+
+// Matches dockview's own ghost offset (see createGhost in tab.js), so the
+// mirror picks up exactly where the in-page one is clipped.
+const GHOST_OFFSET_X = 30;
+const GHOST_OFFSET_Y = -10;
+
+// A drag that never reports its end (crashed renderer, closed window) must not
+// leave a ghost pinned above every other window.
+const GHOST_MAX_MS = 30000;
+
+let dragGhost = null;
+let dragGhostTimer = null;
+// The window a cross-window drag is currently hovering, so we can tell it to
+// clear its overlay when the cursor moves on or the drag ends.
+let dragHoverWin = null;
+
+function ghostMarkup() {
+  // Inline everything: this is a data: URL with no origin to load from.
+  return `<!doctype html><meta charset="utf-8"><style>
+    html,body { margin:0; height:100%; background:transparent; overflow:hidden;
+      -webkit-user-select:none; cursor:grabbing; }
+    .tab { box-sizing:border-box; height:${GHOST_HEIGHT}px; max-width:${GHOST_WIDTH}px;
+      display:flex; align-items:center; padding:0 12px; opacity:.85;
+      font:13px/1 system-ui,-apple-system,'Segoe UI',sans-serif; color:#e7eaf0;
+      background:#0c1017; border:1px solid #252e3f; border-top:1px solid #3fc8b4;
+      border-radius:3px; box-shadow:0 4px 12px rgba(0,0,0,.4); }
+    span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  </style><div class="tab"><span></span></div>
+  <script>document.querySelector('span').textContent=decodeURIComponent(location.hash.slice(1))</script>`;
+}
+
+// Tell the currently-hovered window (if any) to drop its overlay.
+function clearDragHover() {
+  if (dragHoverWin && !dragHoverWin.isDestroyed()) {
+    dragHoverWin.webContents.send('kube-ins:dragLeave');
+  }
+  dragHoverWin = null;
+}
+
+function stopDragGhost() {
+  if (dragGhostTimer) {
+    clearInterval(dragGhostTimer);
+    dragGhostTimer = null;
+  }
+  if (dragGhost && !dragGhost.isDestroyed()) dragGhost.destroy();
+  dragGhost = null;
+  clearDragHover();
+}
+
+ipcMain.on('shell:dragGhostStart', (e, { title } = {}) => {
+  stopDragGhost(); // a previous drag that never reported its end
+  const source = senderWindow(e);
+  if (!source) return;
+
+  dragGhost = new BrowserWindow({
+    width: GHOST_WIDTH,
+    height: GHOST_HEIGHT,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    focusable: false, // taking focus mid-drag would cancel the drag
+    resizable: false,
+    movable: false,
+    hasShadow: false,
+    show: false,
+    webPreferences: { sandbox: true, contextIsolation: true },
+  });
+  dragGhost.setIgnoreMouseEvents(true);
+  // Title rides in the fragment so it is never parsed as markup.
+  dragGhost.loadURL(
+    `data:text/html;charset=utf-8,${encodeURIComponent(ghostMarkup())}#${encodeURIComponent(title ?? '')}`,
+  );
+
+  const startedAt = Date.now();
+  dragGhostTimer = setInterval(() => {
+    if (!dragGhost || dragGhost.isDestroyed() || source.isDestroyed()) return stopDragGhost();
+    if (Date.now() - startedAt > GHOST_MAX_MS) return stopDragGhost();
+
+    const point = screen.getCursorScreenPoint();
+    const b = source.getContentBounds();
+    const inside =
+      point.x >= b.x && point.x < b.x + b.width &&
+      point.y >= b.y && point.y < b.y + b.height;
+
+    // Drive the drop overlay in whichever sibling window the cursor is over.
+    // Inside the source, dockview's own overlay handles it, so target = none.
+    const hit = inside ? null : windowUnderPoint(point, source);
+    const hoverWin = hit ? hit[1] : null;
+    if (hoverWin !== dragHoverWin) {
+      clearDragHover();
+      dragHoverWin = hoverWin;
+    }
+    if (hoverWin) {
+      const hb = hoverWin.getContentBounds();
+      hoverWin.webContents.send('kube-ins:dragHover', { x: point.x - hb.x, y: point.y - hb.y });
+    }
+
+    if (inside) {
+      // Inside the source window dockview's own ghost is visible, so showing
+      // both would double up.
+      if (dragGhost.isVisible()) dragGhost.hide();
+      return;
+    }
+    dragGhost.setPosition(point.x - GHOST_OFFSET_X, point.y - GHOST_OFFSET_Y);
+    if (!dragGhost.isVisible()) dragGhost.showInactive();
+  }, 16);
+});
+
+ipcMain.on('shell:dragGhostEnd', () => stopDragGhost());
+
+// --- Tab undock / move between windows -------------------------------------
+
+ipcMain.on('shell:undockPanel', (_e, { panel } = {}) => {
+  if (panel) createWindow({ panel });
+});
+
+ipcMain.handle('shell:listWindows', (e) => {
+  const self = senderWindow(e);
+  return [...windows.entries()]
+    .filter(([, w]) => w !== self && !w.isDestroyed())
+    .map(([id, w]) => ({ id, title: w.getTitle() }));
+});
+
+// Topmost of our windows containing `point` (screen coords), excluding one.
+// Later-created windows sit on top, so search in reverse insertion order.
+function windowUnderPoint(point, exclude) {
+  return (
+    [...windows.entries()]
+      .filter(([, w]) => w !== exclude && !w.isDestroyed() && !w.isMinimized())
+      .reverse()
+      .find(([, w]) => {
+        const b = w.getContentBounds();
+        return (
+          point.x >= b.x && point.x < b.x + b.width &&
+          point.y >= b.y && point.y < b.y + b.height
+        );
+      }) ?? null
+  );
+}
+
+// Answers "which of my windows is under the mouse right now?".
+//
+// The cursor position is read here rather than taken from the renderer: the
+// drag ends outside the source window, where client coordinates no longer map
+// to anything, and screenX/screenY are unreliable across DPI scaling and
+// Wayland.
+ipcMain.handle('shell:windowAtCursor', (e) => {
+  const hit = windowUnderPoint(screen.getCursorScreenPoint(), senderWindow(e));
+  return hit ? hit[0] : null;
+});
+
+ipcMain.on('shell:sendPanel', (_e, { targetWindowId, panel } = {}) => {
+  const target = windows.get(targetWindowId);
+  if (!target || target.isDestroyed() || !panel) return;
+  target.webContents.send('kube-ins:panel', panel);
+  if (target.isMinimized()) target.restore();
+  target.focus();
+});
 
 // ---------------------------------------------------------------------------
 // Lifecycle
@@ -383,6 +619,7 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => app.quit());
 
 app.on('before-quit', (event) => {
+  stopDragGhost(); // an always-on-top window would outlive the drag otherwise
   if (quitting) return;
   event.preventDefault();
   quitting = true;

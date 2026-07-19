@@ -5,6 +5,10 @@
    --font-family and --maskbg actually propagate into it.
    ─────────────────────────────────────────────────────────── */
 :root {
+  /* Dockview tab height. Lives here, not on .dockview-theme-monolith, because
+     the drag ghost is rendered under <body> and still has to see it. */
+  --dv-tab-height: 36px;
+
   --app:   #080b11;  --panel:  #0c1017;  --panel2: #11161f;
   --panel3:#151b26;  --hover:  #151b26;  --line:   #1a212e;
   --line2: #252e3f;
@@ -290,7 +294,6 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .tb-brand { display: flex; align-items: center; gap: 8px; height: 100%; padding-right: 4px; flex-shrink: 0; }
 .tb-drag { flex: 1; height: 100%; cursor: default; }
 .tb-title { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: var(--ink); }
-.tb-instance-name { font-size: 10px; font-weight: 500; color: var(--accent, #3fc8b4); background: rgba(63,200,180,.12); border: 1px solid rgba(63,200,180,.25); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
 
 /* Window dragging under the Electron shell.
  *
@@ -313,8 +316,7 @@ html.electron-shell .tb-actions,
 html.electron-shell .tb-controls,
 html.electron-shell .tb-btn,
 html.electron-shell .tb-update,
-html.electron-shell .tb-sidebar-toggle,
-html.electron-shell .tb-instance-name { -webkit-app-region: no-drag; }
+html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 
 /* "Update available" pill in the title bar (clickable, stays out of the drag region) */
 .tb-update {
@@ -367,9 +369,17 @@ html.electron-shell .tb-instance-name { -webkit-app-region: no-drag; }
   background: color-mix(in srgb, var(--teal) 12%, var(--hover));
   border-left-color: var(--teal);
 }
-.tb-actions { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; }
+.tb-actions { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; flex-shrink: 0; }
 .tb-actions .p-menubar { background: transparent; border: none; padding: 0; height: 100%; border-radius: 0; }
-.tb-actions .p-menubar .p-menubar-root-list { gap: 0; height: 100%; padding: 0; }
+.tb-actions .p-menubar .p-menubar-root-list { gap: 0; height: 100%; padding: 0; flex-wrap: nowrap; }
+/* PrimeReact's lara theme collapses the menubar to a hamburger below a 960px
+   viewport (@media max-width:960px). The window is routinely narrower than
+   that, so neutralise it: hide the button and keep the root list an inline row
+   at every width. Higher specificity beats the media-query rules (media
+   queries add no specificity), so these need no matching @media. */
+.tb-actions .p-menubar .p-menubar-button { display: none !important; }
+.tb-actions .p-menubar .p-menubar-root-list { position: static !important; display: flex !important; width: auto !important; background: transparent !important; border: none !important; box-shadow: none !important; }
+.tb-actions .p-menubar .p-menubar-root-list > .p-menuitem { width: auto !important; position: relative !important; }
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content { border-radius: 0; }
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link { height: 36px; padding: 0 10px; gap: 0; border-radius: 0; color: var(--ink2); font-size: 12px; font-weight: 500; }
 /* lara hardcodes the text/icon color (white) — make it follow the link color so light themes (hello-kitty) stay legible */
@@ -566,7 +576,7 @@ html.electron-shell .tb-instance-name { -webkit-app-region: no-drag; }
 .dockview-theme-monolith {
   --dv-background-color:                              var(--app);
   --dv-tabs-and-actions-container-background-color:   var(--panel);
-  --dv-tabs-and-actions-container-height:             36px;
+  --dv-tabs-and-actions-container-height:             var(--dv-tab-height);
   --dv-tabs-and-actions-container-font-size:          13px;
   --dv-activegroup-hiddenpanel-tab-background-color:   var(--panel);
   --dv-activegroup-hiddenpanel-tab-color:              var(--ink2);
@@ -603,7 +613,12 @@ html.electron-shell .tb-instance-name { -webkit-app-region: no-drag; }
 .dockview-theme-monolith .dv-tabs-overflow-dropdown-default { color: var(--ink2); }
 .dockview-theme-monolith .dv-tabs-overflow-dropdown-default:hover { background-color: var(--hover); color: var(--ink); border-radius: 0; }
 .dockview-theme-monolith .dv-tab { height: var(--dv-tabs-and-actions-container-height); box-sizing: border-box; border-top: 1px solid transparent; border-right: 1px solid var(--line); }
-.dv-tab.dv-tab-ghost-drag { height: var(--dv-tabs-and-actions-container-height) !important; width: fit-content !important; max-width: 220px !important; min-width: 0 !important; overflow: hidden !important; box-shadow: 0 4px 12px rgba(0,0,0,.4) !important; }
+/* The drag ghost is a tab clone appended to <body> — outside
+   .dockview-theme-monolith — so it must not depend on a variable scoped to the
+   theme class: an unresolvable var() is invalid at computed-value time, and
+   with !important it beats the inline height dockview copies over, collapsing
+   the ghost to height:auto and leaving it far taller than the real tab. */
+.dv-tab.dv-tab-ghost-drag { height: var(--dv-tab-height) !important; width: fit-content !important; max-width: 220px !important; min-width: 0 !important; overflow: hidden !important; box-shadow: 0 4px 12px rgba(0,0,0,.4) !important; }
 .dockview-theme-monolith .dv-default-tab { display: flex; align-items: center; height: 100%; font-family: var(--font-family); font-size: 13px; padding: 0 10px 0 14px; gap: 6px; box-sizing: border-box; }
 .dockview-theme-monolith .dv-tab.dv-active-tab { border-top-color: var(--teal); }
 .dockview-theme-monolith .dv-content-container { background: var(--app); height: 100%; overflow: hidden; }

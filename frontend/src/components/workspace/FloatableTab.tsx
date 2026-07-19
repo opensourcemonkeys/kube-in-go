@@ -1,10 +1,27 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { VscClose } from 'react-icons/vsc';
 import { IDockviewPanelHeaderProps } from 'dockview';
 import { useInstanceContext } from '../../contexts/InstanceContext';
-import InstancePickerMenu from '../transfer/InstancePickerMenu';
+import InstancePickerMenu, { TabTarget } from '../transfer/InstancePickerMenu';
+import {
+    PanelPayload,
+    ShellWindow,
+    endDragGhost,
+    listWindows,
+    sendPanelToWindow,
+    startDragGhost,
+    supportsWindows,
+    undockPanel,
+    windowAtCursor,
+} from '../../lib/shellWindows';
 
+// Live PTY sessions are bound to the process that opened them, and moving a
+// panel re-creates it rather than reparenting the DOM — so these cannot travel.
 const NON_TRANSFERABLE = new Set(['terminal', 'podExec']);
+
+// How far the pointer must travel before a press counts as a drag rather than
+// a click. Matches dockview's own default threshold.
+const DRAG_THRESHOLD = 8;
 
 function getComponentType(panelId: string): string {
     if (panelId.startsWith('yaml:')) return 'yamlEditor';
@@ -17,6 +34,7 @@ function getComponentType(panelId: string): string {
     if (panelId.startsWith('secret-editor:')) return 'secretEditor';
     if (panelId.startsWith('role-editor:')) return 'roleEditor';
     if (panelId.startsWith('rolebinding-editor:')) return 'roleBindingEditor';
+    if (panelId.startsWith('object-yaml:')) return 'objectYaml';
     if (panelId.startsWith('cluster-resource-view')) return 'clusterResource';
     return 'view';
 }
@@ -24,34 +42,167 @@ function getComponentType(panelId: string): string {
 export default function FloatableTab({ api, containerApi }: IDockviewPanelHeaderProps) {
     const { instances, selfInfo, transferTab } = useInstanceContext();
     const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
+    const [siblingWindows, setSiblingWindows] = useState<ShellWindow[]>([]);
+    const tabRef = useRef<HTMLDivElement>(null);
 
     const componentType = getComponentType(api.id);
     const canTransfer = !NON_TRANSFERABLE.has(componentType);
     const otherInstances = instances.filter(i => i.id !== selfInfo?.id);
 
-    const handleContextMenu = (e: React.MouseEvent) => {
-        if (!canTransfer || otherInstances.length === 0) return;
+    const serialize = useCallback((): PanelPayload => {
+        const panel = containerApi.getPanel(api.id);
+        const panelState = (panel as any)?.toJSON?.();
+        const raw = (panel?.params ?? panelState?.params ?? {}) as Record<string, any>;
+
+        // A view panel's params carry its sidebar icon as a React element
+        // (TabContext.openTab). Electron IPC uses structured clone, which
+        // throws outright on one — silently killing both the undock and the
+        // drag-out path. The hub only tolerated it because JSON drops it.
+        // Strip it and round-trip the rest so both transports get plain data;
+        // the receiving window re-derives the icon from `view`.
+        const { icon: _icon, ...rest } = raw;
+        return {
+            componentType,
+            title: api.title ?? '',
+            params: JSON.parse(JSON.stringify(rest)),
+        };
+    }, [api, containerApi, componentType]);
+
+    // --- Drag a tab out of the window ---------------------------------------
+    //
+    // Dockview drives tab drags with pointer events (dndStrategy: 'pointer'),
+    // so there is no dataTransfer to hand across a window boundary. Instead we
+    // watch for a release *outside* this window's viewport, which dockview
+    // ignores because no drop target was hit, and route the panel ourselves.
+    //
+    // The inside/outside test uses client coordinates against innerWidth/Height
+    // — window-relative, so DPI scaling and Wayland cannot skew it. Where the
+    // pointer actually landed is resolved in the main process instead.
+    useEffect(() => {
+        if (!canTransfer || !supportsWindows()) return;
+
+        const el = tabRef.current;
+        if (!el) return;
+
+        let startX = 0;
+        let startY = 0;
+        let pointerId: number | null = null;
+        let dragging = false;
+
+        const detach = () => {
+            pointerId = null;
+            window.removeEventListener('pointermove', onPointerMove, true);
+            window.removeEventListener('pointerup', onPointerUp, true);
+            window.removeEventListener('pointercancel', onCancel, true);
+        };
+
+        // Ends the OS-level ghost AND (in main) sends the target window its
+        // final dragLeave. Must run only after any panel has been dispatched,
+        // or the target clears its overlay before the drop lands.
+        const onCancel = () => {
+            detach();
+            if (dragging) { dragging = false; endDragGhost(); }
+        };
+
+        // Once the press turns into a real drag, hand the shell an OS-level
+        // ghost. It stays hidden until the pointer leaves this window, so it
+        // simply takes over where dockview's own clipped ghost stops.
+        const onPointerMove = (e: PointerEvent) => {
+            if (e.pointerId !== pointerId || dragging) return;
+            if (Math.hypot(e.clientX - startX, e.clientY - startY) < DRAG_THRESHOLD) return;
+            dragging = true;
+            startDragGhost(api.title ?? '');
+        };
+
+        const onPointerUp = async (e: PointerEvent) => {
+            if (e.pointerId !== pointerId) return;
+            const wasDragging = dragging;
+            const movedFar = wasDragging ||
+                Math.hypot(e.clientX - startX, e.clientY - startY) >= DRAG_THRESHOLD;
+            detach();
+
+            const endGhost = () => { if (wasDragging) endDragGhost(); dragging = false; };
+
+            const outside =
+                e.clientX < 0 || e.clientY < 0 ||
+                e.clientX > window.innerWidth || e.clientY > window.innerHeight;
+            // dockview handles in-window rearranging; only an outside release is ours.
+            if (!movedFar || !outside) { endGhost(); return; }
+
+            const panel = serialize();
+            const targetWindow = await windowAtCursor();
+            if (targetWindow !== null) {
+                // Moving onto an existing window is allowed even for the last
+                // tab — it consolidates rather than spawning a window. Send the
+                // panel BEFORE ending the ghost: the target places it using the
+                // live overlay, which the ghost-end tears down.
+                sendPanelToWindow(targetWindow, panel);
+                api.close();
+            } else if (containerApi.totalPanels > 1) {
+                // Undocking the only tab would just relocate the same window,
+                // leaving nothing behind — so it is a no-op here.
+                undockPanel(panel);
+                api.close();
+            }
+            endGhost();
+        };
+
+        const onPointerDown = (e: PointerEvent) => {
+            if (e.button !== 0) return;
+            startX = e.clientX;
+            startY = e.clientY;
+            pointerId = e.pointerId;
+            window.addEventListener('pointermove', onPointerMove, true);
+            window.addEventListener('pointerup', onPointerUp, true);
+            window.addEventListener('pointercancel', onCancel, true);
+        };
+
+        el.addEventListener('pointerdown', onPointerDown);
+        return () => {
+            el.removeEventListener('pointerdown', onPointerDown);
+            onCancel();
+        };
+    }, [api, canTransfer, serialize]);
+
+    // --- Right-click menu ---------------------------------------------------
+
+    const handleContextMenu = async (e: React.MouseEvent) => {
+        if (!canTransfer) return;
         e.preventDefault();
         e.stopPropagation();
+        setSiblingWindows(await listWindows());
         setMenuPos({ x: e.clientX, y: e.clientY });
     };
 
-    const handleTransfer = async (targetId: string) => {
-        const panel = containerApi.getPanel(api.id);
-        const panelState = (panel as any)?.toJSON?.();
-        const params = panel?.params ?? panelState?.params ?? {};
-
-        await transferTab(targetId, {
-            componentType,
-            title: api.title ?? '',
-            params: params as Record<string, any>,
-        });
-
+    const handleSelect = async (target: TabTarget) => {
+        const panel = serialize();
+        switch (target.kind) {
+            case 'undock':
+                undockPanel(panel);
+                break;
+            case 'window':
+                sendPanelToWindow(target.id, panel);
+                break;
+            case 'instance':
+                await transferTab(target.id, panel as any);
+                break;
+        }
         api.close();
     };
 
+    // Undock is hidden for a lone tab: opening it in a new window would just
+    // move this window's only panel, emptying the source.
+    const canUndock = supportsWindows() && containerApi.totalPanels > 1;
+
+    const targets: TabTarget[] = [
+        ...(canUndock ? [{ kind: 'undock' } as TabTarget] : []),
+        ...siblingWindows.map(w => ({ kind: 'window' as const, id: w.id, label: `Pencere ${w.id}` })),
+        ...otherInstances.map(i => ({ kind: 'instance' as const, id: i.id, label: i.name })),
+    ];
+
     return (
         <div
+            ref={tabRef}
             onContextMenu={handleContextMenu}
             style={{
                 display: 'flex',
@@ -100,9 +251,9 @@ export default function FloatableTab({ api, containerApi }: IDockviewPanelHeader
 
             {menuPos && (
                 <InstancePickerMenu
-                    instances={otherInstances}
+                    targets={targets}
                     position={menuPos}
-                    onSelect={handleTransfer}
+                    onSelect={handleSelect}
                     onClose={() => setMenuPos(null)}
                 />
             )}

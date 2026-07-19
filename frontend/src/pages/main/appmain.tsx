@@ -12,12 +12,18 @@ import { ClusterProvider } from '../../contexts/ClusterContext';
 import { InstanceProvider } from '../../contexts/InstanceContext';
 import { appTour } from '../../lib/tourSteps';
 import TourCard from '../../components/tour/TourCard';
+import { isPrimaryWindow } from '../../lib/shellWindows';
 
 const SIDEBAR_OPEN_KEY = 'kube-sidebar-open';
 
 function Appmain() {
+    // Windows opened by undocking/dragging out a tab start with the menu
+    // collapsed — they exist to show that one panel, not to browse. Only the
+    // primary window restores (and persists) the saved preference; a secondary
+    // window shares the same origin's localStorage, so persisting its toggle
+    // would clobber the primary's choice.
     const [sidebarOpen, setSidebarOpen] = useState(() =>
-        localStorage.getItem(SIDEBAR_OPEN_KEY) !== 'false'
+        isPrimaryWindow() && localStorage.getItem(SIDEBAR_OPEN_KEY) !== 'false'
     );
     const [hovered, setHovered] = useState(false);
     const [cliMode, setCliMode] = useState(false);
@@ -25,7 +31,7 @@ function Appmain() {
 
     const toggleSidebar = () => {
         setSidebarOpen(prev => {
-            localStorage.setItem(SIDEBAR_OPEN_KEY, String(!prev));
+            if (isPrimaryWindow()) localStorage.setItem(SIDEBAR_OPEN_KEY, String(!prev));
             return !prev;
         });
     };

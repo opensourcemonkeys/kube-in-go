@@ -10,7 +10,6 @@ import {
 } from '../../../wailsjs/runtime/runtime';
 import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
-import { useInstanceContext } from '../../contexts/InstanceContext';
 import { useTabContext } from '../../contexts/TabContext';
 import { useAiChatStore } from '../../stores/aiChatStore';
 import { useThemeStore, THEMES } from '../../stores/themeStore';
@@ -30,7 +29,6 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const [maximised, setMaximised] = useState(false);
     const [aboutOpen, setAboutOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
-    const { selfInfo } = useInstanceContext();
     const { openTerminal, openApplyYaml } = useTabContext();
     const { startNextStep } = useNextStep();
     const toggleAi = useAiChatStore((s) => s.toggle);
@@ -114,12 +112,13 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                         <circle cx="12" cy="8.6" r="1.7" fill="currentColor"/>
                     </svg>
                     <span className="tb-title">KUBE INSPECTOR</span>
-                    {selfInfo && (
-                        <span className="tb-instance-name">{selfInfo.name}</span>
-                    )}
                 </div>
 
-                {/* Menu bar (left, after logo) */}
+                {/* Menu bar (left, after logo). PrimeReact 10.9.7 has no
+                    `breakpoint` prop; its theme collapses this to a hamburger
+                    below a 960px viewport. The tb-actions rules in
+                    theme-monolith.css neutralise that so the two-item bar stays
+                    horizontal at any width. */}
                 <div className="tb-actions">
                     <Menubar model={menuModel} />
                 </div>

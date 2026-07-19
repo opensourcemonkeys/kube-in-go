@@ -14,10 +14,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 // The page is served from the stable app:// origin, but the event WebSocket has
 // to reach the sidecar's real ephemeral port directly (ws:// cannot go through
 // a custom protocol handler). main.cjs passes it in via additionalArguments.
-const rpcUrlArg = process.argv.find((a) => a.startsWith('--kube-ins-rpc-url='));
+const argOf = (prefix) => {
+  const arg = process.argv.find((a) => a.startsWith(prefix));
+  return arg ? arg.slice(prefix.length) : undefined;
+};
+
+// Sandboxed preload: no Buffer here, so main.cjs percent-encodes the panel.
+const decodePanel = (encoded) => {
+  if (!encoded) return undefined;
+  try {
+    return JSON.parse(decodeURIComponent(encoded));
+  } catch {
+    return undefined;
+  }
+};
 
 contextBridge.exposeInMainWorld('__KUBE_INS_SHELL__', {
-  rpcUrl: rpcUrlArg ? rpcUrlArg.slice('--kube-ins-rpc-url='.length) : undefined,
+  rpcUrl: argOf('--kube-ins-rpc-url='),
 
   openURL: (url) => ipcRenderer.send('shell:openURL', url),
   minimise: () => ipcRenderer.send('shell:minimise'),
@@ -30,6 +43,49 @@ contextBridge.exposeInMainWorld('__KUBE_INS_SHELL__', {
     const handler = (_event, value) => cb(value);
     ipcRenderer.on('kube-ins:maximised', handler);
     return () => ipcRenderer.removeListener('kube-ins:maximised', handler);
+  },
+
+  // --- Tab undock / move between windows ---
+  //
+  // Windows of this process share one sidecar and therefore one hub instance
+  // id, so panels move between them over this channel rather than TransferTab.
+
+  // 1 is the window the app started with. It is the only one that acts on
+  // `tab:received`, because the Go side broadcasts events to every /events
+  // client and would otherwise open a transferred tab in each window at once.
+  windowId: Number(argOf('--kube-ins-window-id=') ?? 1),
+
+  // Set on a window created by dragging a tab out: opened instead of Overview.
+  initialPanel: decodePanel(argOf('--kube-ins-initial-panel=')),
+
+  // An OS-level mirror of the drag ghost, so a tab dragged past the window
+  // edge stays visible. Main tracks the cursor and shows it only outside.
+  startDragGhost: (title) => ipcRenderer.send('shell:dragGhostStart', { title }),
+  endDragGhost: () => ipcRenderer.send('shell:dragGhostEnd'),
+
+  // Cursor position of a cross-window drag hovering THIS window, forwarded by
+  // main (the window a drag started in captures all its own pointer events, so
+  // the target window can't see them). Drives the drop overlay.
+  onDragHover: (cb) => {
+    const handler = (_event, p) => cb(p.x, p.y);
+    ipcRenderer.on('kube-ins:dragHover', handler);
+    return () => ipcRenderer.removeListener('kube-ins:dragHover', handler);
+  },
+  onDragLeave: (cb) => {
+    const handler = () => cb();
+    ipcRenderer.on('kube-ins:dragLeave', handler);
+    return () => ipcRenderer.removeListener('kube-ins:dragLeave', handler);
+  },
+
+  undockPanel: (panel) => ipcRenderer.send('shell:undockPanel', { panel }),
+  listWindows: () => ipcRenderer.invoke('shell:listWindows'),
+  windowAtCursor: () => ipcRenderer.invoke('shell:windowAtCursor'),
+  sendPanel: (targetWindowId, panel) =>
+    ipcRenderer.send('shell:sendPanel', { targetWindowId, panel }),
+  onPanel: (cb) => {
+    const handler = (_event, panel) => cb(panel);
+    ipcRenderer.on('kube-ins:panel', handler);
+    return () => ipcRenderer.removeListener('kube-ins:panel', handler);
   },
 });
 

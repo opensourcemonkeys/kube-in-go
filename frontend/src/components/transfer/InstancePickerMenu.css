@@ -19,6 +19,13 @@
     border-bottom: 1px solid var(--line, #2a3550);
 }
 
+/* The menu now has up to three sections (undock / windows / instances), so a
+   header that follows items needs a rule above it, not only below. */
+.instance-picker-item + .instance-picker-header {
+    border-top: 1px solid var(--line, #2a3550);
+    margin-top: 4px;
+}
+
 .instance-picker-item {
     display: flex;
     align-items: center;

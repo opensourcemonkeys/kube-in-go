@@ -1,17 +1,36 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { VscDesktopDownload } from 'react-icons/vsc';
-import { InstanceInfo } from '../../contexts/InstanceContext';
+import { VscDesktopDownload, VscMultipleWindows, VscLinkExternal } from 'react-icons/vsc';
 import './InstancePickerMenu.css';
 
+/**
+ * Where a dragged/right-clicked tab can go.
+ *
+ * - `undock`   a new window of this process (id unused)
+ * - `window`   another window of this process — moved over Electron IPC
+ * - `instance` another running process — moved over the ipc hub (TransferTab)
+ */
+export type TabTarget =
+    | { kind: 'undock' }
+    | { kind: 'window'; id: number; label: string }
+    | { kind: 'instance'; id: string; label: string };
+
 interface Props {
-    instances: InstanceInfo[];
+    targets: TabTarget[];
     position: { x: number; y: number };
-    onSelect: (instanceId: string) => void;
+    onSelect: (target: TabTarget) => void;
     onClose: () => void;
 }
 
-export default function InstancePickerMenu({ instances, position, onSelect, onClose }: Props) {
+const ICONS = {
+    undock: VscLinkExternal,
+    window: VscMultipleWindows,
+    instance: VscDesktopDownload,
+};
+
+const keyOf = (t: TabTarget) => (t.kind === 'undock' ? 'undock' : `${t.kind}:${t.id}`);
+
+export default function InstancePickerMenu({ targets, position, onSelect, onClose }: Props) {
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -24,7 +43,24 @@ export default function InstancePickerMenu({ instances, position, onSelect, onCl
         return () => document.removeEventListener('mousedown', handleClick, true);
     }, [onClose]);
 
-    if (instances.length === 0) return null;
+    if (targets.length === 0) return null;
+
+    const windows = targets.filter(t => t.kind === 'window');
+    const instances = targets.filter(t => t.kind === 'instance');
+
+    const item = (target: TabTarget, label: string) => {
+        const Icon = ICONS[target.kind];
+        return (
+            <button
+                key={keyOf(target)}
+                className="instance-picker-item"
+                onClick={() => { onSelect(target); onClose(); }}
+            >
+                <Icon size={13} />
+                <span>{label}</span>
+            </button>
+        );
+    };
 
     return createPortal(
         <div
@@ -32,18 +68,15 @@ export default function InstancePickerMenu({ instances, position, onSelect, onCl
             ref={menuRef}
             style={{ position: 'fixed', top: position.y, left: position.x }}
         >
-            <div className="instance-picker-header">Instance'a Taşı</div>
-            {instances.map(inst => (
-                <button
-                    key={inst.id}
-                    className="instance-picker-item"
-                    onClick={() => { onSelect(inst.id); onClose(); }}
-                >
-                    <VscDesktopDownload size={13} />
-                    <span>{inst.name}</span>
-                </button>
-            ))}
+            {targets.some(t => t.kind === 'undock') &&
+                item({ kind: 'undock' }, 'Yeni pencerede aç')}
+
+            {windows.length > 0 && <div className="instance-picker-header">Pencereye Taşı</div>}
+            {windows.map(t => item(t, (t as any).label))}
+
+            {instances.length > 0 && <div className="instance-picker-header">Instance'a Taşı</div>}
+            {instances.map(t => item(t, (t as any).label))}
         </div>,
-        document.body
+        document.body,
     );
 }

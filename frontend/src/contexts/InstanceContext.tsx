@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState, useCallb
 import { EventsOn } from '../../wailsjs/runtime/runtime';
 import { GetInstances, GetSelfInstanceInfo, TransferTab } from '../../wailsjs/go/controller_app/App';
 import { models } from '../../wailsjs/go/models';
+import { isPrimaryWindow } from '../lib/shellWindows';
 
 export type InstanceInfo = models.InstanceInfo;
 export type SerializedPanel = models.SerializedPanel;
@@ -32,12 +33,22 @@ export function InstanceProvider({ children }: { children: React.ReactNode }) {
         return () => clearInterval(id);
     }, []);
 
+    // Panels arriving from another *process*, over the ipc hub.
+    //
+    // Only the primary window listens: all windows of this process share one
+    // sidecar, and the Go server broadcasts events to every /events client, so
+    // otherwise a single transfer would open the panel in each window at once.
     useEffect(() => {
+        if (!isPrimaryWindow()) return;
         const off = EventsOn('tab:received', (panel: SerializedPanel) => {
             onPanelReceivedRef.current?.(panel);
         });
         return () => { if (typeof off === 'function') off(); };
     }, []);
+
+    // Panels arriving from a sibling window of this process (Electron IPC) are
+    // handled in DockviewContainer, which can honour a cross-window drag's drop
+    // position; plain default placement would lose it.
 
     const transferTab = useCallback(async (targetInstanceId: string, panel: SerializedPanel) => {
         await TransferTab(targetInstanceId, panel);

@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useRef, useCallback } from 'react';
 import { DockviewApi } from 'dockview';
+import { NAV_GROUPS } from '../components/menu/menuItems';
+
+// A moved panel's params cannot carry its icon — it is a React element, which
+// neither structured clone nor JSON survives — so the receiving side looks it
+// up again by view (see openReceivedPanel).
+const viewIcons: Record<string, React.ReactNode> = Object.fromEntries(
+    NAV_GROUPS.flatMap(g => g.items.map(i => [i.view, i.icon])),
+);
 
 const viewLabels: Record<string, string> = {
     pods: 'Pods',
@@ -469,9 +477,17 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const p = panel.params ?? {};
         const cn: string = p.clusterName ?? '';
         switch (panel.componentType) {
-            case 'view':
-                openTab({ view: p.view ?? 'pods', title: panel.title, clusterName: cn });
+            case 'view': {
+                // openTab appends ` • ${clusterName}` itself, and the incoming
+                // title already carries it — strip it or it doubles up.
+                const suffix = ` • ${cn}`;
+                const base = cn && panel.title.endsWith(suffix)
+                    ? panel.title.slice(0, -suffix.length)
+                    : panel.title;
+                const view = p.view ?? 'pods';
+                openTab({ view, title: base, clusterName: cn, icon: viewIcons[view] });
                 break;
+            }
             case 'yamlEditor':
                 openYamlPanel({ clusterName: cn, resourceKind: p.resourceKind, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
@@ -493,6 +509,9 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             case 'roleBindingEditor':
                 openRoleBindingEditor({ clusterName: cn, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
+            case 'objectYaml':
+                openObjectYaml({ clusterName: cn, kind: p.kind, group: p.group, resource: p.resource, name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
             case 'clusterResource':
                 openClusterResourceView(cn);
                 break;
@@ -500,7 +519,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
                 openApplyYaml();
                 break;
         }
-    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openClusterResourceView, openApplyYaml]);
+    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openClusterResourceView, openApplyYaml]);
 
     return (
         <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
