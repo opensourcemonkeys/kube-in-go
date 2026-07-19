@@ -23,5 +23,5 @@ docs/downloads.md
 __pycache__
 docs/downloads.md
 
-graphify-out/cost.json        # local only
+graphify-out/cost.json
 graphify-out/cache/  
