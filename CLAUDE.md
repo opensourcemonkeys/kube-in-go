@@ -201,6 +201,8 @@ The `tview` terminal UI (`internal/tui/`) is an alternative front end that drive
 
 ## Build & Run
 
+> **`frontend/dist/.gitkeep` must stay tracked.** `main.go` embeds `frontend/dist`, and `wails generate module` parses that source to produce the TypeScript bindings — so on a fresh checkout the parse fails with `pattern all:frontend/dist: no matching files found` before `npm run build` (which needs those bindings to typecheck) has ever created the directory. The placeholder breaks that cycle. Vite empties the directory on each build, so `make electron-frontend` recreates it; keep it **empty** so builds never dirty the working tree. Note `/dist` in `.gitignore` is anchored on purpose: an unanchored `dist` also matches `frontend/dist`, and git cannot re-include a file whose parent directory is excluded.
+
 > **`GOEXPERIMENT=jsonv2` is required to compile.** The Trivy scanner library pulls in `encoding/json/v2`, which is gated behind the `jsonv2` GOEXPERIMENT on Go 1.26 (the project is on `go 1.26.3`). The `Makefile` exports it for every target (`export GOEXPERIMENT := jsonv2`) and CI sets it in the workflow `env:`. If you run bare `go build`/`go test`/`wails` outside `make`, prefix with `GOEXPERIMENT=jsonv2` or the build fails with `build constraints exclude all Go files in .../encoding/json/v2`.
 
 ### Development

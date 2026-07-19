@@ -82,9 +82,16 @@ deps:
 # `npm run build` runs tsc against it — so packaging still needs the wails CLI
 # present. The alternative is committing generated bindings, which this project
 # deliberately avoids.
+#
+# The mkdir/touch is not cosmetic: `wails generate module` parses main.go, whose
+# //go:embed all:frontend/dist needs at least one file to exist — but that
+# directory is only created by the npm build below, which in turn needs the
+# bindings. Vite empties the directory, so the placeholder is restored after.
 electron-frontend:
+	mkdir -p frontend/dist && touch frontend/dist/.gitkeep
 	wails generate module
 	cd frontend && npm run build
+	touch frontend/dist/.gitkeep
 
 electron-app: electron-frontend build-sidecar
 	cd electron && npx electron-builder --linux --publish never -c.extraMetadata.version=$(VERSION)

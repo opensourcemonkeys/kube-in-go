@@ -1,18 +1,22 @@
 build/bin
 build/electron
 node_modules
-frontend/dist
+# Build output, but .gitkeep must stay tracked: main.go embeds this directory,
+# so it has to exist in a fresh checkout before the frontend is ever built.
+frontend/dist/*
+!frontend/dist/.gitkeep
 /tui
 frontend/wailsjs/runtime
 frontend/wailsjs/go
 .claude
-dist
+# Anchored: an unanchored `dist` also matches frontend/dist, and git cannot
+# re-include a file whose parent directory is excluded — which silently defeated
+# the !frontend/dist/.gitkeep rule above.
+/dist
 site
 build/windows/*.pfx
 build/windows/*.key
 build/windows/*.crt
-build/dmg-builder/node_modules
-build/dmg-builder/package-lock.json
 e2e_tests/__pycache__/*
 report.html
 docs/version.json
