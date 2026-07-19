@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.11.0-alpha] - 2026-07-19
+
+### Breaking
+- **macOS is now Apple Silicon only.** The previous universal build supported Intel Macs; this release ships an `arm64` dmg. Intel users should stay on v0.10.0-alpha or use the [CLI](https://kubeinspector.com/cli/), which is still universal.
+- **Linux install path changed** — the app now lives in `/opt/kube-inspector` with a `/usr/bin/kube-inspector` symlink, instead of a single binary in `/usr/local/bin`. Package managers handle this on upgrade.
+
+### Changed
+- **The desktop app now ships with an embedded Chromium (Electron) instead of the system webview.** On Linux this removes the `libwebkit2gtk` dependency entirely: the packages declare **no dependencies at all**, and a single build now works on every distribution. The previous per-distro packages (`ubuntu-22.04` / `ubuntu-24.04`, `rhel9` / `rhel10`, split only because of the webkit2gtk 4.0-vs-4.1 divide) are replaced by one `linux-amd64` deb and one `linux-x86_64` rpm. Rendering is now identical on Linux, Windows and macOS, and Chrome DevTools is available.
+- **Package size** — roughly 180MB (was ~90MB), about 523MB installed. Most of that is the bundled Chromium plus the built-in Trivy vulnerability scanner.
+
+### Added
+- **Terminal-only mode is unaffected** — `kube-inspector-cli` continues to ship as a separate, webview-free package with no new dependencies.
+
+### Internal
+- The controller layer is now **shell-agnostic**: everything Wails-specific sits behind a `Transport` interface, and a loopback HTTP/WebSocket RPC server exposes the same API to any shell. The Go backend runs as a sidecar process that the shell launches; all Kubernetes work, event streaming and the embedded frontend are unchanged.
+- The Wails shell remains available for development (`make dev`, `make build`) but is no longer packaged or released.
+
+---
+
 ## [v0.10.0-alpha] - 2026-07-13
 
 ### Added

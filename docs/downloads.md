@@ -8,22 +8,21 @@ Latest installers and packages for **v__VERSION__**.
 
 Kube Inspector ships in two flavours:
 
-- **Desktop App** — the full graphical client (Wails + WebKit webview).
-- **Command-Line (CLI)** — `kube-inspector-cli`, a terminal UI with the same features, no webview required. See the [CLI docs](cli/index.md).
+- **Desktop App** — the full graphical client.
+- **Command-Line (CLI)** — `kube-inspector-cli`, a terminal UI with the same features, ideal over SSH. See the [CLI docs](cli/index.md).
+
+Both are self-contained: **no runtime dependencies to install on any platform**.
 
 ---
 
 ## Desktop App
 
-### Linux — Debian / Ubuntu (.deb)
+### Linux
 
-- **Debian / Ubuntu 22.04** — [Download](/dist/kube-inspector-__VERSION__-debian-amd64-ubuntu-22.04-amd64.deb)
-- **Debian / Ubuntu 24.04** — [Download](/dist/kube-inspector-__VERSION__-debian-amd64-ubuntu-24.04-amd64.deb)
+One package per family — there is no per-distribution variant to choose.
 
-### Linux — RHEL / Fedora (.rpm)
-
-- **RHEL 9 / Fedora** — [Download](/dist/kube-inspector-__VERSION__-rhel9-x86_64.rpm)
-- **RHEL 10 / Fedora** — [Download](/dist/kube-inspector-__VERSION__-rhel10-x86_64.rpm)
+- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-__VERSION__-linux-amd64.deb)
+- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-__VERSION__-linux-x86_64.rpm)
 
 ### Windows
 
@@ -31,13 +30,13 @@ Kube Inspector ships in two flavours:
 
 ### macOS
 
-- **macOS (Universal)** — [Download](/dist/kube-inspector-__VERSION__-macos-universal.dmg)
+- **macOS (Apple Silicon)** — [Download](/dist/kube-inspector-__VERSION__-macos-arm64.dmg)
 
 ---
 
 ## Command-Line (CLI)
 
-The CLI has **no WebKitGTK dependency** — one Linux package fits every distro. See [CLI Installation](cli/installation.md) for setup details.
+A single self-contained binary — one Linux package fits every distro. See [CLI Installation](cli/installation.md) for setup details.
 
 ### Linux
 
