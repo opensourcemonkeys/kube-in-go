@@ -55,7 +55,6 @@ Run `kube-inspector-<version>-windows-amd64.exe` and follow the installation wiz
 
 ## Requirements
 
-- A valid kubeconfig with at least one cluster configured (`~/.kube/config` or a custom path)
 - Network access to the target Kubernetes API server
 
 Kube Inspector does **not** require `kubectl` to be installed — it communicates directly with the Kubernetes API using client-go. It also needs no system browser engine, GTK or WebView runtime.
