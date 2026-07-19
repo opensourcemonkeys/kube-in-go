@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.12.0-alpha] - 2026-07-19
+
+### Added
+- **Multi-window panel management** — improved transfer and docking flows so panels can be moved more smoothly between windows and instances.
+
+### Changed
+- **Electron dev experience** — refined the Electron development workflow with improved backend/shell integration, RPC handling, and startup behavior for local development.
+- **Window/tab UX** — updated the title bar, transfer menu, and dockview tab behavior for better multi-window interactions.
+---
+
 ## [v0.11.0-alpha] - 2026-07-19
 
 ### Breaking
