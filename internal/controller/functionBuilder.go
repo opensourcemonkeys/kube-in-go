@@ -8,8 +8,6 @@ import (
 	"kube-ins/internal/ai"
 	bussiness "kube-ins/internal/business"
 	"kube-ins/internal/models"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // ============================================================================
@@ -27,10 +25,11 @@ func (a *App) CheckForUpdate() models.UpdateInfo {
 // SaveSnapshot prompts the user for a location (native Save dialog) and writes
 // the given PNG (data URL or base64). Returns the saved path, or "" if cancelled.
 func (a *App) SaveSnapshot(defaultName, dataURL string) (string, error) {
-	path, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		Title:           "Save snapshot",
-		DefaultFilename: defaultName,
-		Filters:         []runtime.FileFilter{{DisplayName: "PNG Image (*.png)", Pattern: "*.png"}},
+	path, err := a.saveFile(SaveFileOptions{
+		Title:       "Save snapshot",
+		DefaultName: defaultName,
+		FilterName:  "PNG Image (*.png)",
+		Pattern:     "*.png",
 	})
 	if err != nil || path == "" {
 		return "", err
@@ -41,10 +40,11 @@ func (a *App) SaveSnapshot(defaultName, dataURL string) (string, error) {
 // SaveReport prompts for a location and writes an HTML report to it. Returns the
 // saved path, or "" if the user cancelled.
 func (a *App) SaveReport(defaultName, content string) (string, error) {
-	path, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		Title:           "Save report",
-		DefaultFilename: defaultName,
-		Filters:         []runtime.FileFilter{{DisplayName: "HTML (*.html)", Pattern: "*.html"}},
+	path, err := a.saveFile(SaveFileOptions{
+		Title:       "Save report",
+		DefaultName: defaultName,
+		FilterName:  "HTML (*.html)",
+		Pattern:     "*.html",
 	})
 	if err != nil || path == "" {
 		return "", err
@@ -129,7 +129,7 @@ func (a *App) GetPodYaml(clusterName string, name string, namespace string) (str
 
 func (a *App) CreatePodExecSession(clusterName string, sessionId string, namespace string, podName string, container string) error {
 	return bussiness.CreatePodExecSession(clusterName, sessionId, namespace, podName, container, func(data string) {
-		runtime.EventsEmit(a.ctx, "exec:output:"+sessionId, data)
+		a.emit("exec:output:"+sessionId, data)
 	})
 }
 
@@ -371,7 +371,7 @@ func (a *App) UpdateRoleBinding(clusterName string, name string, namespace strin
 
 func (a *App) CreateTerminalSession(id string) error {
 	return bussiness.CreateTerminalSession(id, func(data string) {
-		runtime.EventsEmit(a.ctx, "terminal:output:"+id, data)
+		a.emit("terminal:output:"+id, data)
 	})
 }
 
@@ -393,8 +393,8 @@ func (a *App) CloseTerminalSession(id string) error {
 
 func (a *App) CreateCliModeSession(id string) error {
 	return bussiness.CreateCliModeSession(id,
-		func(data string) { runtime.EventsEmit(a.ctx, "climode:output:"+id, data) },
-		func() { runtime.EventsEmit(a.ctx, "climode:exit:"+id) },
+		func(data string) { a.emit("climode:output:"+id, data) },
+		func() { a.emit("climode:exit:"+id) },
 	)
 }
 
@@ -661,17 +661,17 @@ func (a *App) TrivyStartK8sScan(scanId, clusterName, namespace string) error {
 		}()
 
 		onProgress := func(phase string, current, total int, msg string) {
-			runtime.EventsEmit(a.ctx, "trivy:k8s:progress:"+scanId, models.TrivyScanProgress{
+			a.emit("trivy:k8s:progress:"+scanId, models.TrivyScanProgress{
 				Phase: phase, Current: current, Total: total, Message: msg,
 			})
 		}
 
 		result, err := bussiness.TrivyScanK8sResources(ctx, clusterName, namespace, onProgress)
 		if err != nil {
-			runtime.EventsEmit(a.ctx, "trivy:k8s:error:"+scanId, err.Error())
+			a.emit("trivy:k8s:error:"+scanId, err.Error())
 			return
 		}
-		runtime.EventsEmit(a.ctx, "trivy:k8s:done:"+scanId, result)
+		a.emit("trivy:k8s:done:"+scanId, result)
 	}()
 	return nil
 }
@@ -746,7 +746,7 @@ func (a *App) GetCronJobPods(clusterName string, name string, namespace string) 
 
 func (a *App) StartLogStream(clusterName string, sessionId string, podName string, namespace string, container string) error {
 	return bussiness.StartLogStream(clusterName, sessionId, podName, namespace, container, func(data string) {
-		runtime.EventsEmit(a.ctx, "log:output:"+sessionId, data)
+		a.emit("log:output:"+sessionId, data)
 	})
 }
 
@@ -841,16 +841,16 @@ func (a *App) PullAiModel(host, model string) error {
 			if total > 0 {
 				percent = float64(completed) / float64(total) * 100
 			}
-			runtime.EventsEmit(a.ctx, "ai:pull", map[string]any{
+			a.emit("ai:pull", map[string]any{
 				"model": model, "status": status, "total": total, "completed": completed, "percent": percent,
 			})
 		}
 
 		if err := bussiness.PullAiModel(ctx, host, model, onProgress); err != nil {
-			runtime.EventsEmit(a.ctx, "ai:pull-error", map[string]any{"model": model, "error": err.Error()})
+			a.emit("ai:pull-error", map[string]any{"model": model, "error": err.Error()})
 			return
 		}
-		runtime.EventsEmit(a.ctx, "ai:pull-done", map[string]any{"model": model})
+		a.emit("ai:pull-done", map[string]any{"model": model})
 	}()
 
 	return nil
@@ -889,14 +889,14 @@ func (a *App) StartAiChat(sessionId, host, model, clusterName, messagesJSON, con
 			cancel()
 		}()
 
-		emitToken := func(s string) { runtime.EventsEmit(a.ctx, "ai:token:"+sessionId, s) }
-		emitTool := func(ev ai.ToolEvent) { runtime.EventsEmit(a.ctx, "ai:tool:"+sessionId, ev) }
+		emitToken := func(s string) { a.emit("ai:token:"+sessionId, s) }
+		emitTool := func(ev ai.ToolEvent) { a.emit("ai:tool:"+sessionId, ev) }
 		awaitConfirm := func(id, name string, args map[string]any) bool {
 			ch := make(chan bool, 1)
 			sess.mu.Lock()
 			sess.confirms[id] = ch
 			sess.mu.Unlock()
-			runtime.EventsEmit(a.ctx, "ai:confirm:"+sessionId, map[string]any{"id": id, "name": name, "args": args})
+			a.emit("ai:confirm:"+sessionId, map[string]any{"id": id, "name": name, "args": args})
 			select {
 			case ok := <-ch:
 				return ok
@@ -906,10 +906,10 @@ func (a *App) StartAiChat(sessionId, host, model, clusterName, messagesJSON, con
 		}
 
 		if err := bussiness.RunAiChat(ctx, host, model, clusterName, messagesJSON, contextJSON, emitToken, emitTool, awaitConfirm); err != nil {
-			runtime.EventsEmit(a.ctx, "ai:error:"+sessionId, err.Error())
+			a.emit("ai:error:"+sessionId, err.Error())
 			return
 		}
-		runtime.EventsEmit(a.ctx, "ai:done:"+sessionId, "")
+		a.emit("ai:done:"+sessionId, "")
 	}()
 
 	return nil

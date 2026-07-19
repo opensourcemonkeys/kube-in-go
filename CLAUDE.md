@@ -66,6 +66,37 @@ models/
 
 8. **TUI** (`internal/tui/`): A `tview`/`tcell` terminal UI that is an alternative front end to the **same `internal/business` functions** — it imports no Wails and adds no service endpoints. `Run(ctx, version)` (`run.go`) drives a `tview.Pages` stack (cluster screen → split workspace → yaml/logs/exec overlays). Most screens show one at a time, but the **workspace** (`menu.go::showWorkspace`) is split k9s-style: the resource menu (TreeView) on the left beside the generic list (`resourcelist.go::buildResource`) on the right — pods open by default, and the **left/right arrows move focus between the two panes** (`loadResource` swaps the right-pane body). `registry.go` is the data-driven core: each resource `view` maps via a `resourceDef` to its `business.GetX`/`GetXYaml`/`UpdateXYaml`/`DeleteX` functions (+ extra `rowAction`s like node cordon/drain) — add a resource by appending one entry. Logs use `business.StartLogStream` with a `QueueUpdateDraw` callback; exec uses `app.Suspend()` to hand the raw tty to `business.CreatePodExecSession` (tview has no embedded terminal emulator), disconnect with **Ctrl-]**. Keybindings (`keys.go`) are cross-platform-safe single letters (k9s-style), shown top-right by the status bar. See "TUI / CLI Mode" below.
 
+9. **Shell transport** (`internal/controller/transport.go`, `transport_wails.go`, `rpcserver.go`): The controller is **shell-agnostic**. Everything Wails-specific (pushing events, native save dialogs) sits behind the `Transport` interface, so `functionBuilder.go` and `app.go` contain **no Wails imports** — `transport_wails.go` is the only file in the package that imports Wails. Business logic emits through `a.emit(event, data...)` and prompts through `a.saveFile(opts)` rather than calling `runtime.*` directly.
+
+   `rpcserver.go` is the second implementation: a loopback HTTP+WebSocket server that exposes the same App over `POST /rpc/{method}` (a **reflection dispatcher** — no per-method routes) and `GET /events`. It deliberately mirrors Wails' promise semantics so the generated bindings work unchanged: a trailing Go `error` return rejects, whatever remains resolves. `main.go --serve` runs it headless, which lets the whole app be exercised in a plain Chromium tab. Security: ephemeral loopback port (never fixed — 34200 belongs to the IPC hub), a per-process token injected into `index.html` (not the URL, so cross-origin pages cannot read it), and an Origin check on both `/rpc` and the WS handshake.
+
+   `shellchannel.go` is the third piece: a `GET /shell` WebSocket that a native shell's **main process** attaches to, so Go can ask it for a native save dialog (`SaveSnapshot`/`SaveReport` decide to prompt on the Go side). `Server.SaveFile` therefore has three branches — in-process `NativeDialog`, the attached shell channel, then a `~/Downloads` fallback for plain-browser mode. It goes to the main process rather than the renderer because the renderer may be reloading or crashed at exactly that moment, and because it means **no new exported `App` method** is needed (see the binding constraint below). Requests time out after 2 minutes and drop immediately if the shell disconnects.
+
+   Two constraints worth knowing before editing this area:
+   - **Wails binds every exported method of `App`** into the generated TypeScript. That is why `Bootstrap` is a package-level function and `start` is unexported — an exported method taking a `Transport` interface breaks binding generation.
+   - The dispatcher wraps calls in a `recover`. Several business functions log a client-construction error and then dereference the nil client (e.g. `business/pod.go::GetPods`); without the recover such a panic aborts the connection and leaves the frontend on a promise that never settles.
+
+10. **Electron shell** (`electron/`): A second shell that embeds Chromium instead of using the system webview, so Linux packages carry **no `libwebkit2gtk` dependency**. Wails is untouched and remains a first-class target — this is an additional shell, not a replacement. (Energy/CEF was evaluated and rejected: it compiles fine but swaps `libwebkit2gtk` for a `liblcl.so` + CEF runtime dependency, and its own window loop would have had to displace Wails.)
+
+    `main.cjs` spawns the Go binary as a **sidecar** (`--serve --shell-channel`) and parses the URL and shell token from its stdout. It does **not** load that URL directly: the window loads a fixed `app://kube-inspector` origin, and a `protocol.handle` forwards those requests to the sidecar. This is not cosmetic — the sidecar binds an ephemeral port (a fixed one would clash between instances), and browser storage is keyed by **origin**, so loading `http://127.0.0.1:<random>` made every launch look like a brand new site and silently wiped all persisted UI state (theme, events, AI chat). Two consequences: the proxy forwards only `content-type`/`x-kube-ins-token` and buffers the response — passing the renderer's own headers through made Chromium reject the proxied module scripts with `net::ERR_UNEXPECTED` — and the event WebSocket cannot travel through a custom protocol, so `preload.cjs` hands the renderer the sidecar's real address via `__KUBE_INS_SHELL__.rpcUrl` and `originAllowed` in `rpcserver.go` accepts the `app://` origin for that one cross-origin connection. The Go binary *is* the application; this shell only supplies a window and the few things a page cannot do — adding a backend feature never touches `electron/`. `preload.cjs` fills in `window.__KUBE_INS_SHELL__`, the hook `wailsBridge.ts` already reads, so `TitleBar.tsx` works unmodified with `contextIsolation`/`sandbox` on.
+
+    Lifecycle details that matter: `app.requestSingleInstanceLock()` is **deliberately not used** (multi-instance tab transfer via `internal/ipc` is a feature); shutdown goes `stdin.end()` → `SIGTERM` → `SIGKILL` after 3s; and `serve()` in `main.go` watches for **stdin EOF** so the sidecar cannot outlive an Electron process that was `SIGKILL`ed. That watchdog is skipped when stdin is a character device, so `kube-ins --serve` from a terminal or under systemd is unaffected.
+
+    **Dev mode** is gated behind the `kubeinsdev` build tag (`dev_on.go` / `dev_off.go`): it pins the port (`KUBE_INS_DEV_PORT`, default 34567) and skips the token check, because Vite serves `index.html` itself and cannot receive the injected token. The loopback bind and the **Origin check still apply** — Vite's proxy uses `changeOrigin`, so proxied requests arrive with our own origin and need no allowlist. The tag appears in no `build-*`/`pkg-*` target, only `electron-dev-go`. Three terminals: `make electron-dev-go`, `make electron-dev-vite`, `make electron-dev`.
+
+    Packaging is `make pkg-electron-{linux,windows,mac,all}`, with the Go binary as an `extraResource` and the frontend *not* duplicated (the sidecar embeds and serves it). The Linux package is named `kube-inspector-electron` so it cannot overwrite nfpm's `/usr/local/bin/kube-inspector`. macOS is per-arch on purpose — a universal dmg would embed two ~262MB Go binaries. Note `make electron-frontend` still shells out to `wails generate module`, because `npm run build` runs `tsc` against the gitignored `frontend/wailsjs` types.
+
+    **Electron is the shipped GUI. Wails is development-only and is no longer packaged** — `make dev` / `make build` still drive it for debugging against the system webview, but every `pkg-*` target and every CI release job produces the Electron build.
+
+    **The split is: electron-builder *builds*, nfpm *packages*.** on Linux electron-builder produces only the app tree (`dir`), and deb/rpm come from nfpm (`build/nfpm.yaml` — one config, package name `kube-inspector`, installed to `/opt/kube-inspector` with a `/usr/bin` symlink). electron-builder's own deb/rpm targets shell out to `dpkg`/`fakeroot`/`rpmbuild`, which do not exist on Fedora or any non-Debian machine; nfpm is pure Go and has no such dependency.
+
+    Three consequences worth knowing before touching this:
+    - electron-builder's output goes to **`build/electron/`, not `dist/`** — it holds `linux-unpacked/` (~523MB of intermediate tree), and CI does `aws s3 sync dist/` to the public bucket. **`dist/` must contain shippable artifacts only**; each `pkg-*` target copies just its finished artifact across.
+    - `chrome-sandbox` must be **setuid root** or the app aborts at startup ("SUID sandbox helper binary … not configured correctly"). nfpm refuses a second contents entry for a path its `tree` already supplied, so this is done in `build/electron-postinstall.sh`.
+    - `artifactName` is overridden because `productName` contains a space, which would be percent-encoded in the download URL.
+
+    The packages declare **no dependencies at all** — dropping `libwebkit2gtk` is the whole point. That also collapsed the release matrix: there is no longer a per-distro build (the old `build-linux-24` CI job existed solely for the webkit2gtk 4.0/4.1 split), and `build/dmg-builder/` is gone because electron-builder makes the dmg. Sizes: ~180MB deb/rpm, 523MB installed.
+
 **Key Patterns**:
 - Business functions call repository constructors each time (not singletons).
 - All resource-fetching business functions take `clusterName string` as their first parameter and call `NewK8sClientForCluster(clusterName)` so that each panel is pinned to the cluster it was opened with. The controller passes `clusterName` through from the frontend call.
@@ -97,7 +128,7 @@ frontend/src/
 │   ├── ClusterContext.tsx (manages cluster list, active cluster, connection health checks)
 │   ├── TabContext.tsx (manages dockview panel lifecycle and routing)
 │   └── InstanceContext.tsx (multi-instance discovery, panel transfer via IPC hub)
-└── lib/ (Monaco editor theme, utilities, useResourceList.ts, usePanelActive.ts)
+└── lib/ (Monaco editor theme, utilities, useResourceList.ts, usePanelActive.ts, wailsBridge.ts)
 ```
 
 **Shared resource-list scaffold**: Almost every resource view (`pod`, `deployment`, `service`, `role`, …, ~21 of them) is a thin config over two shared pieces instead of a hand-copied DataTable clone:
@@ -130,7 +161,9 @@ When adding a resource, follow this pattern (see "Adding a New Resource Type"). 
 - `log:output:${sessionId}` for pod logs
 - `tab:received` for incoming panel transfers from other instances (payload: `SerializedPanel`)
 
-These are emitted from backend functions via `runtime.EventsEmit()` in the controller.
+These are emitted from backend functions via `a.emit()` in the controller (which reaches Wails' `runtime.EventsEmit()` or the RPC server's WebSocket, depending on the shell — see "Shell transport" above).
+
+**Binding globals**: every file under `frontend/wailsjs` is a thin wrapper over two globals — `window.go.controller_app.App.<Method>()` and `window.runtime.<Fn>()`. Wails injects them; under a non-Wails shell `lib/wailsBridge.ts` installs equivalents backed by the RPC server (a `Proxy` for the ~150 methods, a reconnecting WebSocket for events). It is imported **first** in `main.tsx` and no-ops when Wails is present. Because it supplies the globals rather than replacing modules, all ~50 call sites and the generated `App.js`/`runtime.js` stay untouched — do not add a per-call abstraction layer on top. Note `EventsOn`/`EventsOnce` both delegate to `window.runtime.EventsOnMultiple`, so that is the method a shim must implement.
 
 ### Per-tab Cluster Isolation
 

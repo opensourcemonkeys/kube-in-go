@@ -45,9 +45,19 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
         return () => window.clearInterval(id);
     }, []);
 
+    // Under a shell that reports real window state (Electron), subscribe to it
+    // so the restore icon cannot desync from OS-initiated maximise/snap. Wails
+    // and the browser have no such feed and keep the optimistic toggle below.
+    const shell = (window as any).__KUBE_INS_SHELL__;
+    useEffect(() => {
+        if (!shell?.onMaximised) return;
+        shell.isMaximised().then(setMaximised);
+        return shell.onMaximised(setMaximised);
+    }, []);
+
     const handleMaximise = () => {
         WindowToggleMaximise();
-        setMaximised(m => !m);
+        if (!shell?.onMaximised) setMaximised(m => !m);
     };
 
     const menuModel: MenuItem[] = [

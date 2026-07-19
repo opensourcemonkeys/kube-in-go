@@ -1,3 +1,11 @@
+# Linux packaging for the shipped GUI, which is the Electron shell.
+#
+# electron-builder *builds* (into build/electron); nfpm *packages* (into dist/).
+# electron-builder's own deb/rpm targets shell out to dpkg/fakeroot/rpmbuild,
+# which do not exist on Fedora or any non-Debian machine; nfpm is pure Go.
+#
+# The Wails shell is a development-only alternative and is no longer packaged.
+
 # ==========================================
 # 1. PACKAGE METADATA
 # ==========================================
@@ -16,50 +24,33 @@ vendor: "hakanyorulmaz"
 # 2. PACKAGE CONTENTS
 # ==========================================
 contents:
-  # Linux binary (deb and rpm only)
-  - src: "./build/bin/kube-inspector"
-    dst: "/usr/local/bin/kube-inspector"
-    packager: deb
-    file_info:
-      mode: 0o755
+  # The whole Electron app tree: the Electron runtime, our shell scripts in
+  # app.asar, and resources/kube-inspector — the Go sidecar, which embeds and
+  # serves the frontend and does all the Kubernetes work.
+  - src: "./build/electron/linux-unpacked"
+    dst: "/opt/kube-inspector"
+    type: tree
 
-  - src: "./build/bin/kube-inspector"
-    dst: "/usr/local/bin/kube-inspector"
-    packager: rpm
-    file_info:
-      mode: 0o755
-
-  # GNOME / KDE application menu shortcut (deb and rpm only)
-  - src: "./build/kube-inspector.desktop"
-    dst: "/usr/share/applications/kube-inspector.desktop"
-    packager: deb
-    file_info:
-      mode: 0o644
+  - src: "/opt/kube-inspector/kube-inspector"
+    dst: "/usr/bin/kube-inspector"
+    type: symlink
 
   - src: "./build/kube-inspector.desktop"
     dst: "/usr/share/applications/kube-inspector.desktop"
-    packager: rpm
-    file_info:
-      mode: 0o644
-
-  # Application icon for Linux system menu (deb and rpm only)
-  - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/512x512/apps/kube-inspector.png"
-    packager: deb
     file_info:
       mode: 0o644
 
   - src: "./build/appicon.png"
     dst: "/usr/share/icons/hicolor/512x512/apps/kube-inspector.png"
-    packager: rpm
     file_info:
       mode: 0o644
 
+# chrome-sandbox must end up setuid root or the app aborts at startup. It cannot
+# be expressed in contents: nfpm rejects a second entry for a path the `tree`
+# already supplied, and a non-root build user cannot assign root ownership.
+scripts:
+  postinstall: ./build/electron-postinstall.sh
 
-overrides:
-  deb:
-    depends:
-      - "libwebkit2gtk-4.0-37 | libwebkit2gtk-4.1-0"
-  rpm:
-    depends:
-      - (webkit2gtk4.0 or webkit2gtk4.1)
+# No `depends`: Electron bundles its own Chromium. Dropping the libwebkit2gtk
+# dependency the Wails packages carried is the entire point of this shell — and
+# it is why one package now works on every distro.

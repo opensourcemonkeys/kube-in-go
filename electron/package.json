@@ -1,0 +1,20 @@
+{
+  "name": "kube-inspector",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Electron shell for Kube Inspector — hosts the Go backend as a sidecar",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:linux": "electron-builder --linux --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --publish never"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}

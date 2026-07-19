@@ -292,6 +292,30 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .tb-title { font-size: 12px; font-weight: 700; letter-spacing: .18em; color: var(--ink); }
 .tb-instance-name { font-size: 10px; font-weight: 500; color: var(--accent, #3fc8b4); background: rgba(63,200,180,.12); border: 1px solid rgba(63,200,180,.25); border-radius: 4px; padding: 1px 6px; letter-spacing: .04em; }
 
+/* Window dragging under the Electron shell.
+ *
+ * Wails uses --wails-draggable (above), a CSS custom property, which children
+ * inherit — so one rule on .tb-root covers the whole bar. -webkit-app-region is
+ * NOT inherited, so every draggable element has to be named explicitly here.
+ *
+ * Scoped to html.electron-shell (set by electron/preload.cjs) on purpose:
+ * WebView2 honours -webkit-app-region too, so an unscoped rule would switch on
+ * a second, subtly different drag mechanism in the Wails Windows build.
+ *
+ * Adding an interactive element to the titlebar? It needs an entry in BOTH the
+ * --wails-draggable rules above and the no-drag list below. */
+html.electron-shell .tb-root,
+html.electron-shell .tb-brand,
+html.electron-shell .tb-drag,
+html.electron-shell .tb-title { -webkit-app-region: drag; }
+
+html.electron-shell .tb-actions,
+html.electron-shell .tb-controls,
+html.electron-shell .tb-btn,
+html.electron-shell .tb-update,
+html.electron-shell .tb-sidebar-toggle,
+html.electron-shell .tb-instance-name { -webkit-app-region: no-drag; }
+
 /* "Update available" pill in the title bar (clickable, stays out of the drag region) */
 .tb-update {
   display: inline-flex; align-items: center; gap: 5px;

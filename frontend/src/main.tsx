@@ -1,3 +1,7 @@
+// Must come first: installs window.go / window.runtime when we are not running
+// under Wails, so the generated bindings work under a Chromium shell too.
+import './lib/wailsBridge'
+
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import './style.css'

@@ -1,0 +1,51 @@
+# The shipped GUI. The Wails shell is development-only and is not packaged.
+appId: com.kubeinspector.app
+productName: Kube Inspector
+
+directories:
+  # Build output, not release output: this holds linux-unpacked/ (~523MB of
+  # intermediate app tree) which must never reach dist/. CI does
+  # `aws s3 sync dist/` to the public bucket, so dist/ holds shippable packages
+  # only. nfpm reads the tree from here and writes the packages into dist/.
+  output: ../build/electron
+  buildResources: ../build
+
+# Only the shell scripts. The frontend bundle is embedded in the Go binary and
+# served by it, so packaging it here again would just duplicate ~7MB.
+files:
+  - main.cjs
+  - preload.cjs
+  - package.json
+
+# The Go binary IS the application. Built by `make build-sidecar` (or the
+# cross-compile inside pkg-windows / pkg-mac) into build/bin/.
+extraResources:
+  - from: ../build/bin/kube-inspector
+    to: kube-inspector
+
+compression: maximum
+
+# productName contains a space, which would end up percent-encoded in the
+# download URL. Match the naming of the nfpm packages instead.
+artifactName: ${name}-${version}-${arch}.${ext}
+
+linux:
+  executableName: kube-inspector
+  # deb/rpm are deliberately NOT built here: electron-builder shells out to
+  # dpkg/fakeroot/rpmbuild, which do not exist on Fedora or any non-Debian dev
+  # machine. `dir` produces linux-unpacked/, which build/nfpm.yaml then packages
+  # with nfpm — the same pure-Go packager the CLI uses.
+  # `dir` only: linux-unpacked/ is what nfpm packages. No AppImage.
+  target: [dir]
+  category: Development
+  icon: ../build/appicon.png
+
+win:
+  target: [nsis]
+
+mac:
+  # Deliberately NOT a universal build: the Go binary is ~262MB (Trivy), so a
+  # universal dmg would embed two of them. Ship per-arch instead.
+  target:
+    - target: dmg
+      arch: [arm64]
