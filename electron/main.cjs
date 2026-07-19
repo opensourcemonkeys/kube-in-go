@@ -57,6 +57,12 @@ let serverURL = null;
 let shellToken = null;
 let quitting = false;
 
+// Set by electron/dev.cjs to the address of the Go server it already started
+// (go run -tags kubeinsdev, pinned port). When present we attach to that one
+// instead of spawning our own — otherwise dev would run two backends, and the
+// renderer would be handed the wrong one's address.
+const devRPC = process.env.KUBE_INS_DEV_RPC || '';
+
 // Last lines of sidecar output, shown if it dies before we get a URL.
 const logTail = [];
 const rememberLog = (stream, text) => {
@@ -292,7 +298,12 @@ function createWindow() {
       // The renderer needs the sidecar's real address for the event
       // WebSocket: ws:// cannot travel through the app:// handler, so that one
       // connection is made directly and is therefore cross-origin.
-      additionalArguments: [`--kube-ins-rpc-url=${serverURL}`],
+      //
+      // Not in dev: the page comes from Vite, whose dev server already proxies
+      // /events (ws: true, changeOrigin) to the Go server. Passing the address
+      // here would make wailsBridge.ts open the socket straight at the Go port
+      // with Origin: http://localhost:5173, which originAllowed rejects.
+      additionalArguments: devRPC ? [] : [`--kube-ins-rpc-url=${serverURL}`],
     },
   });
 
@@ -349,13 +360,22 @@ ipcMain.handle('shell:isMaximised', () => win?.isMaximized() ?? false);
 // transferring tabs between them is a product feature (internal/ipc).
 
 app.whenReady().then(async () => {
-  try {
-    await startSidecar();
-  } catch (err) {
-    fatal('Kube Inspector failed to start', err.message);
-    return;
+  if (devRPC) {
+    // dev.cjs owns the Go process; we only attach. The dev build skips the
+    // token check (devShell in internal/controller/dev_on.go), so any non-empty
+    // token gets the shell channel connected — SaveSnapshot's native dialog
+    // then works in dev too. No app:// handler: the page is served by Vite.
+    serverURL = devRPC;
+    shellToken = 'dev';
+  } else {
+    try {
+      await startSidecar();
+    } catch (err) {
+      fatal('Kube Inspector failed to start', err.message);
+      return;
+    }
+    registerAppProtocol();
   }
-  registerAppProtocol();
   connectShellChannel();
   createWindow();
 });

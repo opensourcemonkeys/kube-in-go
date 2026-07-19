@@ -15,3 +15,7 @@ const devShell = false
 // port; never hardcode one, it would clash with internal/ipc's hub (34200) and
 // break multi-instance usage.
 func devListenAddr() string { return "127.0.0.1:0" }
+
+// devOriginAllowed grants no extra origins in a release build: only the
+// server's own address and the native shell's app:// scheme are accepted.
+func devOriginAllowed(string) bool { return false }

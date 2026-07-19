@@ -391,7 +391,10 @@ func (s *Server) originAllowed(r *http.Request) bool {
 	if origin == "" {
 		return true // non-browser client (native shell's main process)
 	}
-	return origin == "http://"+s.ln.Addr().String() || origin == shellOrigin
+	if origin == "http://"+s.ln.Addr().String() || origin == shellOrigin {
+		return true
+	}
+	return devOriginAllowed(origin)
 }
 
 // assetHandler serves the built frontend, injecting the RPC token into

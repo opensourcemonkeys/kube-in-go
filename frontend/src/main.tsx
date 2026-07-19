@@ -13,6 +13,7 @@ import Info from './pages/info/Info'
 
 const container = document.getElementById('root')
 
+
 const root = createRoot(container!)
 import { HashRouter, Routes, Route } from "react-router-dom";
 import "primereact/resources/themes/lara-dark-cyan/theme.css";

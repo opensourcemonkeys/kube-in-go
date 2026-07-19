@@ -13,10 +13,10 @@ DIST    := ./dist
 # 4.0 (Ubuntu 24.04+, Fedora 40+), build with: make build-linux WAILS_TAGS=webkit2_41
 TAGS    := $(if $(WAILS_TAGS),-tags "$(WAILS_TAGS)",)
 
-# ── Wails shell: development only ───────────────────────────────────────────
-# The shipped GUI is the Electron shell (see the pkg-* targets). These stay for
-# developing and debugging against the system webview; they produce no release
-# artifact and nothing here is used by CI.
+# ── Wails shell: debugging only ─────────────────────────────────────────────
+# The shipped GUI is the Electron shell, and so is `make dev`. These stay for
+# debugging against the system webview; they produce no release artifact and
+# nothing here is used by CI.
 build:
 	wails build $(TAGS) -ldflags "$(LDFLAGS)"
 
@@ -29,7 +29,7 @@ build-windows:
 build-mac:
 	wails build -platform darwin/universal -ldflags "$(LDFLAGS)"
 
-dev:
+dev-wails:
 	wails dev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'"
 
 # Hızlı TUI geliştirme: webview-free CLI'yi doğrudan çalıştırır. Vite tarzı hot
@@ -135,10 +135,28 @@ pkg-tui-rpm: build-tui-linux
 
 pkg-all: pkg-linux pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm
 
-# ── Electron dev loop (three terminals) ─────────────────────────────────────
-# Only `electron-dev-go` passes the kubeinsdev tag, which relaxes the token
-# check and pins the port — it appears in no build-* or pkg-* target, so it
-# cannot reach a release binary.
+# ── Electron dev loop ───────────────────────────────────────────────────────
+# `make dev` is the one you want: electron/dev.cjs starts the Go backend, Vite
+# and Electron together and tears all three down on Ctrl-C. Development runs on
+# the same shell that ships, so what you see is what users get.
+#
+# Only the dev path passes the kubeinsdev tag, which relaxes the token check and
+# pins the port — it appears in no build-* or pkg-* target, so it cannot reach a
+# release binary.
+dev: bindings
+	VERSION=$(VERSION) node electron/dev.cjs
+
+# frontend/wailsjs is generated and gitignored, and the frontend imports from
+# it. `wails dev` regenerates it on every run; the Electron loop does not, so
+# create it once when missing. The mkdir/touch is the same dance as
+# electron-frontend: `wails generate module` parses main.go, whose
+# //go:embed all:frontend/dist needs at least one file to exist.
+bindings:
+	@test -d frontend/wailsjs || ( \
+		mkdir -p frontend/dist && touch frontend/dist/.gitkeep && \
+		wails generate module )
+
+# The three pieces on their own, for debugging one of them in isolation.
 electron-dev-go:
 	go run -tags kubeinsdev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'" . --serve --shell-channel
 electron-dev-vite:
@@ -152,7 +170,7 @@ clean:
 	rm -rf ./build/bin ./build/electron ./dist
 
 test-e2e:
-	@echo "⚠  Make sure 'make dev' is running in another terminal (http://localhost:34115)."
+	@echo "⚠  Make sure 'make dev-wails' is running in another terminal (http://localhost:34115)."
 	cd e2e_tests && pip install -q -r requirements.txt && \
 		pytest -v --html=../report.html --self-contained-html
 
@@ -175,4 +193,4 @@ docs-serve: docs-downloads
 docs-build: docs-downloads
 	mkdocs build --clean --strict
 
-.PHONY: build build-linux build-windows build-mac dev dev-tui build-tui build-tui-linux build-tui-windows build-tui-mac deps build-sidecar electron-frontend electron-app electron-dev-go electron-dev-vite electron-dev pkg-deb pkg-rpm pkg-linux pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm pkg-all clean test-e2e docs-downloads docs-serve docs-build
+.PHONY: build build-linux build-windows build-mac dev dev-wails bindings dev-tui build-tui build-tui-linux build-tui-windows build-tui-mac deps build-sidecar electron-frontend electron-app electron-dev-go electron-dev-vite electron-dev pkg-deb pkg-rpm pkg-linux pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm pkg-all clean test-e2e docs-downloads docs-serve docs-build

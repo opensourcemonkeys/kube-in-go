@@ -8,7 +8,6 @@ frontend/dist/*
 /tui
 frontend/wailsjs/runtime
 frontend/wailsjs/go
-.claude
 # Anchored: an unanchored `dist` also matches frontend/dist, and git cannot
 # re-include a file whose parent directory is excluded — which silently defeated
 # the !frontend/dist/.gitkeep rule above.
@@ -23,3 +22,6 @@ docs/version.json
 docs/downloads.md
 __pycache__
 docs/downloads.md
+
+graphify-out/cost.json        # local only
+graphify-out/cache/  

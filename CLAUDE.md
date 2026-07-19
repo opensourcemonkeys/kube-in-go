@@ -82,7 +82,11 @@ models/
 
     Lifecycle details that matter: `app.requestSingleInstanceLock()` is **deliberately not used** (multi-instance tab transfer via `internal/ipc` is a feature); shutdown goes `stdin.end()` → `SIGTERM` → `SIGKILL` after 3s; and `serve()` in `main.go` watches for **stdin EOF** so the sidecar cannot outlive an Electron process that was `SIGKILL`ed. That watchdog is skipped when stdin is a character device, so `kube-ins --serve` from a terminal or under systemd is unaffected.
 
-    **Dev mode** is gated behind the `kubeinsdev` build tag (`dev_on.go` / `dev_off.go`): it pins the port (`KUBE_INS_DEV_PORT`, default 34567) and skips the token check, because Vite serves `index.html` itself and cannot receive the injected token. The loopback bind and the **Origin check still apply** — Vite's proxy uses `changeOrigin`, so proxied requests arrive with our own origin and need no allowlist. The tag appears in no `build-*`/`pkg-*` target, only `electron-dev-go`. Three terminals: `make electron-dev-go`, `make electron-dev-vite`, `make electron-dev`.
+    **Dev mode** is `make dev` — one command. `electron/dev.cjs` starts the Go backend (`go run -tags kubeinsdev`), Vite and Electron, waits for each to print its address, and tears all three down together on Ctrl-C (POSIX: `detached` + `kill(-pid)`, because `go run` execs the real binary as a child and signalling only `go run` leaves the port held). `make electron-dev-go` / `-vite` / `electron-dev` still exist for debugging one piece alone, and `make dev-wails` runs the old Wails/webview loop. `make bindings` generates the gitignored `frontend/wailsjs` when missing — `wails dev` used to do that implicitly.
+
+    Three relaxations are gated behind the `kubeinsdev` build tag (`dev_on.go` / `dev_off.go`), which appears in no `build-*`/`pkg-*` target: the port is pinned (`KUBE_INS_DEV_PORT`, default 34567) so `vite.config.ts` can proxy to it; the token check is skipped, because Vite serves `index.html` itself and cannot receive the injected token; and `devOriginAllowed` accepts loopback http origins. That third one is **not optional** — the page is served by Vite, so requests carry `Origin: http://localhost:5173`, and the proxy's `changeOrigin` does not help because it rewrites *Host*, not *Origin*. Without it every RPC call and the `/events` socket from a Vite-served page 403s. The loopback bind still applies in dev, so nothing off the machine can reach the server whatever Origin it claims.
+
+    Under `make dev` Electron **does not spawn a sidecar**: `KUBE_INS_DEV_RPC` tells `main.cjs` to attach to the one `dev.cjs` already started (otherwise dev ran two backends, the second being a stale release binary from `build/bin/`). It also omits the `--kube-ins-rpc-url` argument in that mode, so `wailsBridge.ts` opens `/events` at `location.host` and lets Vite proxy it — pointing the socket straight at the Go port would fail the Origin check for the *page's* origin.
 
     Packaging is `make pkg-electron-{linux,windows,mac,all}`, with the Go binary as an `extraResource` and the frontend *not* duplicated (the sidecar embeds and serves it). The Linux package is named `kube-inspector-electron` so it cannot overwrite nfpm's `/usr/local/bin/kube-inspector`. macOS is per-arch on purpose — a universal dmg would embed two ~262MB Go binaries. Note `make electron-frontend` still shells out to `wails generate module`, because `npm run build` runs `tsc` against the gitignored `frontend/wailsjs` types.
 
@@ -411,3 +415,13 @@ The CI `e2e` job spins up an ephemeral `kind` cluster, writes its kubeconfig to 
 - **Dockview tab insertion at index**: When opening a sub-panel (YAML, logs, exec, etc.) from within an existing panel, `positionAfter()` in `TabContext` uses `direction: 'within'` + `index: refIndex + 1` to insert the new tab immediately to the right of the source panel within the same group.
 - **`FloatableTab` component type detection**: Uses `panelId.startsWith('cluster-resource-view')` (prefix match) rather than exact equality, because cluster resource view IDs encode the cluster name (`cluster-resource-view:${clusterName}`).
 - **Module-level body helpers** (e.g., `DaemonSetActionsBody`, `NodeCard`): When a DataTable column body renderer needs `clusterName`, it must be received as an explicit prop — it cannot close over `clusterName` from the parent component since it is defined at module scope.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
