@@ -84,34 +84,6 @@ export default function DockviewContainer() {
         return () => { offHover?.(); offLeave?.(); offPanel?.(); };
     }, [openReceivedPanel]);
 
-    // Wheel over the tab strip scrolls it horizontally, so a mouse with only a
-    // vertical wheel can still page through many tabs. Dockview ships its own
-    // handler for this, but it proved unreliable here; owning it in the capture
-    // phase and stopping propagation guarantees the behaviour without letting
-    // dockview's also run (which would double the scroll). Scoped strictly to
-    // `.dv-tabs-container`, and it bows out at the edges so the gesture can
-    // still reach the page.
-    const rootRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        const root = rootRef.current;
-        if (!root) return;
-        const onWheel = (e: WheelEvent) => {
-            const strip = (e.target as HTMLElement).closest?.('.dv-tabs-container') as HTMLElement | null;
-            if (!strip) return;
-            const max = strip.scrollWidth - strip.clientWidth;
-            if (max <= 0) return;
-            // Whichever axis the user turned — tilt wheel or plain vertical.
-            const delta = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-            const next = Math.max(0, Math.min(max, strip.scrollLeft + delta));
-            if (next === strip.scrollLeft) return; // at the edge: let it bubble
-            strip.scrollLeft = next;
-            e.preventDefault();
-            e.stopPropagation();
-        };
-        root.addEventListener('wheel', onWheel, { capture: true, passive: false });
-        return () => root.removeEventListener('wheel', onWheel, { capture: true } as any);
-    }, []);
-
     // Dockview adds `.dv-tab-ghost-drag` to DOM when a tab drag starts (pointer mode).
     // We toggle `body.dv-dragging` so CSS can apply `user-select: none !important`
     // across all elements, preventing text highlight-scanning during drag.
@@ -146,20 +118,16 @@ export default function DockviewContainer() {
     };
 
     return (
-        // display:contents so the wheel-listener host adds no box of its own —
-        // it only needs to sit in the DOM event path above the tab strips.
-        <div ref={rootRef} style={{ display: 'contents' }}>
-            <DockviewReact
-                className="dockview-theme-monolith"
-                // Prevent dockview from adding `dockview-theme-abyss` (its default) to the
-                // inner dv-shell element, which would set --dv-separator-border to a blue color.
-                theme={{ name: 'monolith', className: 'dockview-theme-monolith' } as any}
-                components={components}
-                defaultTabComponent={FloatableTab}
-                floatingGroupBounds="boundedWithinViewport"
-                onReady={onReady}
-                onDidDrop={placeDrop}
-            />
-        </div>
+        <DockviewReact
+            className="dockview-theme-monolith"
+            // Prevent dockview from adding `dockview-theme-abyss` (its default) to the
+            // inner dv-shell element, which would set --dv-separator-border to a blue color.
+            theme={{ name: 'monolith', className: 'dockview-theme-monolith' } as any}
+            components={components}
+            defaultTabComponent={FloatableTab}
+            floatingGroupBounds="boundedWithinViewport"
+            onReady={onReady}
+            onDidDrop={placeDrop}
+        />
     );
 }

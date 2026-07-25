@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"kube-ins/internal/business"
 )
@@ -83,6 +84,30 @@ func dash(s string) string {
 	return s
 }
 
+// humanSince renders a compact age string (e.g. "5d", "3h", "12m") from an
+// RFC3339 timestamp, matching internal/services/crdServices.go::humanAge so
+// GUI and TUI agree. Empty or unparsable input yields "-".
+func humanSince(iso string) string {
+	if strings.TrimSpace(iso) == "" {
+		return "-"
+	}
+	t, err := time.Parse(time.RFC3339, iso)
+	if err != nil {
+		return "-"
+	}
+	d := time.Since(t)
+	switch {
+	case d < time.Minute:
+		return fmt.Sprintf("%ds", int(d.Seconds()))
+	case d < time.Hour:
+		return fmt.Sprintf("%dm", int(d.Minutes()))
+	case d < 24*time.Hour:
+		return fmt.Sprintf("%dh", int(d.Hours()))
+	default:
+		return fmt.Sprintf("%dd", int(d.Hours()/24))
+	}
+}
+
 // buildRegistry returns the menu groups (mirroring the GUI NAV_GROUPS) and a
 // lookup of view -> resourceDef. "monitoring" and "applyyaml" are menu-only
 // views dispatched to bespoke panes by loadResource (no registry entry); the
@@ -91,12 +116,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 	defs := []*resourceDef{
 		{
 			view: "pods", title: "Pods", namespaced: true, isPods: true,
-			headers: []string{"NAMESPACE", "NAME", "STATUS", "CONTAINERS", "AGE"},
+			headers: []string{"NAMESPACE", "NAME", "STATUS", "CONTAINERS", "AGE", "LAST RESTART"},
 			list: func(c string) ([]rowData, error) {
 				var rows []rowData
 				for _, p := range business.GetPods(c) {
 					rows = append(rows, rowData{name: p.Name, namespace: p.Namespace,
-						cells: []string{p.Namespace, p.Name, string(p.Status), iN(len(p.Containers)), dash(p.CreatedAt)}})
+						cells: []string{p.Namespace, p.Name, string(p.Status), iN(len(p.Containers)), humanSince(p.CreatedAt), humanSince(p.LastRestartAt)}})
 				}
 				return rows, nil
 			},

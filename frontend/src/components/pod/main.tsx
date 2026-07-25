@@ -13,6 +13,7 @@ import { GetPods, DeletePod } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { humanAge, absTime } from '../../lib/time';
 
 const getStatusSeverity = (status: string) => {
     switch (status) {
@@ -143,6 +144,15 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
                     <Column field="restarts" header="Restarts" sortable style={{ minWidth: '5.5rem' }}
                         body={(row: models.PodInfo) => (
                             <span style={{ color: row.restarts > 0 ? 'var(--amber, #e2a85a)' : 'inherit', fontWeight: row.restarts > 0 ? 600 : 400 }}>{row.restarts}</span>
+                        )} />
+                    <Column field="created_at" header="Age" sortable style={{ minWidth: '5rem' }}
+                        body={(row: models.PodInfo) => <span title={absTime(row.created_at)}>{humanAge(row.created_at)}</span>} />
+                    <Column field="last_restart_at" header="Last Restart" sortable style={{ minWidth: '7.5rem' }}
+                        body={(row: models.PodInfo) => (
+                            <span title={absTime(row.last_restart_at)}
+                                style={{ color: row.last_restart_at ? 'var(--amber, #e2a85a)' : undefined, opacity: row.last_restart_at ? 1 : 0.5 }}>
+                                {humanAge(row.last_restart_at)}
+                            </span>
                         )} />
                     <Column header="" style={{ width: '5rem', textAlign: 'center' }}
                         body={(row: models.PodInfo) => (

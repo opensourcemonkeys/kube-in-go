@@ -86,6 +86,13 @@ html[data-theme="hello-kitty"] {
    overflow:hidden, so the real scroll lives in nested panes (sidebar,
    modals, DataTable bodies, dashboards …) — apply it universally. */
 * { scroll-behavior: smooth; }
+/* …except dockview's tab strip. Its custom scrollbar re-asserts scrollLeft on
+   every scroll frame; against a smooth animation that re-assertion lands mid-
+   flight and cancels it, so wheel-scrolling the tabs did nothing. `auto` lets
+   each scrollLeft write apply instantly, which is what dockview's own wheel
+   handler relies on. (Verified: with smooth a wheel moved the strip 0px, with
+   auto it moved the full delta.) */
+.dv-tabs-container, .dv-scrollable { scroll-behavior: auto; }
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--app); color: var(--ink); font-family: var(--font-family); -webkit-font-smoothing: antialiased; }
 #root { height: 100%; overflow: hidden; background: var(--app); }
 .tnum { font-variant-numeric: tabular-nums; }

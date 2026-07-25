@@ -86,13 +86,18 @@ func podToInfo(pod corev1.Pod, rsToDeploy map[string]string, podUsage map[string
 	// Per-container live status: init containers first, then regular ones (kubectl order).
 	containerStatuses := make([]models.ContainerStatusInfo, 0, len(pod.Status.InitContainerStatuses)+len(pod.Status.ContainerStatuses))
 	var restarts int32
+	var lastRestartAt time.Time
 	for _, cs := range pod.Status.InitContainerStatuses {
-		containerStatuses = append(containerStatuses, mapContainerStatus(cs, true))
+		info := mapContainerStatus(cs, true)
+		containerStatuses = append(containerStatuses, info)
 		restarts += cs.RestartCount
+		lastRestartAt = latestRestart(lastRestartAt, info.LastRestartAt)
 	}
 	for _, cs := range pod.Status.ContainerStatuses {
-		containerStatuses = append(containerStatuses, mapContainerStatus(cs, false))
+		info := mapContainerStatus(cs, false)
+		containerStatuses = append(containerStatuses, info)
 		restarts += cs.RestartCount
+		lastRestartAt = latestRestart(lastRestartAt, info.LastRestartAt)
 	}
 
 	ownerKind, _ := resolveOwner(pod.OwnerReferences, pod.Namespace, rsToDeploy)
@@ -106,6 +111,11 @@ func podToInfo(pod corev1.Pod, rsToDeploy map[string]string, podUsage map[string
 		}
 	}
 
+	lastRestartAtStr := ""
+	if !lastRestartAt.IsZero() {
+		lastRestartAtStr = lastRestartAt.Format(time.RFC3339)
+	}
+
 	return models.PodInfo{
 		Name:       pod.Name,
 		Namespace:  pod.Namespace,
@@ -113,12 +123,26 @@ func podToInfo(pod corev1.Pod, rsToDeploy map[string]string, podUsage map[string
 		Containers:        containers,
 		ContainerStatuses: containerStatuses,
 		Restarts:          restarts,
+		LastRestartAt:     lastRestartAtStr,
 		CreatedAt:         pod.CreationTimestamp.Time.Format(time.RFC3339),
 		PodIP:      pod.Status.PodIP,
 		OwnerKind:  ownerKind,
 		CpuMillis:  cpuUsage,
 		MemMi:      memUsage,
 	}
+}
+
+// latestRestart returns the later of the running max and a container's
+// LastRestartAt (RFC3339, "" if the container never restarted).
+func latestRestart(max time.Time, candidate string) time.Time {
+	if candidate == "" {
+		return max
+	}
+	t, err := time.Parse(time.RFC3339, candidate)
+	if err != nil || t.Before(max) {
+		return max
+	}
+	return t
 }
 
 func getPodStatus(pod corev1.Pod) models.PodStatus {
@@ -154,6 +178,15 @@ func mapContainerStatus(cs corev1.ContainerStatus, init bool) models.ContainerSt
 	case cs.State.Terminated != nil:
 		info.State = "Terminated"
 		info.Reason = cs.State.Terminated.Reason
+	}
+
+	switch {
+	case cs.LastTerminationState.Terminated != nil:
+		info.LastRestartAt = cs.LastTerminationState.Terminated.FinishedAt.Time.Format(time.RFC3339)
+	case cs.RestartCount > 0 && cs.State.Running != nil:
+		// kubelet can drop LastTerminationState after a while; the current
+		// container's start time is still a reasonable stand-in.
+		info.LastRestartAt = cs.State.Running.StartedAt.Time.Format(time.RFC3339)
 	}
 	return info
 }
