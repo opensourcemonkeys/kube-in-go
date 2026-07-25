@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.13.0-alpha] - 2026-07-25
+
+### Added
+- **Pod age and last restart** — the Pods screen gained two columns: **Age** (kubectl-style relative time since creation) and **Last Restart** (when a container in the pod last restarted, highlighted when it has). Hovering either shows the exact local timestamp. Last-restart time is read from the container's last termination state, falling back to the current container's start time when the kubelet has already dropped that state. Both columns are also in the CLI's pod list, using the same formatting so the desktop app and terminal UI agree.
+- **Middle-click to close a tab** — clicking a workspace tab with the middle mouse button closes it. The close fires on release over the tab, so pressing and dragging away leaves the tab open.
+
+### Fixed
+- **Resource tables now follow their panel's height** — table rows stayed pinned to the size a panel had when it first opened, so resizing or maximizing a tab left empty space below the rows. The virtual scroller no longer latches its initial height, and the row count now follows the panel as it resizes.
+- **Wheel-scrolling the tab strip** — with many tabs open, scrolling over the tab bar did nothing. The global smooth-scroll behaviour was cancelling dockview's own scrolling mid-flight; the tab strip is now excluded from it and scrolls normally again.
+
+---
+
 ## [v0.12.0-alpha] - 2026-07-19
 
 ### Added
