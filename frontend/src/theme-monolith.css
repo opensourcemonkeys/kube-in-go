@@ -253,6 +253,25 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 /* Control-button (action) columns have a fixed width — disable their resize handle. */
 .p-datatable th.ktable-actions-col .p-column-resizer { display: none; pointer-events: none; }
 
+/* Resource-list tables must track their Dockview panel's height.
+   PrimeReact's VirtualScroller latches the height it measured at its first init
+   (`defaultHeight`) and never refreshes it on its own. DataTable renders it with
+   `autoSize` while passing it `scrollHeight: undefined` whenever the table is given
+   a *pixel* scrollHeight, so `calculateAutoSize` falls back to that stale value
+   (`props.scrollHeight || defaultHeight`) and imperatively rewrites the element's
+   inline height on every re-render. That silently overwrote the height React had
+   just set, pinning the table to the size its panel had when it first opened while
+   every layer above it resized correctly.
+   Driving the height from CSS breaks the cycle — `!important` is the only thing that
+   outranks an inline style. Once the element's real height can change, the scroller's
+   own resize handler re-measures, refreshes `defaultHeight` and re-inits itself, so
+   the row count follows too and no remount (which would flicker) is needed.
+   Scoped to .ktable-fill so fixed-height tables (e.g. the monitoring dashboard's
+   scrollHeight="340px") keep their explicit size. */
+.ktable-fill > .p-datatable { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.ktable-fill > .p-datatable > .p-datatable-wrapper { flex: 1; min-height: 0; }
+.ktable-fill > .p-datatable > .p-datatable-wrapper > .p-virtualscroller { height: 100% !important; }
+
 /* ── Tag ─────────────────────────────────────────────────────*/
 .p-tag { border-radius: 9999px; font-size: 11px; font-weight: 500; padding: 2px 8px; border: 1px solid; }
 .p-tag.p-tag-success  { background: rgba(95,201,138,.12); color: var(--green); border-color: rgba(95,201,138,.3); }

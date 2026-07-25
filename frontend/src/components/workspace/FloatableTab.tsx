@@ -164,6 +164,25 @@ export default function FloatableTab({ api, containerApi }: IDockviewPanelHeader
         };
     }, [api, canTransfer, serialize]);
 
+    // --- Middle-click close -------------------------------------------------
+    //
+    // The close fires on auxclick (a completed press+release on the tab), not
+    // mousedown, so dragging away after a middle press does not close it.
+    // mousedown still needs preventDefault to suppress Chromium's autoscroll.
+
+    const handleAuxDown = (e: React.MouseEvent) => {
+        if (e.button !== 1) return;
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleAuxClick = (e: React.MouseEvent) => {
+        if (e.button !== 1) return;
+        e.preventDefault();
+        e.stopPropagation();
+        api.close();
+    };
+
     // --- Right-click menu ---------------------------------------------------
 
     const handleContextMenu = async (e: React.MouseEvent) => {
@@ -204,6 +223,8 @@ export default function FloatableTab({ api, containerApi }: IDockviewPanelHeader
         <div
             ref={tabRef}
             onContextMenu={handleContextMenu}
+            onMouseDown={handleAuxDown}
+            onAuxClick={handleAuxClick}
             style={{
                 display: 'flex',
                 alignItems: 'center',

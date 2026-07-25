@@ -191,7 +191,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                 </div>
             </div>
 
-            <div ref={tableWrapRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div ref={tableWrapRef} className="ktable-fill" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <DataTable
                     // The virtual scroller captures its viewport height once at init time.
                     // When a panel is auto-opened during app launch, that init can run before
@@ -200,6 +200,8 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     // once a measured pixel height is available forces a fresh init with the
                     // correct height, after which normal value updates render rows. (Manually
                     // opened panels already mount into a settled layout, so they never hit this.)
+                    // This flips exactly once — keying it to the live height would remount on
+                    // every resize, which reads as a visible flicker.
                     key={scrollHeight === 'flex' ? 'measuring' : 'measured'}
                     value={items}
                     dataKey={dataKey}
