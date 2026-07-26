@@ -8,29 +8,53 @@ import { GetIngresses, DeleteIngress } from '../../../wailsjs/go/controller_app/
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { ARRAY_IN } from '../../lib/tableFilters';
 
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
     namespace:  { value: null, matchMode: FilterMatchMode.IN },
     class_name: { value: null, matchMode: FilterMatchMode.IN },
+    address:    { value: null, matchMode: FilterMatchMode.IN },
+    // Hosts/Paths satırda düz bir alan değil, `rules` içinden türetiliyor —
+    // filtre satırdaki sentetik dizilere bakar (bkz. createFrom).
+    _hosts:     { value: null, matchMode: ARRAY_IN },
+    _paths:     { value: null, matchMode: ARRAY_IN },
 };
 
-const formatHosts = (rules: models.IngressRuleInfo[]): string => {
-    if (!rules || rules.length === 0) return '*';
-    return rules.map(r => r.host || '*').join(', ');
+const hostsOf = (rules: models.IngressRuleInfo[]): string[] => {
+    if (!rules || rules.length === 0) return ['*'];
+    return rules.map(r => r.host || '*');
 };
 
-const formatPaths = (rules: models.IngressRuleInfo[]): string => {
-    if (!rules || rules.length === 0) return '-';
-    const paths: string[] = [];
-    for (const r of rules) {
-        if (r.paths && r.paths.length > 0) {
-            for (const p of r.paths) {
-                paths.push(r.host ? `${r.host}${p}` : p);
-            }
-        }
+/** Hücrede gösterilen, host önekli path etiketleri (`example.com/api`). */
+const pathLabelsOf = (rules: models.IngressRuleInfo[]): string[] => {
+    const labels: string[] = [];
+    for (const r of rules ?? []) {
+        for (const p of r.paths ?? []) labels.push(r.host ? `${r.host}${p}` : p);
     }
-    return paths.length > 0 ? paths.join(', ') : '-';
+    return labels;
+};
+
+/**
+ * Filtre seçenekleri host öneki olmadan ham path (`/api`) — açılır liste
+ * böylece kısa ve gerçekten gruplanabilir kalır, host'a göre süzmek için
+ * zaten ayrı bir Hosts filtresi var.
+ */
+const pathsOf = (rules: models.IngressRuleInfo[]): string[] => {
+    const paths: string[] = [];
+    for (const r of rules ?? []) {
+        for (const p of r.paths ?? []) if (!paths.includes(p)) paths.push(p);
+    }
+    return paths;
+};
+
+type IngressRow = models.IngressInfo & { _hosts: string[]; _paths: string[] };
+
+const createFrom = (raw: any): IngressRow => {
+    const ing = models.IngressInfo.createFrom(raw) as IngressRow;
+    ing._hosts = hostsOf(ing.rules);
+    ing._paths = pathsOf(ing.rules);
+    return ing;
 };
 
 export default function IngressListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -38,12 +62,12 @@ export default function IngressListComponent({ clusterName, api }: { clusterName
     const referencePanel = `ingresses:${clusterName}`;
 
     return (
-        <ResourceListView<models.IngressInfo>
+        <ResourceListView<IngressRow>
             title="Ingress List"
             clusterName={clusterName}
             api={api}
             fetcher={GetIngresses}
-            createFrom={models.IngressInfo.createFrom}
+            createFrom={createFrom}
             deleter={DeleteIngress}
             deleteLabel="ingress"
             pollInterval={2000}
@@ -58,15 +82,27 @@ export default function IngressListComponent({ clusterName, api }: { clusterName
                             <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
                     <Column field="class_name" header="Class" sortable filter filterField="class_name" showFilterMenu={false} style={{ minWidth: '9rem' }}
-                        body={(row: models.IngressInfo) => row.class_name || '-'}
+                        body={(row: IngressRow) => row.class_name || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('class_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Hosts" style={{ minWidth: '16rem' }} body={(row: models.IngressInfo) => formatHosts(row.rules)} />
-                    <Column header="Paths" style={{ minWidth: '18rem' }} body={(row: models.IngressInfo) => formatPaths(row.rules)} />
-                    <Column field="address" header="Address" sortable style={{ minWidth: '12rem' }} body={(row: models.IngressInfo) => row.address || '-'} />
+                    <Column header="Hosts" filter filterField="_hosts" showFilterMenu={false} style={{ minWidth: '16rem' }}
+                        body={(row: IngressRow) => hostsOf(row.rules).join(', ')}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('_hosts')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column header="Paths" filter filterField="_paths" showFilterMenu={false} style={{ minWidth: '18rem' }}
+                        body={(row: IngressRow) => pathLabelsOf(row.rules).join(', ') || '-'}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('_paths')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="address" header="Address" sortable filter filterField="address" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                        body={(row: IngressRow) => row.address || '-'}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('address')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
                     <Column field="tls" header="TLS" sortable style={{ minWidth: '6rem' }}
-                        body={(row: models.IngressInfo) => <Tag value={row.tls ? 'Yes' : 'No'} severity={row.tls ? 'success' : 'secondary'} />} />
+                        body={(row: IngressRow) => <Tag value={row.tls ? 'Yes' : 'No'} severity={row.tls ? 'success' : 'secondary'} />} />
                 </>
             )}
         />

@@ -262,6 +262,10 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 <Column
                     field="message"
                     header="Message"
+                    filter
+                    filterField="message"
+                    filterPlaceholder="Search message"
+                    showFilterMenu={false}
                     style={{ minWidth: '22rem' }}
                     body={(row: models.EventInfo) => {
                         const msg = row.message || '';

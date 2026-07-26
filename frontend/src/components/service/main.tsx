@@ -8,6 +8,7 @@ import { GetServices, DeleteService } from '../../../wailsjs/go/controller_app/A
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { ARRAY_IN } from '../../lib/tableFilters';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
 
@@ -36,9 +37,12 @@ const formatExternalIPs = (ips: string[]): string => {
 };
 
 const defaultFilters: DataTableFilterMeta = {
-    name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.IN },
-    type:      { value: null, matchMode: FilterMatchMode.IN },
+    name:         { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace:    { value: null, matchMode: FilterMatchMode.IN },
+    type:         { value: null, matchMode: FilterMatchMode.IN },
+    cluster_ip:   { value: null, matchMode: FilterMatchMode.IN },
+    // external_ips satırda bir dizi; yerleşik IN diziyle eşleşmez.
+    external_ips: { value: null, matchMode: ARRAY_IN },
 };
 
 export default function ServiceListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -72,8 +76,15 @@ export default function ServiceListComponent({ clusterName, api }: { clusterName
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('type')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="cluster_ip" header="Cluster IP" sortable style={{ minWidth: '10rem' }} />
-                    <Column field="external_ips" header="External IP" style={{ minWidth: '12rem' }} body={(row: models.ServiceInfo) => formatExternalIPs(row.external_ips)} />
+                    <Column field="cluster_ip" header="Cluster IP" sortable filter filterField="cluster_ip" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('cluster_ip')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="external_ips" header="External IP" filter filterField="external_ips" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                        body={(row: models.ServiceInfo) => formatExternalIPs(row.external_ips)}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('external_ips')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
                     <Column header="Ports" style={{ minWidth: '14rem' }} body={(row: models.ServiceInfo) => formatPorts(row.ports)} />
                 </>
             )}

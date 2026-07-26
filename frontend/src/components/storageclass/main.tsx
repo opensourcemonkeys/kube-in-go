@@ -10,8 +10,10 @@ import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 
 const defaultFilters: DataTableFilterMeta = {
-    name:        { value: null, matchMode: FilterMatchMode.CONTAINS },
-    provisioner: { value: null, matchMode: FilterMatchMode.IN },
+    name:                { value: null, matchMode: FilterMatchMode.CONTAINS },
+    provisioner:         { value: null, matchMode: FilterMatchMode.IN },
+    reclaim_policy:      { value: null, matchMode: FilterMatchMode.IN },
+    volume_binding_mode: { value: null, matchMode: FilterMatchMode.IN },
 };
 
 export default function StorageClassListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -38,8 +40,14 @@ export default function StorageClassListComponent({ clusterName, api }: { cluste
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('provisioner')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="reclaim_policy" header="Reclaim Policy" sortable style={{ minWidth: '10rem' }} />
-                    <Column field="volume_binding_mode" header="Binding Mode" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="reclaim_policy" header="Reclaim Policy" sortable filter filterField="reclaim_policy" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('reclaim_policy')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column field="volume_binding_mode" header="Binding Mode" sortable filter filterField="volume_binding_mode" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('volume_binding_mode')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
                 </>
             )}
         />

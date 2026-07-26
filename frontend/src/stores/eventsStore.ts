@@ -12,6 +12,7 @@ export const defaultEventFilters = (): DataTableFilterMeta => ({
     reason:      { value: null, matchMode: FilterMatchMode.IN },
     object_kind: { value: null, matchMode: FilterMatchMode.IN },
     object:      { value: null, matchMode: FilterMatchMode.IN },
+    message:     { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 // Per-tab snapshot that is persisted to disk (localStorage in the Wails webview,
@@ -50,7 +51,20 @@ export const useEventsStore = create<EventsStore>()(
         {
             name: 'kube-ins-events-store',
             storage: createJSONStorage(() => localStorage),
-            version: 1,
+            version: 2,
+            // Kayıtlı `filters` nesnesi patchTab tarafından tab seviyesinde
+            // birleştirildiği için varsayılanları bütünüyle eziyor — eski
+            // sürümlerde yeni filtre anahtarları (message) eksik kalır.
+            // PrimeReact'ın ColumnFilter'ı `filters[field].value = …` yaptığından
+            // eksik anahtar kullanıcı filtreye dokunduğu anda TypeError fırlatır,
+            // o yüzden kayıtlı değerleri koruyup eksikleri tamamlıyoruz.
+            migrate: (persisted: any) => {
+                if (!persisted?.tabs) return persisted;
+                for (const tab of Object.values<any>(persisted.tabs)) {
+                    tab.filters = { ...defaultEventFilters(), ...(tab.filters ?? {}) };
+                }
+                return persisted;
+            },
         },
     ),
 );

@@ -8,35 +8,43 @@ import { GetEndpoints } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { ARRAY_IN } from '../../lib/tableFilters';
 
 const defaultFilters: DataTableFilterMeta = {
-    name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
-    namespace: { value: null, matchMode: FilterMatchMode.IN },
+    name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
+    namespace:  { value: null, matchMode: FilterMatchMode.IN },
+    // Addresses/Ports satırda düz bir alan değil, `subsets` içinden türetiliyor —
+    // filtre satırdaki sentetik dizilere bakar (bkz. createFrom).
+    _addresses: { value: null, matchMode: ARRAY_IN },
+    _ports:     { value: null, matchMode: ARRAY_IN },
 };
 
-const formatAddresses = (subsets: models.EndpointSubsetInfo[]): string => {
-    if (!subsets || subsets.length === 0) return '-';
+const addressesOf = (subsets: models.EndpointSubsetInfo[]): string[] => {
     const ips: string[] = [];
-    for (const s of subsets) {
-        if (s.addresses) {
-            for (const a of s.addresses) ips.push(a.ip);
-        }
+    for (const s of subsets ?? []) {
+        for (const a of s.addresses ?? []) ips.push(a.ip);
     }
-    return ips.length > 0 ? ips.join(', ') : '-';
+    return ips;
 };
 
-const formatPorts = (subsets: models.EndpointSubsetInfo[]): string => {
-    if (!subsets || subsets.length === 0) return '-';
+const portsOf = (subsets: models.EndpointSubsetInfo[]): string[] => {
     const ports: string[] = [];
-    for (const s of subsets) {
-        if (s.ports) {
-            for (const p of s.ports) {
-                const label = p.name ? `${p.name}:${p.port}/${p.protocol}` : `${p.port}/${p.protocol}`;
-                if (!ports.includes(label)) ports.push(label);
-            }
+    for (const s of subsets ?? []) {
+        for (const p of s.ports ?? []) {
+            const label = p.name ? `${p.name}:${p.port}/${p.protocol}` : `${p.port}/${p.protocol}`;
+            if (!ports.includes(label)) ports.push(label);
         }
     }
-    return ports.length > 0 ? ports.join(', ') : '-';
+    return ports;
+};
+
+type EndpointRow = models.EndpointInfo & { _addresses: string[]; _ports: string[] };
+
+const createFrom = (raw: any): EndpointRow => {
+    const ep = models.EndpointInfo.createFrom(raw) as EndpointRow;
+    ep._addresses = addressesOf(ep.subsets);
+    ep._ports = portsOf(ep.subsets);
+    return ep;
 };
 
 export default function EndpointListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
@@ -44,12 +52,12 @@ export default function EndpointListComponent({ clusterName, api }: { clusterNam
     const referencePanel = `endpoints:${clusterName}`;
 
     return (
-        <ResourceListView<models.EndpointInfo>
+        <ResourceListView<EndpointRow>
             title="Endpoint List"
             clusterName={clusterName}
             api={api}
             fetcher={GetEndpoints}
-            createFrom={models.EndpointInfo.createFrom}
+            createFrom={createFrom}
             pollInterval={2000}
             defaultFilters={defaultFilters}
             emptyMessage="No endpoints found"
@@ -61,12 +69,20 @@ export default function EndpointListComponent({ clusterName, api }: { clusterNam
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
                             <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Addresses" style={{ minWidth: '18rem' }} body={(row: models.EndpointInfo) => formatAddresses(row.subsets)} />
-                    <Column header="Ports" style={{ minWidth: '16rem' }} body={(row: models.EndpointInfo) => formatPorts(row.subsets)} />
+                    <Column header="Addresses" filter filterField="_addresses" showFilterMenu={false} style={{ minWidth: '18rem' }}
+                        body={(row: EndpointRow) => addressesOf(row.subsets).join(', ') || '-'}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('_addresses')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
+                    <Column header="Ports" filter filterField="_ports" showFilterMenu={false} style={{ minWidth: '16rem' }}
+                        body={(row: EndpointRow) => portsOf(row.subsets).join(', ') || '-'}
+                        filterElement={(options: ColumnFilterElementTemplateOptions) => (
+                            <MultiSelect value={options.value} options={buildInOptions('_ports')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        )} />
                     <Column field="ready" header="Ready" sortable style={{ minWidth: '7rem' }}
-                        body={(row: models.EndpointInfo) => <Tag value={String(row.ready)} severity={row.ready > 0 ? 'success' : 'secondary'} />} />
+                        body={(row: EndpointRow) => <Tag value={String(row.ready)} severity={row.ready > 0 ? 'success' : 'secondary'} />} />
                     <Column field="not_ready" header="Not Ready" sortable style={{ minWidth: '7rem' }}
-                        body={(row: models.EndpointInfo) => (row.not_ready > 0 ? <Tag value={String(row.not_ready)} severity="warning" /> : <span style={{ color: 'var(--ink3)' }}>0</span>)} />
+                        body={(row: EndpointRow) => (row.not_ready > 0 ? <Tag value={String(row.not_ready)} severity="warning" /> : <span style={{ color: 'var(--ink3)' }}>0</span>)} />
                 </>
             )}
         />

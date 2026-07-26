@@ -51,7 +51,10 @@ const ROW_HEIGHT = 40;
 
 export interface ColumnsContext<T extends ResourceRow> {
     items: T[];
-    /** Unique IN-filter options ({label,value}) for a given row field. */
+    /**
+     * Unique IN-filter options ({label,value}) for a given row field.
+     * Array-valued fields are flattened (pair them with `ARRAY_IN`).
+     */
     buildInOptions: (field: keyof T) => { label: string; value: string }[];
 }
 

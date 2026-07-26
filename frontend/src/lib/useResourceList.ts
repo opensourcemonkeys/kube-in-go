@@ -40,7 +40,11 @@ export interface UseResourceListResult<T extends ResourceRow> {
     handleDeleteSelected: () => Promise<void>;
     reload: () => Promise<void>;
     toastRef: React.RefObject<Toast>;
-    /** Builds unique IN-filter options ({label,value}) for a given row field. */
+    /**
+     * Builds unique IN-filter options ({label,value}) for a given row field.
+     * Array-valued fields are flattened, so they work with the `ARRAY_IN`
+     * match mode from `lib/tableFilters`.
+     */
     buildInOptions: (field: keyof T) => { label: string; value: string }[];
 }
 
@@ -126,10 +130,18 @@ export function useResourceList<T extends ResourceRow>(
     }, [deleter, selected, clusterName, reload]);
 
     const buildInOptions = useCallback(
-        (field: keyof T) =>
-            [...new Set(items.map((i) => i[field]).filter(Boolean) as string[])]
-                .sort()
-                .map((v) => ({ label: v, value: v })),
+        (field: keyof T) => {
+            // Alan bir dizi ise (access_modes, external_ips, sentetik _hosts …)
+            // öğeleri düzleştir; skaler alanlar eskisi gibi davranır.
+            const set = new Set<string>();
+            for (const item of items) {
+                const value = item[field] as unknown;
+                for (const entry of Array.isArray(value) ? value : [value]) {
+                    if (entry != null && entry !== '') set.add(String(entry));
+                }
+            }
+            return [...set].sort().map((v) => ({ label: v, value: v }));
+        },
         [items],
     );
 
