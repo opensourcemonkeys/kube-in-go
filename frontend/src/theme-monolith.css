@@ -597,6 +597,53 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 .about-modal__close-btn:hover { background: rgba(63,200,180,.18); border-color: rgba(63,200,180,.4); }
 
 /* ════════════════════════════════════════════════════════════
+   UPDATE MODAL (in-app updater: download → install → restart)
+   ════════════════════════════════════════════════════════════ */
+.update-modal .p-dialog-content { background: var(--panel2) !important; border: 1px solid var(--line2); border-radius: 0 !important; padding: 0 !important; }
+.update-modal.p-dialog { border-radius: 0 !important; }
+.update-modal__content { display: flex; flex-direction: column; align-items: center; padding: 30px 28px 24px; gap: 12px; }
+.update-modal__logo { width: 56px; height: 56px; border-radius: 14px; background: rgba(63,200,180,.08); border: 1px solid rgba(63,200,180,.18); display: flex; align-items: center; justify-content: center; }
+.update-modal__logo-icon { font-size: 24px; color: var(--teal); }
+.update-modal__logo-icon--warn { color: var(--amber, #e0a340); }
+.update-modal__title { font-size: 20px; font-weight: 700; color: var(--ink); margin: 0; }
+.update-modal__versions { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.update-modal__ver { color: var(--ink2); background: var(--panel3); padding: 2px 10px; border-radius: 20px; border: 1px solid var(--line2); }
+.update-modal__ver--new { color: var(--teal); border-color: rgba(63,200,180,.35); background: rgba(63,200,180,.08); font-weight: 600; }
+.update-modal__arrow { color: var(--ink3); }
+
+/* Two-step indicator */
+.update-modal__steps { display: flex; align-items: center; width: 100%; margin-top: 10px; }
+.update-modal__step { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink3); }
+.update-modal__step-no { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+.update-modal__step-label { letter-spacing: .3px; }
+.update-modal__step-line { flex: 1; height: 1px; background: var(--line2); margin: 0 12px; }
+.update-modal__step--active { color: var(--teal); }
+.update-modal__step--active .update-modal__step-no { border-color: var(--teal); background: rgba(63,200,180,.12); color: var(--teal); }
+.update-modal__step--done { color: var(--ink2); }
+.update-modal__step--done .update-modal__step-no { border-color: rgba(63,200,180,.45); background: rgba(63,200,180,.18); color: var(--teal); }
+
+.update-modal__body { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 6px; min-height: 74px; justify-content: center; }
+.update-modal__desc { font-size: 13px; color: var(--ink2); text-align: center; line-height: 1.6; margin: 0; }
+.update-modal__bar { width: 100%; }
+.update-modal__status { font-size: 12px; color: var(--ink2); }
+.update-modal__hint { font-size: 11px; color: var(--ink3); }
+.update-modal__error { font-size: 12px; color: #e06c6c; text-align: center; line-height: 1.55; word-break: break-word; max-height: 120px; overflow-y: auto; }
+
+.update-modal__actions { display: flex; gap: 10px; margin-top: 10px; }
+.update-modal__btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px; background: transparent; border: 1px solid var(--line2); border-radius: 6px; color: var(--ink2); font-size: 13px; cursor: pointer; transition: background .15s, border-color .15s, color .15s; font-family: var(--font-family); }
+.update-modal__btn:hover { border-color: var(--line3, var(--line2)); color: var(--ink); background: var(--panel3); }
+.update-modal__btn--primary { background: rgba(63,200,180,.1); border-color: rgba(63,200,180,.22); color: var(--teal); }
+.update-modal__btn--primary:hover { background: rgba(63,200,180,.18); border-color: rgba(63,200,180,.4); color: var(--teal); }
+
+/* PrimeReact ProgressBar, re-skinned to the app palette (also used by the
+   Trivy scanner). Global .p-* override, per the styling convention. */
+.p-progressbar { background: var(--panel3) !important; border: 1px solid var(--line2); border-radius: 4px !important; height: 10px; }
+.p-progressbar .p-progressbar-value { background: var(--teal) !important; }
+.p-progressbar .p-progressbar-label { font-size: 10px; line-height: 10px; color: var(--app); font-weight: 600; }
+.p-progressbar.p-progressbar-indeterminate .p-progressbar-value::before,
+.p-progressbar.p-progressbar-indeterminate .p-progressbar-value::after { background: var(--teal) !important; }
+
+/* ════════════════════════════════════════════════════════════
    DOCKVIEW
    ════════════════════════════════════════════════════════════ */
 .dockview-theme-monolith {

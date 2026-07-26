@@ -81,6 +81,19 @@ jobs:
           mv dist/kube-inspector-cli_${VERSION}_amd64.deb dist/kube-inspector-cli-${VERSION}-debian-amd64.deb || true
           mv dist/kube-inspector-cli-${VERSION}-1.x86_64.rpm dist/kube-inspector-cli-${VERSION}-linux-x86_64.rpm || true
 
+      # A .sha256 sidecar per artifact. The in-app updater fetches
+      # <assetUrl>.sha256 and refuses to install a package that does not match,
+      # because on Linux it hands the file to dpkg/rpm as root.
+      - name: Checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          for f in *; do
+            [ -f "$f" ] || continue
+            case "$f" in *.sha256) continue;; esac
+            sha256sum "$f" > "$f.sha256"
+          done
+
       - name: Upload to Cloudflare R2
         if: github.ref_type == 'tag'
         run: |
@@ -132,6 +145,17 @@ jobs:
           make build-tui-windows
           mv build/bin/kube-inspector-cli.exe build/bin/kube-inspector-cli-${VERSION}-windows-amd64.exe
 
+      - name: Checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          for f in *; do
+            [ -f "$f" ] || continue
+            case "$f" in *.sha256) continue;; esac
+            sha256sum "$f" > "$f.sha256"
+          done
+
       - name: Upload to Cloudflare R2
         if: github.ref_type == 'tag'
         shell: bash
@@ -176,6 +200,17 @@ jobs:
           make build-tui-mac
           mkdir -p dist
           tar -czf dist/kube-inspector-cli-${VERSION}-macos-universal.tar.gz -C build/bin kube-inspector-cli
+
+      # macOS has no sha256sum; shasum -a 256 emits the same "<hash>  <name>".
+      - name: Checksums
+        run: |
+          set -euo pipefail
+          cd dist
+          for f in *; do
+            [ -f "$f" ] || continue
+            case "$f" in *.sha256) continue;; esac
+            shasum -a 256 "$f" > "$f.sha256"
+          done
 
       - name: Upload to Cloudflare R2
         if: github.ref_type == 'tag'

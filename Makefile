@@ -9,6 +9,11 @@ export GOFLAGS := -trimpath -buildvcs=false
 NFPM    := nfpm
 DIST    := ./dist
 
+# Public base URL the release artifacts are served from. The in-app updater
+# resolves its per-platform download from docs/version.json, which is generated
+# against this (see the docs-downloads target).
+DIST_BASE_URL := https://kubeinspector.com/dist
+
 # Optional Wails build tags. On distros that ship webkit2gtk-4.1 instead of
 # 4.0 (Ubuntu 24.04+, Fedora 40+), build with: make build-linux WAILS_TAGS=webkit2_41
 TAGS    := $(if $(WAILS_TAGS),-tags "$(WAILS_TAGS)",)
@@ -185,7 +190,12 @@ docs-downloads:
 	@echo "Substituting version v$(VERSION) into docs/downloads.md"
 	@sed -i 's/__VERSION__/$(VERSION)/g' docs/downloads.md
 	@echo "Writing docs/version.json for v$(VERSION) (in-app update check)"
-	@printf '{"version":"%s","downloadUrl":"https://kubeinspector.com/downloads/"}\n' "$(VERSION)" > docs/version.json
+	@printf '{"version":"%s","downloadUrl":"https://kubeinspector.com/downloads/","assets":{"linux-deb":"%s/kube-inspector-%s-linux-amd64.deb","linux-rpm":"%s/kube-inspector-%s-linux-x86_64.rpm","windows-amd64":"%s/kube-inspector-%s-windows-amd64.exe","darwin-arm64":"%s/kube-inspector-%s-macos-arm64.dmg"}}\n' \
+		"$(VERSION)" \
+		"$(DIST_BASE_URL)" "$(VERSION)" \
+		"$(DIST_BASE_URL)" "$(VERSION)" \
+		"$(DIST_BASE_URL)" "$(VERSION)" \
+		"$(DIST_BASE_URL)" "$(VERSION)" > docs/version.json
 
 docs-serve: docs-downloads
 	mkdocs serve

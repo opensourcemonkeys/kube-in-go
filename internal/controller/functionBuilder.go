@@ -22,6 +22,71 @@ func (a *App) CheckForUpdate() models.UpdateInfo {
 	return bussiness.CheckForUpdate()
 }
 
+var (
+	updateMu      sync.Mutex
+	updateCancels = map[string]context.CancelFunc{}
+)
+
+// StartSelfUpdate downloads and installs the latest release, streaming progress
+// to the frontend as update:progress / update:done / update:error events
+// suffixed with sessionId. The manifest is re-read here rather than taken from
+// the caller, so the download URL and the platform check are always the
+// backend's own.
+//
+// update:done carries {"restart": "relaunch"|"external"} — "relaunch" means the
+// new files are in place and the shell should re-exec, "external" means the
+// installer (or the macOS swap helper) will start the new version once we quit.
+func (a *App) StartSelfUpdate(sessionId string) error {
+	info := bussiness.CheckForUpdate()
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	updateMu.Lock()
+	if old, ok := updateCancels[sessionId]; ok {
+		old()
+	}
+	updateCancels[sessionId] = cancel
+	updateMu.Unlock()
+
+	go func() {
+		defer func() {
+			updateMu.Lock()
+			delete(updateCancels, sessionId)
+			updateMu.Unlock()
+			cancel()
+		}()
+
+		onProgress := func(p models.UpdateProgress) {
+			a.emit("update:progress:"+sessionId, p)
+		}
+
+		restart, err := bussiness.RunSelfUpdate(ctx, info, onProgress)
+		if err != nil {
+			// A cancelled download is the user closing the dialog, not a failure.
+			if ctx.Err() != nil {
+				return
+			}
+			a.emit("update:error:"+sessionId, map[string]any{"message": err.Error()})
+			return
+		}
+		a.emit("update:done:"+sessionId, map[string]any{"restart": restart})
+	}()
+
+	return nil
+}
+
+// CancelSelfUpdate aborts an in-flight download. It has no effect once the
+// installer has been handed the package.
+func (a *App) CancelSelfUpdate(sessionId string) error {
+	updateMu.Lock()
+	cancel, ok := updateCancels[sessionId]
+	updateMu.Unlock()
+	if ok {
+		cancel()
+	}
+	return nil
+}
+
 // SaveSnapshot prompts the user for a location (native Save dialog) and writes
 // the given PNG (data URL or base64). Returns the saved path, or "" if cancelled.
 func (a *App) SaveSnapshot(defaultName, dataURL string) (string, error) {

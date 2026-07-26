@@ -415,6 +415,19 @@ ipcMain.on('shell:toggleMaximise', (e) => {
 ipcMain.on('shell:quit', (e) => senderWindow(e)?.close());
 ipcMain.handle('shell:isMaximised', (e) => senderWindow(e)?.isMaximized() ?? false);
 
+// --- Self-update restart -----------------------------------------------------
+//
+// Both are whole-app, not per-window: the updater has just replaced the files
+// every window is running from. relaunch() re-execs process.execPath, which the
+// package manager has already pointed at the new build, so this comes back up
+// on the new version. quitApp is the other half — used when something else (the
+// NSIS installer, or the macOS swap helper) starts the new version for us.
+ipcMain.on('shell:relaunch', () => {
+  app.relaunch();
+  app.quit();
+});
+ipcMain.on('shell:quitApp', () => app.quit());
+
 // --- Drag ghost outside the window -----------------------------------------
 //
 // Dockview's own drag ghost is a DOM node, so the window clips it and the tab

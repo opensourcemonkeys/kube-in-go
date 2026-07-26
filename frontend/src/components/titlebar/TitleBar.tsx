@@ -6,7 +6,6 @@ import {
     WindowMinimise,
     WindowToggleMaximise,
     Quit,
-    BrowserOpenURL,
 } from '../../../wailsjs/runtime/runtime';
 import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
@@ -15,6 +14,7 @@ import { useAiChatStore } from '../../stores/aiChatStore';
 import { useThemeStore, THEMES } from '../../stores/themeStore';
 import { useNextStep } from 'nextstepjs';
 import AboutModal from '../cluster/AboutModal';
+import UpdateModal from './UpdateModal';
 
 // Re-check for a newer release every 6 hours while the app stays open.
 const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
@@ -28,6 +28,7 @@ interface TitleBarProps {
 function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBarProps) {
     const [maximised, setMaximised] = useState(false);
     const [aboutOpen, setAboutOpen] = useState(false);
+    const [updateOpen, setUpdateOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
     const { openTerminal, openApplyYaml } = useTabContext();
     const { startNextStep } = useNextStep();
@@ -137,8 +138,8 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 {update?.available && (
                     <button
                         className="tb-update"
-                        title={`Version ${update.latestVersion} is available — click to download`}
-                        onClick={() => BrowserOpenURL(update.downloadUrl)}
+                        title={`Version ${update.latestVersion} is available — click to install`}
+                        onClick={() => setUpdateOpen(true)}
                     >
                         <VscCloudDownload size={12} />
                         Update available
@@ -162,6 +163,10 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
             </div>
 
             <AboutModal visible={aboutOpen} onHide={() => setAboutOpen(false)} />
+
+            {update?.available && (
+                <UpdateModal visible={updateOpen} onHide={() => setUpdateOpen(false)} info={update} />
+            )}
         </>
     );
 }

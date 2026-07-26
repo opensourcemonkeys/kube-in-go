@@ -216,9 +216,5 @@
   "214": "limitRange.go",
   "215": "GetEndpoints",
   "216": "GetPersistentVolumes",
-  "217": "@fontsource/inter",
-  "218": "chart.js",
-  "219": ".CheckForUpdate",
-  "220": "@melloware/react-logviewer",
-  "221": "primereact"
+  "217": "@fontsource/inter"
 }

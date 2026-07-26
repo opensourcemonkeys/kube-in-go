@@ -34,6 +34,8 @@ interface ShellApi {
     windowAtCursor?: () => Promise<number | null>;
     sendPanel?: (targetWindowId: number, panel: PanelPayload) => void;
     onPanel?: (cb: (panel: PanelPayload) => void) => () => void;
+    relaunch?: () => void;
+    quitApp?: () => void;
 }
 
 const shell = (): ShellApi => (window as any).__KUBE_INS_SHELL__ ?? {};
@@ -105,3 +107,17 @@ export async function windowAtCursor(): Promise<number | null> {
 /** Panels pushed here from a sibling window. Returns an unsubscribe function. */
 export const onPanelFromWindow = (cb: (panel: PanelPayload) => void) =>
     shell().onPanel?.(cb);
+
+/**
+ * Whole-app restart, used by the in-app updater once the new version is in
+ * place. `relaunchApp` re-execs the (now updated) binary; `quitApp` only closes,
+ * for the platforms where the installer brings the new version up itself.
+ *
+ * Only the Electron shell can do this — under Wails or a browser tab the
+ * updater never gets this far, because the backend reports Installable=false.
+ */
+export const supportsSelfRestart = () => typeof shell().relaunch === 'function';
+
+export const relaunchApp = () => shell().relaunch?.();
+
+export const quitApp = () => shell().quitApp?.();

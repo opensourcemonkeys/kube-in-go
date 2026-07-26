@@ -70,8 +70,8 @@
     "semantic_hash": "de1815f3e2ea8464ca819988282b507f"
   },
   "electron/main.cjs": {
-    "mtime": 1785074265.7396903,
-    "ast_hash": "d129be717cad09e55d9cd3449879e434",
+    "mtime": 1784492102.2504423,
+    "ast_hash": "516e2329182ee77af6351ec34ce4236f",
     "semantic_hash": ""
   },
   "electron/package.json": {
@@ -80,8 +80,8 @@
     "semantic_hash": "acf23550a3ce6eb6391ea21dd0ea1a21"
   },
   "electron/preload.cjs": {
-    "mtime": 1785074270.3651288,
-    "ast_hash": "1449590f05541b7450cc923b2c88e1d4",
+    "mtime": 1784492046.1421573,
+    "ast_hash": "fc83db8d36f1bd09de7498bcb72d03a6",
     "semantic_hash": ""
   },
   "frontend/package.json": {
@@ -310,9 +310,9 @@
     "semantic_hash": "531ef29bfda6b9315ef1bb9f6b10e089"
   },
   "frontend/src/components/shared/ResourceListView.tsx": {
-    "mtime": 1784995753.7470856,
-    "ast_hash": "269744c13015f1a5a399457f9b8327e6",
-    "semantic_hash": ""
+    "mtime": 1784413471.4171557,
+    "ast_hash": "5eae0526b041d8c90db23de0117bc17f",
+    "semantic_hash": "5eae0526b041d8c90db23de0117bc17f"
   },
   "frontend/src/components/statefulset/main.tsx": {
     "mtime": 1783270413.0035465,
@@ -330,8 +330,8 @@
     "semantic_hash": "b441b9805c8e70b1941d32f5cd1128c6"
   },
   "frontend/src/components/titlebar/TitleBar.tsx": {
-    "mtime": 1785074386.143501,
-    "ast_hash": "8fe982447d1727c252a316d058c7357b",
+    "mtime": 1784493329.8931966,
+    "ast_hash": "d913f1d5b1f5bf163982c170370b013f",
     "semantic_hash": ""
   },
   "frontend/src/components/tour/TourCard.tsx": {
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/FloatableTab.tsx": {
-    "mtime": 1784995911.7472038,
-    "ast_hash": "b15967952a792822e005b406ef18cab8",
+    "mtime": 1784492153.8371825,
+    "ast_hash": "b775cf3effc1ba08ec986ed9b4771d4e",
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/ObjectYamlPanel.tsx": {
@@ -740,9 +740,9 @@
     "semantic_hash": "02a0bad40569935b4be5cd5104985bd1"
   },
   "internal/business/update.go": {
-    "mtime": 1785074098.6838248,
-    "ast_hash": "69b5875998360adf7e8997c6fe1e91fd",
-    "semantic_hash": ""
+    "mtime": 1781719072.2170289,
+    "ast_hash": "a8ad2eed0f938237086db563606be1b0",
+    "semantic_hash": "a8ad2eed0f938237086db563606be1b0"
   },
   "internal/controller/app.go": {
     "mtime": 1784450615.3195422,
@@ -760,9 +760,9 @@
     "semantic_hash": "10ef7b66452ca6c79904cb99d2b183d6"
   },
   "internal/controller/functionBuilder.go": {
-    "mtime": 1785074083.1551874,
-    "ast_hash": "11e9143c1a8636180d0e6780ac1b76c7",
-    "semantic_hash": ""
+    "mtime": 1784450549.93629,
+    "ast_hash": "f113c61946e7e0a6cf0e095e5a0e2472",
+    "semantic_hash": "f113c61946e7e0a6cf0e095e5a0e2472"
   },
   "internal/controller/rpcserver.go": {
     "mtime": 1784471667.6150248,
@@ -955,9 +955,9 @@
     "semantic_hash": "df36d6a6963c312445a85dd8e3f9da81"
   },
   "internal/models/updateInfo.go": {
-    "mtime": 1785073921.73802,
-    "ast_hash": "6240d6ac753f1e8a17888391ed1694b8",
-    "semantic_hash": ""
+    "mtime": 1781719060.1072173,
+    "ast_hash": "766465de8914343edb33ae504e96a857",
+    "semantic_hash": "766465de8914343edb33ae504e96a857"
   },
   "internal/repository/k8sClient.go": {
     "mtime": 1783967641.492269,
@@ -1260,18 +1260,18 @@
     "semantic_hash": "3d16cd4868fa1e8a6ce5c2fe7e205af6"
   },
   ".github/workflows/build.yml": {
-    "mtime": 1785073904.083239,
-    "ast_hash": "3bbf3c3da42616faf147cd8f46a40571",
-    "semantic_hash": ""
+    "mtime": 1784456592.3849368,
+    "ast_hash": "5356a0ae3a264b7fa8745e2140207929",
+    "semantic_hash": "5356a0ae3a264b7fa8745e2140207929"
   },
   "CHANGELOG.md": {
-    "mtime": 1785074623.6871088,
-    "ast_hash": "b297d242a9eb51ebf2f36b64e7c1e81c",
+    "mtime": 1784494739.2481198,
+    "ast_hash": "49b66d89358f4fe34c81030184f70dbf",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1785074614.1920428,
-    "ast_hash": "3772bf418bc0170e51b78fb0f4eaf9ae",
+    "mtime": 1784489954.1137228,
+    "ast_hash": "507f618361ba5d16b9583a9a0494fa80",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1470,9 +1470,9 @@
     "semantic_hash": "585e319d1ee37ca9a41d14ac900c4606"
   },
   "electron/electron-builder.yml": {
-    "mtime": 1785074288.1514037,
-    "ast_hash": "af1b8d3745e17a3868b4b2b1f89d2d88",
-    "semantic_hash": ""
+    "mtime": 1784458545.6190796,
+    "ast_hash": "668ad401ab94ced5cf787fd0a8bc69d2",
+    "semantic_hash": "668ad401ab94ced5cf787fd0a8bc69d2"
   },
   "frontend/index.html": {
     "mtime": 1781456516.8108258,
@@ -1560,8 +1560,8 @@
     "semantic_hash": "7350cf6c03b91c33991ce356acbc2632"
   },
   "frontend/src/lib/shellWindows.ts": {
-    "mtime": 1785074284.1814544,
-    "ast_hash": "11b144757c8f6dbf9474d3cd1d8c3b18",
+    "mtime": 1784492036.9322748,
+    "ast_hash": "d18949712efc6e281e5bbd842dc5b402",
     "semantic_hash": ""
   },
   "frontend/src/lib/crossWindowDrop.ts": {
@@ -1572,46 +1572,6 @@
   "frontend/src/lib/time.ts": {
     "mtime": 1784990868.518464,
     "ast_hash": "8e67f3d775627e9e8ed088f93f7d49d5",
-    "semantic_hash": ""
-  },
-  "frontend/src/components/titlebar/UpdateModal.tsx": {
-    "mtime": 1785074368.7832124,
-    "ast_hash": "edb810c7f71757b01db4f06a0576818f",
-    "semantic_hash": ""
-  },
-  "internal/business/selfUpdate.go": {
-    "mtime": 1785074231.653315,
-    "ast_hash": "f70145ae608ede6edb43f128b11e1e3b",
-    "semantic_hash": ""
-  },
-  "internal/business/selfUpdate_test.go": {
-    "mtime": 1785074547.2490888,
-    "ast_hash": "f8b900267be486e6be96c32bc9fbeb95",
-    "semantic_hash": ""
-  },
-  "internal/services/selfUpdateServices.go": {
-    "mtime": 1785074095.6279297,
-    "ast_hash": "e2834e065bd830ed19f3a68d603b70e5",
-    "semantic_hash": ""
-  },
-  "internal/services/selfUpdateServices_test.go": {
-    "mtime": 1785074519.2824466,
-    "ast_hash": "4ca4ceef29b07570003fd85ebec3ca40",
-    "semantic_hash": ""
-  },
-  "internal/services/selfUpdate_darwin.go": {
-    "mtime": 1785074095.628342,
-    "ast_hash": "42f63ba825fedf4c9f5b829d0321c85a",
-    "semantic_hash": ""
-  },
-  "internal/services/selfUpdate_linux.go": {
-    "mtime": 1785074095.628121,
-    "ast_hash": "0247f39e38eb3ff3f74ed7f1c804427e",
-    "semantic_hash": ""
-  },
-  "internal/services/selfUpdate_windows.go": {
-    "mtime": 1785074095.6282356,
-    "ast_hash": "f19cde98615fcfb32123fd7aa3e5487e",
     "semantic_hash": ""
   }
 }

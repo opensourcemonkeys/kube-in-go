@@ -43,6 +43,13 @@ linux:
 win:
   target: [nsis]
 
+# Both are electron-builder defaults, but the in-app updater depends on them:
+# it runs the installer with /S and quits without waiting, so NSIS itself has to
+# close the old version and start the new one.
+nsis:
+  oneClick: true
+  runAfterFinish: true
+
 mac:
   # Deliberately NOT a universal build: the Go binary is ~262MB (Trivy), so a
   # universal dmg would embed two of them. Ship per-arch instead.

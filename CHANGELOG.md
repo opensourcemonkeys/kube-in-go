@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- **In-app updater** — the "Update available" pill in the title bar now opens an updater dialog instead of sending you to the website. It downloads the new version with a progress bar, verifies it against the checksum published alongside the release, installs it, and restarts the app. On Linux the package is installed through the system package manager, so you are asked for your password once; on Windows and macOS the installer handles it. Where an automatic update is not possible the dialog explains why and still offers the downloads page.
+
 ## [v0.13.0-alpha] - 2026-07-25
 
 ### Added

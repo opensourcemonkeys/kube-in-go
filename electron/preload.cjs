@@ -37,6 +37,11 @@ contextBridge.exposeInMainWorld('__KUBE_INS_SHELL__', {
   toggleMaximise: () => ipcRenderer.send('shell:toggleMaximise'),
   quit: () => ipcRenderer.send('shell:quit'),
 
+  // Whole-app restart for the in-app updater. `relaunch` comes back up on the
+  // new build; `quitApp` is for the platforms where the installer restarts us.
+  relaunch: () => ipcRenderer.send('shell:relaunch'),
+  quitApp: () => ipcRenderer.send('shell:quitApp'),
+
   // Real window state, so the titlebar icon tracks OS-initiated changes.
   isMaximised: () => ipcRenderer.invoke('shell:isMaximised'),
   onMaximised: (cb) => {
