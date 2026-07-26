@@ -4,8 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.14.0-alpha] - 2026-07-26
+
 ### Added
 - **In-app updater** — the "Update available" pill in the title bar now opens an updater dialog instead of sending you to the website. It downloads the new version with a progress bar, verifies it against the checksum published alongside the release, installs it, and restarts the app. On Linux the package is installed through the system package manager, so you are asked for your password once; on Windows and macOS the installer handles it. Where an automatic update is not possible the dialog explains why and still offers the downloads page.
+- **Cancelable download** — the download step can be stopped and the dialog closed at any point. Once installation has begun it is left to finish, so a package manager transaction is never interrupted half-way.
+
+### Changed
+- **Releases now publish a checksum for every artifact** — each deb, rpm, installer and dmg is uploaded alongside a `.sha256` file, which the updater checks before installing anything.
+
+---
 
 ## [v0.13.0-alpha] - 2026-07-25
 
