@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.15.0-alpha] - 2026-07-26
+
+### Added
+- **The CRDs screen is now a CRD explorer** — instead of a flat table that row-expanded, the screen is split in two: a searchable **API group → kind tree** on the left and the selected kind's instances on the right. The tree shows a **live instance count** next to every CRD, and can be narrowed by name, by scope (Namespaced / Cluster), or to **only CRDs that actually have instances**. Counts that cannot be taken — no permission, an unreachable aggregated apiserver — are shown as unknown rather than as zero.
+- **Instances are listed with the server's own columns** — the instance table asks the apiserver to render the list the same way `kubectl get` does, so a CRD's `additionalPrinterColumns` (Ready, Phase, Version, whatever the operator defines) appear automatically instead of a generic Name/Namespace/Age. A **wide** toggle reveals the extra columns `kubectl` only prints with `-o wide`. If a server cannot render tables, the panel degrades to the plain Name/Age listing instead of coming up empty.
+- **Select and delete several instances at once** — the instance table supports multi-select with a single confirmation dialog; the CRD itself can still be viewed, edited or deleted from the same screen, and double-clicking a row opens its YAML.
+- **Filters on many more columns** — Services (Type, Cluster IP, External IP), Endpoints (Addresses, Ports), Ingresses (Hosts, Paths, Address), PersistentVolumes (Access Modes, Reclaim Policy, Volume Mode), PersistentVolumeClaims (Access Modes, Volume), StorageClasses (Provisioner, Reclaim Policy, Binding Mode) and RoleBindings (RoleRef) all gained dropdown filters in the column header.
+- **Search inside event messages** — the Events table's Message column now has a free-text filter.
+
+### Fixed
+- **Filtering columns that hold more than one value** — columns such as Hosts, Addresses, External IPs or Access Modes never matched anything, because the filter compared the whole list against a single selection. A row now matches when **any** of its values is selected, and the dropdown lists the individual values rather than the joined text.
+- **CRD screens no longer stall on their own rate limit** — listing custom resources fans out one request per API group, which ran into the Kubernetes client's default client-side throttle and left the screen waiting for seconds on clusters with many CRDs. The limit is raised for these paths; the cluster's own fairness rules still apply.
+- **Existing Events tabs keep their filters** — a tab saved before this release would throw when its Message filter was first touched. Saved filters are now upgraded on load.
+
+---
+
 ## [v0.14.0-alpha] - 2026-07-26
 
 ### Added
