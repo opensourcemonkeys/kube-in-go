@@ -773,6 +773,17 @@ func (a *App) GetCustomResources(clusterName, group, resource string) ([]models.
 	return bussiness.GetCustomResources(clusterName, group, resource)
 }
 
+// GetCRDInstanceCounts returns instance counts keyed by CRD name (-1 = unknown).
+func (a *App) GetCRDInstanceCounts(clusterName string) (map[string]int, error) {
+	return bussiness.GetCRDInstanceCounts(clusterName)
+}
+
+// GetResourceTable lists any (group, resource) with the server-rendered
+// columns `kubectl get` would print.
+func (a *App) GetResourceTable(clusterName, group, resource, namespace string) (models.ResourceTable, error) {
+	return bussiness.GetResourceTable(clusterName, group, resource, namespace)
+}
+
 // ============================================================================
 // Utility Functions: Resource Relationships & Navigation
 // ============================================================================

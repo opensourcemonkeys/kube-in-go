@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"sync"
 	"time"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -115,6 +117,71 @@ func GetCustomResources(config *rest.Config, group, resource string) ([]models.C
 		return infos[i].Name < infos[j].Name
 	})
 	return infos, nil
+}
+
+// countWorkers bounds how many CRDs are counted at once. A cluster can carry
+// hundreds of CRDs and each count is a separate API round-trip.
+const countWorkers = 8
+
+// countTimeout caps a single CRD's count so one unresponsive aggregated
+// apiserver cannot stall the whole sweep.
+const countTimeout = 10 * time.Second
+
+// GetCRDInstanceCounts returns the number of live instances per CRD, keyed by
+// CRD name. A value of -1 means the count could not be taken (no permission,
+// unresolvable resource, timeout) — the caller renders that as "unknown"
+// rather than as zero.
+//
+// The count is cheap by design: List with Limit 1 returns a single object and
+// the server reports the rest in metadata.remainingItemCount. Note that
+// ResourceVersion "0" must NOT be set — the watch cache cannot paginate, so it
+// would ignore the limit and stream every object back instead.
+func GetCRDInstanceCounts(config *rest.Config, crds []models.CRDInfo) (map[string]int, error) {
+	// Discovery is expensive, so the mapper is built once for the whole sweep.
+	dyn, mapper, err := newDynamicAndMapper(config)
+	if err != nil {
+		return nil, err
+	}
+
+	counts := make(map[string]int, len(crds))
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, countWorkers)
+
+	for _, crd := range crds {
+		wg.Add(1)
+		go func(crd models.CRDInfo) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			count := countInstances(dyn, mapper, crd)
+			mu.Lock()
+			counts[crd.Name] = count
+			mu.Unlock()
+		}(crd)
+	}
+	wg.Wait()
+	return counts, nil
+}
+
+func countInstances(dyn dynamic.Interface, mapper meta.RESTMapper, crd models.CRDInfo) int {
+	ri, err := resolveResourceInterface(dyn, mapper, crd.Group, crd.Plural, "")
+	if err != nil {
+		return -1
+	}
+	ctx, cancel := context.WithTimeout(context.TODO(), countTimeout)
+	defer cancel()
+
+	list, err := ri.List(ctx, metav1.ListOptions{Limit: 1})
+	if err != nil {
+		return -1
+	}
+	count := len(list.Items)
+	if remaining := list.GetRemainingItemCount(); remaining != nil {
+		count += int(*remaining)
+	}
+	return count
 }
 
 // DeleteObject deletes any object identified by (group, resource, namespace,

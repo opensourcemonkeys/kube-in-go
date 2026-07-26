@@ -25,3 +25,18 @@ func GetCustomResources(clusterName, group, resource string) ([]models.CustomRes
 	}
 	return services.GetCustomResources(config, group, resource)
 }
+
+// GetCRDInstanceCounts returns the live instance count per CRD, keyed by CRD
+// name (-1 where the count could not be taken). Feeds the CRD explorer's
+// sidebar badges and its "only CRDs with instances" filter.
+func GetCRDInstanceCounts(clusterName string) (map[string]int, error) {
+	_, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)
+	if err != nil {
+		return nil, err
+	}
+	crds, err := services.GetCRDs(config)
+	if err != nil {
+		return nil, err
+	}
+	return services.GetCRDInstanceCounts(config, crds)
+}

@@ -16,14 +16,30 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
+// client-go defaults to 5 QPS / 10 burst, which these paths blow straight
+// through: building the REST mapper alone issues one request per API
+// group-version, and the CRD instance-count sweep fans out one list per CRD.
+// At the default rate those queue behind client-side throttling for seconds
+// ("Waited before sending request"). The apiserver's own priority-and-fairness
+// still governs, so lifting the client-side limit only stops us from
+// rate-limiting ourselves.
+const (
+	fanoutQPS   = 50
+	fanoutBurst = 100
+)
+
 // newDynamicAndMapper builds a dynamic client and a discovery-backed REST mapper
 // for working with arbitrary resource types by (group, resource).
 func newDynamicAndMapper(config *rest.Config) (dynamic.Interface, meta.RESTMapper, error) {
-	dyn, err := dynamic.NewForConfig(config)
+	cfg := rest.CopyConfig(config)
+	cfg.QPS = fanoutQPS
+	cfg.Burst = fanoutBurst
+
+	dyn, err := dynamic.NewForConfig(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
-	dc, err := discovery.NewDiscoveryClientForConfig(config)
+	dc, err := discovery.NewDiscoveryClientForConfig(cfg)
 	if err != nil {
 		return nil, nil, err
 	}

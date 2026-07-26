@@ -188,8 +188,6 @@
   "186": "Community 186",
   "187": "Community 187",
   "188": "Community 188",
-  "189": "Community 189",
-  "190": "Community 190",
   "191": "Community 191",
   "192": "Community 192",
   "193": "Community 193",
@@ -212,13 +210,10 @@
   "210": "Community 210",
   "211": "Community 211",
   "212": "Community 212",
-  "213": "networkPolicy.go",
   "214": "limitRange.go",
   "215": "GetEndpoints",
   "216": "GetPersistentVolumes",
-  "217": "@fontsource/inter",
   "218": "chart.js",
   "219": ".CheckForUpdate",
-  "220": "@melloware/react-logviewer",
-  "221": "primereact"
+  "220": "@melloware/react-logviewer"
 }

@@ -272,6 +272,21 @@ html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: 
 .ktable-fill > .p-datatable > .p-datatable-wrapper { flex: 1; min-height: 0; }
 .ktable-fill > .p-datatable > .p-datatable-wrapper > .p-virtualscroller { height: 100% !important; }
 
+/* ── Splitter ────────────────────────────────────────────────
+   Used by the CRD explorer's two-pane layout. The gutter is the only visible
+   part; it doubles as the divider line so panes need no border of their own. */
+.p-splitter { background: transparent; border: none; border-radius: 0; }
+.p-splitter .p-splitter-panel { overflow: hidden; min-height: 0; }
+.p-splitter.p-splitter-horizontal > .p-splitter-gutter { background: var(--line); width: 1px; }
+.p-splitter.p-splitter-vertical > .p-splitter-gutter { background: var(--line); height: 1px; }
+.p-splitter > .p-splitter-gutter { transition: background .12s ease; }
+.p-splitter > .p-splitter-gutter:hover,
+.p-splitter > .p-splitter-gutter.p-splitter-gutter-resizing { background: var(--teal); }
+.p-splitter .p-splitter-gutter-handle { background: transparent; border-radius: 0; }
+/* Widen the grab area without widening the visible 1px divider. */
+.p-splitter.p-splitter-horizontal > .p-splitter-gutter .p-splitter-gutter-handle { width: 9px; margin-left: -4px; height: 100%; }
+.p-splitter.p-splitter-vertical > .p-splitter-gutter .p-splitter-gutter-handle { height: 9px; margin-top: -4px; width: 100%; }
+
 /* ── Tag ─────────────────────────────────────────────────────*/
 .p-tag { border-radius: 9999px; font-size: 11px; font-weight: 500; padding: 2px 8px; border: 1px solid; }
 .p-tag.p-tag-success  { background: rgba(95,201,138,.12); color: var(--green); border-color: rgba(95,201,138,.3); }

@@ -1,9 +1,21 @@
 package business
 
 import (
+	"kube-ins/internal/models"
 	repository "kube-ins/internal/repository"
 	services "kube-ins/internal/services"
 )
+
+// GetResourceTable lists any (group, resource) the way `kubectl get` prints it
+// — the apiserver renders the rows, so a CRD's own additionalPrinterColumns
+// come back for free. Backs the CRD explorer's instance table.
+func GetResourceTable(clusterName, group, resource, namespace string) (models.ResourceTable, error) {
+	_, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)
+	if err != nil {
+		return models.ResourceTable{}, err
+	}
+	return services.GetResourceTable(config, group, resource, namespace)
+}
 
 // GetObjectYaml returns the YAML of any object identified by (group, resource,
 // namespace, name) — used by the Security Role Map detail modal.
