@@ -199,7 +199,7 @@ def on_page_markdown(markdown, page, config, files):
 
 # One-line pitch reused at the top of both files.
 _LLMS_INTRO = (
-    "Kube Inspector is a free, open-source visual desktop client for managing "
+    "Kube Inspector is a free visual desktop client for managing "
     "Kubernetes clusters on Windows, macOS, and Linux. Browse, inspect, edit "
     "YAML for, and delete every core Kubernetes resource; stream logs, exec into "
     "pods, scan images for vulnerabilities, and visualize RBAC — across multiple "
