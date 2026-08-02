@@ -1,7 +1,5 @@
 package models
 
-
-
 type PodStatus string
 
 const (
@@ -18,7 +16,7 @@ type ContainerStatusInfo struct {
 	State         string `json:"state"`  // "Running" | "Waiting" | "Terminated"
 	Reason        string `json:"reason"` // e.g. CrashLoopBackOff, ImagePullBackOff, Completed
 	RestartCount  int32  `json:"restart_count"`
-	Init          bool   `json:"init"` // true for init containers
+	Init          bool   `json:"init"`            // true for init containers
 	LastRestartAt string `json:"last_restart_at"` // RFC3339; "" if never restarted
 }
 

@@ -27,6 +27,6 @@ type InstanceListPayload struct {
 }
 
 type TransferPayload struct {
-	TargetInstanceID string               `json:"targetInstanceId"`
+	TargetInstanceID string                 `json:"targetInstanceId"`
 	Panel            models.SerializedPanel `json:"panel"`
 }

@@ -174,6 +174,43 @@ electron-dev:
 clean:
 	rm -rf ./build/bin ./build/electron ./dist
 
+# ── Verification ────────────────────────────────────────────────────────────
+# `make check` is the single command that proves a change is sound: it compiles,
+# vets, lints and tests both halves of the app. CI runs exactly these targets
+# (.github/workflows/ci.yml), so a green local check means a green PR.
+#
+# Note the frontend half needs frontend/wailsjs, which is generated and
+# gitignored — `bindings` creates it when missing.
+check: test-go lint-go check-frontend
+
+test-go:
+	go test ./...
+
+vet:
+	go vet ./...
+
+# golangci-lint is not vendored; skip with a warning rather than failing the
+# whole check when it is absent locally. CI installs it, so the gate still holds.
+# The absence check is a separate statement from the run on purpose: chaining
+# them with && ... || would report "not on PATH" for an ordinary lint failure.
+lint-go: vet
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint run ./...; \
+	else \
+		echo "⚠  golangci-lint not on PATH — skipping (CI runs it)."; \
+		echo "   Install: https://golangci-lint.run/welcome/install/"; \
+	fi
+
+# tsc --noEmit rather than `npm run build`: type errors are what we are gating
+# on, and a full vite build here would double every check's runtime.
+check-frontend: bindings
+	cd frontend && npm run typecheck && npm run lint && npm run test
+
+# Single source of truth for the release version. CI derives artifact names from
+# this rather than from GITHUB_REF_NAME, so the two can never disagree.
+print-version:
+	@echo $(VERSION)
+
 test-e2e:
 	@echo "⚠  Make sure 'make dev-wails' is running in another terminal (http://localhost:34115)."
 	cd e2e_tests && pip install -q -r requirements.txt && \
@@ -182,13 +219,14 @@ test-e2e:
 # ── Documentation (MkDocs Material) ──────────────────────────────
 # Requires mkdocs-material on PATH: pip install mkdocs-material
 
-# docs/downloads.md is tracked with a __VERSION__ placeholder; substitute the
-# current git tag ($(VERSION)) in place before building/serving. In CI this runs
-# on a fresh checkout. Locally, `git checkout docs/downloads.md` restores the
-# placeholder if you need to rebuild for a different version.
+# docs/downloads.md.in is the tracked template (carrying a __VERSION__
+# placeholder); docs/downloads.md is generated from it and gitignored. Generating
+# a copy rather than sed -i'ing the tracked file is what keeps `make docs-serve`
+# from dirtying the working tree — an in-place substitution cannot be ignored,
+# because gitignore never applies to a file git already tracks.
 docs-downloads:
-	@echo "Substituting version v$(VERSION) into docs/downloads.md"
-	@sed -i 's/__VERSION__/$(VERSION)/g' docs/downloads.md
+	@echo "Generating docs/downloads.md for v$(VERSION)"
+	@sed 's/__VERSION__/$(VERSION)/g' docs/downloads.md.in > docs/downloads.md
 	@echo "Writing docs/version.json for v$(VERSION) (in-app update check)"
 	@printf '{"version":"%s","downloadUrl":"https://kubeinspector.com/downloads/","assets":{"linux-deb":"%s/kube-inspector-%s-linux-amd64.deb","linux-rpm":"%s/kube-inspector-%s-linux-x86_64.rpm","windows-amd64":"%s/kube-inspector-%s-windows-amd64.exe","darwin-arm64":"%s/kube-inspector-%s-macos-arm64.dmg"}}\n' \
 		"$(VERSION)" \
@@ -203,4 +241,4 @@ docs-serve: docs-downloads
 docs-build: docs-downloads
 	mkdocs build --clean --strict
 
-.PHONY: build build-linux build-windows build-mac dev dev-wails bindings dev-tui build-tui build-tui-linux build-tui-windows build-tui-mac deps build-sidecar electron-frontend electron-app electron-dev-go electron-dev-vite electron-dev pkg-deb pkg-rpm pkg-linux pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm pkg-all clean test-e2e docs-downloads docs-serve docs-build
+.PHONY: build build-linux build-windows build-mac dev dev-wails bindings dev-tui build-tui build-tui-linux build-tui-windows build-tui-mac deps build-sidecar electron-frontend electron-app electron-dev-go electron-dev-vite electron-dev pkg-deb pkg-rpm pkg-linux pkg-windows pkg-mac pkg-tui-deb pkg-tui-rpm pkg-all clean check test-go vet lint-go check-frontend print-version test-e2e docs-downloads docs-serve docs-build

@@ -1,15 +1,13 @@
 package models
 
-
-
 type NetworkPolicyInfo struct {
-	Name             string    `json:"name"`
-	Namespace        string    `json:"namespace"`
-	PodSelector      string    `json:"pod_selector"`
-	PolicyTypes      []string  `json:"policy_types"`
-	IngressRuleCount int       `json:"ingress_rule_count"`
-	EgressRuleCount  int       `json:"egress_rule_count"`
-	CreatedAt string `json:"created_at"`
+	Name             string   `json:"name"`
+	Namespace        string   `json:"namespace"`
+	PodSelector      string   `json:"pod_selector"`
+	PolicyTypes      []string `json:"policy_types"`
+	IngressRuleCount int      `json:"ingress_rule_count"`
+	EgressRuleCount  int      `json:"egress_rule_count"`
+	CreatedAt        string   `json:"created_at"`
 }
 
 type NetworkPolicyPeer struct {

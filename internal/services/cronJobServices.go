@@ -70,7 +70,7 @@ func cronJobToInfo(cj batchv1.CronJob) models.CronJobInfo {
 		Schedule:    cj.Spec.Schedule,
 		Suspend:     cj.Spec.Suspend != nil && *cj.Spec.Suspend,
 		ActiveCount: len(cj.Status.Active),
-		CreatedAt: cj.CreationTimestamp.Time.Format(time.RFC3339),
+		CreatedAt:   cj.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 	if cj.Status.LastScheduleTime != nil {
 		info.LastScheduleTime = cj.Status.LastScheduleTime.Time.Format(time.RFC3339)

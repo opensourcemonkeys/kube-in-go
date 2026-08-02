@@ -1,10 +1,10 @@
 package services_k8sclient
 
 import (
-	"time"
 	"context"
 	"fmt"
 	"kube-ins/internal/models"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -117,18 +117,18 @@ func podToInfo(pod corev1.Pod, rsToDeploy map[string]string, podUsage map[string
 	}
 
 	return models.PodInfo{
-		Name:       pod.Name,
-		Namespace:  pod.Namespace,
+		Name:              pod.Name,
+		Namespace:         pod.Namespace,
 		Status:            getPodStatus(pod),
 		Containers:        containers,
 		ContainerStatuses: containerStatuses,
 		Restarts:          restarts,
 		LastRestartAt:     lastRestartAtStr,
 		CreatedAt:         pod.CreationTimestamp.Time.Format(time.RFC3339),
-		PodIP:      pod.Status.PodIP,
-		OwnerKind:  ownerKind,
-		CpuMillis:  cpuUsage,
-		MemMi:      memUsage,
+		PodIP:             pod.Status.PodIP,
+		OwnerKind:         ownerKind,
+		CpuMillis:         cpuUsage,
+		MemMi:             memUsage,
 	}
 }
 

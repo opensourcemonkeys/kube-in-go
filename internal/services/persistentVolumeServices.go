@@ -74,4 +74,3 @@ func pvToInfo(pv corev1.PersistentVolume) models.PersistentVolumeInfo {
 		CreatedAt:        pv.CreationTimestamp.Time.Format(time.RFC3339),
 	}
 }
-

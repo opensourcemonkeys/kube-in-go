@@ -459,7 +459,7 @@ func (a *App) CloseTerminalSession(id string) error {
 func (a *App) CreateCliModeSession(id string) error {
 	return bussiness.CreateCliModeSession(id,
 		func(data string) { a.emit("climode:output:"+id, data) },
-		func() { a.emit("climode:exit:"+id) },
+		func() { a.emit("climode:exit:" + id) },
 	)
 }
 

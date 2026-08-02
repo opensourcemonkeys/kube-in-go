@@ -3,7 +3,10 @@ name: Build & Release
 on:
   push:
     tags:
-      - '*'
+      # Release tags only. An unfiltered '*' meant any tag — including a
+      # throwaway or a backup marker — triggered a three-platform build, an R2
+      # upload to the public bucket, a GitHub Release and a docs deploy.
+      - 'v*'
 
 env:
   NODE_OPTIONS: "--max-old-space-size=4096"

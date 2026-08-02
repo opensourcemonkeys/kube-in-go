@@ -13,7 +13,6 @@ interface ListBoxProps {
 
 export default function ListBoxComponent({ data }: ListBoxProps) {
     const [selectedItems, setSelectedItem] = useState<ListModel | null>(null);
-debugger
     const items: ListModel[] = data.map((item) => ({
         name: item[0], 
         code: item[1] 

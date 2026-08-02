@@ -4,7 +4,7 @@ description: Download Kube Inspector — the free Kubernetes desktop client — 
 
 # Downloads
 
-Latest installers and packages for **v__VERSION__**.
+Latest installers and packages for **v0.15.0-alpha**.
 
 Kube Inspector ships in two flavours:
 
@@ -21,16 +21,16 @@ Both are self-contained: **no runtime dependencies to install on any platform**.
 
 One package per family — there is no per-distribution variant to choose.
 
-- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-__VERSION__-linux-amd64.deb)
-- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-__VERSION__-linux-x86_64.rpm)
+- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-0.15.0-alpha-linux-amd64.deb)
+- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-0.15.0-alpha-linux-x86_64.rpm)
 
 ### Windows
 
-- **Windows (installer)** — [Download](/dist/kube-inspector-__VERSION__-windows-amd64.exe)
+- **Windows (installer)** — [Download](/dist/kube-inspector-0.15.0-alpha-windows-amd64.exe)
 
 ### macOS
 
-- **macOS (Apple Silicon)** — [Download](/dist/kube-inspector-__VERSION__-macos-arm64.dmg)
+- **macOS (Apple Silicon)** — [Download](/dist/kube-inspector-0.15.0-alpha-macos-arm64.dmg)
 
 ---
 
@@ -40,14 +40,14 @@ A single self-contained binary — one Linux package fits every distro. See [CLI
 
 ### Linux
 
-- **Portable binary (.tar.gz)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-amd64.tar.gz)
-- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-cli-__VERSION__-debian-amd64.deb)
-- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-x86_64.rpm)
+- **Portable binary (.tar.gz)** — [Download](/dist/kube-inspector-cli-0.15.0-alpha-linux-amd64.tar.gz)
+- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-cli-0.15.0-alpha-debian-amd64.deb)
+- **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-cli-0.15.0-alpha-linux-x86_64.rpm)
 
 ### Windows
 
-- **Windows** — [Download](/dist/kube-inspector-cli-__VERSION__-windows-amd64.exe)
+- **Windows** — [Download](/dist/kube-inspector-cli-0.15.0-alpha-windows-amd64.exe)
 
 ### macOS
 
-- **macOS (Universal)** — [Download](/dist/kube-inspector-cli-__VERSION__-macos-universal.tar.gz)
+- **macOS (Universal)** — [Download](/dist/kube-inspector-cli-0.15.0-alpha-macos-universal.tar.gz)

@@ -1,0 +1,140 @@
+version: "2"
+
+# The Trivy scanner library pulls in encoding/json/v2, gated behind the jsonv2
+# GOEXPERIMENT on Go 1.26. golangci-lint shells out to the Go toolchain, so it
+# inherits GOEXPERIMENT from the environment — the Makefile exports it and
+# ci.yml sets it in the workflow env. Running `golangci-lint run` by hand
+# without it fails the whole run with a typecheck error on the Trivy import.
+run:
+  timeout: 10m
+
+linters:
+  default: none
+  enable:
+    - govet
+    - staticcheck    # v2 folded gosimple + stylecheck into this
+    - errcheck
+    - ineffassign
+    - unused
+    - bodyclose
+    - contextcheck
+    - gosec
+
+  settings:
+    staticcheck:
+      # Listing `all` re-enables the ST* style checks golangci-lint disables by
+      # default, so the default exclusions have to be restated. ST1003 in
+      # particular conflicts with this repo's documented package-alias
+      # convention (repository_k8sclient, services_k8sclient — see CLAUDE.md).
+      checks:
+        - all
+        - -ST1000
+        - -ST1003
+        - -ST1016
+        - -ST1020
+        - -ST1021
+        - -ST1022
+        # QF* is staticcheck's "quickfix" category: pure style suggestions
+        # (embedded-field selectors, De Morgan's law, Fprintf vs WriteString).
+        # They flag no defect class, so they are noise in a gate.
+        - -QF1001
+        - -QF1008
+        - -QF1012
+    errcheck:
+      # Deferred cleanup is deliberately fire-and-forget; flagging it buries the
+      # unchecked errors that actually matter.
+      exclude-functions:
+        - (io.Closer).Close
+        - (*os.File).Close
+    gosec:
+      excludes:
+        - G104   # duplicates errcheck
+        # G304 (file inclusion via variable), G306 (0644 write perms) and G301
+        # (0755 dir perms) are inherent to a desktop app: it opens paths the
+        # user picked, exports snapshots/reports meant to be readable, and
+        # creates ordinary directories in the user's own home (~/Downloads, the
+        # Trivy cache). Kubeconfigs — the data that genuinely needs protecting —
+        # are written 0600 into a 0700 dir, which is checked in S3's tests.
+        - G304
+        - G306
+        - G301
+        # G706 flags any variable reaching a log call. Every input here is local
+        # config the user already controls; the check has no signal for us.
+        - G706
+        # cols/rows for a pty, arriving from the frontend as JS numbers. Bounded
+        # by the terminal widget in practice.
+        - G115
+
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      # Tests ignore errors on setup paths and use weak randomness by design.
+      - path: _test\.go
+        linters: [errcheck, gosec]
+
+      # Subprocess execution is the feature, not an injection: an interactive
+      # shell, this binary re-exec'd in --tui mode, and the platform installer.
+      - path: internal/services/(terminalServices|cliModeServices|selfUpdate_.*)\.go
+        text: "(G204|G702)"
+
+      # gorilla/websocket documents that the *http.Response from Dial does not
+      # need closing — "The response body may not contain the entire response
+      # and does not need to be closed by the application."
+      - path: internal/ipc/hub\.go
+        linters: [bodyclose]
+
+      # The app deliberately exposes the Endpoints resource, which Kubernetes
+      # deprecated in v1.33 in favour of EndpointSlice. Users still have
+      # Endpoints objects in their clusters, so the view stays.
+      - path: internal/services/endpointServices\.go
+        text: "SA1019"
+
+      # ── Findings owned by a later beta-plan step ────────────────────────────
+      # Each exclusion below is a known defect with a scheduled fix. Delete the
+      # rule as its step lands — do not widen these, and do not add new ones
+      # without a step to point at.
+
+      # TODO(beta-plan S3b): clusterName is joined into a filesystem path with no
+      # validation, so SaveCluster/DeleteCluster can escape ~/.kube-ins.
+      - path: internal/business/cluster\.go
+        text: "G703"
+
+      # TODO(beta-plan S2): ApplyYaml shells out to kubectl, which is neither
+      # shipped nor declared as a dependency. S2 replaces the whole path with a
+      # native dynamic-client server-side apply, deleting this call site.
+      - path: internal/services/applyYamlServices\.go
+        text: "G204"
+
+      # The taint gosec follows here is XDG_DOWNLOAD_DIR — an env var from the
+      # user's own desktop session, not untrusted input. Worth revisiting with
+      # S3b all the same: the same function ends in filepath.Join(dir,
+      # opts.DefaultName), and DefaultName arrives from the frontend unvalidated.
+      # Only reachable in browser mode (no native dialog, no shell attached).
+      - path: internal/controller/rpcserver\.go
+        text: "G703"
+
+      # TODO(beta-plan S4/S5): the hub's deadline and Serve errors are dropped,
+      # and both loopback servers leave ReadHeaderTimeout unset (G112). S4
+      # rewrites this file's connection handling.
+      - path: internal/ipc/hub\.go
+        linters: [errcheck]
+      - path: internal/(ipc/hub|controller/rpcserver)\.go
+        text: "G112"
+
+      # TODO(beta-plan S3c): these call chains drop the caller's context instead
+      # of threading it, which is why nothing here can be cancelled or timed out.
+      - path: internal/(business/ai|tui/run)\.go
+        linters: [contextcheck]
+
+      # TODO(beta-plan S7): the TUI and business layers still swallow errors in
+      # places the error-return refactor rewrites. Narrow this to nothing once
+      # S7 lands rather than widening it.
+      - path: internal/tui/
+        linters: [errcheck]
+
+formatters:
+  enable:
+    - gofmt

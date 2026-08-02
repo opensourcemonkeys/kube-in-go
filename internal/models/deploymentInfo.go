@@ -1,7 +1,5 @@
 package models
 
-
-
 type DeploymentInfo struct {
 	Name              string `json:"name"`
 	Namespace         string `json:"namespace"`

@@ -1,7 +1,5 @@
 package models
 
-
-
 type DaemonSetInfo struct {
 	Name                   string `json:"name"`
 	Namespace              string `json:"namespace"`

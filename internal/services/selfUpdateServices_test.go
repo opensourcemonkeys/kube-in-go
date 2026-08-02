@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"sort"
 	"testing"
 	"time"
 )
@@ -98,8 +99,48 @@ func TestSelfUpdateDownloadCancel(t *testing.T) {
 	t.Logf("cancel rejected as expected: %v", err)
 }
 
+// The keys published in the update manifest (see the Makefile's docs-downloads
+// target). PlatformAssetKey must only ever return one of these, or "" — a key
+// that is not in the manifest resolves to no asset and silently disables the
+// in-app updater for that platform.
+var manifestAssetKeys = map[string]string{
+	"linux-deb":     "deb",
+	"linux-rpm":     "rpm",
+	"windows-amd64": "exe",
+	"darwin-arm64":  "dmg",
+}
+
 func TestPlatformAssetResolution(t *testing.T) {
 	key, kind := PlatformAssetKey()
-	t.Logf("PlatformAssetKey() = %q, %q", key, kind)
-	t.Logf("CheckInstallable() = %v", CheckInstallable())
+
+	// "" is a legitimate answer, not a failure: on Linux it means neither dpkg
+	// nor rpm is present (a minimal container, or a source install), and the UI
+	// correctly falls back to opening the downloads page.
+	if key == "" {
+		if kind != "" {
+			t.Errorf("PlatformAssetKey() returned an empty key with kind %q; both must be empty together", kind)
+		}
+		if err := CheckInstallable(); err == nil {
+			t.Error("CheckInstallable() returned nil despite there being no installable asset for this platform")
+		}
+		t.Skip("no packaged installer applies to this machine")
+	}
+
+	wantKind, ok := manifestAssetKeys[key]
+	if !ok {
+		t.Fatalf("PlatformAssetKey() = %q, which is not published in the manifest; want one of %v",
+			key, sortedKeys(manifestAssetKeys))
+	}
+	if kind != wantKind {
+		t.Errorf("PlatformAssetKey() = (%q, %q), want kind %q for that key", key, kind, wantKind)
+	}
+}
+
+func sortedKeys(m map[string]string) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }
