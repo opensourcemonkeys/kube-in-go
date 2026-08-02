@@ -233,5 +233,6 @@
   "231": "react",
   "232": "react-dom",
   "233": "eslint.config.js",
-  "234": "vitest.config.ts"
+  "234": "vitest.config.ts",
+  "235": "chart.js"
 }

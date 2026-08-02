@@ -718,6 +718,10 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .yaml-editor-panel { background: var(--app); }
 .yaml-editor-toolbar { padding: 0 8px 0 14px; height: 36px; flex-shrink: 0; background: var(--panel); border-bottom: 1px solid var(--line); }
 .yaml-editor-toolbar__label { font-size: 12px; color: var(--ink2); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* Target-cluster picker in the Apply YAML toolbar — same compact sizing as the
+   log viewer's dropdown so it fits the 36px bar. */
+.yaml-editor-toolbar__cluster.p-dropdown { height: 26px !important; font-size: 12px; border-radius: 4px !important; }
+.yaml-editor-toolbar__cluster .p-dropdown-label { padding: 0 8px; font-size: 12px; line-height: 24px; }
 
 /* Editor/log backgrounds stay dark on every theme — their syntax/log colors are
    tuned for a dark surface, so they must not follow a light theme's --app. */

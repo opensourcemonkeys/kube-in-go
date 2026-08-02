@@ -54,3 +54,8 @@ scripts:
 # No `depends`: Electron bundles its own Chromium. Dropping the libwebkit2gtk
 # dependency the Wails packages carried is the entire point of this shell — and
 # it is why one package now works on every distro.
+#
+# kubectl is deliberately NOT a dependency. "Apply YAML" used to shell out to
+# it, which silently did not work on a clean machine; it now runs server-side
+# apply through client-go's dynamic client (internal/services/applyYamlServices.go).
+# Do not reintroduce a subprocess here — the app talks to the API server itself.

@@ -28,7 +28,7 @@ function getComponentType(panelId: string): string {
     if (panelId.startsWith('log:')) return 'logViewer';
     if (panelId.startsWith('exec:')) return 'podExec';
     if (panelId.startsWith('terminal-')) return 'terminal';
-    if (panelId.startsWith('apply-yaml-')) return 'applyYaml';
+    if (panelId.startsWith('applyYaml:')) return 'applyYaml';
     if (panelId.startsWith('policy:')) return 'policyViewer';
     if (panelId.startsWith('configmap-editor:')) return 'configMapEditor';
     if (panelId.startsWith('secret-editor:')) return 'secretEditor';

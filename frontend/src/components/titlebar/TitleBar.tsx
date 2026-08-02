@@ -10,6 +10,7 @@ import {
 import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import { useClusterContext } from '../../contexts/ClusterContext';
 import { useAiChatStore } from '../../stores/aiChatStore';
 import { useThemeStore, THEMES } from '../../stores/themeStore';
 import { useNextStep } from 'nextstepjs';
@@ -31,6 +32,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const [updateOpen, setUpdateOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
     const { openTerminal, openApplyYaml } = useTabContext();
+    const { activeCluster } = useClusterContext();
     const { startNextStep } = useNextStep();
     const toggleAi = useAiChatStore((s) => s.toggle);
     const aiOpen = useAiChatStore((s) => s.open);
@@ -63,7 +65,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
         {
             label: 'Open',
             items: [
-                { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml() },
+                { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml(activeCluster) },
                 { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal() },
                 { label: 'CLI Mode',    icon: <VscScreenFull size={13} />,  command: () => onToggleCli?.() },
                 { separator: true },

@@ -10,10 +10,11 @@ import (
 )
 
 // loadApplyYaml mounts an empty YAML buffer in the right pane. Ctrl+O applies
-// it to the active cluster via `kubectl apply` (business.ApplyYaml — the TUI
-// cluster screen already pinned the active kubeconfig); Ctrl+X/Esc exits,
-// prompting first when the buffer is non-empty. The buffer survives a
-// successful apply so it can be tweaked and re-applied.
+// it with server-side apply to the cluster selected on the cluster screen
+// (business.ApplyYaml takes that name explicitly, so it cannot drift to
+// whichever kubeconfig is globally active); Ctrl+X/Esc exits, prompting first
+// when the buffer is non-empty. The buffer survives a successful apply so it
+// can be tweaked and re-applied.
 func (a *App) loadApplyYaml() {
 	a.closeDescribe()
 	a.stopAutoRefresh()
@@ -26,8 +27,8 @@ func (a *App) loadApplyYaml() {
 	area.SetTextStyle(tcell.StyleDefault.Background(colBg).Foreground(colInk))
 	area.SetBorder(true).SetBorderColor(colTeal).SetTitle(title)
 
-	// applying guards against re-triggering while a kubectl run is in flight
-	// (ApplyYaml shells out and can block on an unreachable cluster).
+	// applying guards against re-triggering while an apply is in flight
+	// (it can block for up to the business-layer timeout on a slow cluster).
 	var applying bool
 
 	area.SetInputCapture(func(ev *tcell.EventKey) *tcell.EventKey {
@@ -43,8 +44,9 @@ func (a *App) loadApplyYaml() {
 			}
 			applying = true
 			area.SetTitle(" Apply YAML (applying…) ")
+			cluster := a.cluster
 			go func() {
-				out, err := business.ApplyYaml(text)
+				out, err := business.ApplyYaml(cluster, text)
 				a.app.QueueUpdateDraw(func() {
 					applying = false
 					area.SetTitle(title)
