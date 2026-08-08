@@ -13,7 +13,7 @@ import (
 )
 
 func GetReplicaSets(namespace string, client *kubernetes.Clientset) ([]models.ReplicaSetInfo, error) {
-	list, err := client.AppsV1().ReplicaSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteReplicaSet(namespace, name string, client *kubernetes.Clientset) erro
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.AppsV1().ReplicaSets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.AppsV1().ReplicaSets(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetReplicaSetYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	r, err := client.AppsV1().ReplicaSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	r, err := client.AppsV1().ReplicaSets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateReplicaSetYaml(namespace, name, yamlContent string, client *kubernete
 	rs.Namespace = namespace
 	rs.Name = name
 
-	_, err := client.AppsV1().ReplicaSets(namespace).Update(context.TODO(), &rs, metav1.UpdateOptions{})
+	_, err := client.AppsV1().ReplicaSets(namespace).Update(context.Background(), &rs, metav1.UpdateOptions{})
 	return err
 }
 

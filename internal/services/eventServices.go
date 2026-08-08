@@ -11,7 +11,7 @@ import (
 )
 
 func GetEvents(namespace string, client *kubernetes.Clientset) ([]models.EventInfo, error) {
-	list, err := client.CoreV1().Events(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().Events(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

@@ -20,7 +20,7 @@ func DeleteNetworkPolicy(namespace, name string, client *kubernetes.Clientset) e
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.NetworkingV1().NetworkPolicies(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.NetworkingV1().NetworkPolicies(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyDetail, error) {
@@ -45,7 +45,7 @@ func ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyDetail, er
 }
 
 func GetNetworkPolicies(namespace string, client *kubernetes.Clientset) ([]models.NetworkPolicyInfo, error) {
-	policies, err := client.NetworkingV1().NetworkPolicies(namespace).List(context.TODO(), metav1.ListOptions{})
+	policies, err := client.NetworkingV1().NetworkPolicies(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func GetNetworkPolicyYaml(namespace, name string, client *kubernetes.Clientset) 
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	p, err := client.NetworkingV1().NetworkPolicies(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	p, err := client.NetworkingV1().NetworkPolicies(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +77,7 @@ func UpdateNetworkPolicyYaml(namespace, name, yamlContent string, client *kubern
 	}
 	policy.Namespace = namespace
 	policy.Name = name
-	_, err := client.NetworkingV1().NetworkPolicies(namespace).Update(context.TODO(), &policy, metav1.UpdateOptions{})
+	_, err := client.NetworkingV1().NetworkPolicies(namespace).Update(context.Background(), &policy, metav1.UpdateOptions{})
 	return err
 }
 
@@ -85,7 +85,7 @@ func GetNetworkPolicyDetail(namespace, name string, client *kubernetes.Clientset
 	if namespace == "" || name == "" {
 		return nil, errNamespaceNameRequired
 	}
-	p, err := client.NetworkingV1().NetworkPolicies(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	p, err := client.NetworkingV1().NetworkPolicies(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

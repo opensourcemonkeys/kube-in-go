@@ -17,14 +17,14 @@ import (
 )
 
 func GetNodes(k8sClient *kubernetes.Clientset, mc *metricsclient.Clientset) ([]models.NodeInfo, error) {
-	nodes, err := k8sClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	nodes, err := k8sClient.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	nodeMetrics := map[string]metricsv1beta1.NodeMetrics{}
 	if mc != nil {
-		if ml, err := mc.MetricsV1beta1().NodeMetricses().List(context.TODO(), metav1.ListOptions{}); err == nil {
+		if ml, err := mc.MetricsV1beta1().NodeMetricses().List(context.Background(), metav1.ListOptions{}); err == nil {
 			for _, m := range ml.Items {
 				nodeMetrics[m.Name] = m
 			}
@@ -40,13 +40,13 @@ func GetNodes(k8sClient *kubernetes.Clientset, mc *metricsclient.Clientset) ([]m
 
 func CordonNode(name string, k8sClient *kubernetes.Clientset) error {
 	patch := []byte(`{"spec":{"unschedulable":true}}`)
-	_, err := k8sClient.CoreV1().Nodes().Patch(context.TODO(), name, types.MergePatchType, patch, metav1.PatchOptions{})
+	_, err := k8sClient.CoreV1().Nodes().Patch(context.Background(), name, types.MergePatchType, patch, metav1.PatchOptions{})
 	return err
 }
 
 func UncordonNode(name string, k8sClient *kubernetes.Clientset) error {
 	patch := []byte(`{"spec":{"unschedulable":false}}`)
-	_, err := k8sClient.CoreV1().Nodes().Patch(context.TODO(), name, types.MergePatchType, patch, metav1.PatchOptions{})
+	_, err := k8sClient.CoreV1().Nodes().Patch(context.Background(), name, types.MergePatchType, patch, metav1.PatchOptions{})
 	return err
 }
 
@@ -55,7 +55,7 @@ func DrainNode(name string, k8sClient *kubernetes.Clientset) error {
 		return fmt.Errorf("cordon failed: %w", err)
 	}
 
-	pods, err := k8sClient.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{
+	pods, err := k8sClient.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{
 		FieldSelector: "spec.nodeName=" + name,
 	})
 	if err != nil {
@@ -69,7 +69,7 @@ func DrainNode(name string, k8sClient *kubernetes.Clientset) error {
 		eviction := &policyv1.Eviction{
 			ObjectMeta: metav1.ObjectMeta{Name: pod.Name, Namespace: pod.Namespace},
 		}
-		if err := k8sClient.PolicyV1().Evictions(pod.Namespace).Evict(context.TODO(), eviction); err != nil {
+		if err := k8sClient.PolicyV1().Evictions(pod.Namespace).Evict(context.Background(), eviction); err != nil {
 			return fmt.Errorf("failed to evict pod %s/%s: %w", pod.Namespace, pod.Name, err)
 		}
 	}
@@ -94,7 +94,7 @@ func GetNodeYaml(name string, k8sClient *kubernetes.Clientset) (string, error) {
 	if name == "" {
 		return "", fmt.Errorf("node name is required")
 	}
-	node, err := k8sClient.CoreV1().Nodes().Get(context.TODO(), name, metav1.GetOptions{})
+	node, err := k8sClient.CoreV1().Nodes().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -110,7 +110,7 @@ func UpdateNodeYaml(name, yamlContent string, k8sClient *kubernetes.Clientset) e
 		return fmt.Errorf("failed to parse YAML: %w", err)
 	}
 	node.Name = name
-	_, err := k8sClient.CoreV1().Nodes().Update(context.TODO(), &node, metav1.UpdateOptions{})
+	_, err := k8sClient.CoreV1().Nodes().Update(context.Background(), &node, metav1.UpdateOptions{})
 	return err
 }
 

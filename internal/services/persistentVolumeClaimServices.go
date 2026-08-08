@@ -11,7 +11,7 @@ import (
 )
 
 func GetPersistentVolumeClaims(namespace string, client *kubernetes.Clientset) ([]models.PersistentVolumeClaimInfo, error) {
-	list, err := client.CoreV1().PersistentVolumeClaims(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().PersistentVolumeClaims(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -23,14 +23,14 @@ func GetPersistentVolumeClaims(namespace string, client *kubernetes.Clientset) (
 }
 
 func DeletePersistentVolumeClaim(name string, namespace string, client *kubernetes.Clientset) error {
-	return client.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.CoreV1().PersistentVolumeClaims(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetPersistentVolumeClaimYaml(name string, namespace string, client *kubernetes.Clientset) (string, error) {
 	if name == "" || namespace == "" {
 		return "", errNamespaceNameRequired
 	}
-	pvc, err := client.CoreV1().PersistentVolumeClaims(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	pvc, err := client.CoreV1().PersistentVolumeClaims(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

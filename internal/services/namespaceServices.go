@@ -13,7 +13,7 @@ import (
 )
 
 func GetNamespaces(k8sClient *kubernetes.Clientset) ([]models.NamespaceInfo, error) {
-	nsList, err := k8sClient.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	nsList, err := k8sClient.CoreV1().Namespaces().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func namespaceToInfo(ns corev1.Namespace, k8sClient *kubernetes.Clientset) model
 		ResourceQuotas: []models.ResourceQuotaInfo{},
 	}
 
-	quotas, err := k8sClient.CoreV1().ResourceQuotas(ns.Name).List(context.TODO(), metav1.ListOptions{})
+	quotas, err := k8sClient.CoreV1().ResourceQuotas(ns.Name).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return info
 	}
@@ -69,11 +69,11 @@ func namespaceToInfo(ns corev1.Namespace, k8sClient *kubernetes.Clientset) model
 }
 
 func DeleteNamespace(name string, k8sClient *kubernetes.Clientset) error {
-	return k8sClient.CoreV1().Namespaces().Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return k8sClient.CoreV1().Namespaces().Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetNamespaceYaml(name string, k8sClient *kubernetes.Clientset) (string, error) {
-	ns, err := k8sClient.CoreV1().Namespaces().Get(context.TODO(), name, metav1.GetOptions{})
+	ns, err := k8sClient.CoreV1().Namespaces().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

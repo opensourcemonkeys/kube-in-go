@@ -13,7 +13,7 @@ import (
 )
 
 func GetLimitRanges(namespace string, client *kubernetes.Clientset) ([]models.LimitRangeInfo, error) {
-	list, err := client.CoreV1().LimitRanges(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().LimitRanges(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func GetLimitRangeYaml(namespace, name string, client *kubernetes.Clientset) (st
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	lr, err := client.CoreV1().LimitRanges(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	lr, err := client.CoreV1().LimitRanges(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func UpdateLimitRangeYaml(namespace, name, yamlContent string, client *kubernete
 	lr.Namespace = namespace
 	lr.Name = name
 
-	_, err := client.CoreV1().LimitRanges(namespace).Update(context.TODO(), &lr, metav1.UpdateOptions{})
+	_, err := client.CoreV1().LimitRanges(namespace).Update(context.Background(), &lr, metav1.UpdateOptions{})
 	return err
 }
 

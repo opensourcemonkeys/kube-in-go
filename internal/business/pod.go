@@ -13,11 +13,15 @@ func GetPods(clusterName string) []models.PodInfo {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
+	// metrics-server is optional: a nil client makes the service report usage as
+	// unavailable rather than failing the whole listing.
 	mc, _ := repository.NewMetricsClientForCluster(clusterName)
 	podItem, err := services.GetPods("", client, mc)
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
 	return podItem
 }

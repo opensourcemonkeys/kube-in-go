@@ -19,7 +19,7 @@ const miDivisor = 1024 * 1024
 // It degrades gracefully: missing metrics-server yields MetricsAvailable=false
 // while still returning node capacities.
 func GetMetricsSnapshot(client *kubernetes.Clientset, mc *metricsclient.Clientset) (models.MetricsSnapshot, error) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	snap := models.MetricsSnapshot{
 		Timestamp: time.Now().UnixMilli(),
 		Cluster:   models.ResourceUsage{Kind: "cluster", Name: "cluster"},

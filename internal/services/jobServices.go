@@ -11,7 +11,7 @@ import (
 )
 
 func GetJobs(namespace string, client *kubernetes.Clientset) ([]models.JobInfo, error) {
-	list, err := client.BatchV1().Jobs(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.BatchV1().Jobs(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func DeleteJob(namespace, name string, client *kubernetes.Clientset) error {
 		return errNamespaceNameRequired
 	}
 	propagation := metav1.DeletePropagationBackground
-	return client.BatchV1().Jobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{
+	return client.BatchV1().Jobs(namespace).Delete(context.Background(), name, metav1.DeleteOptions{
 		PropagationPolicy: &propagation,
 	})
 }
@@ -37,7 +37,7 @@ func GetJobYaml(namespace, name string, client *kubernetes.Clientset) (string, e
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	j, err := client.BatchV1().Jobs(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	j, err := client.BatchV1().Jobs(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

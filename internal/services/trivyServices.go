@@ -34,7 +34,7 @@ import (
 // ephemeral containers) used by pods in the given namespace. An empty
 // namespace lists across all namespaces.
 func ListPodImages(client *kubernetes.Clientset, namespace string) ([]string, error) {
-	pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	pods, err := client.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -564,7 +564,7 @@ func ScanK8sFilesystem(
 // Only the first image from each unique (image, ownerKind, ownerName, ns)
 // combination is returned so the vulnerability tab can show resource context.
 func ListPodImagesWithContext(client *kubernetes.Clientset, namespace string) ([]models.TrivyK8sImageInfo, error) {
-	pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	pods, err := client.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

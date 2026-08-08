@@ -13,7 +13,7 @@ import (
 )
 
 func GetSecrets(namespace string, client *kubernetes.Clientset) ([]models.SecretInfo, error) {
-	secrets, err := client.CoreV1().Secrets(namespace).List(context.TODO(), metav1.ListOptions{})
+	secrets, err := client.CoreV1().Secrets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteSecret(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.CoreV1().Secrets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.CoreV1().Secrets(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetSecretYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	s, err := client.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	s, err := client.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateSecretYaml(namespace, name, yamlContent string, client *kubernetes.Cl
 	s.Namespace = namespace
 	s.Name = name
 
-	_, err := client.CoreV1().Secrets(namespace).Update(context.TODO(), &s, metav1.UpdateOptions{})
+	_, err := client.CoreV1().Secrets(namespace).Update(context.Background(), &s, metav1.UpdateOptions{})
 	return err
 }
 
@@ -64,7 +64,7 @@ func GetSecretData(namespace, name string, client *kubernetes.Clientset) (map[st
 	if namespace == "" || name == "" {
 		return nil, errNamespaceNameRequired
 	}
-	s, err := client.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	s, err := client.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func UpdateSecretData(namespace, name string, data map[string]string, client *ku
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	s, err := client.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	s, err := client.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func UpdateSecretData(namespace, name string, data map[string]string, client *ku
 		newData[k] = []byte(v)
 	}
 	s.Data = newData
-	_, err = client.CoreV1().Secrets(namespace).Update(context.TODO(), s, metav1.UpdateOptions{})
+	_, err = client.CoreV1().Secrets(namespace).Update(context.Background(), s, metav1.UpdateOptions{})
 	return err
 }
 

@@ -65,7 +65,7 @@ func GetClusterGraph(client *kubernetes.Clientset) (*models.ClusterGraph, error)
 }
 
 func collectPods(client *kubernetes.Clientset, addNode func(models.ResourceNode)) ([]corev1.Pod, []models.ResourceEdge, error) {
-	list, err := client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, nil, fmt.Errorf("listing pods: %w", err)
 	}
@@ -87,7 +87,7 @@ func collectPods(client *kubernetes.Clientset, addNode func(models.ResourceNode)
 }
 
 func collectDeployments(client *kubernetes.Clientset, addNode func(models.ResourceNode)) error {
-	list, err := client.AppsV1().Deployments("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().Deployments("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return fmt.Errorf("listing deployments: %w", err)
 	}
@@ -103,7 +103,7 @@ func collectDeployments(client *kubernetes.Clientset, addNode func(models.Resour
 }
 
 func collectReplicaSets(client *kubernetes.Clientset, addNode func(models.ResourceNode)) ([]models.ResourceEdge, error) {
-	list, err := client.AppsV1().ReplicaSets("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().ReplicaSets("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("listing replicasets: %w", err)
 	}
@@ -123,7 +123,7 @@ func collectReplicaSets(client *kubernetes.Clientset, addNode func(models.Resour
 }
 
 func collectStatefulSets(client *kubernetes.Clientset, addNode func(models.ResourceNode)) error {
-	list, err := client.AppsV1().StatefulSets("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().StatefulSets("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return fmt.Errorf("listing statefulsets: %w", err)
 	}
@@ -139,7 +139,7 @@ func collectStatefulSets(client *kubernetes.Clientset, addNode func(models.Resou
 }
 
 func collectDaemonSets(client *kubernetes.Clientset, addNode func(models.ResourceNode)) error {
-	list, err := client.AppsV1().DaemonSets("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().DaemonSets("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return fmt.Errorf("listing daemonsets: %w", err)
 	}
@@ -155,7 +155,7 @@ func collectDaemonSets(client *kubernetes.Clientset, addNode func(models.Resourc
 }
 
 func collectServices(client *kubernetes.Clientset, pods []corev1.Pod, addNode func(models.ResourceNode)) ([]models.ResourceEdge, error) {
-	list, err := client.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().Services("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("listing services: %w", err)
 	}
@@ -187,7 +187,7 @@ func selectorEdges(namespace, svcName string, selector map[string]string, pods [
 }
 
 func collectIngresses(client *kubernetes.Clientset, addNode func(models.ResourceNode)) ([]models.ResourceEdge, error) {
-	list, err := client.NetworkingV1().Ingresses("").List(context.TODO(), metav1.ListOptions{})
+	list, err := client.NetworkingV1().Ingresses("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("listing ingresses: %w", err)
 	}

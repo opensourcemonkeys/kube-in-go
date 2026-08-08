@@ -14,7 +14,7 @@ import (
 )
 
 func GetServiceAccounts(namespace string, client *kubernetes.Clientset) ([]models.ServiceAccountInfo, error) {
-	list, err := client.CoreV1().ServiceAccounts(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().ServiceAccounts(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func GetServiceAccountYaml(namespace, name string, client *kubernetes.Clientset)
 	if namespace == "" || name == "" {
 		return "", errNamespaceServiceAccountRequired
 	}
-	sa, err := client.CoreV1().ServiceAccounts(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	sa, err := client.CoreV1().ServiceAccounts(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +46,7 @@ func UpdateServiceAccountYaml(namespace, name, yamlContent string, client *kuber
 	}
 	sa.Namespace = namespace
 	sa.Name = name
-	_, err := client.CoreV1().ServiceAccounts(namespace).Update(context.TODO(), &sa, metav1.UpdateOptions{})
+	_, err := client.CoreV1().ServiceAccounts(namespace).Update(context.Background(), &sa, metav1.UpdateOptions{})
 	return err
 }
 
@@ -54,13 +54,13 @@ func UpdateServiceAccount(namespace, name string, labels, annotations map[string
 	if namespace == "" || name == "" {
 		return errNamespaceServiceAccountRequired
 	}
-	sa, err := client.CoreV1().ServiceAccounts(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	sa, err := client.CoreV1().ServiceAccounts(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	sa.Labels = labels
 	sa.Annotations = annotations
-	_, err = client.CoreV1().ServiceAccounts(namespace).Update(context.TODO(), sa, metav1.UpdateOptions{})
+	_, err = client.CoreV1().ServiceAccounts(namespace).Update(context.Background(), sa, metav1.UpdateOptions{})
 	return err
 }
 

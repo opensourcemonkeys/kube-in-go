@@ -13,7 +13,7 @@ import (
 )
 
 func GetDaemonSets(namespace string, client *kubernetes.Clientset) ([]models.DaemonSetInfo, error) {
-	list, err := client.AppsV1().DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().DaemonSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteDaemonSet(namespace, name string, client *kubernetes.Clientset) error
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.AppsV1().DaemonSets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.AppsV1().DaemonSets(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetDaemonSetYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	d, err := client.AppsV1().DaemonSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	d, err := client.AppsV1().DaemonSets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateDaemonSetYaml(namespace, name, yamlContent string, client *kubernetes
 	ds.Namespace = namespace
 	ds.Name = name
 
-	_, err := client.AppsV1().DaemonSets(namespace).Update(context.TODO(), &ds, metav1.UpdateOptions{})
+	_, err := client.AppsV1().DaemonSets(namespace).Update(context.Background(), &ds, metav1.UpdateOptions{})
 	return err
 }
 

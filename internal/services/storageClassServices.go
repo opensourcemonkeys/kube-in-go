@@ -11,7 +11,7 @@ import (
 )
 
 func GetStorageClasses(client *kubernetes.Clientset) ([]models.StorageClassInfo, error) {
-	list, err := client.StorageV1().StorageClasses().List(context.TODO(), metav1.ListOptions{})
+	list, err := client.StorageV1().StorageClasses().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func GetStorageClassYaml(name string, client *kubernetes.Clientset) (string, err
 	if name == "" {
 		return "", errNamespaceNameRequired
 	}
-	sc, err := client.StorageV1().StorageClasses().Get(context.TODO(), name, metav1.GetOptions{})
+	sc, err := client.StorageV1().StorageClasses().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

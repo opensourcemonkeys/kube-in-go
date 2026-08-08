@@ -13,7 +13,7 @@ import (
 )
 
 func GetStatefulSets(namespace string, client *kubernetes.Clientset) ([]models.StatefulSetInfo, error) {
-	list, err := client.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.AppsV1().StatefulSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteStatefulSet(namespace, name string, client *kubernetes.Clientset) err
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.AppsV1().StatefulSets(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.AppsV1().StatefulSets(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetStatefulSetYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	s, err := client.AppsV1().StatefulSets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	s, err := client.AppsV1().StatefulSets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateStatefulSetYaml(namespace, name, yamlContent string, client *kubernet
 	ss.Namespace = namespace
 	ss.Name = name
 
-	_, err := client.AppsV1().StatefulSets(namespace).Update(context.TODO(), &ss, metav1.UpdateOptions{})
+	_, err := client.AppsV1().StatefulSets(namespace).Update(context.Background(), &ss, metav1.UpdateOptions{})
 	return err
 }
 

@@ -13,7 +13,7 @@ import (
 )
 
 func GetDeployments(namespace string, client *kubernetes.Clientset) ([]models.DeploymentInfo, error) {
-	deployments, err := client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
+	deployments, err := client.AppsV1().Deployments(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteDeployment(namespace, name string, client *kubernetes.Clientset) erro
 	if namespace == "" || name == "" {
 		return errNamespaceDeploymentRequired
 	}
-	return client.AppsV1().Deployments(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.AppsV1().Deployments(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetDeploymentYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceDeploymentRequired
 	}
-	d, err := client.AppsV1().Deployments(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	d, err := client.AppsV1().Deployments(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateDeploymentYaml(namespace, name, yamlContent string, client *kubernete
 	deployment.Namespace = namespace
 	deployment.Name = name
 
-	_, err := client.AppsV1().Deployments(namespace).Update(context.TODO(), &deployment, metav1.UpdateOptions{})
+	_, err := client.AppsV1().Deployments(namespace).Update(context.Background(), &deployment, metav1.UpdateOptions{})
 	return err
 }
 
