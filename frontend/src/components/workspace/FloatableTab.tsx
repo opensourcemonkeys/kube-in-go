@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { VscClose } from 'react-icons/vsc';
 import { IDockviewPanelHeaderProps } from 'dockview';
 import { useInstanceContext } from '../../contexts/InstanceContext';
+import { useClusterColor } from '../../stores/clusterColorStore';
 import InstancePickerMenu, { TabTarget } from '../transfer/InstancePickerMenu';
 import {
     PanelPayload,
@@ -39,13 +40,30 @@ function getComponentType(panelId: string): string {
     return 'view';
 }
 
-export default function FloatableTab({ api, containerApi }: IDockviewPanelHeaderProps) {
+export default function FloatableTab({ api, containerApi, params }: IDockviewPanelHeaderProps) {
     const { instances, selfInfo, transferTab } = useInstanceContext();
     const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
     const [siblingWindows, setSiblingWindows] = useState<ShellWindow[]>([]);
     const tabRef = useRef<HTMLDivElement>(null);
 
     const componentType = getComponentType(api.id);
+
+    // --- Per-cluster accent --------------------------------------------------
+    //
+    // The accent stripe lives on dockview's own `.dv-tab` wrapper (it has
+    // padding, so a stripe drawn inside our root would not span the tab), and
+    // that element is two levels up: .dv-tab > .dv-react-part > our root. So we
+    // hand it the colour as a custom property and let the stylesheet paint it.
+    // Panels without a cluster (terminals) simply get no accent.
+    const accent = useClusterColor((params as Record<string, any>)?.clusterName);
+
+    useLayoutEffect(() => {
+        const wrapper = tabRef.current?.closest('.dv-tab') as HTMLElement | null;
+        if (!wrapper) return;
+        if (accent) wrapper.style.setProperty('--tab-accent', accent);
+        else wrapper.style.removeProperty('--tab-accent');
+        return () => { wrapper.style.removeProperty('--tab-accent'); };
+    }, [accent]);
     const canTransfer = !NON_TRANSFERABLE.has(componentType);
     const otherInstances = instances.filter(i => i.id !== selfInfo?.id);
 

@@ -461,9 +461,11 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
   transition: background .12s, color .12s;
 }
 .sidebar-item:hover { background: var(--hover); color: var(--ink); }
-.sidebar-item--active { background: linear-gradient(to right, rgba(63,200,180,.1), transparent); border-left-color: var(--teal); color: var(--ink); font-weight: 500; }
+/* --cluster-accent is published on <html> by ClusterBar and tracks the active
+   cluster's colour; it falls back to the theme accent when none is selected. */
+.sidebar-item--active { background: linear-gradient(to right, color-mix(in srgb, var(--cluster-accent, var(--teal)) 12%, transparent), transparent); border-left-color: var(--cluster-accent, var(--teal)); color: var(--ink); font-weight: 500; }
 .sidebar-item__icon { font-size: 13px; flex-shrink: 0; }
-.sidebar-item--active .sidebar-item__icon { color: var(--teal); }
+.sidebar-item--active .sidebar-item__icon { color: var(--cluster-accent, var(--teal)); }
 
 /* ════════════════════════════════════════════════════════════
    CLUSTER BAR
@@ -475,6 +477,9 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
   background: var(--panel) !important; border: 1px solid var(--line2) !important;
   border-radius: 6px !important; font-size: 12.5px;
 }
+/* Left edge carries the active cluster's colour. It has to come after the
+   shorthand above, which is !important. */
+.cluster-header__dropdown { border-left: 3px solid var(--cluster-accent, transparent) !important; }
 .cluster-header__dropdown:hover  { background: var(--hover) !important; }
 .cluster-header__dropdown.p-focus, .cluster-header__dropdown:focus { box-shadow: none !important; }
 .cluster-header__dropdown .p-dropdown-label  { padding: 0 8px; height: 100%; line-height: 32px; font-size: 12.5px; border: none; background: transparent; box-sizing: border-box; }
@@ -482,13 +487,38 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 
 .cluster-header__actions { display: flex; align-items: center; gap: 6px; }
 
+/* Cluster dropdown option: colour bullet + name (colours are edited in the
+   Add/Edit Cluster modal) */
+.cluster-option { display: flex; align-items: center; gap: 8px; }
+.cluster-option__bullet { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cluster-option__name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Colour picker (Add/Edit Cluster modal) */
+.cluster-modal__colors { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 2px 0; }
+.cluster-swatch {
+  width: 18px; height: 18px; border-radius: 50%; padding: 0; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,.25); cursor: pointer;
+  outline: 2px solid transparent; outline-offset: 2px;
+  transition: transform .1s, outline-color .1s;
+}
+.cluster-swatch:hover { transform: scale(1.15); }
+.cluster-swatch--on { outline-color: var(--ink); }
+.cluster-modal__auto {
+  background: transparent; border: 1px solid var(--line2); border-radius: 5px;
+  color: var(--ink2); font-family: var(--font-family); font-size: 11px;
+  padding: 3px 9px; margin-left: 4px; cursor: pointer; outline: none;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.cluster-modal__auto:hover { background: var(--hover); color: var(--ink); }
+.cluster-modal__auto.is-on { border-color: var(--teal); color: var(--teal); }
+
 .cluster-header__icon-btn {
   display: flex; align-items: center; justify-content: center;
   width: 32px; height: 32px; background: var(--panel); border: 1px solid var(--line2); border-radius: 6px;
   cursor: pointer; color: var(--ink2); padding: 0; flex-shrink: 0;
   transition: background .15s, color .15s, border-color .15s; outline: none;
 }
-.cluster-header__icon-btn:hover { background: var(--hover); border-color: rgba(63,200,180,.35); color: var(--teal); }
+.cluster-header__icon-btn:hover { background: var(--hover); border-color: color-mix(in srgb, var(--cluster-accent, var(--teal)) 35%, transparent); color: var(--cluster-accent, var(--teal)); }
 .cluster-header__icon-btn--warn { margin-left: auto; background: rgba(224,125,110,.08); border-color: rgba(224,125,110,.3); color: var(--red); animation: warn-pulse 2s ease-in-out infinite; }
 .cluster-header__icon-btn--warn:hover { background: rgba(224,125,110,.18); border-color: rgba(224,125,110,.55); color: var(--red); }
 @keyframes warn-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,125,110,0); } 50% { box-shadow: 0 0 0 3px rgba(224,125,110,.18); } }
@@ -692,6 +722,11 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 }
 #root .dv-tabs-overflow-container { background-color: var(--panel2) !important; border: 1px solid var(--line2) !important; border-radius: 6px; box-shadow: 0 8px 32px rgba(0,0,0,.45); font-family: var(--font-family); font-size: 13px; }
 #root .dv-tabs-overflow-container .dv-tab:not(:last-child) { border-bottom: 1px solid var(--line) !important; }
+/* Overflowed tabs stack vertically, so their cluster accent reads better as a
+   left edge than as the top stripe used in the tab strip. */
+#root .dv-tabs-overflow-container .dv-tab { border-left: 3px solid transparent !important; }
+#root .dv-tabs-overflow-container .dv-active-tab   { border-left-color: var(--tab-accent, var(--teal)) !important; }
+#root .dv-tabs-overflow-container .dv-inactive-tab { border-left-color: color-mix(in srgb, var(--tab-accent, transparent) 45%, transparent) !important; }
 #root .dv-tabs-overflow-container .dv-active-tab   { background-color: var(--panel3) !important; color: var(--ink) !important; }
 #root .dv-tabs-overflow-container .dv-inactive-tab { background-color: var(--panel2) !important; color: var(--ink2) !important; }
 #root .dv-tabs-overflow-container .dv-inactive-tab:hover { background-color: var(--hover) !important; color: var(--ink) !important; }
@@ -700,7 +735,10 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 #root .dv-tabs-overflow-container .dv-tabs-overflow-group-collapsed-badge { background-color: var(--line2) !important; color: var(--ink2) !important; }
 .dockview-theme-monolith .dv-tabs-overflow-dropdown-default { color: var(--ink2); }
 .dockview-theme-monolith .dv-tabs-overflow-dropdown-default:hover { background-color: var(--hover); color: var(--ink); border-radius: 0; }
-.dockview-theme-monolith .dv-tab { height: var(--dv-tabs-and-actions-container-height); box-sizing: border-box; border-top: 1px solid transparent; border-right: 1px solid var(--line); }
+/* The top border doubles as the per-cluster accent stripe. Both states carry
+   the same 2px so switching tabs never shifts their content; only the colour
+   differs. --tab-accent is set inline on this element by FloatableTab. */
+.dockview-theme-monolith .dv-tab { height: var(--dv-tabs-and-actions-container-height); box-sizing: border-box; border-top: 2px solid transparent; border-right: 1px solid var(--line); }
 /* The drag ghost is a tab clone appended to <body> — outside
    .dockview-theme-monolith — so it must not depend on a variable scoped to the
    theme class: an unresolvable var() is invalid at computed-value time, and
@@ -708,7 +746,13 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
    the ghost to height:auto and leaving it far taller than the real tab. */
 .dv-tab.dv-tab-ghost-drag { height: var(--dv-tab-height) !important; width: fit-content !important; max-width: 220px !important; min-width: 0 !important; overflow: hidden !important; box-shadow: 0 4px 12px rgba(0,0,0,.4) !important; }
 .dockview-theme-monolith .dv-default-tab { display: flex; align-items: center; height: 100%; font-family: var(--font-family); font-size: 13px; padding: 0 10px 0 14px; gap: 6px; box-sizing: border-box; }
-.dockview-theme-monolith .dv-tab.dv-active-tab { border-top-color: var(--teal); }
+.dockview-theme-monolith .dv-tab.dv-active-tab { border-top-color: var(--tab-accent, var(--teal)); }
+/* Backgrounded tabs keep a dimmed stripe so an open tab's cluster stays
+   identifiable at a glance. */
+.dockview-theme-monolith .dv-tab.dv-inactive-tab { border-top-color: color-mix(in srgb, var(--tab-accent, transparent) 45%, transparent); }
+/* dockview's own (higher-specificity) tab rule only sets background-color, so
+   tinting via background-image layers on top without a specificity fight. */
+.dockview-theme-monolith .dv-tab.dv-active-tab { background-image: linear-gradient(to bottom, color-mix(in srgb, var(--tab-accent, transparent) 14%, transparent), transparent 65%); }
 .dockview-theme-monolith .dv-content-container { background: var(--app); height: 100%; overflow: hidden; }
 body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-user-select: none !important; }
 

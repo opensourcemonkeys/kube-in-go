@@ -10,6 +10,8 @@ import {
     VscPass, VscError, VscGlobe, VscListTree, VscAccount, VscArrowRight,
 } from 'react-icons/vsc';
 import { SaveCluster, GetClusterContent } from '../../../wailsjs/go/controller_app/App';
+import { CLUSTER_PALETTE, defaultColorId, hexForId } from '../../lib/clusterColors';
+import { useClusterColorStore } from '../../stores/clusterColorStore';
 
 interface Props {
     editingName: string | null;
@@ -81,16 +83,30 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
     const toast = useRef<Toast | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+    // null means "auto": follow the colour derived from the cluster name, so a
+    // user who never touches this still gets a stable identity colour.
+    const [colorId, setColorId] = useState<string | null>(null);
+    const overrides = useClusterColorStore(s => s.overrides);
+    const setStoredColor = useClusterColorStore(s => s.setColor);
+    const resetStoredColor = useClusterColorStore(s => s.resetColor);
+
+    const effectiveColorId = colorId ?? defaultColorId(name.trim());
+
     useEffect(() => {
         if (editingName) {
             setName(editingName);
+            setColorId(overrides[editingName] ?? null);
             GetClusterContent(editingName)
                 .then(setContent)
                 .catch(() => {});
         } else {
             setName('');
             setContent('');
+            setColorId(null);
         }
+        // `overrides` is intentionally not a dependency: this seeds the picker
+        // once per opened cluster and must not clobber an in-progress choice.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editingName]);
 
     const parsed = useMemo(() => parseKubeconfig(content), [content]);
@@ -131,8 +147,13 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
         }
         setSaving(true);
         try {
-            await SaveCluster(name.trim(), content);
-            onSaved(name.trim());
+            const finalName = name.trim();
+            await SaveCluster(finalName, content);
+            // Store only a real override — a pick that matches the name-derived
+            // default stays "auto" so the map keeps just what the user changed.
+            if (colorId && colorId !== defaultColorId(finalName)) setStoredColor(finalName, colorId);
+            else resetStoredColor(finalName);
+            onSaved(finalName);
         } catch (err: unknown) {
             toast.current?.show({
                 severity: 'error',
@@ -163,7 +184,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
-                        <VscServer size={16} color="var(--teal)" />
+                        <VscServer size={16} color={hexForId(effectiveColorId)} />
                         <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
                     </div>
                     {dismissible && (
@@ -199,6 +220,35 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                 Suggested: <span>{suggested}</span> <VscArrowRight size={11} />
                             </button>
                         ) : null}
+                    </div>
+
+                    <div className="cluster-modal__field">
+                        <span className="cluster-modal__label">Color</span>
+                        <div className="cluster-modal__colors">
+                            {CLUSTER_PALETTE.map(c => (
+                                <button
+                                    type="button"
+                                    key={c.id}
+                                    title={c.label}
+                                    aria-label={c.label}
+                                    aria-pressed={c.id === effectiveColorId}
+                                    className={`cluster-swatch${c.id === effectiveColorId ? ' cluster-swatch--on' : ''}`}
+                                    style={{ background: c.hex }}
+                                    onClick={() => setColorId(c.id)}
+                                />
+                            ))}
+                            <button
+                                type="button"
+                                className={`cluster-modal__auto${colorId === null ? ' is-on' : ''}`}
+                                title="Derive the color from the cluster name"
+                                onClick={() => setColorId(null)}
+                            >
+                                Auto
+                            </button>
+                        </div>
+                        <small style={{ color: 'var(--ink2)', fontSize: 11 }}>
+                            Shown next to this cluster in the selector, the sidebar and its tabs.
+                        </small>
                     </div>
 
                     <div className="cluster-modal__split">

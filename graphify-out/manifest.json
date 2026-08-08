@@ -105,14 +105,14 @@
     "semantic_hash": "d8feb21b10c68f2872320ae5d4178d24"
   },
   "frontend/src/components/cluster/ClusterBar.tsx": {
-    "mtime": 1782591722.954931,
-    "ast_hash": "e62131799bffc6ece03565b6901e66f0",
-    "semantic_hash": "e62131799bffc6ece03565b6901e66f0"
+    "mtime": 1786197529.5415475,
+    "ast_hash": "1abf049babeedfaf75bd14be85c0ba35",
+    "semantic_hash": ""
   },
   "frontend/src/components/cluster/ClusterModal.tsx": {
-    "mtime": 1783961908.9646928,
-    "ast_hash": "34d913c221253a5795b9eb9104d8d5e2",
-    "semantic_hash": "34d913c221253a5795b9eb9104d8d5e2"
+    "mtime": 1786197568.440444,
+    "ast_hash": "c97c42f70d8efd3806e18c0940795912",
+    "semantic_hash": ""
   },
   "frontend/src/components/clusterresource/ClusterResourcePanel.tsx": {
     "mtime": 1781429530.7896862,
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/FloatableTab.tsx": {
-    "mtime": 1786195158.8702667,
-    "ast_hash": "b12049d714a1c44689f43f30f7c38889",
+    "mtime": 1786197240.9169054,
+    "ast_hash": "1655cfdc3eb8b016ad25dbcb193a090a",
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/ObjectYamlPanel.tsx": {
@@ -555,7 +555,7 @@
     "semantic_hash": "dbfd2567ab28123e4369d4a09c79017a"
   },
   "internal/business/cluster.go": {
-    "mtime": 1786195277.2208982,
+    "mtime": 1786196266.1815197,
     "ast_hash": "c02f480dd5236deb93f35cb14aefa465",
     "semantic_hash": ""
   },
@@ -620,7 +620,7 @@
     "semantic_hash": "368ca680ff68a721f417ce40e307c4b6"
   },
   "internal/business/log.go": {
-    "mtime": 1786195283.9318154,
+    "mtime": 1786196266.1815674,
     "ast_hash": "893c5501d8907912548fd81f6d858d26",
     "semantic_hash": ""
   },
@@ -660,12 +660,12 @@
     "semantic_hash": "2936fbec52521f0254f1953d43e0ae3e"
   },
   "internal/business/pod.go": {
-    "mtime": 1786195203.7167904,
+    "mtime": 1786196266.181613,
     "ast_hash": "0d7e77c9d2f4e264567180a49a38f2de",
     "semantic_hash": ""
   },
   "internal/business/podExec.go": {
-    "mtime": 1786195285.1919105,
+    "mtime": 1786196266.181613,
     "ast_hash": "b1b7cfc42674131276004102512426c7",
     "semantic_hash": ""
   },
@@ -960,7 +960,7 @@
     "semantic_hash": ""
   },
   "internal/repository/k8sClient.go": {
-    "mtime": 1786195886.0861037,
+    "mtime": 1786196266.1817217,
     "ast_hash": "a7a8a201fe62ee818c1efed1742a3914",
     "semantic_hash": ""
   },
@@ -975,37 +975,37 @@
     "semantic_hash": "d20695edd27e2f7e5f75fdb5b5c1c5c8"
   },
   "internal/services/clusterResourceServices.go": {
-    "mtime": 1786195320.929369,
+    "mtime": 1786196266.1818259,
     "ast_hash": "85cf648016a61628b341789d634da072",
     "semantic_hash": ""
   },
   "internal/services/configMapServices.go": {
-    "mtime": 1786195320.9353392,
+    "mtime": 1786196266.1818259,
     "ast_hash": "1ce57130ccaa50e1e2428a0e2a13d3b3",
     "semantic_hash": ""
   },
   "internal/services/crdServices.go": {
-    "mtime": 1786195320.941146,
+    "mtime": 1786196266.18194,
     "ast_hash": "7d68338876565c9d5db76525c91324ff",
     "semantic_hash": ""
   },
   "internal/services/cronJobServices.go": {
-    "mtime": 1786195320.9472253,
+    "mtime": 1786196266.18194,
     "ast_hash": "dcbb3de8b8cf570a43382f9f32a800ae",
     "semantic_hash": ""
   },
   "internal/services/daemonSetServices.go": {
-    "mtime": 1786195320.9529738,
+    "mtime": 1786196266.18194,
     "ast_hash": "f6db83ffd545bf1e19f70c35ac24672e",
     "semantic_hash": ""
   },
   "internal/services/deploymentServices.go": {
-    "mtime": 1786195320.9587543,
+    "mtime": 1786196266.18194,
     "ast_hash": "cb21718f7d45b1cee928d7a381a9e1eb",
     "semantic_hash": ""
   },
   "internal/services/endpointServices.go": {
-    "mtime": 1786195320.964096,
+    "mtime": 1786196266.1821408,
     "ast_hash": "8989dd0b6a327eee3bb77ce994b82ee1",
     "semantic_hash": ""
   },
@@ -1015,27 +1015,27 @@
     "semantic_hash": ""
   },
   "internal/services/eventServices.go": {
-    "mtime": 1786195320.9733832,
+    "mtime": 1786196266.18219,
     "ast_hash": "942943e5fe1330c10ffdab5caef51010",
     "semantic_hash": ""
   },
   "internal/services/ingressClassServices.go": {
-    "mtime": 1786195320.9788346,
+    "mtime": 1786196266.18219,
     "ast_hash": "ae1561392d01c403421c69543f739b5e",
     "semantic_hash": ""
   },
   "internal/services/ingressServices.go": {
-    "mtime": 1786195320.9843102,
+    "mtime": 1786196266.182289,
     "ast_hash": "72a8d8bd4342f39e92951800fc4da691",
     "semantic_hash": ""
   },
   "internal/services/jobServices.go": {
-    "mtime": 1786195320.9897192,
+    "mtime": 1786196266.182332,
     "ast_hash": "2d4747fe21eb46c96231f3bafbb39289",
     "semantic_hash": ""
   },
   "internal/services/limitRangeServices.go": {
-    "mtime": 1786195320.9950955,
+    "mtime": 1786196266.182332,
     "ast_hash": "4291e956d80a078f89585c4a73d11c6f",
     "semantic_hash": ""
   },
@@ -1045,37 +1045,37 @@
     "semantic_hash": "701f4b49183068cdcb7b83eecfd439cc"
   },
   "internal/services/metricsServices.go": {
-    "mtime": 1786195321.0015676,
+    "mtime": 1786196266.1824367,
     "ast_hash": "9d8ede488ff149309ad3f84d4f2363f9",
     "semantic_hash": ""
   },
   "internal/services/namespaceServices.go": {
-    "mtime": 1786195321.0070953,
+    "mtime": 1786196266.1824367,
     "ast_hash": "0b990e97e2da6ac0afdf065d47c2c480",
     "semantic_hash": ""
   },
   "internal/services/networkPolicyServices.go": {
-    "mtime": 1786195321.012233,
+    "mtime": 1786196266.1825385,
     "ast_hash": "d681cf58e486a28d8e9a1b33050a1295",
     "semantic_hash": ""
   },
   "internal/services/nodeServices.go": {
-    "mtime": 1786195321.018024,
+    "mtime": 1786196266.1825914,
     "ast_hash": "7d0afed36c367192c57d1b96b05393cd",
     "semantic_hash": ""
   },
   "internal/services/objectYamlServices.go": {
-    "mtime": 1786195321.0240185,
+    "mtime": 1786196266.1826456,
     "ast_hash": "cf58510ab0e059bf77b62090e77f63a4",
     "semantic_hash": ""
   },
   "internal/services/persistentVolumeClaimServices.go": {
-    "mtime": 1786195321.0300734,
+    "mtime": 1786196266.1826456,
     "ast_hash": "40796931df20262d9bbe84c462667a23",
     "semantic_hash": ""
   },
   "internal/services/persistentVolumeServices.go": {
-    "mtime": 1786195321.0364003,
+    "mtime": 1786196266.1826456,
     "ast_hash": "b2b71f884436de25100f0d8a722ee16a",
     "semantic_hash": ""
   },
@@ -1085,47 +1085,47 @@
     "semantic_hash": "451362fe9965b912a1b7b1923618ef76"
   },
   "internal/services/podServices.go": {
-    "mtime": 1786195321.043911,
+    "mtime": 1786196266.1827977,
     "ast_hash": "5429f69268f0f14c6c02ea936da3a622",
     "semantic_hash": ""
   },
   "internal/services/replicaSetServices.go": {
-    "mtime": 1786195321.050336,
+    "mtime": 1786196266.1827977,
     "ast_hash": "def8fa1c54fe92fd11308b70e86b5336",
     "semantic_hash": ""
   },
   "internal/services/resourceQuotaServices.go": {
-    "mtime": 1786195321.0558362,
+    "mtime": 1786196266.1827977,
     "ast_hash": "8a017962cffacc0e619b8afe6a2e1268",
     "semantic_hash": ""
   },
   "internal/services/roleBindingServices.go": {
-    "mtime": 1786195321.0680764,
+    "mtime": 1786196266.1829488,
     "ast_hash": "5ce64090308df706eaf4ea21b87f6bcd",
     "semantic_hash": ""
   },
   "internal/services/roleServices.go": {
-    "mtime": 1786195321.074396,
+    "mtime": 1786196266.1830513,
     "ast_hash": "e0cd63a75ee1124717a7083089b84098",
     "semantic_hash": ""
   },
   "internal/services/secretServices.go": {
-    "mtime": 1786195321.080069,
+    "mtime": 1786196266.1830513,
     "ast_hash": "24a24febb4bb9d25956177927ce5f134",
     "semantic_hash": ""
   },
   "internal/services/securityGraphServices.go": {
-    "mtime": 1786195321.0858831,
+    "mtime": 1786196266.1831744,
     "ast_hash": "c6851a12f6ac0c15597294351413770a",
     "semantic_hash": ""
   },
   "internal/services/serviceAccountServices.go": {
-    "mtime": 1786195321.096349,
+    "mtime": 1786196266.1831744,
     "ast_hash": "2408cbc19dbbedb7747ad478fde9065a",
     "semantic_hash": ""
   },
   "internal/services/serviceServices.go": {
-    "mtime": 1786195321.1019258,
+    "mtime": 1786196266.1831744,
     "ast_hash": "1ab6966feea9725b30edcf90fa6c2b76",
     "semantic_hash": ""
   },
@@ -1135,12 +1135,12 @@
     "semantic_hash": "151e74667fb75884ac7a24bb8998ca31"
   },
   "internal/services/statefulSetServices.go": {
-    "mtime": 1786195321.1111329,
+    "mtime": 1786196266.183331,
     "ast_hash": "70b63a8956421b3f6cdd5f0e1862387f",
     "semantic_hash": ""
   },
   "internal/services/storageClassServices.go": {
-    "mtime": 1786195321.1166162,
+    "mtime": 1786196266.183331,
     "ast_hash": "768aa0185af33d9150d195447abf6020",
     "semantic_hash": ""
   },
@@ -1150,7 +1150,7 @@
     "semantic_hash": "5f2dbc8807747edb45c7fe5fc1956bb7"
   },
   "internal/services/trivyServices.go": {
-    "mtime": 1786195321.1229267,
+    "mtime": 1786196266.1834629,
     "ast_hash": "d676e4ecca9878aa3c01ba4de18a05af",
     "semantic_hash": ""
   },
@@ -1640,7 +1640,7 @@
     "semantic_hash": ""
   },
   "internal/services/resourceTableServices.go": {
-    "mtime": 1786195321.0614736,
+    "mtime": 1786196266.1829488,
     "ast_hash": "2718f624b406f4b9e345fef8a1ebf4b3",
     "semantic_hash": ""
   },
@@ -1675,13 +1675,23 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1786195621.087008,
+    "mtime": 1786196266.1750839,
     "ast_hash": "7a405382559cba2e6960fbf84fee43f1",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
-    "mtime": 1786195862.2843604,
+    "mtime": 1786196266.1817553,
     "ast_hash": "6eafaae569a5820d4189deaf91071844",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/clusterColors.ts": {
+    "mtime": 1786197156.0521083,
+    "ast_hash": "38204841c6765e8a5bbf90ad3389bee8",
+    "semantic_hash": ""
+  },
+  "frontend/src/stores/clusterColorStore.ts": {
+    "mtime": 1786197164.990782,
+    "ast_hash": "a79dabb8a7db78563c632b3912a0a78d",
     "semantic_hash": ""
   }
 }
