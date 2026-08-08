@@ -234,7 +234,7 @@ func aiTools() []ai.Tool {
 			Mutating:    true,
 			Schema:      `{"type":"object","properties":{"yaml":{"type":"string","description":"The full YAML manifest"}},"required":["yaml"]}`,
 			Run: func(clusterName string, args map[string]any) (string, error) {
-				return ApplyYaml(argStr(args, "yaml"))
+				return ApplyYaml(clusterName, argStr(args, "yaml"))
 			},
 		},
 		{

@@ -134,7 +134,7 @@ interface TabContextValue {
     openRoleBindingEditor: (def: RoleBindingEditorDef) => void;
     openObjectYaml: (def: ObjectYamlDef) => void;
     openTerminal: () => void;
-    openApplyYaml: () => void;
+    openApplyYaml: (clusterName: string) => void;
     openClusterResourceView: (clusterName: string) => void;
     openReceivedPanel: (panel: ReceivedPanel) => void;
 }
@@ -197,7 +197,10 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         });
     }, []);
 
-    const openApplyYaml = useCallback(() => {
+    // The panel is seeded with a cluster but, unlike the read-only views, lets
+    // the user retarget it from its own toolbar — so the id only has to stay
+    // unique, and the title is re-set by the panel when the choice changes.
+    const openApplyYaml = useCallback((clusterName: string) => {
         const api = apiRef.current;
         if (!api) return;
 
@@ -205,10 +208,10 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const n = applyYamlCounterRef.current;
 
         api.addPanel({
-            id: `apply-yaml-${n}`,
+            id: `applyYaml:${clusterName}:${n}`,
             component: 'applyYaml',
-            title: n === 1 ? 'YAML Editor' : `YAML Editor ${n}`,
-            params: {},
+            title: clusterName ? `YAML Editor • ${clusterName}` : 'YAML Editor',
+            params: { clusterName },
         });
     }, []);
 
@@ -516,7 +519,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
                 openClusterResourceView(cn);
                 break;
             case 'applyYaml':
-                openApplyYaml();
+                openApplyYaml(cn);
                 break;
         }
     }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openClusterResourceView, openApplyYaml]);

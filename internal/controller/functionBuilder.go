@@ -635,8 +635,8 @@ func (a *App) GetStorageClassYaml(clusterName string, name string) (string, erro
 // YAML Editor Screen
 // ============================================================================
 
-func (a *App) ApplyYaml(yamlContent string) (string, error) {
-	return bussiness.ApplyYaml(yamlContent)
+func (a *App) ApplyYaml(clusterName string, yamlContent string) (string, error) {
+	return bussiness.ApplyYaml(clusterName, yamlContent)
 }
 
 // ============================================================================

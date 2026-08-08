@@ -330,8 +330,8 @@
     "semantic_hash": "b441b9805c8e70b1941d32f5cd1128c6"
   },
   "frontend/src/components/titlebar/TitleBar.tsx": {
-    "mtime": 1785074386.143501,
-    "ast_hash": "8fe982447d1727c252a316d058c7357b",
+    "mtime": 1785697724.860587,
+    "ast_hash": "dac11ba6bd54efab35fda2b2d3b72855",
     "semantic_hash": ""
   },
   "frontend/src/components/tour/TourCard.tsx": {
@@ -345,9 +345,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/ApplyYamlPanel.tsx": {
-    "mtime": 1783366921.7839797,
-    "ast_hash": "49e1f45bbb7d084d307a65433f1b87fd",
-    "semantic_hash": "49e1f45bbb7d084d307a65433f1b87fd"
+    "mtime": 1785697751.8054516,
+    "ast_hash": "326daf14748112ba8471b1ea82174889",
+    "semantic_hash": ""
   },
   "frontend/src/components/workspace/DockviewContainer.tsx": {
     "mtime": 1784990402.1923711,
@@ -355,8 +355,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/FloatableTab.tsx": {
-    "mtime": 1784995911.7472038,
-    "ast_hash": "b15967952a792822e005b406ef18cab8",
+    "mtime": 1785697711.7361512,
+    "ast_hash": "b12049d714a1c44689f43f30f7c38889",
     "semantic_hash": ""
   },
   "frontend/src/components/workspace/ObjectYamlPanel.tsx": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "frontend/src/contexts/TabContext.tsx": {
-    "mtime": 1784489642.773173,
-    "ast_hash": "807afe829708e5dc4f044c4994fe714b",
+    "mtime": 1785697710.320957,
+    "ast_hash": "56119fbec8e2c80d0627063d01c9e658",
     "semantic_hash": ""
   },
   "frontend/src/lib/k8sYamlIntellisense.ts": {
@@ -530,9 +530,9 @@
     "semantic_hash": "dd7512028caba8a23edf7c67fba22d8e"
   },
   "internal/business/ai.go": {
-    "mtime": 1781942518.687226,
-    "ast_hash": "96029c0a4f6fbcb4b9c69e192bf24696",
-    "semantic_hash": "96029c0a4f6fbcb4b9c69e192bf24696"
+    "mtime": 1785697655.244626,
+    "ast_hash": "40eeddc18cb232c52b23ad1d3ea64e70",
+    "semantic_hash": ""
   },
   "internal/business/appInfo.go": {
     "mtime": 1782586151.7770488,
@@ -540,9 +540,9 @@
     "semantic_hash": "383f22657f5375d56714f1369d90bb04"
   },
   "internal/business/applyYaml.go": {
-    "mtime": 1781357619.0205457,
-    "ast_hash": "af1ba728af8b1ce284fa443d1f558c49",
-    "semantic_hash": "af1ba728af8b1ce284fa443d1f558c49"
+    "mtime": 1785697647.445812,
+    "ast_hash": "de38e0dc9d0f649c283d3e06e5c54878",
+    "semantic_hash": ""
   },
   "internal/business/assets/k8s-schema.json": {
     "mtime": 1779991805.4626527,
@@ -760,8 +760,8 @@
     "semantic_hash": "10ef7b66452ca6c79904cb99d2b183d6"
   },
   "internal/controller/functionBuilder.go": {
-    "mtime": 1785695223.877162,
-    "ast_hash": "7637a851a22c9d1a97e3e0699f055ed4",
+    "mtime": 1785697654.0586402,
+    "ast_hash": "d7805f4400542a5e3d14eb7bc6547732",
     "semantic_hash": ""
   },
   "internal/controller/rpcserver.go": {
@@ -965,9 +965,9 @@
     "semantic_hash": "f271084b382a067054d4606922e09291"
   },
   "internal/services/applyYamlServices.go": {
-    "mtime": 1781357610.7525806,
-    "ast_hash": "37d611f565c00a0b885e826989f27a0e",
-    "semantic_hash": "37d611f565c00a0b885e826989f27a0e"
+    "mtime": 1785697630.1547558,
+    "ast_hash": "6a96008c08ea3e0c5ac881453d857a0d",
+    "semantic_hash": ""
   },
   "internal/services/cliModeServices.go": {
     "mtime": 1782656794.2444334,
@@ -1165,9 +1165,9 @@
     "semantic_hash": "5de1eb9582df591b51bc27b1426b5039"
   },
   "internal/tui/applyyaml.go": {
-    "mtime": 1783363621.0047169,
-    "ast_hash": "2d75cebdfe255ba0ec010be558300843",
-    "semantic_hash": "2d75cebdfe255ba0ec010be558300843"
+    "mtime": 1785697665.442502,
+    "ast_hash": "99c7d4d813ac41ee89fbe685f37c3200",
+    "semantic_hash": ""
   },
   "internal/tui/clusters.go": {
     "mtime": 1782656936.2856863,

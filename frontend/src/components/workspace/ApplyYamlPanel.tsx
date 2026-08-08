@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 
 
 
@@ -11,14 +12,27 @@ import type * as monaco from 'monaco-editor';
 import { ApplyYaml } from '../../../wailsjs/go/controller_app/App';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { ensureK8sYamlIntellisense, k8sYamlSuggestOptions } from '../../lib/k8sYamlIntellisense';
+import { useClusterContext } from '../../contexts/ClusterContext';
 
-export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string, never>>) {
+export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<{ clusterName?: string }>) {
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const toast = useRef<Toast | null>(null);
     const [applying, setApplying] = useState(false);
     const [output, setOutput] = useState('');
     const [outputHeight, setOutputHeight] = useState(200);
+
+    const { clusters, activeCluster } = useClusterContext();
+    // This panel writes, so unlike the read-only views it is retargetable: the
+    // seeded cluster is only a default, and the choice is mirrored back into
+    // params so a panel moved to another window keeps its target.
+    const [cluster, setCluster] = useState(params.clusterName || activeCluster || '');
+
+    const handleClusterChange = (next: string) => {
+        setCluster(next);
+        api.updateParameters({ clusterName: next });
+        api.setTitle(next ? `YAML Editor • ${next}` : 'YAML Editor');
+    };
 
     const handleMount: OnMount = (editor) => {
         editorRef.current = editor;
@@ -42,15 +56,25 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
             return;
         }
 
+        if (!cluster) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'No cluster',
+                detail: 'Pick a target cluster before applying.',
+                life: 2500,
+            });
+            return;
+        }
+
         setApplying(true);
         setOutput('');
         try {
-            const result = await ApplyYaml(yaml);
+            const result = await ApplyYaml(cluster, yaml);
             setOutput(result);
             toast.current?.show({
                 severity: 'success',
                 summary: 'Applied',
-                detail: 'Resources applied successfully.',
+                detail: `Applied to ${cluster}.`,
                 life: 2500,
             });
         } catch (err: unknown) {
@@ -102,7 +126,17 @@ export default function ApplyYamlPanel(_props: IDockviewPanelProps<Record<string
                     <VscCloudUpload size={14} />{' '}
                     YAML Editor
                 </span>
-                <div className="flex align-items-center gap-1 flex-shrink-0">
+                <div className="flex align-items-center gap-2 flex-shrink-0">
+                    <Dropdown
+                        value={cluster || null}
+                        options={clusters}
+                        onChange={(e) => handleClusterChange(e.value ?? '')}
+                        placeholder="Select cluster"
+                        disabled={applying}
+                        className="yaml-editor-toolbar__cluster"
+                        style={{ minWidth: '11rem' }}
+                        aria-label="Target cluster"
+                    />
                     <Button
                         label="Clear"
                         icon={<VscTrash size={16} />}

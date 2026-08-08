@@ -224,5 +224,14 @@
   "222": "@fontsource/geist",
   "223": "monaco-yaml",
   "224": "@xterm/addon-fit",
-  "225": "yaml"
+  "225": "yaml",
+  "226": "dockview-react",
+  "227": "@melloware/react-logviewer",
+  "228": "motion",
+  "229": "primeflex",
+  "230": "primereact",
+  "231": "react",
+  "232": "react-dom",
+  "233": "eslint.config.js",
+  "234": "vitest.config.ts"
 }
