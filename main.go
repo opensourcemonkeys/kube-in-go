@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -85,6 +86,22 @@ func main() {
 			return
 		}
 	}
+
+	// Restore the standard logger. Trivy's pkg/log has an init() that calls
+	// slog.SetDefault with a handler which only buffers records into a slice
+	// until Trivy initialises its own logger — and since Go 1.21 slog.SetDefault
+	// also reroutes the standard log package through that handler. Importing the
+	// scanner therefore silently swallowed every log.Print in the binary; the
+	// output reappears in test binaries, which never link Trivy, so it looked
+	// like the logging worked. Stderr, never stdout: stdout is the Electron
+	// sidecar protocol (see serve() below).
+	//
+	// Deliberately after the --tui branch: the terminal UI owns the screen, and
+	// anything written to stderr corrupts it.
+	// The flags go back too: slog.SetDefault zeroes them so its handler can own
+	// the timestamp, which left every line bare once the output was restored.
+	log.SetOutput(os.Stderr)
+	log.SetFlags(log.LstdFlags)
 
 	// Serve mode: expose the controller over loopback HTTP/WebSocket and print
 	// the URL instead of opening a window. This is how the Electron shell runs

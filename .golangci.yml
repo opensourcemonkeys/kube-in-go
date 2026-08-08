@@ -83,7 +83,7 @@ linters:
       # gorilla/websocket documents that the *http.Response from Dial does not
       # need closing — "The response body may not contain the entire response
       # and does not need to be closed by the application."
-      - path: internal/ipc/hub\.go
+      - path: internal/ipc/hub(_test)?\.go
         linters: [bodyclose]
 
       # The app deliberately exposes the Endpoints resource, which Kubernetes
@@ -116,12 +116,11 @@ linters:
       - path: internal/controller/rpcserver\.go
         text: "G703"
 
-      # TODO(beta-plan S4/S5): the hub's deadline and Serve errors are dropped,
-      # and both loopback servers leave ReadHeaderTimeout unset (G112). S4
-      # rewrites this file's connection handling.
-      - path: internal/ipc/hub\.go
-        linters: [errcheck]
-      - path: internal/(ipc/hub|controller/rpcserver)\.go
+      # TODO(beta-plan S5): rpcserver's loopback listener still leaves
+      # ReadHeaderTimeout unset. internal/ipc/hub.go was the other half of this
+      # rule and no longer needs it — S4 set the timeout and stopped dropping the
+      # deadline/Serve errors there.
+      - path: internal/controller/rpcserver\.go
         text: "G112"
 
       # TODO(beta-plan S3c): these call chains drop the caller's context instead

@@ -2,10 +2,14 @@ package ipc
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
+	"net/url"
+	"runtime/debug"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -15,13 +19,29 @@ import (
 	"kube-ins/internal/models"
 )
 
-const (
-	hubAddr  = "localhost:34200"
-	hubWSURL = "ws://localhost:34200/ws"
-)
+// hubAddr is a var rather than a const so hub_test.go can point it at an
+// ephemeral port and never collide with an app already running on 34200.
+var hubAddr = "localhost:34200"
+
+func hubWSURL() string { return "ws://" + hubAddr + "/ws" }
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
+	// Browsers always send Origin on a WebSocket handshake and no legitimate hub
+	// client is a browser, so an empty Origin is the only acceptable value. This
+	// alone closes the hole where any page the user visits could dial
+	// ws://localhost:34200/ws, enumerate instances and inject a panel. The token
+	// checked in handleWS additionally keeps out another local account.
+	CheckOrigin: func(r *http.Request) bool { return r.Header.Get("Origin") == "" },
+}
+
+// shortID trims an identifier for display. Never slice an ID directly: the
+// register payload arrives unvalidated off the wire, and a short one used to
+// panic the connection handler mid-registration.
+func shortID(s string) string {
+	if len(s) > 8 {
+		return s[:8]
+	}
+	return s
 }
 
 // ─── wsClient ────────────────────────────────────────────────────────────────
@@ -45,7 +65,7 @@ func (c *wsClient) send(msg []byte) {
 func (c *wsClient) close() {
 	c.once.Do(func() {
 		close(c.done)
-		c.conn.Close()
+		_ = c.conn.Close()
 	})
 }
 
@@ -60,12 +80,14 @@ func (c *wsClient) writePump() {
 		case <-c.done:
 			return
 		case msg := <-c.sendCh:
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			// A deadline that cannot be set means the connection is already gone;
+			// the WriteMessage below reports it properly.
+			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 				return
 			}
 		case <-ticker.C:
-			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
@@ -76,11 +98,21 @@ func (c *wsClient) writePump() {
 // ─── InstanceHub ─────────────────────────────────���───────────────────────────
 
 type InstanceHub struct {
-	InstanceID   string
-	InstanceName string
+	InstanceID string
+
+	// instanceName is unexported and guarded by instancesMu: it is assigned by
+	// whichever process is currently the hub server and reassigned when that
+	// role moves, while the frontend polls GetInstances/GetSelfInfo from another
+	// goroutine. Reading a string field being reassigned concurrently is a torn
+	// read, not just a stale one.
+	instanceName string
 
 	wailsCtx      context.Context
 	onTabReceived func(panel models.SerializedPanel)
+
+	// token is the shared secret from ~/.kube-ins/.hubtoken. Empty means it could
+	// not be established, in which case the hub never starts — see run().
+	token string
 
 	isServer atomic.Bool
 
@@ -103,11 +135,23 @@ type InstanceHub struct {
 func NewInstanceHub(wailsCtx context.Context, onTabReceived func(panel models.SerializedPanel)) *InstanceHub {
 	h := &InstanceHub{
 		InstanceID:    uuid.New().String(),
-		InstanceName:  "Instance",
+		instanceName:  "Instance",
 		clients:       make(map[string]*wsClient),
 		wailsCtx:      wailsCtx,
 		onTabReceived: onTabReceived,
 	}
+
+	token, err := ensureHubToken()
+	if err != nil {
+		// Deliberately not a fallback to an unauthenticated hub: without the
+		// token any page the user visits could dial the fixed port, list every
+		// running instance and inject a panel. Discovery stays off; the app is
+		// otherwise unaffected, GetInstances just reports this process alone.
+		log.Printf("[IPC] instance discovery disabled: %v", err)
+		return h
+	}
+	h.token = token
+
 	go h.run(wailsCtx)
 	return h
 }
@@ -146,23 +190,25 @@ func (h *InstanceHub) tryBecomeServer(ctx context.Context) bool {
 	h.clientsMu.Lock()
 	h.nameCounter = 1
 	h.clientsMu.Unlock()
-	h.InstanceName = "Instance 1"
 	h.instancesMu.Lock()
-	h.knownInstances = []models.InstanceInfo{{ID: h.InstanceID, Name: h.InstanceName}}
+	h.instanceName = "Instance 1"
+	h.knownInstances = []models.InstanceInfo{{ID: h.InstanceID, Name: h.instanceName}}
 	h.instancesMu.Unlock()
 
-	fmt.Printf("[IPC] Hub started: %s (%s)\n", h.InstanceName, h.InstanceID[:8])
+	log.Printf("[IPC] Hub started: Instance 1 (%s)", shortID(h.InstanceID))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", h.handleWS)
-	srv := &http.Server{Handler: mux}
+	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 
 	go func() {
 		<-ctx.Done()
-		srv.Close()
+		_ = srv.Close()
 	}()
 
-	srv.Serve(ln) // blocks until srv.Close()
+	if err := srv.Serve(ln); err != nil && err != http.ErrServerClosed {
+		log.Printf("[IPC] Hub server stopped: %v", err)
+	}
 
 	h.isServer.Store(false)
 	h.clientsMu.Lock()
@@ -172,38 +218,86 @@ func (h *InstanceHub) tryBecomeServer(ctx context.Context) bool {
 	h.clients = make(map[string]*wsClient)
 	h.clientsMu.Unlock()
 
-	fmt.Println("[IPC] Hub stopped")
+	log.Println("[IPC] Hub stopped")
 	return true
 }
 
 func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
+	// Authenticate before upgrading, and answer with a plain 403 rather than a
+	// silently dropped socket so a rejection is visible in the log on both ends.
+	tok := r.Header.Get("X-Kube-Ins-Hub-Token")
+	if tok == "" {
+		// A WebSocket handshake cannot always carry a custom header, so the
+		// query parameter is the form clients actually use. Same split as
+		// rpcserver.go's authorized().
+		tok = r.URL.Query().Get("token")
+	}
+	// The empty check is not redundant: ConstantTimeCompare reports two empty
+	// slices as equal, so a hub that somehow ran without a token would accept
+	// everyone. run() already refuses to start in that state — this keeps the
+	// invariant local to the check that depends on it.
+	if h.token == "" || subtle.ConstantTimeCompare([]byte(tok), []byte(h.token)) != 1 {
+		log.Printf("[IPC] rejected unauthenticated connection from %s", r.RemoteAddr)
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		// Almost always CheckOrigin rejecting a browser. Worth a line: it is the
+		// exact attack this handshake exists to stop, and gorilla answers 403
+		// without telling anyone.
+		log.Printf("[IPC] handshake refused for %s (origin %q): %v",
+			r.RemoteAddr, r.Header.Get("Origin"), err)
 		return
 	}
 
 	// Expect a REGISTER message within 5 seconds.
-	conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+	_ = conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 	_, data, err := conn.ReadMessage()
-	conn.SetReadDeadline(time.Time{})
+	_ = conn.SetReadDeadline(time.Time{})
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return
 	}
 
 	var msg Message
 	if err := json.Unmarshal(data, &msg); err != nil || msg.Type != MsgRegister {
-		conn.Close()
+		_ = conn.Close()
 		return
 	}
 
 	var reg RegisterPayload
 	if err := json.Unmarshal(msg.Payload, &reg); err != nil {
-		conn.Close()
+		_ = conn.Close()
+		return
+	}
+
+	// Validate the wire payload BEFORE it reaches the client map. Registering
+	// first and validating after used to leave a permanently registered client
+	// with no writePump behind: its 64-slot sendCh filled up, every later send()
+	// hit the default: branch, and the ghost stayed in the instance list forever.
+	if _, err := uuid.Parse(reg.ID); err != nil {
+		log.Printf("[IPC] rejected register with malformed id %q", shortID(reg.ID))
+		_ = conn.Close()
+		return
+	}
+	if reg.ID == h.InstanceID {
+		log.Print("[IPC] rejected register claiming this hub's own id")
+		_ = conn.Close()
 		return
 	}
 
 	h.clientsMu.Lock()
+	if _, exists := h.clients[reg.ID]; exists {
+		h.clientsMu.Unlock()
+		// Overwriting would strand the first connection (never closed) and let
+		// its cleanup delete the second one's entry. Neither instance would then
+		// be reachable by TransferTab.
+		log.Printf("[IPC] rejected duplicate register for %s", shortID(reg.ID))
+		_ = conn.Close()
+		return
+	}
 	h.nameCounter++
 	clientName := fmt.Sprintf("Instance %d", h.nameCounter)
 	client := &wsClient{
@@ -216,28 +310,35 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 	h.clients[reg.ID] = client
 	h.clientsMu.Unlock()
 
-	fmt.Printf("[IPC] Client connected: %s (%s)\n", clientName, reg.ID[:8])
+	// One exit path from here on. Deleting by pointer identity means a late
+	// cleanup can never remove a newer client that reused the id.
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("[IPC] panic serving client %s: %v\n%s", shortID(client.id), r, debug.Stack())
+		}
+		h.clientsMu.Lock()
+		if cur, ok := h.clients[client.id]; ok && cur == client {
+			delete(h.clients, client.id)
+		}
+		h.clientsMu.Unlock()
+		client.close()
+
+		log.Printf("[IPC] Client disconnected: %s", client.name)
+		h.broadcastInstanceList()
+	}()
+
+	log.Printf("[IPC] Client connected: %s (%s)", clientName, shortID(reg.ID))
 	h.broadcastInstanceList()
 
 	go client.writePump()
 	h.serverReadPump(client)
-
-	h.clientsMu.Lock()
-	delete(h.clients, client.id)
-	h.clientsMu.Unlock()
-	client.close()
-
-	fmt.Printf("[IPC] Client disconnected: %s\n", client.name)
-	h.broadcastInstanceList()
 }
 
 func (h *InstanceHub) serverReadPump(c *wsClient) {
-	defer func() { recover() }()
 	c.conn.SetReadLimit(1 << 20)
-	c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	_ = c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	c.conn.SetPongHandler(func(string) error {
-		c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-		return nil
+		return c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	})
 
 	for {
@@ -245,7 +346,7 @@ func (h *InstanceHub) serverReadPump(c *wsClient) {
 		if err != nil {
 			return
 		}
-		c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		_ = c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
 		var msg Message
 		if err := json.Unmarshal(data, &msg); err != nil {
@@ -278,8 +379,12 @@ func (h *InstanceHub) serverReadPump(c *wsClient) {
 }
 
 func (h *InstanceHub) broadcastInstanceList() {
+	// Read self before taking clientsMu: instancesMu is otherwise never held
+	// while clientsMu is, and nesting them here would invent a lock order.
+	self := h.GetSelfInfo()
+
 	h.clientsMu.Lock()
-	instances := []models.InstanceInfo{{ID: h.InstanceID, Name: h.InstanceName}}
+	instances := []models.InstanceInfo{self}
 	for _, c := range h.clients {
 		instances = append(instances, models.InstanceInfo{ID: c.id, Name: c.name})
 	}
@@ -303,7 +408,11 @@ func (h *InstanceHub) broadcastInstanceList() {
 
 func (h *InstanceHub) connectAsClient(ctx context.Context) {
 	dialer := websocket.Dialer{HandshakeTimeout: 3 * time.Second}
-	conn, _, err := dialer.DialContext(ctx, hubWSURL, nil)
+	// The token goes in the query string, not a header: this is the one form a
+	// WebSocket handshake can always carry, and it keeps the server on a single
+	// code path. The listener is loopback-only, so the URL never leaves the host.
+	dialURL := hubWSURL() + "?token=" + url.QueryEscape(h.token)
+	conn, _, err := dialer.DialContext(ctx, dialURL, nil)
 	if err != nil {
 		return
 	}
@@ -311,7 +420,7 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 	regPayload, _ := json.Marshal(RegisterPayload{ID: h.InstanceID})
 	raw, _ := json.Marshal(Message{Type: MsgRegister, Payload: regPayload})
 	if err := conn.WriteMessage(websocket.TextMessage, raw); err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return
 	}
 
@@ -319,18 +428,17 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 	h.serverConn = conn
 	h.serverMu.Unlock()
 
-	fmt.Printf("[IPC] Connected to hub: %s\n", h.InstanceID[:8])
+	log.Printf("[IPC] Connected to hub: %s", shortID(h.InstanceID))
 
 	go func() {
 		<-ctx.Done()
-		conn.Close()
+		_ = conn.Close()
 	}()
 
 	conn.SetReadLimit(1 << 20)
-	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	conn.SetPongHandler(func(string) error {
-		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
-		return nil
+		return conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	})
 
 	for {
@@ -338,7 +446,7 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 		if err != nil {
 			break
 		}
-		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 
 		var msg Message
 		if err := json.Unmarshal(data, &msg); err != nil {
@@ -355,7 +463,7 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 			h.knownInstances = payload.Instances
 			for _, inst := range payload.Instances {
 				if inst.ID == h.InstanceID {
-					h.InstanceName = inst.Name
+					h.instanceName = inst.Name
 					break
 				}
 			}
@@ -375,9 +483,9 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 	h.serverMu.Lock()
 	h.serverConn = nil
 	h.serverMu.Unlock()
-	conn.Close()
+	_ = conn.Close()
 
-	fmt.Println("[IPC] Disconnected from hub")
+	log.Println("[IPC] Disconnected from hub")
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -387,7 +495,7 @@ func (h *InstanceHub) GetInstances() []models.InstanceInfo {
 	h.instancesMu.RLock()
 	defer h.instancesMu.RUnlock()
 	if len(h.knownInstances) == 0 {
-		return []models.InstanceInfo{{ID: h.InstanceID, Name: h.InstanceName}}
+		return []models.InstanceInfo{{ID: h.InstanceID, Name: h.instanceName}}
 	}
 	result := make([]models.InstanceInfo, len(h.knownInstances))
 	copy(result, h.knownInstances)
@@ -396,7 +504,9 @@ func (h *InstanceHub) GetInstances() []models.InstanceInfo {
 
 // GetSelfInfo returns the identity of this instance.
 func (h *InstanceHub) GetSelfInfo() models.InstanceInfo {
-	return models.InstanceInfo{ID: h.InstanceID, Name: h.InstanceName}
+	h.instancesMu.RLock()
+	defer h.instancesMu.RUnlock()
+	return models.InstanceInfo{ID: h.InstanceID, Name: h.instanceName}
 }
 
 // TransferTab sends a panel to the given target instance.
@@ -429,6 +539,8 @@ func (h *InstanceHub) TransferTab(targetInstanceID string, panel models.Serializ
 	if conn == nil {
 		return fmt.Errorf("not connected to hub")
 	}
-	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	if err := conn.SetWriteDeadline(time.Now().Add(10 * time.Second)); err != nil {
+		return err
+	}
 	return conn.WriteMessage(websocket.TextMessage, raw)
 }

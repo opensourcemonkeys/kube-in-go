@@ -10,7 +10,7 @@
 - [x] **S1** — Doğrulama altyapısı: lint, vet, test, PR CI ✅
 - [x] **S2** — ApplyYaml: cluster pinning + native server-side apply *(riskli)* ✅
 - [x] **S3** — Backend doğruluk paketi: nil panic, path traversal, timeout ✅
-- [ ] **S4** — IPC hub sertleştirme *(güvenlik)*
+- [x] **S4** — IPC hub sertleştirme *(güvenlik)* ✅
 - [ ] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı
 - [ ] **S6** — Yerel loglama + diagnostics blob
 - [ ] **S7** — 24 business fonksiyonuna error return *(en riskli)*
@@ -317,6 +317,17 @@ Manuel:
 ## Step 6 — Yerel loglama + diagnostics blob (telemetri yok)
 
 **Kısıt (`main.go:41-51`): stdout, RPC URL'ini ve shell token'ını taşıyan Electron'a giden özel bir pipe. O protokol dışında hiçbir şey oraya yazmamalı, asla yönlendirilmemeli.** Logger sadece dosyaya yazar.
+
+**Kısıt 2 (S4'te keşfedildi): `slog.Default()`'a güvenme.** Trivy'nin `pkg/log`
+`init()`'i `slog.SetDefault`'u yalnızca kayıtları bir slice'a biriktiren bir
+handler ile çağırıyor; Go 1.21'den beri `slog.SetDefault` standart `log`
+paketini de o handler'a yönlendiriyor. Sonuç: binary'deki **her** `log.Print*`
+sessizce yutuluyordu (testlerde çalışıyor — test binary'si Trivy'yi linklemiyor).
+`main.go` artık `--tui` dalından hemen sonra `log.SetOutput(os.Stderr)` +
+`log.SetFlags` ile bunu geri alıyor. `internal/logging` **kendi `*slog.Logger`
+örneğini** tutmalı; `slog.Default()` kullanırsa aynı tuzağa düşer. Kendi
+handler'ıyla `slog.SetDefault` çağırmak istiyorsa bunu Trivy'nin init'inden
+**sonra** (yani `Init()` içinde, paket init'inde değil) yapmalı.
 
 **6a. `internal/logging/logging.go`** — `log/slog` üzerine ince sarmalayıcı:
 - `Init(appVersion string) error` — `~/.kube-ins/logs/` oluştur, `kube-inspector.log` aç (mod 0600), `slog.NewTextHandler` `LevelInfo` (`KUBE_INS_LOG_LEVEL=debug` ile `LevelDebug`).

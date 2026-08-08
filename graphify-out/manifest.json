@@ -785,9 +785,9 @@
     "semantic_hash": "fef9669baaa3cee3f627545c9a413524"
   },
   "internal/ipc/hub.go": {
-    "mtime": 1780759874.9723449,
-    "ast_hash": "3ed5ed7c7ccabdc2c291117db6a9431e",
-    "semantic_hash": "3ed5ed7c7ccabdc2c291117db6a9431e"
+    "mtime": 1786201058.5308502,
+    "ast_hash": "9fcb04660079ffab3fd8374871b70d30",
+    "semantic_hash": ""
   },
   "internal/ipc/messages.go": {
     "mtime": 1785695223.8693993,
@@ -1245,9 +1245,9 @@
     "semantic_hash": "42557934f420f57f4ac73aea9f9cd146"
   },
   "main.go": {
-    "mtime": 1784475904.592672,
-    "ast_hash": "7a7bc01a98095fdb8bd658ef1b062c54",
-    "semantic_hash": "7a7bc01a98095fdb8bd658ef1b062c54"
+    "mtime": 1786201052.0099292,
+    "ast_hash": "9832c1390d69c4b1090b52aadb6d34fb",
+    "semantic_hash": ""
   },
   "mkdocs_hooks.py": {
     "mtime": 1785310234.995233,
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1785074614.1920428,
-    "ast_hash": "3772bf418bc0170e51b78fb0f4eaf9ae",
+    "mtime": 1786201132.312752,
+    "ast_hash": "32d1c9294bb35504f0b8ff071983ec2b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1670,13 +1670,13 @@
     "semantic_hash": ""
   },
   ".golangci.yml": {
-    "mtime": 1785695440.905388,
-    "ast_hash": "c37e366e33787a30b99b76b7671a724d",
+    "mtime": 1786200235.996548,
+    "ast_hash": "6837ad742c991cc7d174c7439a15ba7b",
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1786196266.1750839,
-    "ast_hash": "7a405382559cba2e6960fbf84fee43f1",
+    "mtime": 1786201144.7018154,
+    "ast_hash": "8192e71f49ecc87a30f55429d19330df",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
@@ -1692,6 +1692,16 @@
   "frontend/src/stores/clusterColorStore.ts": {
     "mtime": 1786197164.990782,
     "ast_hash": "a79dabb8a7db78563c632b3912a0a78d",
+    "semantic_hash": ""
+  },
+  "internal/ipc/hub_test.go": {
+    "mtime": 1786200715.6540499,
+    "ast_hash": "cd27da74f8c21c6af0460675d2e783d9",
+    "semantic_hash": ""
+  },
+  "internal/ipc/hubtoken.go": {
+    "mtime": 1786199973.2289855,
+    "ast_hash": "853fc5ae57182ee0e3f454c078eaf583",
     "semantic_hash": ""
   }
 }
