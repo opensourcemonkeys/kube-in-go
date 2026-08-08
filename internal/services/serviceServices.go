@@ -13,7 +13,7 @@ import (
 )
 
 func GetServices(namespace string, client *kubernetes.Clientset) ([]models.ServiceInfo, error) {
-	services, err := client.CoreV1().Services(namespace).List(context.TODO(), metav1.ListOptions{})
+	services, err := client.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteService(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return errNamespaceServiceRequired
 	}
-	return client.CoreV1().Services(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.CoreV1().Services(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetServiceYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceServiceRequired
 	}
-	svc, err := client.CoreV1().Services(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	svc, err := client.CoreV1().Services(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateServiceYaml(namespace, name, yamlContent string, client *kubernetes.C
 	svc.Namespace = namespace
 	svc.Name = name
 
-	_, err := client.CoreV1().Services(namespace).Update(context.TODO(), &svc, metav1.UpdateOptions{})
+	_, err := client.CoreV1().Services(namespace).Update(context.Background(), &svc, metav1.UpdateOptions{})
 	return err
 }
 

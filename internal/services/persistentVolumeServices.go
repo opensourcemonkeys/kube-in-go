@@ -12,7 +12,7 @@ import (
 )
 
 func GetPersistentVolumes(client *kubernetes.Clientset) ([]models.PersistentVolumeInfo, error) {
-	list, err := client.CoreV1().PersistentVolumes().List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().PersistentVolumes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func GetPersistentVolumeYaml(name string, client *kubernetes.Clientset) (string,
 	if name == "" {
 		return "", errNamespaceNameRequired
 	}
-	pv, err := client.CoreV1().PersistentVolumes().Get(context.TODO(), name, metav1.GetOptions{})
+	pv, err := client.CoreV1().PersistentVolumes().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

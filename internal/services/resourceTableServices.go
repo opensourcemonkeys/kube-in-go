@@ -69,7 +69,7 @@ func requestTable(config *rest.Config, gvr schema.GroupVersionResource, namespac
 	// carries the PartialObjectMetadata we read the name/namespace from.
 	req = req.Param("includeObject", "Metadata").SetHeader("Accept", tableAccept)
 
-	raw, err := req.DoRaw(context.TODO())
+	raw, err := req.DoRaw(context.Background())
 	if err != nil {
 		return nil, err
 	}

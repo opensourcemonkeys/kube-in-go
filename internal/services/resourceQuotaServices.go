@@ -15,7 +15,7 @@ import (
 // GetResourceQuotas lists quotas across all namespaces with one API call
 // (unlike GetNamespaces, which lists quotas per namespace).
 func GetResourceQuotas(k8sClient *kubernetes.Clientset) ([]models.NamespacedResourceQuota, error) {
-	quotas, err := k8sClient.CoreV1().ResourceQuotas("").List(context.TODO(), metav1.ListOptions{})
+	quotas, err := k8sClient.CoreV1().ResourceQuotas("").List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func GetResourceQuotas(k8sClient *kubernetes.Clientset) ([]models.NamespacedReso
 }
 
 func GetResourceQuotaYaml(name, namespace string, k8sClient *kubernetes.Clientset) (string, error) {
-	rq, err := k8sClient.CoreV1().ResourceQuotas(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	rq, err := k8sClient.CoreV1().ResourceQuotas(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -60,6 +60,6 @@ func UpdateResourceQuotaYaml(name, namespace, yamlContent string, k8sClient *kub
 	}
 	rq.Name = name
 	rq.Namespace = namespace
-	_, err := k8sClient.CoreV1().ResourceQuotas(namespace).Update(context.TODO(), &rq, metav1.UpdateOptions{})
+	_, err := k8sClient.CoreV1().ResourceQuotas(namespace).Update(context.Background(), &rq, metav1.UpdateOptions{})
 	return err
 }

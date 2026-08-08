@@ -62,7 +62,8 @@ func GetCronJobPods(clusterName string, name, namespace string) ([]string, error
 }
 
 func StartLogStream(clusterName string, sessionId, podName, namespace, container string, onData func(string)) error {
-	client, err := repository.NewK8sClientForCluster(clusterName)
+	// Streaming client: a followed log stream must outlive the shared request timeout.
+	client, err := repository.NewK8sClientForClusterStreaming(clusterName)
 	if err != nil {
 		return err
 	}

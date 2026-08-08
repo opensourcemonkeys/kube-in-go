@@ -14,7 +14,7 @@ import (
 )
 
 func GetRoleBindings(namespace string, client *kubernetes.Clientset) ([]models.RoleBindingInfo, error) {
-	list, err := client.RbacV1().RoleBindings(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.RbacV1().RoleBindings(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func GetRoleBindingYaml(namespace, name string, client *kubernetes.Clientset) (s
 	if namespace == "" || name == "" {
 		return "", errNamespaceRoleBindingRequired
 	}
-	rb, err := client.RbacV1().RoleBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	rb, err := client.RbacV1().RoleBindings(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +46,7 @@ func UpdateRoleBindingYaml(namespace, name, yamlContent string, client *kubernet
 	}
 	rb.Namespace = namespace
 	rb.Name = name
-	_, err := client.RbacV1().RoleBindings(namespace).Update(context.TODO(), &rb, metav1.UpdateOptions{})
+	_, err := client.RbacV1().RoleBindings(namespace).Update(context.Background(), &rb, metav1.UpdateOptions{})
 	return err
 }
 
@@ -54,14 +54,14 @@ func UpdateRoleBinding(namespace, name string, labels, annotations map[string]st
 	if namespace == "" || name == "" {
 		return errNamespaceRoleBindingRequired
 	}
-	rb, err := client.RbacV1().RoleBindings(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	rb, err := client.RbacV1().RoleBindings(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	rb.Labels = labels
 	rb.Annotations = annotations
 	rb.Subjects = subjectsToK8s(subjects)
-	_, err = client.RbacV1().RoleBindings(namespace).Update(context.TODO(), rb, metav1.UpdateOptions{})
+	_, err = client.RbacV1().RoleBindings(namespace).Update(context.Background(), rb, metav1.UpdateOptions{})
 	return err
 }
 

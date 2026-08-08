@@ -75,7 +75,7 @@ func GetObjectYaml(config *rest.Config, group, resource, namespace, name string)
 	if err != nil {
 		return "", err
 	}
-	obj, err := ri.Get(context.TODO(), name, metav1.GetOptions{})
+	obj, err := ri.Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -107,7 +107,7 @@ func UpdateObjectYaml(config *rest.Config, group, resource, namespace, name, yam
 	if namespace != "" {
 		u.SetNamespace(namespace)
 	}
-	_, err = ri.Update(context.TODO(), u, metav1.UpdateOptions{})
+	_, err = ri.Update(context.Background(), u, metav1.UpdateOptions{})
 	return err
 }
 

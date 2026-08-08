@@ -16,14 +16,14 @@ type podLiveUsage struct{ cpu, mem int64 }
 
 func GetPods(namespace string, repoK8sClient *kubernetes.Clientset, mc *metricsclient.Clientset) ([]models.PodInfo, error) {
 
-	pods, err := repoK8sClient.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	pods, err := repoK8sClient.CoreV1().Pods(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 
 	// ReplicaSet -> Deployment map so pods roll up to their Deployment.
 	rsToDeploy := map[string]string{}
-	if rsl, e := repoK8sClient.AppsV1().ReplicaSets("").List(context.TODO(), metav1.ListOptions{}); e == nil {
+	if rsl, e := repoK8sClient.AppsV1().ReplicaSets("").List(context.Background(), metav1.ListOptions{}); e == nil {
 		for _, rs := range rsl.Items {
 			if owner := controllerRef(rs.OwnerReferences); owner != nil && owner.Kind == "Deployment" {
 				rsToDeploy[rs.Namespace+"/"+rs.Name] = owner.Name
@@ -35,7 +35,7 @@ func GetPods(namespace string, repoK8sClient *kubernetes.Clientset, mc *metricsc
 	metricsAvailable := false
 	podUsage := map[string]podLiveUsage{}
 	if mc != nil {
-		if pm, e := mc.MetricsV1beta1().PodMetricses("").List(context.TODO(), metav1.ListOptions{}); e == nil {
+		if pm, e := mc.MetricsV1beta1().PodMetricses("").List(context.Background(), metav1.ListOptions{}); e == nil {
 			metricsAvailable = true
 			for _, p := range pm.Items {
 				var u podLiveUsage
@@ -61,7 +61,7 @@ func DeletePod(namespace string, name string, repoK8sClient *kubernetes.Clientse
 		return fmt.Errorf("namespace and pod name are required")
 	}
 
-	return repoK8sClient.CoreV1().Pods(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return repoK8sClient.CoreV1().Pods(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetPodYaml(namespace string, name string, repoK8sClient *kubernetes.Clientset) (string, error) {
@@ -69,7 +69,7 @@ func GetPodYaml(namespace string, name string, repoK8sClient *kubernetes.Clients
 		return "", fmt.Errorf("namespace and pod name are required")
 	}
 
-	pod, err := repoK8sClient.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	pod, err := repoK8sClient.CoreV1().Pods(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

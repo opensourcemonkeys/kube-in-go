@@ -13,7 +13,7 @@ import (
 )
 
 func GetConfigMaps(namespace string, client *kubernetes.Clientset) ([]models.ConfigMapInfo, error) {
-	cms, err := client.CoreV1().ConfigMaps(namespace).List(context.TODO(), metav1.ListOptions{})
+	cms, err := client.CoreV1().ConfigMaps(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,14 +29,14 @@ func DeleteConfigMap(namespace, name string, client *kubernetes.Clientset) error
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.CoreV1().ConfigMaps(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.CoreV1().ConfigMaps(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetConfigMapYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	cm, err := client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	cm, err := client.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +56,7 @@ func UpdateConfigMapYaml(namespace, name, yamlContent string, client *kubernetes
 	cm.Namespace = namespace
 	cm.Name = name
 
-	_, err := client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), &cm, metav1.UpdateOptions{})
+	_, err := client.CoreV1().ConfigMaps(namespace).Update(context.Background(), &cm, metav1.UpdateOptions{})
 	return err
 }
 
@@ -64,7 +64,7 @@ func GetConfigMapData(namespace, name string, client *kubernetes.Clientset) (map
 	if namespace == "" || name == "" {
 		return nil, errNamespaceNameRequired
 	}
-	cm, err := client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	cm, err := client.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -78,12 +78,12 @@ func UpdateConfigMapData(namespace, name string, data map[string]string, client 
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	cm, err := client.CoreV1().ConfigMaps(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	cm, err := client.CoreV1().ConfigMaps(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	cm.Data = data
-	_, err = client.CoreV1().ConfigMaps(namespace).Update(context.TODO(), cm, metav1.UpdateOptions{})
+	_, err = client.CoreV1().ConfigMaps(namespace).Update(context.Background(), cm, metav1.UpdateOptions{})
 	return err
 }
 

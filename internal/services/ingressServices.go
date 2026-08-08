@@ -13,7 +13,7 @@ import (
 )
 
 func GetIngresses(namespace string, client *kubernetes.Clientset) ([]models.IngressInfo, error) {
-	list, err := client.NetworkingV1().Ingresses(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.NetworkingV1().Ingresses(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -28,14 +28,14 @@ func DeleteIngress(namespace, name string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return errNamespaceNameRequired
 	}
-	return client.NetworkingV1().Ingresses(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return client.NetworkingV1().Ingresses(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func GetIngressYaml(namespace, name string, client *kubernetes.Clientset) (string, error) {
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	ing, err := client.NetworkingV1().Ingresses(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	ing, err := client.NetworkingV1().Ingresses(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -55,7 +55,7 @@ func UpdateIngressYaml(namespace, name, yamlContent string, client *kubernetes.C
 	ing.Namespace = namespace
 	ing.Name = name
 
-	_, err := client.NetworkingV1().Ingresses(namespace).Update(context.TODO(), &ing, metav1.UpdateOptions{})
+	_, err := client.NetworkingV1().Ingresses(namespace).Update(context.Background(), &ing, metav1.UpdateOptions{})
 	return err
 }
 

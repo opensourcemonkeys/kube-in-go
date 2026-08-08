@@ -13,7 +13,7 @@ import (
 )
 
 func GetCronJobs(namespace string, client *kubernetes.Clientset) ([]models.CronJobInfo, error) {
-	list, err := client.BatchV1().CronJobs(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.BatchV1().CronJobs(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func DeleteCronJob(namespace, name string, client *kubernetes.Clientset) error {
 		return errNamespaceNameRequired
 	}
 	propagation := metav1.DeletePropagationBackground
-	return client.BatchV1().CronJobs(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{
+	return client.BatchV1().CronJobs(namespace).Delete(context.Background(), name, metav1.DeleteOptions{
 		PropagationPolicy: &propagation,
 	})
 }
@@ -39,7 +39,7 @@ func GetCronJobYaml(namespace, name string, client *kubernetes.Clientset) (strin
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	cj, err := client.BatchV1().CronJobs(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	cj, err := client.BatchV1().CronJobs(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +59,7 @@ func UpdateCronJobYaml(namespace, name, yamlContent string, client *kubernetes.C
 	cj.Namespace = namespace
 	cj.Name = name
 
-	_, err := client.BatchV1().CronJobs(namespace).Update(context.TODO(), &cj, metav1.UpdateOptions{})
+	_, err := client.BatchV1().CronJobs(namespace).Update(context.Background(), &cj, metav1.UpdateOptions{})
 	return err
 }
 

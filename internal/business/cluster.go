@@ -59,20 +59,30 @@ func ListClusters() ([]string, error) {
 	return names, nil
 }
 
+// clusterFile resolves the kubeconfig path for a cluster, creating ~/.kube-ins
+// if needed. The path itself comes from repository.ClusterConfigPath so the name
+// is validated in exactly one place.
+func clusterFile(name string) (string, error) {
+	if _, err := kubeInsDir(); err != nil {
+		return "", err
+	}
+	return repository.ClusterConfigPath(name)
+}
+
 func SaveCluster(name, content string) error {
-	dir, err := kubeInsDir()
+	path, err := clusterFile(name)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, name+".yaml"), []byte(content), 0600)
+	return os.WriteFile(path, []byte(content), 0600)
 }
 
 func GetClusterContent(name string) (string, error) {
-	dir, err := kubeInsDir()
+	path, err := clusterFile(name)
 	if err != nil {
 		return "", err
 	}
-	data, err := os.ReadFile(filepath.Join(dir, name+".yaml"))
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -80,11 +90,11 @@ func GetClusterContent(name string) (string, error) {
 }
 
 func DeleteCluster(name string) error {
-	dir, err := kubeInsDir()
+	path, err := clusterFile(name)
 	if err != nil {
 		return err
 	}
-	return os.Remove(filepath.Join(dir, name+".yaml"))
+	return os.Remove(path)
 }
 
 func SetActiveCluster(name string) error {
@@ -98,8 +108,12 @@ func SetActiveCluster(name string) error {
 		_ = os.Remove(filepath.Join(dir, activeClusterFile))
 		return nil
 	}
+	path, err := repository.ClusterConfigPath(name)
+	if err != nil {
+		return err
+	}
 	activeCluster = name
-	repository.SetActiveKubeconfig(filepath.Join(dir, name+".yaml"))
+	repository.SetActiveKubeconfig(path)
 	return os.WriteFile(filepath.Join(dir, activeClusterFile), []byte(name), 0600)
 }
 

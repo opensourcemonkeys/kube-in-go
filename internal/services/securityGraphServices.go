@@ -38,7 +38,7 @@ type objRef struct {
 // of that type the role can reach. Only ClusterRoles referenced by a RoleBinding
 // are included, to avoid dumping the dozens of default cluster roles.
 func GetSecurityGraph(client *kubernetes.Clientset, config *rest.Config) (*models.SecurityGraph, error) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	graph := &models.SecurityGraph{Nodes: []models.SecurityNode{}, Edges: []models.SecurityEdge{}}
 
 	nodeSet := make(map[string]bool)

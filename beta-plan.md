@@ -9,7 +9,7 @@
 
 - [x] **S1** — Doğrulama altyapısı: lint, vet, test, PR CI ✅
 - [x] **S2** — ApplyYaml: cluster pinning + native server-side apply *(riskli)* ✅
-- [ ] **S3** — Backend doğruluk paketi: nil panic, path traversal, timeout
+- [x] **S3** — Backend doğruluk paketi: nil panic, path traversal, timeout ✅
 - [ ] **S4** — IPC hub sertleştirme *(güvenlik)*
 - [ ] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı
 - [ ] **S6** — Yerel loglama + diagnostics blob

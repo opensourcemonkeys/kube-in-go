@@ -30,7 +30,7 @@ func GetCRDs(config *rest.Config) ([]models.CRDInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	list, err := dyn.Resource(crdGVR).List(context.TODO(), metav1.ListOptions{})
+	list, err := dyn.Resource(crdGVR).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func GetCustomResources(config *rest.Config, group, resource string) ([]models.C
 	if err != nil {
 		return nil, err
 	}
-	list, err := ri.List(context.TODO(), metav1.ListOptions{})
+	list, err := ri.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func countInstances(dyn dynamic.Interface, mapper meta.RESTMapper, crd models.CR
 	if err != nil {
 		return -1
 	}
-	ctx, cancel := context.WithTimeout(context.TODO(), countTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), countTimeout)
 	defer cancel()
 
 	list, err := ri.List(ctx, metav1.ListOptions{Limit: 1})
@@ -195,7 +195,7 @@ func DeleteObject(config *rest.Config, group, resource, namespace, name string) 
 	if err != nil {
 		return err
 	}
-	return ri.Delete(context.TODO(), name, metav1.DeleteOptions{})
+	return ri.Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 // humanAge renders a compact age string (e.g. "5d", "3h", "12m") from a

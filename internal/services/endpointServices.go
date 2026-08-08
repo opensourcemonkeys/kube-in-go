@@ -11,7 +11,7 @@ import (
 )
 
 func GetEndpoints(namespace string, client *kubernetes.Clientset) ([]models.EndpointInfo, error) {
-	list, err := client.CoreV1().Endpoints(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.CoreV1().Endpoints(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func GetEndpointYaml(namespace, name string, client *kubernetes.Clientset) (stri
 	if namespace == "" || name == "" {
 		return "", errNamespaceNameRequired
 	}
-	ep, err := client.CoreV1().Endpoints(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	ep, err := client.CoreV1().Endpoints(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

@@ -14,7 +14,7 @@ import (
 )
 
 func GetRoles(namespace string, client *kubernetes.Clientset) ([]models.RoleInfo, error) {
-	list, err := client.RbacV1().Roles(namespace).List(context.TODO(), metav1.ListOptions{})
+	list, err := client.RbacV1().Roles(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func GetRoleYaml(namespace, name string, client *kubernetes.Clientset) (string, 
 	if namespace == "" || name == "" {
 		return "", errNamespaceRoleRequired
 	}
-	r, err := client.RbacV1().Roles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	r, err := client.RbacV1().Roles(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +46,7 @@ func UpdateRoleYaml(namespace, name, yamlContent string, client *kubernetes.Clie
 	}
 	r.Namespace = namespace
 	r.Name = name
-	_, err := client.RbacV1().Roles(namespace).Update(context.TODO(), &r, metav1.UpdateOptions{})
+	_, err := client.RbacV1().Roles(namespace).Update(context.Background(), &r, metav1.UpdateOptions{})
 	return err
 }
 
@@ -54,14 +54,14 @@ func UpdateRole(namespace, name string, labels, annotations map[string]string, r
 	if namespace == "" || name == "" {
 		return errNamespaceRoleRequired
 	}
-	r, err := client.RbacV1().Roles(namespace).Get(context.TODO(), name, metav1.GetOptions{})
+	r, err := client.RbacV1().Roles(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
 	r.Labels = labels
 	r.Annotations = annotations
 	r.Rules = policyRulesToK8s(rules)
-	_, err = client.RbacV1().Roles(namespace).Update(context.TODO(), r, metav1.UpdateOptions{})
+	_, err = client.RbacV1().Roles(namespace).Update(context.Background(), r, metav1.UpdateOptions{})
 	return err
 }
 

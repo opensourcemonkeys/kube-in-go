@@ -11,7 +11,7 @@ import (
 )
 
 func GetIngressClasses(client *kubernetes.Clientset) ([]models.IngressClassInfo, error) {
-	list, err := client.NetworkingV1().IngressClasses().List(context.TODO(), metav1.ListOptions{})
+	list, err := client.NetworkingV1().IngressClasses().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func GetIngressClassYaml(name string, client *kubernetes.Clientset) (string, err
 	if name == "" {
 		return "", errNamespaceNameRequired
 	}
-	ic, err := client.NetworkingV1().IngressClasses().Get(context.TODO(), name, metav1.GetOptions{})
+	ic, err := client.NetworkingV1().IngressClasses().Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

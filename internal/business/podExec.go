@@ -6,7 +6,8 @@ import (
 )
 
 func CreatePodExecSession(clusterName string, id, namespace, podName, container string, onOutput func(string)) error {
-	client, config, err := repository.NewK8sClientAndConfigForCluster(clusterName)
+	// Streaming client: the SPDY exec session must outlive the shared request timeout.
+	client, config, err := repository.NewK8sClientAndConfigForClusterStreaming(clusterName)
 	if err != nil {
 		return err
 	}
