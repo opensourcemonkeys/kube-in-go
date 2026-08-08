@@ -110,8 +110,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/cluster/ClusterModal.tsx": {
-    "mtime": 1786197568.440444,
-    "ast_hash": "c97c42f70d8efd3806e18c0940795912",
+    "mtime": 1786199391.2870963,
+    "ast_hash": "cbf5d68a10284a8ca7f18686083ec8a7",
     "semantic_hash": ""
   },
   "frontend/src/components/clusterresource/ClusterResourcePanel.tsx": {
@@ -325,13 +325,13 @@
     "semantic_hash": ""
   },
   "frontend/src/components/terminal/TerminalPanel.tsx": {
-    "mtime": 1778532752.6146953,
-    "ast_hash": "b441b9805c8e70b1941d32f5cd1128c6",
-    "semantic_hash": "b441b9805c8e70b1941d32f5cd1128c6"
+    "mtime": 1786198955.792103,
+    "ast_hash": "2319c3965a5dd137054677675b178bdf",
+    "semantic_hash": ""
   },
   "frontend/src/components/titlebar/TitleBar.tsx": {
-    "mtime": 1786195158.8699832,
-    "ast_hash": "dac11ba6bd54efab35fda2b2d3b72855",
+    "mtime": 1786198571.2604666,
+    "ast_hash": "e09701f494b050c6aa1dcb882da4028e",
     "semantic_hash": ""
   },
   "frontend/src/components/tour/TourCard.tsx": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "frontend/src/contexts/TabContext.tsx": {
-    "mtime": 1786195158.8703363,
-    "ast_hash": "56119fbec8e2c80d0627063d01c9e658",
+    "mtime": 1786198562.8564582,
+    "ast_hash": "6c987b14a149c62787029d5fd5d0b20e",
     "semantic_hash": ""
   },
   "frontend/src/lib/k8sYamlIntellisense.ts": {
@@ -730,9 +730,9 @@
     "semantic_hash": "2074d680a81db17eeee6a246b4d9f8e8"
   },
   "internal/business/terminal.go": {
-    "mtime": 1778340591.8099995,
-    "ast_hash": "7d90cb59b94087cae13292d0fac3ddb7",
-    "semantic_hash": "7d90cb59b94087cae13292d0fac3ddb7"
+    "mtime": 1786198545.433938,
+    "ast_hash": "23a107fd7915e92eced04137c6ad0494",
+    "semantic_hash": ""
   },
   "internal/business/trivy.go": {
     "mtime": 1782658193.0113845,
@@ -760,8 +760,8 @@
     "semantic_hash": "10ef7b66452ca6c79904cb99d2b183d6"
   },
   "internal/controller/functionBuilder.go": {
-    "mtime": 1786195158.8769996,
-    "ast_hash": "d7805f4400542a5e3d14eb7bc6547732",
+    "mtime": 1786198550.9762669,
+    "ast_hash": "0c87df8b0ba5736493980a00a7c79536",
     "semantic_hash": ""
   },
   "internal/controller/rpcserver.go": {
@@ -1145,9 +1145,9 @@
     "semantic_hash": ""
   },
   "internal/services/terminalServices.go": {
-    "mtime": 1778536989.6232467,
-    "ast_hash": "5f2dbc8807747edb45c7fe5fc1956bb7",
-    "semantic_hash": "5f2dbc8807747edb45c7fe5fc1956bb7"
+    "mtime": 1786198533.5789967,
+    "ast_hash": "6bf08042e55e3529a33c395bda01c719",
+    "semantic_hash": ""
   },
   "internal/services/trivyServices.go": {
     "mtime": 1786196266.1834629,
@@ -1685,8 +1685,8 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/clusterColors.ts": {
-    "mtime": 1786197156.0521083,
-    "ast_hash": "38204841c6765e8a5bbf90ad3389bee8",
+    "mtime": 1786199207.4000978,
+    "ast_hash": "2dd4ff72d0ccee3a8d02adbc33b9a8c4",
     "semantic_hash": ""
   },
   "frontend/src/stores/clusterColorStore.ts": {

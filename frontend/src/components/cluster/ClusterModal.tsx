@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { ColorPicker } from 'primereact/colorpicker';
 import { Toast } from 'primereact/toast';
 import { parse as parseYaml } from 'yaml';
 
@@ -10,7 +11,7 @@ import {
     VscPass, VscError, VscGlobe, VscListTree, VscAccount, VscArrowRight,
 } from 'react-icons/vsc';
 import { SaveCluster, GetClusterContent } from '../../../wailsjs/go/controller_app/App';
-import { CLUSTER_PALETTE, defaultColorId, hexForId } from '../../lib/clusterColors';
+import { CLUSTER_PALETTE, defaultColorId, hexForId, isCustomHex, normalizeHex } from '../../lib/clusterColors';
 import { useClusterColorStore } from '../../stores/clusterColorStore';
 
 interface Props {
@@ -91,6 +92,8 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
     const resetStoredColor = useClusterColorStore(s => s.resetColor);
 
     const effectiveColorId = colorId ?? defaultColorId(name.trim());
+    const effectiveHex = hexForId(effectiveColorId);
+    const customPicked = isCustomHex(colorId ?? undefined);
 
     useEffect(() => {
         if (editingName) {
@@ -184,7 +187,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
-                        <VscServer size={16} color={hexForId(effectiveColorId)} />
+                        <VscServer size={16} color={effectiveHex} />
                         <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
                     </div>
                     {dismissible && (
@@ -237,6 +240,30 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                     onClick={() => setColorId(c.id)}
                                 />
                             ))}
+
+                            <span className="cluster-modal__colors-sep" aria-hidden="true" />
+
+                            {/* Anything outside the palette. The picker panel is
+                                appended to itself so it stacks above the modal. */}
+                            <span
+                                className={`cluster-modal__custom${customPicked ? ' is-on' : ''}`}
+                                title="Pick a custom color"
+                            >
+                                <ColorPicker
+                                    format="hex"
+                                    appendTo="self"
+                                    value={effectiveHex.slice(1)}
+                                    onChange={e => {
+                                        const hex = normalizeHex(typeof e.value === 'string' ? e.value : undefined);
+                                        if (hex) setColorId(hex);
+                                    }}
+                                    aria-label="Custom color"
+                                />
+                                <span className="cluster-modal__custom-label">
+                                    {customPicked ? effectiveHex.toUpperCase() : 'Custom'}
+                                </span>
+                            </span>
+
                             <button
                                 type="button"
                                 className={`cluster-modal__auto${colorId === null ? ' is-on' : ''}`}

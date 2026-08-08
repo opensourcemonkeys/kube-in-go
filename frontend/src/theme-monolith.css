@@ -512,6 +512,32 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 .cluster-modal__auto:hover { background: var(--hover); color: var(--ink); }
 .cluster-modal__auto.is-on { border-color: var(--teal); color: var(--teal); }
 
+/* Custom colour: the PrimeReact ColorPicker preview re-skinned as a swatch,
+   with a hue ring so it reads as "anything else" next to the fixed palette. */
+/* Separates the fixed palette from the custom/auto controls — without it the
+   picker swatch reads as a thirteenth palette entry. */
+.cluster-modal__colors-sep {
+  width: 1px; height: 20px; flex-shrink: 0; margin: 0 4px; background: var(--line2);
+}
+.cluster-modal__custom { display: inline-flex; align-items: center; gap: 7px; margin-left: 0; }
+.cluster-modal__custom .p-colorpicker-preview.p-inputtext {
+  width: 18px; height: 18px; border-radius: 50%; padding: 0; flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,.25); cursor: pointer;
+  outline: 2px solid transparent; outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--panel2), 0 0 0 3.5px var(--line2);
+  transition: transform .1s, outline-color .1s;
+}
+.cluster-modal__custom .p-colorpicker-preview.p-inputtext:hover { transform: scale(1.15); }
+.cluster-modal__custom.is-on .p-colorpicker-preview.p-inputtext { outline-color: var(--ink); }
+.cluster-modal__custom-label {
+  font-size: 11px; color: var(--ink2); font-variant-numeric: tabular-nums; letter-spacing: .02em;
+}
+.cluster-modal__custom.is-on .cluster-modal__custom-label { color: var(--ink); }
+.p-colorpicker-panel {
+  background: var(--panel); border: 1px solid var(--line2); border-radius: 8px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.45); z-index: 10;
+}
+
 .cluster-header__icon-btn {
   display: flex; align-items: center; justify-content: center;
   width: 32px; height: 32px; background: var(--panel); border: 1px solid var(--line2); border-radius: 6px;

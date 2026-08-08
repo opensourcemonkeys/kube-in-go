@@ -133,7 +133,7 @@ interface TabContextValue {
     openRoleEditor: (def: RoleEditorDef) => void;
     openRoleBindingEditor: (def: RoleBindingEditorDef) => void;
     openObjectYaml: (def: ObjectYamlDef) => void;
-    openTerminal: () => void;
+    openTerminal: (clusterName: string) => void;
     openApplyYaml: (clusterName: string) => void;
     openClusterResourceView: (clusterName: string) => void;
     openReceivedPanel: (panel: ReceivedPanel) => void;
@@ -181,7 +181,10 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         });
     }, []);
 
-    const openTerminal = useCallback(() => {
+    // Like the apply-yaml panel, the terminal is seeded with a cluster but stays
+    // retargetable from its own toolbar — so the id is just the session id and
+    // the title is re-set by the panel when the choice changes.
+    const openTerminal = useCallback((clusterName: string) => {
         const api = apiRef.current;
         if (!api) return;
 
@@ -192,8 +195,8 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel({
             id: sessionId,
             component: 'terminal',
-            title: `Terminal ${n}`,
-            params: { sessionId },
+            title: clusterName ? `Terminal ${n} • ${clusterName}` : `Terminal ${n}`,
+            params: { sessionId, clusterName },
         });
     }, []);
 

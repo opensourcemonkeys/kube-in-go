@@ -42,8 +42,26 @@ export function defaultColorId(clusterName: string): string {
     return CLUSTER_PALETTE[hash(clusterName) % CLUSTER_PALETTE.length].id;
 }
 
+// A stored colour is either a palette id ('teal') or a raw '#rrggbb' picked
+// with the colour picker, so custom colours need no separate storage key.
+const HEX_RE = /^#[0-9a-f]{6}$/i;
+
+export function isCustomHex(id: string | undefined): boolean {
+    return !!id && HEX_RE.test(id);
+}
+
+// Accepts what the PrimeReact picker emits ('3fc8b4'), plus '#abc' shorthand.
+export function normalizeHex(raw: string | undefined): string | null {
+    if (!raw) return null;
+    let v = raw.trim().toLowerCase();
+    if (!v.startsWith('#')) v = `#${v}`;
+    if (/^#[0-9a-f]{3}$/.test(v)) v = `#${v[1]}${v[1]}${v[2]}${v[2]}${v[3]}${v[3]}`;
+    return HEX_RE.test(v) ? v : null;
+}
+
 // Falls back to the first entry so persisted overrides never break if the
 // palette is reshuffled later.
 export function hexForId(id: string | undefined): string {
+    if (isCustomHex(id)) return (id as string).toLowerCase();
     return CLUSTER_PALETTE.find(c => c.id === id)?.hex ?? CLUSTER_PALETTE[0].hex;
 }

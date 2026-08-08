@@ -1,23 +1,47 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
+import { Dropdown } from 'primereact/dropdown';
+import { VscTerminal } from 'react-icons/vsc';
 import { EventsOn } from '../../../wailsjs/runtime/runtime';
 import {
     CreateTerminalSession,
+    SetTerminalSessionCluster,
     WriteToTerminalSession,
     ResizeTerminalSession,
     CloseTerminalSession,
 } from '../../../wailsjs/go/controller_app/App';
+import { useClusterContext } from '../../contexts/ClusterContext';
 
 export interface TerminalPanelParams {
     sessionId: string;
+    clusterName?: string;
 }
 
-export default function TerminalPanel({ params }: IDockviewPanelProps<TerminalPanelParams>) {
+export default function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalPanelParams>) {
     const { sessionId } = params;
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const { clusters, activeCluster } = useClusterContext();
+    // Same contract as the apply-yaml panel: the seeded cluster is only a
+    // default, and the choice is mirrored back into params so the panel keeps
+    // its target across a layout restore.
+    const [cluster, setCluster] = useState(params.clusterName || activeCluster || '');
+    // The session is created once per sessionId; reading the cluster through a
+    // ref keeps it out of the effect's deps, so retargeting never restarts the
+    // shell.
+    const clusterRef = useRef(cluster);
+    clusterRef.current = cluster;
+
+    const handleClusterChange = (next: string) => {
+        setCluster(next);
+        SetTerminalSessionCluster(sessionId, next).catch(() => {});
+        api.updateParameters({ clusterName: next });
+        const label = api.title?.split(' • ')[0] ?? 'Terminal';
+        api.setTitle(next ? `${label} • ${next}` : label);
+    };
 
     useEffect(() => {
         if (!containerRef.current) return;
@@ -62,7 +86,7 @@ export default function TerminalPanel({ params }: IDockviewPanelProps<TerminalPa
             ResizeTerminalSession(sessionId, term.cols, term.rows).catch(() => {});
         }, 50);
 
-        CreateTerminalSession(sessionId).catch((err: unknown) => {
+        CreateTerminalSession(sessionId, clusterRef.current).catch((err: unknown) => {
             term.write(`\r\nSession error: ${err}\r\n`);
         });
 
@@ -91,16 +115,32 @@ export default function TerminalPanel({ params }: IDockviewPanelProps<TerminalPa
     }, [sessionId]);
 
     return (
-        <div
-            ref={containerRef}
-            style={{
-                width: '100%',
-                height: '100%',
-                padding: '4px',
-                boxSizing: 'border-box',
-                background: '#10141a',
-                overflow: 'hidden',
-            }}
-        />
+        <div className="flex flex-column h-full" style={{ background: '#10141a' }}>
+            <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
+                <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
+                    <VscTerminal size={14} /> Terminal
+                </span>
+                <Dropdown
+                    value={cluster || null}
+                    options={clusters}
+                    onChange={(e) => handleClusterChange(e.value ?? '')}
+                    placeholder="Select cluster"
+                    className="yaml-editor-toolbar__cluster"
+                    style={{ minWidth: '11rem' }}
+                    aria-label="Kubeconfig cluster"
+                />
+            </div>
+
+            <div
+                ref={containerRef}
+                style={{
+                    flex: 1,
+                    minHeight: 0,
+                    padding: '4px',
+                    boxSizing: 'border-box',
+                    overflow: 'hidden',
+                }}
+            />
+        </div>
     );
 }

@@ -66,7 +66,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
             label: 'Open',
             items: [
                 { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml(activeCluster) },
-                { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal() },
+                { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal(activeCluster) },
                 { label: 'CLI Mode',    icon: <VscScreenFull size={13} />,  command: () => onToggleCli?.() },
                 { separator: true },
                 {

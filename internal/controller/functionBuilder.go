@@ -434,10 +434,16 @@ func (a *App) UpdateRoleBinding(clusterName string, name string, namespace strin
 // Terminal Screen
 // ============================================================================
 
-func (a *App) CreateTerminalSession(id string) error {
-	return bussiness.CreateTerminalSession(id, func(data string) {
+func (a *App) CreateTerminalSession(id string, clusterName string) error {
+	return bussiness.CreateTerminalSession(id, clusterName, func(data string) {
 		a.emit("terminal:output:"+id, data)
 	})
+}
+
+// SetTerminalSessionCluster points a running terminal at another cluster's
+// kubeconfig without restarting its shell.
+func (a *App) SetTerminalSessionCluster(id string, clusterName string) error {
+	return bussiness.SetTerminalSessionCluster(id, clusterName)
 }
 
 func (a *App) WriteToTerminalSession(id string, data string) error {
