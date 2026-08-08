@@ -785,8 +785,8 @@
     "semantic_hash": "fef9669baaa3cee3f627545c9a413524"
   },
   "internal/ipc/hub.go": {
-    "mtime": 1786200574.7321012,
-    "ast_hash": "9ee44fd268355f62ca97d6d32cdf0bc1",
+    "mtime": 1786201058.5308502,
+    "ast_hash": "9fcb04660079ffab3fd8374871b70d30",
     "semantic_hash": ""
   },
   "internal/ipc/messages.go": {
@@ -1245,9 +1245,9 @@
     "semantic_hash": "42557934f420f57f4ac73aea9f9cd146"
   },
   "main.go": {
-    "mtime": 1784475904.592672,
-    "ast_hash": "7a7bc01a98095fdb8bd658ef1b062c54",
-    "semantic_hash": "7a7bc01a98095fdb8bd658ef1b062c54"
+    "mtime": 1786201052.0099292,
+    "ast_hash": "9832c1390d69c4b1090b52aadb6d34fb",
+    "semantic_hash": ""
   },
   "mkdocs_hooks.py": {
     "mtime": 1785310234.995233,
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1786200279.0380037,
-    "ast_hash": "9a2c91b2f40c356482e41a0040094438",
+    "mtime": 1786201132.312752,
+    "ast_hash": "32d1c9294bb35504f0b8ff071983ec2b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1786200283.3023899,
-    "ast_hash": "c40473e8db1c1feb5827a95fcc9fd80c",
+    "mtime": 1786201144.7018154,
+    "ast_hash": "8192e71f49ecc87a30f55429d19330df",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {

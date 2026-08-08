@@ -17,8 +17,8 @@ func terminalKubeconfig(clusterName string) string {
 	return content
 }
 
-func CreateTerminalSession(id string, clusterName string, onOutput func(string)) error {
-	return services.CreateTerminalSession(id, terminalKubeconfig(clusterName), onOutput)
+func CreateTerminalSession(id string, clusterName string, onOutput func(string), onExit func()) error {
+	return services.CreateTerminalSession(id, terminalKubeconfig(clusterName), onOutput, onExit)
 }
 
 // SetTerminalSessionCluster retargets a running terminal without restarting its

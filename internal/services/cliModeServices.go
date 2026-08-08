@@ -7,6 +7,8 @@ import (
 	"sync"
 
 	"github.com/creack/pty"
+
+	"kube-ins/internal/safego"
 )
 
 // cliModeServices spawns the kube-ins binary in --tui mode inside a pty so the
@@ -53,7 +55,7 @@ func CreateCliModeSession(id string, onOutput func(data string), onExit func()) 
 	cliSessions[id] = &cliModeSession{ptmx: ptmx, cmd: cmd}
 	cliMu.Unlock()
 
-	go func() {
+	safego.Go("services.climode.reader", func() {
 		buf := make([]byte, 4096)
 		for {
 			n, err := ptmx.Read(buf)
@@ -74,7 +76,7 @@ func CreateCliModeSession(id string, onOutput func(data string), onExit func()) 
 		if onExit != nil {
 			onExit()
 		}
-	}()
+	})
 
 	return nil
 }

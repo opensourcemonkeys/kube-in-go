@@ -11,7 +11,7 @@
 - [x] **S2** — ApplyYaml: cluster pinning + native server-side apply *(riskli)* ✅
 - [x] **S3** — Backend doğruluk paketi: nil panic, path traversal, timeout ✅
 - [x] **S4** — IPC hub sertleştirme *(güvenlik)* ✅
-- [ ] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı
+- [x] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı ✅
 - [ ] **S6** — Yerel loglama + diagnostics blob
 - [ ] **S7** — 24 business fonksiyonuna error return *(en riskli)*
 - [ ] **S8** — UI'da hata + yükleme durumu
@@ -328,6 +328,14 @@ sessizce yutuluyordu (testlerde çalışıyor — test binary'si Trivy'yi linkle
 örneğini** tutmalı; `slog.Default()` kullanırsa aynı tuzağa düşer. Kendi
 handler'ıyla `slog.SetDefault` çağırmak istiyorsa bunu Trivy'nin init'inden
 **sonra** (yani `Init()` içinde, paket init'inde değil) yapmalı.
+
+**Kısıt 3 (S5'te eklendi): `internal/safego` var artık.** Her goroutine
+`safego.Go("ad", fn)` ile başlıyor; panic'i `recover` edip standart `log` ile
+stack'iyle birlikte yazıyor. Bu step `internal/logging`'i kurunca
+`safego.Go`/`safego.Recover`'ın `log.Printf` çağrısını `logging.L().Error`'a
+çevir — panic log'u diagnostics blob'una girmesi gereken ilk şey. safego'nun
+`internal/logging`'i import etmesi bir döngü yaratmaz (logging hiçbir şey
+import etmiyor), ama tersi olmamalı.
 
 **6a. `internal/logging/logging.go`** — `log/slog` üzerine ince sarmalayıcı:
 - `Init(appVersion string) error` — `~/.kube-ins/logs/` oluştur, `kube-inspector.log` aç (mod 0600), `slog.NewTextHandler` `LevelInfo` (`KUBE_INS_LOG_LEVEL=debug` ile `LevelDebug`).

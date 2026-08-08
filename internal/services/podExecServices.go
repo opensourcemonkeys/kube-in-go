@@ -12,6 +12,8 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
+
+	"kube-ins/internal/safego"
 )
 
 type podExecSession struct {
@@ -37,15 +39,41 @@ var (
 	execSessions = make(map[string]*podExecSession)
 )
 
-func CreatePodExecSession(id, namespace, podName, container string, onOutput func(string), client *kubernetes.Clientset, config *rest.Config) error {
+// releaseExecSession removes id from the registry and tears its session down.
+//
+// The map entry is the ownership token: exactly one caller wins the delete, so
+// stdinWriter and sizeQueue.ch are closed exactly once no matter whether the
+// panel closed the session, a new session replaced it, or the remote shell
+// exited first. When want is non-nil the entry must still be that session — a
+// session started later under the same id is left alone. Reports whether this
+// call was the one that owned the teardown.
+func releaseExecSession(id string, want *podExecSession) bool {
 	execMu.Lock()
-	if existing, ok := execSessions[id]; ok {
+	sess, ok := execSessions[id]
+	if ok && (want == nil || sess == want) {
 		delete(execSessions, id)
-		existing.cancel()
-		_ = existing.stdinWriter.Close()
-		close(existing.sizeQueue.ch)
+	} else {
+		ok = false
 	}
 	execMu.Unlock()
+
+	if !ok {
+		return false
+	}
+	sess.cancel()
+	_ = sess.stdinWriter.Close()
+	// Closing the queue unblocks the remotecommand goroutine parked in Next(),
+	// which otherwise leaks for the lifetime of the process.
+	close(sess.sizeQueue.ch)
+	return true
+}
+
+// CreatePodExecSession opens an interactive shell in a pod container. onClosed
+// fires when the session ends on its own — the remote shell exiting, the pod
+// going away, the stream breaking — but not when the caller closed it, so the
+// frontend can tell a dead terminal from one it shut down itself.
+func CreatePodExecSession(id, namespace, podName, container string, onOutput func(string), onClosed func(), client *kubernetes.Clientset, config *rest.Config) error {
+	releaseExecSession(id, nil)
 
 	if container == "" {
 		pod, err := client.CoreV1().Pods(namespace).Get(context.TODO(), podName, metav1.GetOptions{})
@@ -83,16 +111,27 @@ func CreatePodExecSession(id, namespace, podName, container string, onOutput fun
 	sq := &execSizeQueue{ch: make(chan remotecommand.TerminalSize, 4)}
 	ctx, cancel := context.WithCancel(context.Background())
 
-	execMu.Lock()
-	execSessions[id] = &podExecSession{
+	sess := &podExecSession{
 		stdinWriter: stdinWriter,
 		sizeQueue:   sq,
 		cancel:      cancel,
 	}
+
+	execMu.Lock()
+	execSessions[id] = sess
 	execMu.Unlock()
 
-	go func() {
-		defer stdoutWriter.Close()
+	safego.Go("services.podexec.stream", func() {
+		defer func() {
+			// The stream is over. Closing the write end ends the reader
+			// goroutine below; releasing the session drops the registry entry
+			// and unblocks the size queue. Without this the session stayed in
+			// execSessions forever and the panel just went quiet.
+			_ = stdoutWriter.Close()
+			if releaseExecSession(id, sess) && onClosed != nil {
+				onClosed()
+			}
+		}()
 		_ = executor.StreamWithContext(ctx, remotecommand.StreamOptions{
 			Stdin:             stdinReader,
 			Stdout:            stdoutWriter,
@@ -100,9 +139,9 @@ func CreatePodExecSession(id, namespace, podName, container string, onOutput fun
 			Tty:               true,
 			TerminalSizeQueue: sq,
 		})
-	}()
+	})
 
-	go func() {
+	safego.Go("services.podexec.reader", func() {
 		buf := make([]byte, 4096)
 		for {
 			n, err := stdoutReader.Read(buf)
@@ -113,7 +152,7 @@ func CreatePodExecSession(id, namespace, podName, container string, onOutput fun
 				break
 			}
 		}
-	}()
+	})
 
 	return nil
 }
@@ -144,17 +183,6 @@ func ResizePodExecSession(id string, cols, rows uint16) error {
 }
 
 func ClosePodExecSession(id string) error {
-	execMu.Lock()
-	session, ok := execSessions[id]
-	if ok {
-		delete(execSessions, id)
-	}
-	execMu.Unlock()
-	if !ok {
-		return nil
-	}
-	session.cancel()
-	_ = session.stdinWriter.Close()
-	close(session.sizeQueue.ch)
+	releaseExecSession(id, nil)
 	return nil
 }

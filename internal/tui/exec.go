@@ -51,7 +51,9 @@ func (a *App) runExec(row rowData, container string) {
 		fmt.Printf("Connected to %s/%s [%s]. Press Ctrl-] to disconnect.\r\n\r\n", row.namespace, row.name, container)
 
 		onOutput := func(s string) { _, _ = os.Stdout.WriteString(s) }
-		if err := business.CreatePodExecSession(a.cluster, id, row.namespace, row.name, container, onOutput); err != nil {
+		// No onClosed: the loop below owns the screen and prints
+		// "[disconnected]" itself once the user presses Ctrl-].
+		if err := business.CreatePodExecSession(a.cluster, id, row.namespace, row.name, container, onOutput, nil); err != nil {
 			fmt.Printf("exec error: %v\r\n", err)
 			time.Sleep(2 * time.Second)
 			return

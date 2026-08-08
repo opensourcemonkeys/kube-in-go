@@ -5,13 +5,13 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func CreatePodExecSession(clusterName string, id, namespace, podName, container string, onOutput func(string)) error {
+func CreatePodExecSession(clusterName string, id, namespace, podName, container string, onOutput func(string), onClosed func()) error {
 	// Streaming client: the SPDY exec session must outlive the shared request timeout.
 	client, config, err := repository.NewK8sClientAndConfigForClusterStreaming(clusterName)
 	if err != nil {
 		return err
 	}
-	return services.CreatePodExecSession(id, namespace, podName, container, onOutput, client, config)
+	return services.CreatePodExecSession(id, namespace, podName, container, onOutput, onClosed, client, config)
 }
 
 func WriteToPodExecSession(id, data string) error {

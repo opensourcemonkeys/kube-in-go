@@ -10,6 +10,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"kube-ins/internal/safego"
 )
 
 type logSession struct {
@@ -167,7 +169,7 @@ func StartLogStream(sessionId, namespace, podName, container string, client *kub
 		return fmt.Errorf("failed to open log stream: %w", err)
 	}
 
-	go func() {
+	safego.Go("services.log.stream", func() {
 		defer func() {
 			stream.Close()
 			cancel()
@@ -185,7 +187,7 @@ func StartLogStream(sessionId, namespace, podName, container string, client *kub
 				onData(scanner.Text() + "\n")
 			}
 		}
-	}()
+	})
 
 	return nil
 }

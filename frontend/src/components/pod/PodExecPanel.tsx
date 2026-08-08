@@ -76,7 +76,19 @@ export default function PodExecPanel({ params }: IDockviewPanelProps<PodExecPane
             term.write(data);
         });
 
+        // The backend fires this when the session ends on its own — the remote
+        // shell exiting, the pod going away, the stream breaking. Without it the
+        // panel just stopped responding, which is indistinguishable from a hang.
+        let closed = false;
+        const offClosed = EventsOn(`exec:closed:${sessionId}`, () => {
+            if (closed) return;
+            closed = true;
+            term.write('\r\n[session closed]\r\n');
+            term.options.cursorBlink = false;
+        });
+
         const onData = term.onData((data) => {
+            if (closed) return;
             WriteToPodExecSession(sessionId, data).catch(() => {});
         });
 
@@ -89,6 +101,7 @@ export default function PodExecPanel({ params }: IDockviewPanelProps<PodExecPane
         return () => {
             clearTimeout(fitTimer);
             offOutput();
+            offClosed();
             onData.dispose();
             observer.disconnect();
             ClosePodExecSession(sessionId).catch(() => {});

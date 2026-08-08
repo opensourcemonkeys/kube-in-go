@@ -9,6 +9,8 @@ import (
 	"sync"
 
 	"github.com/creack/pty"
+
+	"kube-ins/internal/safego"
 )
 
 type terminalSession struct {
@@ -108,7 +110,10 @@ func terminalKubeconfigEnv(sessionPath string) string {
 	return "KUBECONFIG=" + strings.Join(paths, string(os.PathListSeparator))
 }
 
-func CreateTerminalSession(id string, kubeconfigContent string, onOutput func(data string)) error {
+// CreateTerminalSession starts a shell in a pty. onExit fires when the shell
+// goes away on its own — the user typing `exit`, or the process being killed —
+// so the frontend can tell a dead terminal from a quiet one.
+func CreateTerminalSession(id string, kubeconfigContent string, onOutput func(data string), onExit func()) error {
 	termMu.Lock()
 	defer termMu.Unlock()
 
@@ -146,7 +151,7 @@ func CreateTerminalSession(id string, kubeconfigContent string, onOutput func(da
 
 	termSessions[id] = &terminalSession{ptmx: ptmx, cmd: cmd, kubeconfigPath: kubeconfigPath}
 
-	go func() {
+	safego.Go("services.terminal.reader", func() {
 		buf := make([]byte, 4096)
 		for {
 			n, err := ptmx.Read(buf)
@@ -157,7 +162,23 @@ func CreateTerminalSession(id string, kubeconfigContent string, onOutput func(da
 				break
 			}
 		}
-	}()
+
+		// The pty is done: either the shell exited by itself or Close killed
+		// it. Reap the child here and only here — without cmd.Wait every
+		// closed terminal panel leaves a zombie — and drop the registry entry,
+		// which CloseTerminalSession alone would never do for a shell that
+		// exited on its own.
+		termMu.Lock()
+		if s, ok := termSessions[id]; ok && s.ptmx == ptmx {
+			delete(termSessions, id)
+		}
+		termMu.Unlock()
+		_ = cmd.Wait()
+		_ = os.Remove(kubeconfigPath)
+		if onExit != nil {
+			onExit()
+		}
+	})
 
 	return nil
 }
@@ -215,6 +236,9 @@ func CloseTerminalSession(id string) error {
 		return nil
 	}
 
+	// Killing the shell ends the pty, which wakes the reader goroutine — that
+	// is where cmd.Wait happens, so the child is reaped exactly once whichever
+	// side ended the session.
 	_ = session.cmd.Process.Kill()
 	_ = session.ptmx.Close()
 	_ = os.Remove(session.kubeconfigPath)

@@ -1,11 +1,11 @@
 # Graph Report - kube-in-go  (2026-08-08)
 
 ## Corpus Check
-- 318 files · ~455,945 words
+- 318 files · ~456,309 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2389 nodes · 3824 edges · 222 communities (166 shown, 56 thin omitted)
+- 2389 nodes · 3824 edges · 223 communities (167 shown, 56 thin omitted)
 - Extraction: 90% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 362 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -181,10 +181,12 @@
 - Community 172
 - Community 173
 - @fontsource/geist
+- service.go
 - @dagrejs/dagre
 - Community 177
 - Community 178
 - Community 179
+- @emotion/styled
 - Community 181
 - Community 182
 - Community 183
@@ -209,7 +211,6 @@
 - monaco-yaml
 - @xterm/addon-fit
 - yaml
-- dockview-react
 - @melloware/react-logviewer
 - motion
 - primeflex
@@ -254,7 +255,7 @@
 - **Per-tab Cluster Pinning Flow** — claude_dockview_panel_system, claude_panel_id_scheme, claude_use_resource_list, claude_controller_layer, claude_business_layer, claude_repository_layer [EXTRACTED 1.00]
 - **graphify Build Pipeline Stages** — _claude_skills_graphify_skill_interpreter_detection, _claude_skills_graphify_skill_ast_extraction, _claude_skills_graphify_skill_semantic_extraction, _claude_skills_graphify_skill_extraction_cache, _claude_skills_graphify_skill_community_clustering, _claude_skills_graphify_skill_graph_health_check, _claude_skills_graphify_skill_god_nodes [EXTRACTED 1.00]
 
-## Communities (222 total, 56 thin omitted)
+## Communities (223 total, 56 thin omitted)
 
 ### Community 1 - "Cluster & CRD Business Layer"
 Cohesion: 0.07
@@ -353,8 +354,8 @@ Cohesion: 0.11
 Nodes (18): electron, electron-builder, dependencies, ws, description, devDependencies, electron, electron-builder (+10 more)
 
 ### Community 25 - "Log Streaming Business Layer"
-Cohesion: 0.13
-Nodes (20): GetEndpoints(), GetEndpointYaml(), GetIngressClasses(), GetIngressClassYaml(), CordonNode(), DrainNode(), GetNodeYaml(), UncordonNode() (+12 more)
+Cohesion: 0.14
+Nodes (18): GetEndpoints(), GetEndpointYaml(), GetIngressClasses(), GetIngressClassYaml(), GetCronJobPods(), GetDaemonSetPods(), GetDeploymentPods(), GetJobPods() (+10 more)
 
 ### Community 26 - "Node Services & Cordon/Drain"
 Cohesion: 0.14
@@ -366,7 +367,7 @@ Nodes (17): click_sidebar_item(), expand_sidebar_group(), navigate_to(), Wait fo
 
 ### Community 28 - "Frontend Dependencies"
 Cohesion: 0.22
-Nodes (9): @emotion/styled, dependencies, @emotion/styled, react-router-dom, reactflow, @xterm/xterm, react-router-dom, reactflow (+1 more)
+Nodes (9): dockview-react, dependencies, dockview-react, react-router-dom, reactflow, @xterm/xterm, react-router-dom, reactflow (+1 more)
 
 ### Community 29 - "Log Services Layer"
 Cohesion: 0.22
@@ -389,8 +390,8 @@ Cohesion: 0.12
 Nodes (18): boundsNearCursor(), clearDragHover(), connectShellChannel(), createWindow(), electron, fatal(), logTail, openExternal() (+10 more)
 
 ### Community 34 - "Events View & Store"
-Cohesion: 0.22
-Nodes (7): GetCronJobPods(), GetDaemonSetPods(), GetDeploymentPods(), GetJobPods(), GetPodContainers(), GetReplicaSetPods(), GetStatefulSetPods()
+Cohesion: 0.29
+Nodes (6): DeleteSecret(), GetSecretData(), GetSecrets(), GetSecretYaml(), UpdateSecretData(), UpdateSecretYaml()
 
 ### Community 35 - "Multi-Instance Tab Transfer"
 Cohesion: 0.17
@@ -449,8 +450,8 @@ Cohesion: 0.17
 Nodes (6): Listener, Window, container, NoopWorker, root, App()
 
 ### Community 49 - "Community 49"
-Cohesion: 0.22
-Nodes (10): aiTools(), DeleteDeployment(), GetDeployments(), GetDeploymentYaml(), UpdateDeploymentYaml(), GetEvents(), GetPodLogsTail(), DeletePod() (+2 more)
+Cohesion: 0.24
+Nodes (9): aiTools(), DeleteDeployment(), GetDeployments(), GetDeploymentYaml(), UpdateDeploymentYaml(), GetEvents(), DeletePod(), GetPods() (+1 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.23
@@ -812,6 +813,10 @@ Nodes (4): defaultFilters, getReplicasSeverity(), getStatusSeverity(), StatefulS
 Cohesion: 0.50
 Nodes (3): GetServiceAccountYaml(), UpdateServiceAccount(), UpdateServiceAccountYaml()
 
+### Community 175 - "service.go"
+Cohesion: 0.40
+Nodes (4): DeleteService(), GetServices(), GetServiceYaml(), UpdateServiceYaml()
+
 ### Community 179 - "Community 179"
 Cohesion: 0.50
 Nodes (4): CheckInstallable(), Context, PlatformAssetKey(), RunInstaller()
@@ -856,7 +861,7 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
 - **Why does `App` connect `Wails Controller Bindings` to `AI Assistant Agent Loop`, `Trivy Vulnerability Scanning`, `Network Policy Stack`, `Community 144`, `Pod & Metrics Services`, `RoleBinding Stack`, `Role Stack`, `Community 161`, `Community 162`, `Community 163`, `Community 40`, `Community 43`, `Community 44`, `Community 54`, `Community 55`, `Community 56`, `Community 57`, `Community 58`, `Community 61`, `Community 62`, `Community 63`, `Community 65`, `Community 66`, `Community 72`, `Community 73`, `Community 77`, `Community 78`, `Community 79`, `Community 87`, `Community 89`, `.CheckForUpdate`, `Community 100`, `Community 101`, `Community 105`?**
   _High betweenness centrality (0.115) - this node is a cross-community bridge._
-- **Why does `NewK8sClientForCluster()` connect `Log Streaming Business Layer` to `Cluster & CRD Business Layer`, `@fontsource/jetbrains-mono`, `Community 131`, `Incremental --update Flow`, `Trivy Vulnerability Scanning`, `limitRange.go`, `Community 135`, `Community 136`, `Community 138`, `Community 139`, `Network Policy Stack`, `Community 148`, `open_resource_graph`, `RoleBinding Stack`, `Role Stack`, `Events View & Store`, `Community 165`, `Community 40`, `Community 49`, `Community 54`, `Community 186`, `Community 58`, `Community 65`, `Community 66`, `Community 89`, `Community 97`, `Community 111`, `Community 115`, `Community 121`, `Community 122`?**
+- **Why does `NewK8sClientForCluster()` connect `Log Streaming Business Layer` to `Cluster & CRD Business Layer`, `@fontsource/jetbrains-mono`, `Community 131`, `Incremental --update Flow`, `Trivy Vulnerability Scanning`, `limitRange.go`, `Community 135`, `Community 136`, `Community 138`, `Community 139`, `Network Policy Stack`, `Community 148`, `open_resource_graph`, `RoleBinding Stack`, `Role Stack`, `Events View & Store`, `Community 165`, `Community 40`, `service.go`, `Community 49`, `Community 54`, `Community 186`, `Community 58`, `Community 65`, `Community 66`, `Community 89`, `Community 97`, `Community 111`, `Community 115`, `Community 121`, `Community 122`?**
   _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **Why does `MetricsSnapshot` connect `Community 101` to `TUI Describe & Metrics Render`, `Cluster & CRD Business Layer`, `Pod & Metrics Services`?**
   _High betweenness centrality (0.049) - this node is a cross-community bridge._

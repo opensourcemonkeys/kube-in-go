@@ -94,7 +94,18 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
             term.write(data);
         });
 
+        // Fired when the shell exits on its own (the user typing `exit`). The
+        // pty is gone at that point, so keystrokes have nowhere to go.
+        let exited = false;
+        const offExit = EventsOn(`terminal:exit:${sessionId}`, () => {
+            if (exited) return;
+            exited = true;
+            term.write('\r\n[shell exited]\r\n');
+            term.options.cursorBlink = false;
+        });
+
         const onData = term.onData((data) => {
+            if (exited) return;
             WriteToTerminalSession(sessionId, data).catch(() => {});
         });
 
@@ -107,6 +118,7 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
         return () => {
             clearTimeout(fitTimer);
             offOutput();
+            offExit();
             onData.dispose();
             observer.disconnect();
             CloseTerminalSession(sessionId).catch(() => {});

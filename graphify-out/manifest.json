@@ -240,9 +240,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/pod/PodExecPanel.tsx": {
-    "mtime": 1780849381.843232,
-    "ast_hash": "a43abae6c6f50827ae921cb1646c2d14",
-    "semantic_hash": "a43abae6c6f50827ae921cb1646c2d14"
+    "mtime": 1786202184.1662626,
+    "ast_hash": "fd40e73833b259ae04c2e8be1fff9b5c",
+    "semantic_hash": ""
   },
   "frontend/src/components/pod/main.tsx": {
     "mtime": 1784990881.9643347,
@@ -325,8 +325,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/terminal/TerminalPanel.tsx": {
-    "mtime": 1786198955.792103,
-    "ast_hash": "2319c3965a5dd137054677675b178bdf",
+    "mtime": 1786202200.6610372,
+    "ast_hash": "7c74aa0b08b6cf59a120146ef563efdd",
     "semantic_hash": ""
   },
   "frontend/src/components/titlebar/TitleBar.tsx": {
@@ -665,8 +665,8 @@
     "semantic_hash": ""
   },
   "internal/business/podExec.go": {
-    "mtime": 1786196266.181613,
-    "ast_hash": "b1b7cfc42674131276004102512426c7",
+    "mtime": 1786201909.8575733,
+    "ast_hash": "eaa351939d1dacb08e4b66166f0bb15e",
     "semantic_hash": ""
   },
   "internal/business/replicaSet.go": {
@@ -730,8 +730,8 @@
     "semantic_hash": "2074d680a81db17eeee6a246b4d9f8e8"
   },
   "internal/business/terminal.go": {
-    "mtime": 1786198545.433938,
-    "ast_hash": "23a107fd7915e92eced04137c6ad0494",
+    "mtime": 1786201902.5736613,
+    "ast_hash": "3d20f33be99e1dd0e04dd02cb5827e58",
     "semantic_hash": ""
   },
   "internal/business/trivy.go": {
@@ -760,14 +760,14 @@
     "semantic_hash": "10ef7b66452ca6c79904cb99d2b183d6"
   },
   "internal/controller/functionBuilder.go": {
-    "mtime": 1786198550.9762669,
-    "ast_hash": "0c87df8b0ba5736493980a00a7c79536",
+    "mtime": 1786202031.0190852,
+    "ast_hash": "4c42c1786f09b99c0fdde136fda95bf2",
     "semantic_hash": ""
   },
   "internal/controller/rpcserver.go": {
-    "mtime": 1784471667.6150248,
-    "ast_hash": "921a49aeef9887549b724f0399c3870a",
-    "semantic_hash": "921a49aeef9887549b724f0399c3870a"
+    "mtime": 1786202053.2028432,
+    "ast_hash": "f968fdc4ec5a99b4f35328050a261602",
+    "semantic_hash": ""
   },
   "internal/controller/shellchannel.go": {
     "mtime": 1784452856.1836636,
@@ -785,8 +785,8 @@
     "semantic_hash": "fef9669baaa3cee3f627545c9a413524"
   },
   "internal/ipc/hub.go": {
-    "mtime": 1786201058.5308502,
-    "ast_hash": "9fcb04660079ffab3fd8374871b70d30",
+    "mtime": 1786202071.0466278,
+    "ast_hash": "0178d452eeb67e8fe084a157a2779b62",
     "semantic_hash": ""
   },
   "internal/ipc/messages.go": {
@@ -970,9 +970,9 @@
     "semantic_hash": ""
   },
   "internal/services/cliModeServices.go": {
-    "mtime": 1782656794.2444334,
-    "ast_hash": "d20695edd27e2f7e5f75fdb5b5c1c5c8",
-    "semantic_hash": "d20695edd27e2f7e5f75fdb5b5c1c5c8"
+    "mtime": 1786201896.0257404,
+    "ast_hash": "3117c4ca18d8385420aef5c8db6f0669",
+    "semantic_hash": ""
   },
   "internal/services/clusterResourceServices.go": {
     "mtime": 1786196266.1818259,
@@ -1040,9 +1040,9 @@
     "semantic_hash": ""
   },
   "internal/services/logServices.go": {
-    "mtime": 1781933576.7242825,
-    "ast_hash": "701f4b49183068cdcb7b83eecfd439cc",
-    "semantic_hash": "701f4b49183068cdcb7b83eecfd439cc"
+    "mtime": 1786201873.678914,
+    "ast_hash": "ca0fbf1f2ca4c1b0b554c3192af9171b",
+    "semantic_hash": ""
   },
   "internal/services/metricsServices.go": {
     "mtime": 1786196266.1824367,
@@ -1080,9 +1080,9 @@
     "semantic_hash": ""
   },
   "internal/services/podExecServices.go": {
-    "mtime": 1780167759.8355148,
-    "ast_hash": "451362fe9965b912a1b7b1923618ef76",
-    "semantic_hash": "451362fe9965b912a1b7b1923618ef76"
+    "mtime": 1786201852.090035,
+    "ast_hash": "84b30c4346daa7b01585500f0fff14d1",
+    "semantic_hash": ""
   },
   "internal/services/podServices.go": {
     "mtime": 1786196266.1827977,
@@ -1145,8 +1145,8 @@
     "semantic_hash": ""
   },
   "internal/services/terminalServices.go": {
-    "mtime": 1786198533.5789967,
-    "ast_hash": "6bf08042e55e3529a33c395bda01c719",
+    "mtime": 1786201804.666843,
+    "ast_hash": "7a3ae2c9af01c54b81fbb4db8e57d2bf",
     "semantic_hash": ""
   },
   "internal/services/trivyServices.go": {
@@ -1185,9 +1185,9 @@
     "semantic_hash": "b6c301fcd99f801921265885769b80b7"
   },
   "internal/tui/exec.go": {
-    "mtime": 1782597356.3378997,
-    "ast_hash": "59c4614ccd1cb03b0768b3d2a3e4db06",
-    "semantic_hash": "59c4614ccd1cb03b0768b3d2a3e4db06"
+    "mtime": 1786201929.4023376,
+    "ast_hash": "c264d62dc3a1c418ae43ef52fd1c712d",
+    "semantic_hash": ""
   },
   "internal/tui/help.go": {
     "mtime": 1783364328.8852808,
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1786201132.312752,
-    "ast_hash": "32d1c9294bb35504f0b8ff071983ec2b",
+    "mtime": 1786202377.1929333,
+    "ast_hash": "5bf966b79d780858b24ee2c65333dbac",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1786201144.7018154,
-    "ast_hash": "8192e71f49ecc87a30f55429d19330df",
+    "mtime": 1786202388.0508022,
+    "ast_hash": "b6d052fd321c88c3019833ca563bf275",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
@@ -1702,6 +1702,26 @@
   "internal/ipc/hubtoken.go": {
     "mtime": 1786199973.2289855,
     "ast_hash": "853fc5ae57182ee0e3f454c078eaf583",
+    "semantic_hash": ""
+  },
+  "internal/controller/sessions.go": {
+    "mtime": 1786201946.6040199,
+    "ast_hash": "6e02bc3a9116b518e7f70ce65f7e3790",
+    "semantic_hash": ""
+  },
+  "internal/controller/sessions_test.go": {
+    "mtime": 1786202311.2047296,
+    "ast_hash": "cb9c57abd441476b48c26b4098a197e6",
+    "semantic_hash": ""
+  },
+  "internal/safego/safego.go": {
+    "mtime": 1786201771.8189652,
+    "ast_hash": "0ac129d62efeb9a62fcb7b16eaecc336",
+    "semantic_hash": ""
+  },
+  "internal/services/podExecServices_test.go": {
+    "mtime": 1786202140.6567876,
+    "ast_hash": "a58e484c440b2f7bea73c2dcf56e319f",
     "semantic_hash": ""
   }
 }

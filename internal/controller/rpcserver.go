@@ -17,6 +17,8 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+
+	"kube-ins/internal/safego"
 )
 
 // Server exposes the App over loopback HTTP + WebSocket so that shells which
@@ -101,11 +103,11 @@ func (s *Server) Bootstrap(ctx context.Context) *App {
 	s.app = Bootstrap(ctx, s)
 	s.registerMethods(s.app)
 
-	go func() {
+	safego.Go("controller.rpc.serve", func() {
 		if err := s.srv.Serve(s.ln); err != nil && err != http.ErrServerClosed {
 			fmt.Fprintln(os.Stderr, "kube-ins rpc:", err)
 		}
-	}()
+	})
 
 	return s.app
 }
@@ -327,7 +329,7 @@ func (s *Server) handleEvents(w http.ResponseWriter, r *http.Request) {
 	s.clients[c] = struct{}{}
 	s.mu.Unlock()
 
-	go func() {
+	safego.Go("controller.rpc.eventsWriter", func() {
 		defer func() {
 			s.mu.Lock()
 			delete(s.clients, c)
@@ -339,17 +341,17 @@ func (s *Server) handleEvents(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-	}()
+	})
 
 	// Drain reads so close frames are noticed; the frontend never sends.
-	go func() {
+	safego.Go("controller.rpc.eventsReader", func() {
 		defer close(c.send)
 		for {
 			if _, _, err := conn.ReadMessage(); err != nil {
 				return
 			}
 		}
-	}()
+	})
 }
 
 // ---------------------------------------------------------------------------

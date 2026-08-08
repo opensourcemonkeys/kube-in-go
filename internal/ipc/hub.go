@@ -17,6 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"kube-ins/internal/models"
+	"kube-ins/internal/safego"
 )
 
 // hubAddr is a var rather than a const so hub_test.go can point it at an
@@ -201,10 +202,10 @@ func (h *InstanceHub) tryBecomeServer(ctx context.Context) bool {
 	mux.HandleFunc("/ws", h.handleWS)
 	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 
-	go func() {
+	safego.Go("ipc.hub.serverShutdown", func() {
 		<-ctx.Done()
 		_ = srv.Close()
-	}()
+	})
 
 	if err := srv.Serve(ln); err != nil && err != http.ErrServerClosed {
 		log.Printf("[IPC] Hub server stopped: %v", err)
@@ -430,10 +431,10 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 
 	log.Printf("[IPC] Connected to hub: %s", shortID(h.InstanceID))
 
-	go func() {
+	safego.Go("ipc.hub.clientShutdown", func() {
 		<-ctx.Done()
 		_ = conn.Close()
-	}()
+	})
 
 	conn.SetReadLimit(1 << 20)
 	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))

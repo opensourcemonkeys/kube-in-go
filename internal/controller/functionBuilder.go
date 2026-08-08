@@ -8,6 +8,7 @@ import (
 	"kube-ins/internal/ai"
 	bussiness "kube-ins/internal/business"
 	"kube-ins/internal/models"
+	"kube-ins/internal/safego"
 )
 
 // ============================================================================
@@ -22,10 +23,7 @@ func (a *App) CheckForUpdate() models.UpdateInfo {
 	return bussiness.CheckForUpdate()
 }
 
-var (
-	updateMu      sync.Mutex
-	updateCancels = map[string]context.CancelFunc{}
-)
+var updateJobs = newCancelRegistry()
 
 // StartSelfUpdate downloads and installs the latest release, streaming progress
 // to the frontend as update:progress / update:done / update:error events
@@ -40,21 +38,10 @@ func (a *App) StartSelfUpdate(sessionId string) error {
 	info := bussiness.CheckForUpdate()
 
 	ctx, cancel := context.WithCancel(context.Background())
+	tok := updateJobs.begin(sessionId, cancel)
 
-	updateMu.Lock()
-	if old, ok := updateCancels[sessionId]; ok {
-		old()
-	}
-	updateCancels[sessionId] = cancel
-	updateMu.Unlock()
-
-	go func() {
-		defer func() {
-			updateMu.Lock()
-			delete(updateCancels, sessionId)
-			updateMu.Unlock()
-			cancel()
-		}()
+	safego.Go("controller.selfUpdate", func() {
+		defer updateJobs.done(sessionId, tok)
 
 		onProgress := func(p models.UpdateProgress) {
 			a.emit("update:progress:"+sessionId, p)
@@ -70,7 +57,7 @@ func (a *App) StartSelfUpdate(sessionId string) error {
 			return
 		}
 		a.emit("update:done:"+sessionId, map[string]any{"restart": restart})
-	}()
+	})
 
 	return nil
 }
@@ -78,12 +65,7 @@ func (a *App) StartSelfUpdate(sessionId string) error {
 // CancelSelfUpdate aborts an in-flight download. It has no effect once the
 // installer has been handed the package.
 func (a *App) CancelSelfUpdate(sessionId string) error {
-	updateMu.Lock()
-	cancel, ok := updateCancels[sessionId]
-	updateMu.Unlock()
-	if ok {
-		cancel()
-	}
+	updateJobs.cancel(sessionId)
 	return nil
 }
 
@@ -193,9 +175,10 @@ func (a *App) GetPodYaml(clusterName string, name string, namespace string) (str
 }
 
 func (a *App) CreatePodExecSession(clusterName string, sessionId string, namespace string, podName string, container string) error {
-	return bussiness.CreatePodExecSession(clusterName, sessionId, namespace, podName, container, func(data string) {
-		a.emit("exec:output:"+sessionId, data)
-	})
+	return bussiness.CreatePodExecSession(clusterName, sessionId, namespace, podName, container,
+		func(data string) { a.emit("exec:output:"+sessionId, data) },
+		func() { a.emit("exec:closed:" + sessionId) },
+	)
 }
 
 func (a *App) WriteToPodExecSession(sessionId string, data string) error {
@@ -435,9 +418,10 @@ func (a *App) UpdateRoleBinding(clusterName string, name string, namespace strin
 // ============================================================================
 
 func (a *App) CreateTerminalSession(id string, clusterName string) error {
-	return bussiness.CreateTerminalSession(id, clusterName, func(data string) {
-		a.emit("terminal:output:"+id, data)
-	})
+	return bussiness.CreateTerminalSession(id, clusterName,
+		func(data string) { a.emit("terminal:output:"+id, data) },
+		func() { a.emit("terminal:exit:" + id) },
+	)
 }
 
 // SetTerminalSessionCluster points a running terminal at another cluster's
@@ -706,30 +690,16 @@ func (a *App) TrivyListPodImagesWithContext(clusterName, namespace string) ([]mo
 //	"trivy:k8s:done:{scanId}"     → *models.TrivyK8sScanResult
 //	"trivy:k8s:error:{scanId}"    → string
 
-var (
-	k8sScanMu      sync.Mutex
-	k8sScanCancels = map[string]context.CancelFunc{}
-)
+var k8sScanJobs = newCancelRegistry()
 
 // TrivyStartK8sScan starts an async misconfig+secret cluster scan. Returns
 // immediately; results arrive via Wails events.
 func (a *App) TrivyStartK8sScan(scanId, clusterName, namespace string) error {
 	ctx, cancel := context.WithCancel(context.Background())
+	tok := k8sScanJobs.begin(scanId, cancel)
 
-	k8sScanMu.Lock()
-	if old, ok := k8sScanCancels[scanId]; ok {
-		old()
-	}
-	k8sScanCancels[scanId] = cancel
-	k8sScanMu.Unlock()
-
-	go func() {
-		defer func() {
-			k8sScanMu.Lock()
-			delete(k8sScanCancels, scanId)
-			k8sScanMu.Unlock()
-			cancel()
-		}()
+	safego.Go("controller.trivyK8sScan", func() {
+		defer k8sScanJobs.done(scanId, tok)
 
 		onProgress := func(phase string, current, total int, msg string) {
 			a.emit("trivy:k8s:progress:"+scanId, models.TrivyScanProgress{
@@ -743,18 +713,13 @@ func (a *App) TrivyStartK8sScan(scanId, clusterName, namespace string) error {
 			return
 		}
 		a.emit("trivy:k8s:done:"+scanId, result)
-	}()
+	})
 	return nil
 }
 
 // TrivyStopK8sScan cancels an in-flight K8s scan.
 func (a *App) TrivyStopK8sScan(scanId string) error {
-	k8sScanMu.Lock()
-	cancel, ok := k8sScanCancels[scanId]
-	k8sScanMu.Unlock()
-	if ok {
-		cancel()
-	}
+	k8sScanJobs.cancel(scanId)
 	return nil
 }
 
@@ -893,30 +858,16 @@ func (a *App) AiModelSupportsTools(host, model string) bool {
 	return bussiness.AiModelSupportsTools(host, model)
 }
 
-var (
-	aiPullMu      sync.Mutex
-	aiPullCancels = map[string]context.CancelFunc{}
-)
+var aiPullJobs = newCancelRegistry()
 
 // PullAiModel downloads a model, streaming progress to the frontend via
 // ai:pull / ai:pull-done / ai:pull-error events (payload carries the model name).
 func (a *App) PullAiModel(host, model string) error {
 	ctx, cancel := context.WithCancel(context.Background())
+	tok := aiPullJobs.begin(model, cancel)
 
-	aiPullMu.Lock()
-	if old, ok := aiPullCancels[model]; ok {
-		old()
-	}
-	aiPullCancels[model] = cancel
-	aiPullMu.Unlock()
-
-	go func() {
-		defer func() {
-			aiPullMu.Lock()
-			delete(aiPullCancels, model)
-			aiPullMu.Unlock()
-			cancel()
-		}()
+	safego.Go("controller.aiPull", func() {
+		defer aiPullJobs.done(model, tok)
 
 		onProgress := func(status string, total, completed int64) {
 			var percent float64
@@ -933,19 +884,14 @@ func (a *App) PullAiModel(host, model string) error {
 			return
 		}
 		a.emit("ai:pull-done", map[string]any{"model": model})
-	}()
+	})
 
 	return nil
 }
 
 // StopAiPull cancels an in-flight model download.
 func (a *App) StopAiPull(model string) error {
-	aiPullMu.Lock()
-	cancel, ok := aiPullCancels[model]
-	aiPullMu.Unlock()
-	if ok {
-		cancel()
-	}
+	aiPullJobs.cancel(model)
 	return nil
 }
 
@@ -963,10 +909,16 @@ func (a *App) StartAiChat(sessionId, host, model, clusterName, messagesJSON, con
 	aiSessions[sessionId] = sess
 	aiMu.Unlock()
 
-	go func() {
+	safego.Go("controller.aiChat", func() {
 		defer func() {
+			// Deregister by identity: a turn started before this one finished
+			// has already replaced the entry, and deleting by key would strand
+			// it — ConfirmToolCall would find no session and its approval
+			// dialog would hang forever.
 			aiMu.Lock()
-			delete(aiSessions, sessionId)
+			if cur, ok := aiSessions[sessionId]; ok && cur == sess {
+				delete(aiSessions, sessionId)
+			}
 			aiMu.Unlock()
 			cancel()
 		}()
@@ -992,7 +944,7 @@ func (a *App) StartAiChat(sessionId, host, model, clusterName, messagesJSON, con
 			return
 		}
 		a.emit("ai:done:"+sessionId, "")
-	}()
+	})
 
 	return nil
 }
