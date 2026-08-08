@@ -168,15 +168,28 @@ func CreateTerminalSession(id string, kubeconfigContent string, onOutput func(da
 		// closed terminal panel leaves a zombie — and drop the registry entry,
 		// which CloseTerminalSession alone would never do for a shell that
 		// exited on its own.
+		//
+		// The map entry is the ownership token. Losing it means Close already
+		// ran or a new session took this id, and onExit must stay silent: the
+		// event is keyed by id alone, so firing it here tells the *replacement*
+		// panel that its live shell died. React StrictMode does exactly this on
+		// every mount (create → close → create).
 		termMu.Lock()
+		owned := false
 		if s, ok := termSessions[id]; ok && s.ptmx == ptmx {
 			delete(termSessions, id)
+			owned = true
 		}
 		termMu.Unlock()
 		_ = cmd.Wait()
-		_ = os.Remove(kubeconfigPath)
-		if onExit != nil {
-			onExit()
+		if owned {
+			// Also gated on ownership: the path is derived from the id, so a
+			// replacement session is using this exact file by now — Close and
+			// the next session's own cleanup take care of the other cases.
+			_ = os.Remove(kubeconfigPath)
+			if onExit != nil {
+				onExit()
+			}
 		}
 	})
 

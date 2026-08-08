@@ -970,8 +970,8 @@
     "semantic_hash": ""
   },
   "internal/services/cliModeServices.go": {
-    "mtime": 1786201896.0257404,
-    "ast_hash": "3117c4ca18d8385420aef5c8db6f0669",
+    "mtime": 1786213719.9516013,
+    "ast_hash": "90b887f036adb7ee64be19a69ea2714c",
     "semantic_hash": ""
   },
   "internal/services/clusterResourceServices.go": {
@@ -1145,8 +1145,8 @@
     "semantic_hash": ""
   },
   "internal/services/terminalServices.go": {
-    "mtime": 1786201804.666843,
-    "ast_hash": "7a3ae2c9af01c54b81fbb4db8e57d2bf",
+    "mtime": 1786213781.3092227,
+    "ast_hash": "268b46bdb3deb9ca5f56a7d73ef3a11f",
     "semantic_hash": ""
   },
   "internal/services/trivyServices.go": {
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1786202377.1929333,
-    "ast_hash": "5bf966b79d780858b24ee2c65333dbac",
+    "mtime": 1786213812.8912318,
+    "ast_hash": "adf6ab1e95c551f82cae4d2124d1a793",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1722,6 +1722,11 @@
   "internal/services/podExecServices_test.go": {
     "mtime": 1786202140.6567876,
     "ast_hash": "a58e484c440b2f7bea73c2dcf56e319f",
+    "semantic_hash": ""
+  },
+  "internal/services/terminalServices_test.go": {
+    "mtime": 1786213739.4854105,
+    "ast_hash": "501d90da333385214d3f936d8156d386",
     "semantic_hash": ""
   }
 }

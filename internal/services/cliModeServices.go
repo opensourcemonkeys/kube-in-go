@@ -66,14 +66,19 @@ func CreateCliModeSession(id string, onOutput func(data string), onExit func()) 
 				break
 			}
 		}
-		// pty closed: the TUI exited (user quit). Clean up and notify.
+		// pty closed: the TUI exited (user quit). Clean up and notify — but
+		// only if this session still owned the registry entry. Losing it means
+		// Close already ran or a newer session took the id, and climode:exit is
+		// keyed by id alone, so firing it would tear down the replacement.
 		cliMu.Lock()
+		owned := false
 		if s, ok := cliSessions[id]; ok && s.ptmx == ptmx {
 			delete(cliSessions, id)
+			owned = true
 		}
 		cliMu.Unlock()
 		_ = cmd.Wait()
-		if onExit != nil {
+		if owned && onExit != nil {
 			onExit()
 		}
 	})

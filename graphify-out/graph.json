@@ -2280,8 +2280,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_package_dependencies_dagrejs_dagre",
-      "community": 28,
-      "community_name": "Frontend Dependencies",
+      "community": 218,
+      "community_name": "@dagrejs/dagre",
       "norm_label": "@dagrejs/dagre"
     },
     {
@@ -2291,8 +2291,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "dagrejs_dagre",
-      "community": 28,
-      "community_name": "Frontend Dependencies",
+      "community": 218,
+      "community_name": "@dagrejs/dagre",
       "norm_label": "@dagrejs/dagre"
     },
     {
@@ -2544,8 +2544,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_package_dependencies_chart_js",
-      "community": 173,
-      "community_name": "Community 173",
+      "community": 28,
+      "community_name": "Frontend Dependencies",
       "norm_label": "chart.js"
     },
     {
@@ -2555,8 +2555,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "chart_js",
-      "community": 173,
-      "community_name": "Community 173",
+      "community": 28,
+      "community_name": "Frontend Dependencies",
       "norm_label": "chart.js"
     },
     {
@@ -3347,8 +3347,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_cluster_aboutmodal",
-      "community": 188,
-      "community_name": "AboutModal.tsx",
+      "community": 124,
+      "community_name": "Community 124",
       "norm_label": "aboutmodal.tsx"
     },
     {
@@ -3358,8 +3358,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_components_cluster_aboutmodal_props",
-      "community": 188,
-      "community_name": "AboutModal.tsx",
+      "community": 124,
+      "community_name": "Community 124",
       "norm_label": "props"
     },
     {
@@ -3369,8 +3369,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_components_cluster_aboutmodal_dep_labels",
-      "community": 188,
-      "community_name": "AboutModal.tsx",
+      "community": 124,
+      "community_name": "Community 124",
       "norm_label": "dep_labels"
     },
     {
@@ -3380,8 +3380,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "frontend_src_components_cluster_aboutmodal_aboutmodal",
-      "community": 188,
-      "community_name": "AboutModal.tsx",
+      "community": 124,
+      "community_name": "Community 124",
       "norm_label": "aboutmodal()"
     },
     {
@@ -5316,8 +5316,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_pod_podexecpanel",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "podexecpanel.tsx"
     },
     {
@@ -5327,8 +5327,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_components_pod_podexecpanel_podexecpanelparams",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "podexecpanelparams"
     },
     {
@@ -5338,8 +5338,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_components_pod_podexecpanel_podexecpanel",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "podexecpanel()"
     },
     {
@@ -7098,8 +7098,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "dockviewcontainer.tsx"
     },
     {
@@ -7109,8 +7109,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer_components",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "components"
     },
     {
@@ -7120,8 +7120,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer_dockviewcontainer",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "dockviewcontainer()"
     },
     {
@@ -7736,8 +7736,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "crosswindowdrop.ts"
     },
     {
@@ -7747,8 +7747,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_fire",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "fire()"
     },
     {
@@ -7758,8 +7758,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_iscrosswindowdragactive",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "iscrosswindowdragactive()"
     },
     {
@@ -7769,8 +7769,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_takedroppedpanel",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "takedroppedpanel()"
     },
     {
@@ -7780,8 +7780,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_draghover",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "draghover()"
     },
     {
@@ -7791,8 +7791,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_dragleave",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "dragleave()"
     },
     {
@@ -7802,8 +7802,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_droppanel",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "droppanel()"
     },
     {
@@ -8231,8 +8231,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_initialpanel",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "initialpanel()"
     },
     {
@@ -8264,8 +8264,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_ondraghover",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "ondraghover()"
     },
     {
@@ -8275,8 +8275,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_ondragleave",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "ondragleave()"
     },
     {
@@ -8330,8 +8330,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_onpanelfromwindow",
-      "community": 113,
-      "community_name": "Community 113",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "onpanelfromwindow()"
     },
     {
@@ -10213,8 +10213,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_cluster",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "cluster.go"
     },
     {
@@ -10224,8 +10224,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "internal_business_cluster_init",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "init()"
     },
     {
@@ -10235,8 +10235,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_cluster_kubeinsdir",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "kubeinsdir()"
     },
     {
@@ -10246,8 +10246,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "internal_business_cluster_listclusters",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "listclusters()"
     },
     {
@@ -10257,8 +10257,8 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "internal_business_cluster_clusterfile",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "clusterfile()"
     },
     {
@@ -10268,8 +10268,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "internal_business_cluster_savecluster",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "savecluster()"
     },
     {
@@ -10279,8 +10279,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "internal_business_cluster_getclustercontent",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "getclustercontent()"
     },
     {
@@ -10290,8 +10290,8 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "internal_business_cluster_deletecluster",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "deletecluster()"
     },
     {
@@ -10301,8 +10301,8 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "internal_business_cluster_setactivecluster",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "setactivecluster()"
     },
     {
@@ -10312,8 +10312,8 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "internal_business_cluster_getactivecluster",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "getactivecluster()"
     },
     {
@@ -10323,8 +10323,8 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "internal_business_cluster_checkclusterconnection",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "checkclusterconnection()"
     },
     {
@@ -10499,8 +10499,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_cronjob_getcronjobs",
-      "community": 61,
-      "community_name": "Community 61",
+      "community": 111,
+      "community_name": "Community 111",
       "norm_label": "getcronjobs()"
     },
     {
@@ -10543,8 +10543,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_daemonset",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 54,
+      "community_name": "Community 54",
       "norm_label": "daemonset.go"
     },
     {
@@ -10565,8 +10565,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_daemonset_deletedaemonset",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 54,
+      "community_name": "Community 54",
       "norm_label": "deletedaemonset()"
     },
     {
@@ -10576,8 +10576,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_daemonset_getdaemonsetyaml",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 54,
+      "community_name": "Community 54",
       "norm_label": "getdaemonsetyaml()"
     },
     {
@@ -10587,8 +10587,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_daemonset_updatedaemonsetyaml",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 54,
+      "community_name": "Community 54",
       "norm_label": "updatedaemonsetyaml()"
     },
     {
@@ -10609,8 +10609,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_deployment_getdeployments",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 62,
+      "community_name": "Community 62",
       "norm_label": "getdeployments()"
     },
     {
@@ -11005,8 +11005,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_metrics",
-      "community": 101,
-      "community_name": "Community 101",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "metrics.go"
     },
     {
@@ -11016,8 +11016,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_metrics_getmetricssnapshot",
-      "community": 101,
-      "community_name": "Community 101",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "getmetricssnapshot()"
     },
     {
@@ -11071,8 +11071,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_networkpolicy",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 188,
+      "community_name": "AboutModal.tsx",
       "norm_label": "networkpolicy.go"
     },
     {
@@ -11093,8 +11093,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_deletenetworkpolicy",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 188,
+      "community_name": "AboutModal.tsx",
       "norm_label": "deletenetworkpolicy()"
     },
     {
@@ -11104,8 +11104,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_getnetworkpolicyyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 188,
+      "community_name": "AboutModal.tsx",
       "norm_label": "getnetworkpolicyyaml()"
     },
     {
@@ -11115,8 +11115,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_updatenetworkpolicyyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 188,
+      "community_name": "AboutModal.tsx",
       "norm_label": "updatenetworkpolicyyaml()"
     },
     {
@@ -11137,8 +11137,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_getnetworkpolicydetail",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 188,
+      "community_name": "AboutModal.tsx",
       "norm_label": "getnetworkpolicydetail()"
     },
     {
@@ -11148,8 +11148,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_node",
-      "community": 132,
-      "community_name": "Incremental --update Flow",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "node.go"
     },
     {
@@ -11159,8 +11159,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_node_getnodeyaml",
-      "community": 132,
-      "community_name": "Incremental --update Flow",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getnodeyaml()"
     },
     {
@@ -11170,8 +11170,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "internal_business_node_updatenodeyaml",
-      "community": 132,
-      "community_name": "Incremental --update Flow",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updatenodeyaml()"
     },
     {
@@ -11181,8 +11181,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "internal_business_node_cordonnode",
-      "community": 132,
-      "community_name": "Incremental --update Flow",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "cordonnode()"
     },
     {
@@ -11192,8 +11192,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "internal_business_node_uncordonnode",
-      "community": 132,
-      "community_name": "Incremental --update Flow",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "uncordonnode()"
     },
     {
@@ -11203,8 +11203,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "internal_business_node_drainnode",
-      "community": 132,
-      "community_name": "Incremental --update Flow",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "drainnode()"
     },
     {
@@ -11225,8 +11225,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_objectyaml",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "objectyaml.go"
     },
     {
@@ -11236,8 +11236,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "internal_business_objectyaml_getresourcetable",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "getresourcetable()"
     },
     {
@@ -11247,8 +11247,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_objectyaml_getobjectyaml",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "getobjectyaml()"
     },
     {
@@ -11258,8 +11258,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_objectyaml_getobjectdescribe",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "getobjectdescribe()"
     },
     {
@@ -11269,8 +11269,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "internal_business_objectyaml_updateobjectyaml",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "updateobjectyaml()"
     },
     {
@@ -11280,8 +11280,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "internal_business_objectyaml_deleteobject",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "deleteobject()"
     },
     {
@@ -11324,8 +11324,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_persistentvolumeclaim",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "persistentvolumeclaim.go"
     },
     {
@@ -11335,8 +11335,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_persistentvolumeclaim_getpersistentvolumeclaims",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getpersistentvolumeclaims()"
     },
     {
@@ -11346,8 +11346,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_persistentvolumeclaim_deletepersistentvolumeclaim",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deletepersistentvolumeclaim()"
     },
     {
@@ -11357,8 +11357,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_persistentvolumeclaim_getpersistentvolumeclaimyaml",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getpersistentvolumeclaimyaml()"
     },
     {
@@ -11412,8 +11412,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_podexec",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 189,
+      "community_name": "replicaSet.go",
       "norm_label": "podexec.go"
     },
     {
@@ -11423,8 +11423,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "internal_business_podexec_createpodexecsession",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 189,
+      "community_name": "replicaSet.go",
       "norm_label": "createpodexecsession()"
     },
     {
@@ -11434,8 +11434,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "internal_business_podexec_writetopodexecsession",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 189,
+      "community_name": "replicaSet.go",
       "norm_label": "writetopodexecsession()"
     },
     {
@@ -11445,8 +11445,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "internal_business_podexec_resizepodexecsession",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 189,
+      "community_name": "replicaSet.go",
       "norm_label": "resizepodexecsession()"
     },
     {
@@ -11456,8 +11456,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "internal_business_podexec_closepodexecsession",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 189,
+      "community_name": "replicaSet.go",
       "norm_label": "closepodexecsession()"
     },
     {
@@ -11467,8 +11467,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_replicaset",
-      "community": 189,
-      "community_name": "replicaSet.go",
+      "community": 65,
+      "community_name": "Community 65",
       "norm_label": "replicaset.go"
     },
     {
@@ -11489,8 +11489,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_replicaset_deletereplicaset",
-      "community": 189,
-      "community_name": "replicaSet.go",
+      "community": 65,
+      "community_name": "Community 65",
       "norm_label": "deletereplicaset()"
     },
     {
@@ -11500,8 +11500,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_replicaset_getreplicasetyaml",
-      "community": 189,
-      "community_name": "replicaSet.go",
+      "community": 65,
+      "community_name": "Community 65",
       "norm_label": "getreplicasetyaml()"
     },
     {
@@ -11511,8 +11511,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_replicaset_updatereplicasetyaml",
-      "community": 189,
-      "community_name": "replicaSet.go",
+      "community": 65,
+      "community_name": "Community 65",
       "norm_label": "updatereplicasetyaml()"
     },
     {
@@ -11522,8 +11522,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_resourcequota",
-      "community": 129,
-      "community_name": "@fontsource/jetbrains-mono",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "resourcequota.go"
     },
     {
@@ -11533,8 +11533,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_resourcequota_getresourcequotas",
-      "community": 129,
-      "community_name": "@fontsource/jetbrains-mono",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getresourcequotas()"
     },
     {
@@ -11544,8 +11544,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "internal_business_resourcequota_getresourcequotayaml",
-      "community": 129,
-      "community_name": "@fontsource/jetbrains-mono",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getresourcequotayaml()"
     },
     {
@@ -11555,8 +11555,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "internal_business_resourcequota_updateresourcequotayaml",
-      "community": 129,
-      "community_name": "@fontsource/jetbrains-mono",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updateresourcequotayaml()"
     },
     {
@@ -11566,8 +11566,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_role",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 31,
+      "community_name": "Role Stack",
       "norm_label": "role.go"
     },
     {
@@ -11588,8 +11588,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "internal_business_role_getroleyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 31,
+      "community_name": "Role Stack",
       "norm_label": "getroleyaml()"
     },
     {
@@ -11599,8 +11599,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "internal_business_role_updateroleyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 31,
+      "community_name": "Role Stack",
       "norm_label": "updateroleyaml()"
     },
     {
@@ -11610,8 +11610,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "internal_business_role_updaterole",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 31,
+      "community_name": "Role Stack",
       "norm_label": "updaterole()"
     },
     {
@@ -11621,8 +11621,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_rolebinding",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 216,
+      "community_name": "roleBinding.go",
       "norm_label": "rolebinding.go"
     },
     {
@@ -11632,8 +11632,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_rolebinding_getrolebindings",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 216,
+      "community_name": "roleBinding.go",
       "norm_label": "getrolebindings()"
     },
     {
@@ -11643,8 +11643,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "internal_business_rolebinding_getrolebindingyaml",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 216,
+      "community_name": "roleBinding.go",
       "norm_label": "getrolebindingyaml()"
     },
     {
@@ -11654,8 +11654,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "internal_business_rolebinding_updaterolebindingyaml",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 216,
+      "community_name": "roleBinding.go",
       "norm_label": "updaterolebindingyaml()"
     },
     {
@@ -11698,8 +11698,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_secret",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "secret.go"
     },
     {
@@ -11709,8 +11709,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_secret_getsecrets",
-      "community": 44,
-      "community_name": "Community 44",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "getsecrets()"
     },
     {
@@ -11720,8 +11720,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_secret_deletesecret",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "deletesecret()"
     },
     {
@@ -11731,8 +11731,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_secret_getsecretyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "getsecretyaml()"
     },
     {
@@ -11742,8 +11742,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_secret_updatesecretyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "updatesecretyaml()"
     },
     {
@@ -11753,8 +11753,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "internal_business_secret_getsecretdata",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "getsecretdata()"
     },
     {
@@ -11764,8 +11764,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "internal_business_secret_updatesecretdata",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 132,
+      "community_name": "Incremental --update Flow",
       "norm_label": "updatesecretdata()"
     },
     {
@@ -11775,8 +11775,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_securitygraph",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "securitygraph.go"
     },
     {
@@ -11786,8 +11786,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "internal_business_securitygraph_getsecuritygraph",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "getsecuritygraph()"
     },
     {
@@ -11797,8 +11797,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_business_securitygraph_go_securitygraph",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "securitygraph"
     },
     {
@@ -11907,8 +11907,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_service",
-      "community": 175,
-      "community_name": "service.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "service.go"
     },
     {
@@ -11918,8 +11918,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_service_getservices",
-      "community": 175,
-      "community_name": "service.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getservices()"
     },
     {
@@ -11929,8 +11929,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_service_deleteservice",
-      "community": 175,
-      "community_name": "service.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deleteservice()"
     },
     {
@@ -11940,8 +11940,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_service_getserviceyaml",
-      "community": 175,
-      "community_name": "service.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getserviceyaml()"
     },
     {
@@ -11951,8 +11951,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_service_updateserviceyaml",
-      "community": 175,
-      "community_name": "service.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updateserviceyaml()"
     },
     {
@@ -11962,8 +11962,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_serviceaccount",
-      "community": 66,
-      "community_name": "Community 66",
+      "community": 217,
+      "community_name": "serviceAccount.go",
       "norm_label": "serviceaccount.go"
     },
     {
@@ -11984,8 +11984,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_getserviceaccountyaml",
-      "community": 66,
-      "community_name": "Community 66",
+      "community": 217,
+      "community_name": "serviceAccount.go",
       "norm_label": "getserviceaccountyaml()"
     },
     {
@@ -11995,8 +11995,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_updateserviceaccountyaml",
-      "community": 66,
-      "community_name": "Community 66",
+      "community": 217,
+      "community_name": "serviceAccount.go",
       "norm_label": "updateserviceaccountyaml()"
     },
     {
@@ -12006,8 +12006,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_updateserviceaccount",
-      "community": 66,
-      "community_name": "Community 66",
+      "community": 217,
+      "community_name": "serviceAccount.go",
       "norm_label": "updateserviceaccount()"
     },
     {
@@ -12138,8 +12138,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_terminal",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "terminal.go"
     },
     {
@@ -12149,8 +12149,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "internal_business_terminal_terminalkubeconfig",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "terminalkubeconfig()"
     },
     {
@@ -12160,8 +12160,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "internal_business_terminal_createterminalsession",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "createterminalsession()"
     },
     {
@@ -12171,8 +12171,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "internal_business_terminal_setterminalsessioncluster",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "setterminalsessioncluster()"
     },
     {
@@ -12182,8 +12182,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_terminal_writetoterminalsession",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "writetoterminalsession()"
     },
     {
@@ -12193,8 +12193,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "internal_business_terminal_resizeterminalsession",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "resizeterminalsession()"
     },
     {
@@ -12204,8 +12204,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_terminal_closeterminalsession",
-      "community": 26,
-      "community_name": "Node Services & Cordon/Drain",
+      "community": 173,
+      "community_name": "Community 173",
       "norm_label": "closeterminalsession()"
     },
     {
@@ -12391,8 +12391,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_controller_app",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "app.go"
     },
     {
@@ -12402,8 +12402,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_controller_app_go_controller_app",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "app"
     },
     {
@@ -12413,8 +12413,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_app_go_context",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "context"
     },
     {
@@ -12424,8 +12424,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "internal_controller_app_newapp",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "newapp()"
     },
     {
@@ -12435,8 +12435,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "controller_app_start",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": ".start()"
     },
     {
@@ -14976,8 +14976,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_controller_transport",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "transport.go"
     },
     {
@@ -14998,8 +14998,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "controller_transport",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "transport"
     },
     {
@@ -15009,8 +15009,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "internal_controller_transport_bootstrap",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "bootstrap()"
     },
     {
@@ -15020,8 +15020,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_transport_go_context",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "context"
     },
     {
@@ -15031,8 +15031,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_transport_go_app",
-      "community": 5,
-      "community_name": "App Bootstrap & IPC Hub",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "app"
     },
     {
@@ -17022,8 +17022,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_validateclustername",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 175,
+      "community_name": "service.go",
       "norm_label": "validateclustername()"
     },
     {
@@ -17033,8 +17033,8 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_clusterconfigpath",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 175,
+      "community_name": "service.go",
       "norm_label": "clusterconfigpath()"
     },
     {
@@ -17066,8 +17066,8 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_setactivekubeconfig",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 129,
+      "community_name": "@fontsource/jetbrains-mono",
       "norm_label": "setactivekubeconfig()"
     },
     {
@@ -17143,8 +17143,8 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "newk8sclientandconfigforcluster()"
     },
     {
@@ -17220,8 +17220,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_test",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 175,
+      "community_name": "service.go",
       "norm_label": "k8sclient_test.go"
     },
     {
@@ -17231,8 +17231,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_test_testclusterconfigpath",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 175,
+      "community_name": "service.go",
       "norm_label": "testclusterconfigpath()"
     },
     {
@@ -17242,8 +17242,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_test_go_t",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 175,
+      "community_name": "service.go",
       "norm_label": "t"
     },
     {
@@ -17253,8 +17253,8 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_test_testvalidateclusternameacceptslistclustersoutput",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 175,
+      "community_name": "service.go",
       "norm_label": "testvalidateclusternameacceptslistclustersoutput()"
     },
     {
@@ -17448,7 +17448,7 @@
       "label": "WriteToCliModeSession()",
       "file_type": "code",
       "source_file": "internal/services/cliModeServices.go",
-      "source_location": "L84",
+      "source_location": "L89",
       "_origin": "ast",
       "id": "internal_services_climodeservices_writetoclimodesession",
       "community": 86,
@@ -17459,7 +17459,7 @@
       "label": "ResizeCliModeSession()",
       "file_type": "code",
       "source_file": "internal/services/cliModeServices.go",
-      "source_location": "L95",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "internal_services_climodeservices_resizeclimodesession",
       "community": 86,
@@ -17470,7 +17470,7 @@
       "label": "CloseCliModeSession()",
       "file_type": "code",
       "source_file": "internal/services/cliModeServices.go",
-      "source_location": "L105",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "internal_services_climodeservices_closeclimodesession",
       "community": 86,
@@ -21705,7 +21705,7 @@
       "label": "SetTerminalSessionKubeconfig()",
       "file_type": "code",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L190",
+      "source_location": "L203",
       "_origin": "ast",
       "id": "internal_services_terminalservices_setterminalsessionkubeconfig",
       "community": 26,
@@ -21716,7 +21716,7 @@
       "label": "WriteToTerminalSession()",
       "file_type": "code",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L202",
+      "source_location": "L215",
       "_origin": "ast",
       "id": "internal_services_terminalservices_writetoterminalsession",
       "community": 26,
@@ -21727,7 +21727,7 @@
       "label": "ResizeTerminalSession()",
       "file_type": "code",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L215",
+      "source_location": "L228",
       "_origin": "ast",
       "id": "internal_services_terminalservices_resizeterminalsession",
       "community": 26,
@@ -21738,12 +21738,67 @@
       "label": "CloseTerminalSession()",
       "file_type": "code",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L227",
+      "source_location": "L240",
       "_origin": "ast",
       "id": "internal_services_terminalservices_closeterminalsession",
       "community": 26,
       "community_name": "Node Services & Cordon/Drain",
       "norm_label": "closeterminalsession()"
+    },
+    {
+      "label": "terminalServices_test.go",
+      "file_type": "code",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "internal_services_terminalservices_test",
+      "community": 26,
+      "community_name": "Node Services & Cordon/Drain",
+      "norm_label": "terminalservices_test.go"
+    },
+    {
+      "label": "skipWithoutPty()",
+      "file_type": "code",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "internal_services_terminalservices_test_skipwithoutpty",
+      "community": 26,
+      "community_name": "Node Services & Cordon/Drain",
+      "norm_label": "skipwithoutpty()"
+    },
+    {
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "internal_services_terminalservices_test_go_t",
+      "community": 26,
+      "community_name": "Node Services & Cordon/Drain",
+      "norm_label": "t"
+    },
+    {
+      "label": "TestTerminalExitIsSilentForAReplacedSession()",
+      "file_type": "code",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "community": 26,
+      "community_name": "Node Services & Cordon/Drain",
+      "norm_label": "testterminalexitissilentforareplacedsession()"
+    },
+    {
+      "label": "TestTerminalExitFiresWhenTheShellExits()",
+      "file_type": "code",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "community": 26,
+      "community_name": "Node Services & Cordon/Drain",
+      "norm_label": "testterminalexitfireswhentheshellexits()"
     },
     {
       "label": "trivyServices.go",
@@ -57645,7 +57700,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/cliModeServices.go",
-      "source_location": "L105",
+      "source_location": "L110",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_climodeservices",
@@ -57667,7 +57722,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/cliModeServices.go",
-      "source_location": "L95",
+      "source_location": "L100",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_climodeservices",
@@ -57689,7 +57744,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/cliModeServices.go",
-      "source_location": "L84",
+      "source_location": "L89",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_climodeservices",
@@ -64970,7 +65025,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L227",
+      "source_location": "L240",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_terminalservices",
@@ -64992,7 +65047,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L215",
+      "source_location": "L228",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_terminalservices",
@@ -65014,7 +65069,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L190",
+      "source_location": "L203",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_terminalservices",
@@ -65058,7 +65113,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L202",
+      "source_location": "L215",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_terminalservices",
@@ -65141,7 +65196,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/services/terminalServices.go",
-      "source_location": "L199",
+      "source_location": "L212",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_services_terminalservices_setterminalsessionkubeconfig",
@@ -65158,6 +65213,171 @@
       "_origin": "ast",
       "source": "internal_services_terminalservices_createterminalsession",
       "target": "internal_services_terminalservices_terminalkubeconfigenv",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "target": "internal_services_terminalservices_createterminalsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "target": "internal_services_terminalservices_createterminalsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "target": "internal_services_terminalservices_writetoterminalsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "target": "internal_services_terminalservices_writetoterminalsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "target": "internal_services_terminalservices_closeterminalsession"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "target": "internal_services_terminalservices_closeterminalsession"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test",
+      "target": "internal_services_terminalservices_test_skipwithoutpty",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test",
+      "target": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test",
+      "target": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_skipwithoutpty",
+      "target": "internal_services_terminalservices_test_go_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "target": "internal_services_terminalservices_test_skipwithoutpty",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "target": "internal_services_terminalservices_test_skipwithoutpty",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitfireswhentheshellexits",
+      "target": "internal_services_terminalservices_test_go_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/services/terminalServices_test.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "internal_services_terminalservices_test_testterminalexitissilentforareplacedsession",
+      "target": "internal_services_terminalservices_test_go_t",
       "confidence_score": 1.0
     },
     {
@@ -71880,5 +72100,5 @@
       "source_file": ".claude/skills/graphify/SKILL.md"
     }
   ],
-  "built_at_commit": "141dee5d50d6fa2d67dad76964043ad2a63b0504"
+  "built_at_commit": "fd299a053dea15bc0482a09300725ab34155efc0"
 }
