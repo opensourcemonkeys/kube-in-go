@@ -1,7 +1,7 @@
 # Graph Report - kube-in-go  (2026-08-08)
 
 ## Corpus Check
-- 314 files · ~450,247 words
+- 314 files · ~450,729 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5e38d8ee`
+- Built from commit: `7fe7eff6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -138,8 +138,10 @@
 - Community 122
 - Community 123
 - Community 124
+- Incremental --update Flow
 - Community 127
 - Community 128
+- @fontsource/jetbrains-mono
 - Community 130
 - Community 131
 - Community 132
@@ -168,7 +170,6 @@
 - Community 161
 - Community 162
 - Community 163
-- Community 164
 - Community 165
 - Community 168
 - Community 169
@@ -216,7 +217,6 @@
 - primereact
 - react
 - react-dom
-- chart.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `App` - 154 edges
@@ -368,7 +368,7 @@ Nodes (17): click_sidebar_item(), expand_sidebar_group(), navigate_to(), Wait fo
 
 ### Community 28 - "Frontend Dependencies"
 Cohesion: 0.22
-Nodes (9): @fontsource/jetbrains-mono, dependencies, @fontsource/jetbrains-mono, react-router-dom, reactflow, @xterm/xterm, react-router-dom, reactflow (+1 more)
+Nodes (9): chart.js, dependencies, chart.js, react-router-dom, reactflow, @xterm/xterm, react-router-dom, reactflow (+1 more)
 
 ### Community 29 - "Log Services Layer"
 Cohesion: 0.22
@@ -399,8 +399,8 @@ Cohesion: 0.17
 Nodes (14): Context, RunSelfUpdate(), DownloadFile(), FetchExpectedSha256(), Context, Time, T, sortedKeys() (+6 more)
 
 ### Community 36 - "Community 36"
-Cohesion: 0.18
-Nodes (15): graphify Skill Trigger Declaration, Token Reduction Benchmark, Agent-Crawlable Wiki Export, EXTRACTED/INFERRED/AMBIGUOUS Confidence Rubric, Deterministic Node ID Format, Native CLAUDE.md Integration, --cluster-only Reclustering, Community Detection and Cohesion Scoring (+7 more)
+Cohesion: 0.25
+Nodes (11): Token Reduction Benchmark, EXTRACTED/INFERRED/AMBIGUOUS Confidence Rubric, Deterministic Node ID Format, Verbatim source_file Rule, build_merge Replace-on-Re-extract, Semantic Extraction Cache, Graph Health Check (integrity gate), graphify Pipeline (Steps 0-9) (+3 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.14
@@ -455,8 +455,8 @@ Cohesion: 0.22
 Nodes (10): aiTools(), DeleteDeployment(), GetDeployments(), GetDeploymentYaml(), UpdateDeploymentYaml(), GetEvents(), GetPodLogsTail(), DeletePod() (+2 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.23
-Nodes (12): Folder Watcher (--watch), URL Ingest (/graphify add), MCP stdio Server, Post-Commit Auto-Rebuild Hook, graphify explain (single-node explanation), graphify path (shortest path between concepts), Work Memory / Self-Improving Loop, Whisper Video/Audio Transcription (+4 more)
+Cohesion: 0.50
+Nodes (5): MCP stdio Server, graphify explain (single-node explanation), graphify path (shortest path between concepts), Work Memory / Self-Improving Loop, Python Interpreter Detection
 
 ### Community 51 - "Community 51"
 Cohesion: 0.20
@@ -635,8 +635,8 @@ Cohesion: 0.25
 Nodes (3): Cmd, File, terminalSession
 
 ### Community 95 - "Community 95"
-Cohesion: 0.33
-Nodes (6): Controller Layer (Wails binding point), Go-embedded Kubernetes JSON Schema, kube-ins Desktop Application, Layered Go Backend Architecture, Shell-Agnostic Transport Interface, Wails Shell (development-only target)
+Cohesion: 0.20
+Nodes (10): Controller Layer (Wails binding point), frontend/dist/.gitkeep Embed Bootstrap Cycle, Go-embedded Kubernetes JSON Schema, kube-ins Desktop Application, Layered Go Backend Architecture, Models Layer (frontend serialization structs), Services Layer (Kubernetes API calls), Shell-Agnostic Transport Interface (+2 more)
 
 ### Community 96 - "Community 96"
 Cohesion: 0.38
@@ -675,8 +675,8 @@ Cohesion: 0.06
 Nodes (49): GroupVersionResource, GetCRDInstanceCounts(), GetCRDs(), GetCustomResources(), applyError(), applyOne(), ApplyYaml(), Config (+41 more)
 
 ### Community 107 - "Community 107"
-Cohesion: 0.40
-Nodes (5): Call Edge Direction and Language Rule, Hyperedges, Rationale as Node Attribute, semantically_similar_to Edges, Part A - AST Structural Extraction
+Cohesion: 0.29
+Nodes (8): Folder Watcher (--watch), Call Edge Direction and Language Rule, Hyperedges, Rationale as Node Attribute, semantically_similar_to Edges, Post-Commit Auto-Rebuild Hook, Code-Only Update Fast Path, Part A - AST Structural Extraction
 
 ### Community 108 - "Community 108"
 Cohesion: 0.17
@@ -738,6 +738,10 @@ Nodes (5): shellChannel, shellReply, Conn, Mutex, newShellChannel()
 Cohesion: 0.33
 Nodes (5): configmap_cleanup(), YAML CRUD lifecycle E2E test for kube-ins.  This test simulates a real user:   1, Pytest fixture that guarantees the test ConfigMap is deleted from the     cluste, Full Create → Read/Verify → Delete lifecycle via the kube-ins UI.      The test, TestConfigMapCRUD
 
+### Community 125 - "Incremental --update Flow"
+Cohesion: 0.22
+Nodes (11): graphify Skill Trigger Declaration, URL Ingest (/graphify add), Agent-Crawlable Wiki Export, Native CLAUDE.md Integration, Whisper Video/Audio Transcription, --cluster-only Reclustering, Incremental --update Flow, Portable Relative Manifest (+3 more)
+
 ### Community 127 - "Community 127"
 Cohesion: 0.50
 Nodes (3): aiSession, CancelFunc, Mutex
@@ -793,10 +797,6 @@ Nodes (4): defaultFilters, getReplicasSeverity(), getStatusSeverity(), StatefulS
 ### Community 151 - "LogViewerPanel.tsx"
 Cohesion: 0.50
 Nodes (4): fetchPodsForKind(), LogViewerPanel(), LogViewerPanelParams, WorkloadKind
-
-### Community 164 - "Community 164"
-Cohesion: 0.29
-Nodes (7): Verbatim source_file Rule, build_merge Replace-on-Re-extract, Semantic Extraction Cache, frontend/dist/.gitkeep Embed Bootstrap Cycle, Models Layer (frontend serialization structs), Services Layer (Kubernetes API calls), Generated Wails TypeScript Bindings
 
 ### Community 165 - "Community 165"
 Cohesion: 0.60

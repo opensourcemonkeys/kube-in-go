@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -21,16 +20,64 @@ import (
 // constructors below.
 const k8sRequestTimeout = 20 * time.Second
 
-// clusterNameRe matches what ListClusters can produce: one path segment of
-// [A-Za-z0-9._-], no leading dot, no separators, no traversal.
-var clusterNameRe = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,62}$`)
+// maxClusterNameLen leaves room for the ".yaml" suffix inside the 255-byte
+// filename limit of every filesystem we ship on.
+const maxClusterNameLen = 200
+
+// windowsReservedNames resolve to devices rather than files on Windows, with or
+// without an extension, so "nul.yaml" would silently discard the kubeconfig.
+var windowsReservedNames = map[string]bool{
+	"con": true, "prn": true, "aux": true, "nul": true,
+	"com1": true, "com2": true, "com3": true, "com4": true, "com5": true,
+	"com6": true, "com7": true, "com8": true, "com9": true,
+	"lpt1": true, "lpt2": true, "lpt3": true, "lpt4": true, "lpt5": true,
+	"lpt6": true, "lpt7": true, "lpt8": true, "lpt9": true,
+}
 
 // ValidateClusterName rejects any name that is not a single safe path segment.
 // Cluster names arrive straight from the frontend bindings, so an unchecked name
 // lets a caller escape ~/.kube-ins entirely (e.g. "../../.ssh/authorized_keys").
+//
+// This is deliberately a structural check, not a character allowlist: users name
+// clusters freely in the UI, so spaces, parentheses and non-ASCII are ordinary
+// and must keep working. What must not get through is anything that makes the
+// joined path resolve somewhere other than ~/.kube-ins/<name>.yaml.
 func ValidateClusterName(clusterName string) error {
-	if !clusterNameRe.MatchString(clusterName) || strings.Contains(clusterName, "..") {
-		return fmt.Errorf("invalid cluster name %q", clusterName)
+	invalid := func() error { return fmt.Errorf("invalid cluster name %q", clusterName) }
+
+	if clusterName == "" || len(clusterName) > maxClusterNameLen {
+		return invalid()
+	}
+	// Path separators on either platform, NUL, and the Windows drive/stream
+	// separator would all split the name into more than one segment.
+	if strings.ContainsAny(clusterName, `/\:`+"\x00") {
+		return invalid()
+	}
+	for _, r := range clusterName {
+		if r < 0x20 || r == 0x7f {
+			return invalid()
+		}
+	}
+	// "." and ".." reference the directory itself or its parent; any leading dot
+	// would also let a caller aim at the hidden state files (.active, .hubtoken)
+	// that live beside the kubeconfigs.
+	if strings.HasPrefix(clusterName, ".") {
+		return invalid()
+	}
+	// Windows silently strips trailing dots and spaces, and the .active file is
+	// read back with TrimSpace — either way the name we validated would not be
+	// the name that gets resolved.
+	if strings.TrimSpace(clusterName) != clusterName || strings.HasSuffix(clusterName, ".") {
+		return invalid()
+	}
+	stem, _, _ := strings.Cut(clusterName, ".")
+	if windowsReservedNames[strings.ToLower(stem)] {
+		return invalid()
+	}
+	// Belt and braces: after all of the above the name must still be its own
+	// basename, so filepath.Join cannot rewrite it.
+	if filepath.Base(clusterName) != clusterName {
+		return invalid()
 	}
 	return nil
 }

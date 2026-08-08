@@ -2346,8 +2346,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_package_dependencies_fontsource_geist",
-      "community": 28,
-      "community_name": "Frontend Dependencies",
+      "community": 122,
+      "community_name": "Community 122",
       "norm_label": "@fontsource/geist"
     },
     {
@@ -2357,8 +2357,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "fontsource_geist",
-      "community": 28,
-      "community_name": "Frontend Dependencies",
+      "community": 122,
+      "community_name": "Community 122",
       "norm_label": "@fontsource/geist"
     },
     {
@@ -2390,8 +2390,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_package_dependencies_fontsource_jetbrains_mono",
-      "community": 176,
-      "community_name": "Community 176",
+      "community": 28,
+      "community_name": "Frontend Dependencies",
       "norm_label": "@fontsource/jetbrains-mono"
     },
     {
@@ -2401,8 +2401,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "fontsource_jetbrains_mono",
-      "community": 176,
-      "community_name": "Community 176",
+      "community": 28,
+      "community_name": "Frontend Dependencies",
       "norm_label": "@fontsource/jetbrains-mono"
     },
     {
@@ -7307,8 +7307,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext",
-      "community": 74,
-      "community_name": "Community 74",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "clustercontext.tsx"
     },
     {
@@ -7318,8 +7318,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_clustercontextvalue",
-      "community": 74,
-      "community_name": "Community 74",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "clustercontextvalue"
     },
     {
@@ -7329,8 +7329,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_clustercontext",
-      "community": 74,
-      "community_name": "Community 74",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "clustercontext"
     },
     {
@@ -7340,8 +7340,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_clusterprovider",
-      "community": 74,
-      "community_name": "Community 74",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "clusterprovider()"
     },
     {
@@ -9597,8 +9597,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_ai_client",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "client.go"
     },
     {
@@ -9608,8 +9608,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "internal_ai_client_newclient",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "newclient()"
     },
     {
@@ -9619,8 +9619,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "client",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "client"
     },
     {
@@ -9630,8 +9630,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "internal_ai_client_listmodels",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "listmodels()"
     },
     {
@@ -9641,8 +9641,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_ai_models",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "models.go"
     },
     {
@@ -9652,8 +9652,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "internal_ai_models_isavailable",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "isavailable()"
     },
     {
@@ -9663,8 +9663,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "internal_ai_models_supportstools",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "supportstools()"
     },
     {
@@ -9674,8 +9674,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "internal_ai_models_modelcatalog",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "modelcatalog()"
     },
     {
@@ -9685,8 +9685,8 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "internal_ai_models_pullmodel",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "pullmodel()"
     },
     {
@@ -9696,8 +9696,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_ai_models_go_context",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "context"
     },
     {
@@ -9707,8 +9707,8 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "internal_ai_models_basename",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "basename()"
     },
     {
@@ -9718,8 +9718,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_ai_registry",
-      "community": 129,
-      "community_name": "Community 129",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "registry.go"
     },
     {
@@ -9729,8 +9729,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "internal_ai_registry_modeltags",
-      "community": 129,
-      "community_name": "Community 129",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "modeltags()"
     },
     {
@@ -9740,8 +9740,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "internal_ai_registry_regget",
-      "community": 129,
-      "community_name": "Community 129",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "regget()"
     },
     {
@@ -9751,8 +9751,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "header",
-      "community": 129,
-      "community_name": "Community 129",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "header"
     },
     {
@@ -9762,8 +9762,8 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "internal_ai_registry_fetchregistrytoken",
-      "community": 129,
-      "community_name": "Community 129",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "fetchregistrytoken()"
     },
     {
@@ -9828,8 +9828,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_ai",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "ai.go"
     },
     {
@@ -9839,8 +9839,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "internal_business_ai_listaimodels",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "listaimodels()"
     },
     {
@@ -9850,8 +9850,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "internal_business_ai_aiavailable",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "aiavailable()"
     },
     {
@@ -9861,8 +9861,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_ai_listaimodelcatalog",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "listaimodelcatalog()"
     },
     {
@@ -9872,8 +9872,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "internal_business_ai_aimodelsupportstools",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "aimodelsupportstools()"
     },
     {
@@ -9883,8 +9883,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "internal_business_ai_listaimodeltags",
-      "community": 129,
-      "community_name": "Community 129",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "listaimodeltags()"
     },
     {
@@ -9894,8 +9894,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "internal_business_ai_pullaimodel",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "pullaimodel()"
     },
     {
@@ -9905,8 +9905,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_business_ai_go_context",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "context"
     },
     {
@@ -9916,8 +9916,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "business_chatmsg",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "chatmsg"
     },
     {
@@ -9927,8 +9927,8 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "internal_business_ai_runaichat",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "runaichat()"
     },
     {
@@ -9938,8 +9938,8 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "internal_business_ai_argstr",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "argstr()"
     },
     {
@@ -9949,8 +9949,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "internal_business_ai_argint",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "argint()"
     },
     {
@@ -9960,8 +9960,8 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "internal_business_ai_asjson",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "asjson()"
     },
     {
@@ -10081,8 +10081,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_cluster",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "cluster.go"
     },
     {
@@ -10092,8 +10092,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "internal_business_cluster_init",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "init()"
     },
     {
@@ -10103,8 +10103,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_cluster_kubeinsdir",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "kubeinsdir()"
     },
     {
@@ -10114,74 +10114,85 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "internal_business_cluster_listclusters",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "listclusters()"
+    },
+    {
+      "label": "clusterFile()",
+      "file_type": "code",
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L65",
+      "_origin": "ast",
+      "id": "internal_business_cluster_clusterfile",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "clusterfile()"
     },
     {
       "label": "SaveCluster()",
       "file_type": "code",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L62",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "internal_business_cluster_savecluster",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "savecluster()"
     },
     {
       "label": "GetClusterContent()",
       "file_type": "code",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L70",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "internal_business_cluster_getclustercontent",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "getclustercontent()"
     },
     {
       "label": "DeleteCluster()",
       "file_type": "code",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L82",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "internal_business_cluster_deletecluster",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "deletecluster()"
     },
     {
       "label": "SetActiveCluster()",
       "file_type": "code",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L90",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "internal_business_cluster_setactivecluster",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "setactivecluster()"
     },
     {
       "label": "GetActiveCluster()",
       "file_type": "code",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L106",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "internal_business_cluster_getactivecluster",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "getactivecluster()"
     },
     {
       "label": "CheckClusterConnection()",
       "file_type": "code",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L110",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "internal_business_cluster_checkclusterconnection",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "checkclusterconnection()"
     },
     {
@@ -10301,8 +10312,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_crd",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "crd.go"
     },
     {
@@ -10312,8 +10323,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_crd_getcrds",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getcrds()"
     },
     {
@@ -10323,8 +10334,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "internal_business_crd_getcustomresources",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getcustomresources()"
     },
     {
@@ -10334,8 +10345,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_crd_getcrdinstancecounts",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getcrdinstancecounts()"
     },
     {
@@ -10345,8 +10356,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_cronjob",
-      "community": 61,
-      "community_name": "Community 61",
+      "community": 87,
+      "community_name": "Community 87",
       "norm_label": "cronjob.go"
     },
     {
@@ -10367,8 +10378,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_cronjob_deletecronjob",
-      "community": 61,
-      "community_name": "Community 61",
+      "community": 87,
+      "community_name": "Community 87",
       "norm_label": "deletecronjob()"
     },
     {
@@ -10378,8 +10389,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_cronjob_getcronjobyaml",
-      "community": 61,
-      "community_name": "Community 61",
+      "community": 87,
+      "community_name": "Community 87",
       "norm_label": "getcronjobyaml()"
     },
     {
@@ -10389,8 +10400,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_cronjob_updatecronjobyaml",
-      "community": 61,
-      "community_name": "Community 61",
+      "community": 87,
+      "community_name": "Community 87",
       "norm_label": "updatecronjobyaml()"
     },
     {
@@ -10466,8 +10477,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_deployment_getdeployments",
-      "community": 62,
-      "community_name": "Community 62",
+      "community": 49,
+      "community_name": "Community 49",
       "norm_label": "getdeployments()"
     },
     {
@@ -10510,8 +10521,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_endpoint",
-      "community": 215,
-      "community_name": "GetEndpoints",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "endpoint.go"
     },
     {
@@ -10521,8 +10532,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_endpoint_getendpoints",
-      "community": 215,
-      "community_name": "GetEndpoints",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "getendpoints()"
     },
     {
@@ -10532,8 +10543,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_endpoint_getendpointyaml",
-      "community": 215,
-      "community_name": "GetEndpoints",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "getendpointyaml()"
     },
     {
@@ -10543,8 +10554,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_event",
-      "community": 72,
-      "community_name": "Community 72",
+      "community": 49,
+      "community_name": "Community 49",
       "norm_label": "event.go"
     },
     {
@@ -10554,8 +10565,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_event_getevents",
-      "community": 72,
-      "community_name": "Community 72",
+      "community": 49,
+      "community_name": "Community 49",
       "norm_label": "getevents()"
     },
     {
@@ -10697,8 +10708,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_limitrange",
-      "community": 214,
-      "community_name": "limitRange.go",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "limitrange.go"
     },
     {
@@ -10708,8 +10719,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_limitrange_getlimitranges",
-      "community": 214,
-      "community_name": "limitRange.go",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "getlimitranges()"
     },
     {
@@ -10719,8 +10730,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_limitrange_getlimitrangeyaml",
-      "community": 214,
-      "community_name": "limitRange.go",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "getlimitrangeyaml()"
     },
     {
@@ -10730,8 +10741,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_limitrange_updatelimitrangeyaml",
-      "community": 214,
-      "community_name": "limitRange.go",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "updatelimitrangeyaml()"
     },
     {
@@ -10829,15 +10840,15 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "internal_business_log_startlogstream",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "startlogstream()"
     },
     {
       "label": "StopLogStream()",
       "file_type": "code",
       "source_file": "internal/business/log.go",
-      "source_location": "L72",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "internal_business_log_stoplogstream",
       "community": 25,
@@ -10848,11 +10859,11 @@
       "label": "GetPodLogsTail()",
       "file_type": "code",
       "source_file": "internal/business/log.go",
-      "source_location": "L77",
+      "source_location": "L78",
       "_origin": "ast",
       "id": "internal_business_log_getpodlogstail",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 49,
+      "community_name": "Community 49",
       "norm_label": "getpodlogstail()"
     },
     {
@@ -10862,8 +10873,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_metrics",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "metrics.go"
     },
     {
@@ -10873,8 +10884,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_metrics_getmetricssnapshot",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "getmetricssnapshot()"
     },
     {
@@ -10928,8 +10939,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_networkpolicy",
-      "community": 213,
-      "community_name": "networkPolicy.go",
+      "community": 12,
+      "community_name": "Network Policy Stack",
       "norm_label": "networkpolicy.go"
     },
     {
@@ -10950,8 +10961,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_deletenetworkpolicy",
-      "community": 213,
-      "community_name": "networkPolicy.go",
+      "community": 12,
+      "community_name": "Network Policy Stack",
       "norm_label": "deletenetworkpolicy()"
     },
     {
@@ -10961,8 +10972,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_getnetworkpolicyyaml",
-      "community": 213,
-      "community_name": "networkPolicy.go",
+      "community": 12,
+      "community_name": "Network Policy Stack",
       "norm_label": "getnetworkpolicyyaml()"
     },
     {
@@ -10972,8 +10983,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_updatenetworkpolicyyaml",
-      "community": 213,
-      "community_name": "networkPolicy.go",
+      "community": 12,
+      "community_name": "Network Policy Stack",
       "norm_label": "updatenetworkpolicyyaml()"
     },
     {
@@ -10983,8 +10994,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_parsenetworkpolicyyaml",
-      "community": 213,
-      "community_name": "networkPolicy.go",
+      "community": 12,
+      "community_name": "Network Policy Stack",
       "norm_label": "parsenetworkpolicyyaml()"
     },
     {
@@ -10994,8 +11005,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_getnetworkpolicydetail",
-      "community": 213,
-      "community_name": "networkPolicy.go",
+      "community": 12,
+      "community_name": "Network Policy Stack",
       "norm_label": "getnetworkpolicydetail()"
     },
     {
@@ -11005,8 +11016,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_node",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "node.go"
     },
     {
@@ -11016,8 +11027,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_node_getnodeyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "getnodeyaml()"
     },
     {
@@ -11027,8 +11038,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "internal_business_node_updatenodeyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "updatenodeyaml()"
     },
     {
@@ -11038,8 +11049,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "internal_business_node_cordonnode",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "cordonnode()"
     },
     {
@@ -11049,8 +11060,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "internal_business_node_uncordonnode",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "uncordonnode()"
     },
     {
@@ -11060,8 +11071,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "internal_business_node_drainnode",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "drainnode()"
     },
     {
@@ -11148,8 +11159,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_persistentvolume",
-      "community": 216,
-      "community_name": "GetPersistentVolumes",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "persistentvolume.go"
     },
     {
@@ -11159,8 +11170,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_persistentvolume_getpersistentvolumes",
-      "community": 216,
-      "community_name": "GetPersistentVolumes",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "getpersistentvolumes()"
     },
     {
@@ -11170,8 +11181,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_persistentvolume_getpersistentvolumeyaml",
-      "community": 216,
-      "community_name": "GetPersistentVolumes",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "getpersistentvolumeyaml()"
     },
     {
@@ -11244,7 +11255,7 @@
       "label": "DeletePod()",
       "file_type": "code",
       "source_file": "internal/business/pod.go",
-      "source_location": "L25",
+      "source_location": "L29",
       "_origin": "ast",
       "id": "internal_business_pod_deletepod",
       "community": 49,
@@ -11255,7 +11266,7 @@
       "label": "GetPodYaml()",
       "file_type": "code",
       "source_file": "internal/business/pod.go",
-      "source_location": "L34",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_pod_getpodyaml",
       "community": 49,
@@ -11269,8 +11280,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_podexec",
-      "community": 217,
-      "community_name": "podExec.go",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "podexec.go"
     },
     {
@@ -11280,41 +11291,41 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "internal_business_podexec_createpodexecsession",
-      "community": 217,
-      "community_name": "podExec.go",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "createpodexecsession()"
     },
     {
       "label": "WriteToPodExecSession()",
       "file_type": "code",
       "source_file": "internal/business/podExec.go",
-      "source_location": "L16",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "internal_business_podexec_writetopodexecsession",
-      "community": 217,
-      "community_name": "podExec.go",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "writetopodexecsession()"
     },
     {
       "label": "ResizePodExecSession()",
       "file_type": "code",
       "source_file": "internal/business/podExec.go",
-      "source_location": "L20",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "internal_business_podexec_resizepodexecsession",
-      "community": 217,
-      "community_name": "podExec.go",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "resizepodexecsession()"
     },
     {
       "label": "ClosePodExecSession()",
       "file_type": "code",
       "source_file": "internal/business/podExec.go",
-      "source_location": "L24",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "internal_business_podexec_closepodexecsession",
-      "community": 217,
-      "community_name": "podExec.go",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "closepodexecsession()"
     },
     {
@@ -11324,8 +11335,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_replicaset",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 111,
+      "community_name": "Community 111",
       "norm_label": "replicaset.go"
     },
     {
@@ -11346,8 +11357,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_replicaset_deletereplicaset",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 111,
+      "community_name": "Community 111",
       "norm_label": "deletereplicaset()"
     },
     {
@@ -11357,8 +11368,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_replicaset_getreplicasetyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 111,
+      "community_name": "Community 111",
       "norm_label": "getreplicasetyaml()"
     },
     {
@@ -11368,8 +11379,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_replicaset_updatereplicasetyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 111,
+      "community_name": "Community 111",
       "norm_label": "updatereplicasetyaml()"
     },
     {
@@ -11467,8 +11478,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "internal_business_role_updaterole",
-      "community": 31,
-      "community_name": "Role Stack",
+      "community": 188,
+      "community_name": "Community 188",
       "norm_label": "updaterole()"
     },
     {
@@ -11478,8 +11489,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_rolebinding",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 112,
+      "community_name": "Community 112",
       "norm_label": "rolebinding.go"
     },
     {
@@ -11489,8 +11500,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_rolebinding_getrolebindings",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 112,
+      "community_name": "Community 112",
       "norm_label": "getrolebindings()"
     },
     {
@@ -11500,8 +11511,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "internal_business_rolebinding_getrolebindingyaml",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 112,
+      "community_name": "Community 112",
       "norm_label": "getrolebindingyaml()"
     },
     {
@@ -11511,8 +11522,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "internal_business_rolebinding_updaterolebindingyaml",
-      "community": 30,
-      "community_name": "RoleBinding Stack",
+      "community": 112,
+      "community_name": "Community 112",
       "norm_label": "updaterolebindingyaml()"
     },
     {
@@ -11764,8 +11775,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_service",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 34,
+      "community_name": "Events View & Store",
       "norm_label": "service.go"
     },
     {
@@ -11775,8 +11786,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_service_getservices",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 34,
+      "community_name": "Events View & Store",
       "norm_label": "getservices()"
     },
     {
@@ -11786,8 +11797,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_business_service_deleteservice",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 34,
+      "community_name": "Events View & Store",
       "norm_label": "deleteservice()"
     },
     {
@@ -11797,8 +11808,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "internal_business_service_getserviceyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 34,
+      "community_name": "Events View & Store",
       "norm_label": "getserviceyaml()"
     },
     {
@@ -11808,8 +11819,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_business_service_updateserviceyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 34,
+      "community_name": "Events View & Store",
       "norm_label": "updateserviceyaml()"
     },
     {
@@ -12226,8 +12237,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_controller_app",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "app.go"
     },
     {
@@ -12237,8 +12248,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_controller_app_go_controller_app",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "app"
     },
     {
@@ -12248,8 +12259,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_app_go_context",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "context"
     },
     {
@@ -12259,8 +12270,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "internal_controller_app_newapp",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "newapp()"
     },
     {
@@ -12270,8 +12281,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "controller_app_start",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".start()"
     },
     {
@@ -13799,8 +13810,8 @@
       "source_location": "L768",
       "_origin": "ast",
       "id": "controller_app_getcrds",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": ".getcrds()"
     },
     {
@@ -13810,8 +13821,8 @@
       "source_location": "L772",
       "_origin": "ast",
       "id": "controller_app_getcustomresources",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": ".getcustomresources()"
     },
     {
@@ -14052,8 +14063,8 @@
       "source_location": "L876",
       "_origin": "ast",
       "id": "controller_app_listaimodelcatalog",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": ".listaimodelcatalog()"
     },
     {
@@ -14107,8 +14118,8 @@
       "source_location": "L949",
       "_origin": "ast",
       "id": "controller_app_startaichat",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": ".startaichat()"
     },
     {
@@ -14635,8 +14646,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_controller_transport",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "transport.go"
     },
     {
@@ -14657,8 +14668,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "controller_transport",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "transport"
     },
     {
@@ -14668,8 +14679,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "internal_controller_transport_bootstrap",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "bootstrap()"
     },
     {
@@ -14679,8 +14690,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_transport_go_context",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "context"
     },
     {
@@ -14690,8 +14701,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_transport_go_app",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "app"
     },
     {
@@ -14822,8 +14833,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "ipc_wsclient",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "wsclient"
     },
     {
@@ -14833,8 +14844,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_ipc_hub_go_conn",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "conn"
     },
     {
@@ -14844,8 +14855,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "once",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "once"
     },
     {
@@ -14855,8 +14866,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "ipc_wsclient_send",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".send()"
     },
     {
@@ -14866,8 +14877,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "ipc_wsclient_close",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".close()"
     },
     {
@@ -14877,8 +14888,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "ipc_wsclient_writepump",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".writepump()"
     },
     {
@@ -14998,8 +15009,8 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "ipc_instancehub_handlews",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".handlews()"
     },
     {
@@ -15009,8 +15020,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_ipc_hub_go_responsewriter",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "responsewriter"
     },
     {
@@ -15020,8 +15031,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_ipc_hub_go_request",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "request"
     },
     {
@@ -15031,8 +15042,8 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "ipc_instancehub_serverreadpump",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".serverreadpump()"
     },
     {
@@ -15042,8 +15053,8 @@
       "source_location": "L280",
       "_origin": "ast",
       "id": "ipc_instancehub_broadcastinstancelist",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".broadcastinstancelist()"
     },
     {
@@ -15097,8 +15108,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_ipc_messages",
-      "community": 175,
-      "community_name": "main.tsx",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "messages.go"
     },
     {
@@ -15130,8 +15141,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "ipc_registerpayload",
-      "community": 175,
-      "community_name": "main.tsx",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "registerpayload"
     },
     {
@@ -15141,8 +15152,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "ipc_instancelistpayload",
-      "community": 175,
-      "community_name": "main.tsx",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "instancelistpayload"
     },
     {
@@ -15152,8 +15163,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_ipc_messages_go_instanceinfo",
-      "community": 175,
-      "community_name": "main.tsx",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "instanceinfo"
     },
     {
@@ -15163,8 +15174,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "ipc_transferpayload",
-      "community": 175,
-      "community_name": "main.tsx",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "transferpayload"
     },
     {
@@ -15174,8 +15185,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_ipc_messages_go_serializedpanel",
-      "community": 175,
-      "community_name": "main.tsx",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "serializedpanel"
     },
     {
@@ -15185,8 +15196,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_models_aiinfo",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "aiinfo.go"
     },
     {
@@ -15196,8 +15207,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "models_ollamamodelinfo",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "ollamamodelinfo"
     },
     {
@@ -15306,8 +15317,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_models_crdinfo",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "crdinfo.go"
     },
     {
@@ -15317,8 +15328,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "models_crdinfo",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "crdinfo"
     },
     {
@@ -15328,8 +15339,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "models_customresourceinfo",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "customresourceinfo"
     },
     {
@@ -16318,41 +16329,85 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_repository_k8sclient",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "k8sclient.go"
+    },
+    {
+      "label": "ValidateClusterName()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_validateclustername",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "validateclustername()"
+    },
+    {
+      "label": "ClusterConfigPath()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_clusterconfigpath",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "clusterconfigpath()"
+    },
+    {
+      "label": "tune()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L53",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_tune",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "tune()"
+    },
+    {
+      "label": "Config",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_go_config",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "config"
     },
     {
       "label": "SetActiveKubeconfig()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L16",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_setactivekubeconfig",
-      "community": 134,
-      "community_name": "Community 134",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "setactivekubeconfig()"
     },
     {
       "label": "GetActiveKubeconfigPath()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L20",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_getactivekubeconfigpath",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "getactivekubeconfigpath()"
     },
     {
       "label": "NewK8sClient()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L24",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newk8sclient",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "newk8sclient()"
     },
     {
@@ -16362,59 +16417,48 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_go_clientset",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "clientset"
     },
     {
       "label": "NewK8sClientAndConfig()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L37",
+      "source_location": "L81",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newk8sclientandconfig",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "newk8sclientandconfig()"
-    },
-    {
-      "label": "Config",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "internal_repository_k8sclient_go_config",
-      "community": 122,
-      "community_name": "Community 122",
-      "norm_label": "config"
     },
     {
       "label": "NewMetricsClient()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L49",
+      "source_location": "L93",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newmetricsclient",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "newmetricsclient()"
     },
     {
       "label": "NewK8sClientForCluster()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L57",
+      "source_location": "L101",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newk8sclientforcluster",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 138,
+      "community_name": "Community 138",
       "norm_label": "newk8sclientforcluster()"
     },
     {
       "label": "NewK8sClientAndConfigForCluster()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L74",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
       "community": 1,
@@ -16425,23 +16469,111 @@
       "label": "NewMetricsClientForCluster()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L94",
+      "source_location": "L127",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_newmetricsclientforcluster",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "newmetricsclientforcluster()"
+    },
+    {
+      "label": "NewK8sClientForClusterStreaming()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L141",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_newk8sclientforclusterstreaming",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "newk8sclientforclusterstreaming()"
+    },
+    {
+      "label": "NewK8sClientAndConfigForClusterStreaming()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L152",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_newk8sclientandconfigforclusterstreaming",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "newk8sclientandconfigforclusterstreaming()"
+    },
+    {
+      "label": "clusterConfig()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L166",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_clusterconfig",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "clusterconfig()"
+    },
+    {
+      "label": "streamingConfig()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L180",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_streamingconfig",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "streamingconfig()"
     },
     {
       "label": "getK8sConfig()",
       "file_type": "code",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L110",
+      "source_location": "L198",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_getk8sconfig",
-      "community": 122,
-      "community_name": "Community 122",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
       "norm_label": "getk8sconfig()"
+    },
+    {
+      "label": "k8sClient_test.go",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_test",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "k8sclient_test.go"
+    },
+    {
+      "label": "TestClusterConfigPath()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_test_testclusterconfigpath",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "testclusterconfigpath()"
+    },
+    {
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_test_go_t",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "t"
+    },
+    {
+      "label": "TestValidateClusterNameAcceptsListClustersOutput()",
+      "file_type": "code",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "internal_repository_k8sclient_test_testvalidateclusternameacceptslistclustersoutput",
+      "community": 1,
+      "community_name": "Cluster & CRD Business Layer",
+      "norm_label": "testvalidateclusternameacceptslistclustersoutput()"
     },
     {
       "label": "applyYamlServices.go",
@@ -16450,8 +16582,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "applyyamlservices.go"
     },
     {
@@ -16461,8 +16593,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_applyyaml",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "applyyaml()"
     },
     {
@@ -16472,8 +16604,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_go_context",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "context"
     },
     {
@@ -16483,8 +16615,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_go_config",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "config"
     },
     {
@@ -16494,8 +16626,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_applyone",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "applyone()"
     },
     {
@@ -16505,8 +16637,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_go_interface",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "interface"
     },
     {
@@ -16516,8 +16648,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_go_restmapper",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "restmapper"
     },
     {
@@ -16527,8 +16659,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_go_unstructured",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "unstructured"
     },
     {
@@ -16538,8 +16670,8 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "internal_services_applyyamlservices_applyerror",
-      "community": 192,
-      "community_name": "Community 192",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "applyerror()"
     },
     {
@@ -17000,8 +17132,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_services_crdservices",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "crdservices.go"
     },
     {
@@ -17011,8 +17143,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "internal_services_crdservices_getcrds",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getcrds()"
     },
     {
@@ -17022,8 +17154,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_crdservices_go_config",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "config"
     },
     {
@@ -17033,8 +17165,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "internal_services_crdservices_crdtoinfo",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "crdtoinfo()"
     },
     {
@@ -17044,8 +17176,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_crdservices_go_unstructured",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "unstructured"
     },
     {
@@ -17055,8 +17187,8 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "internal_services_crdservices_getcustomresources",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getcustomresources()"
     },
     {
@@ -17066,8 +17198,8 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "internal_services_crdservices_getcrdinstancecounts",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getcrdinstancecounts()"
     },
     {
@@ -17077,8 +17209,8 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "internal_services_crdservices_countinstances",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "countinstances()"
     },
     {
@@ -17088,8 +17220,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_crdservices_go_interface",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "interface"
     },
     {
@@ -17099,8 +17231,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_crdservices_go_restmapper",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "restmapper"
     },
     {
@@ -17110,8 +17242,8 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "internal_services_crdservices_deleteobject",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "deleteobject()"
     },
     {
@@ -17121,8 +17253,8 @@
       "source_location": "L203",
       "_origin": "ast",
       "id": "internal_services_crdservices_humanage",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "humanage()"
     },
     {
@@ -17132,8 +17264,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_crdservices_go_time",
-      "community": 112,
-      "community_name": "Community 112",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "time"
     },
     {
@@ -18210,8 +18342,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "internal_services_namespaceservices_quantitytocomparablenum",
-      "community": 93,
-      "community_name": "Community 93",
+      "community": 64,
+      "community_name": "Community 64",
       "norm_label": "quantitytocomparablenum()"
     },
     {
@@ -18221,8 +18353,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "quantity",
-      "community": 93,
-      "community_name": "Community 93",
+      "community": 64,
+      "community_name": "Community 64",
       "norm_label": "quantity"
     },
     {
@@ -18595,8 +18727,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "objectyamlservices.go"
     },
     {
@@ -18606,8 +18738,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_newdynamicandmapper",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "newdynamicandmapper()"
     },
     {
@@ -18617,8 +18749,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_go_config",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "config"
     },
     {
@@ -18628,8 +18760,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_go_interface",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "interface"
     },
     {
@@ -18639,8 +18771,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_go_restmapper",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "restmapper"
     },
     {
@@ -18650,8 +18782,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_resolveresourceinterface",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "resolveresourceinterface()"
     },
     {
@@ -18661,8 +18793,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "resourceinterface",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "resourceinterface"
     },
     {
@@ -18672,8 +18804,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_getobjectyaml",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getobjectyaml()"
     },
     {
@@ -18683,8 +18815,8 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_updateobjectyaml",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "updateobjectyaml()"
     },
     {
@@ -18694,8 +18826,8 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_getobjectdescribe",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "getobjectdescribe()"
     },
     {
@@ -18705,8 +18837,8 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_cleanunstructured",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "cleanunstructured()"
     },
     {
@@ -18716,8 +18848,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_objectyamlservices_go_unstructured",
-      "community": 125,
-      "community_name": "Community 125",
+      "community": 105,
+      "community_name": "Community 105",
       "norm_label": "unstructured"
     },
     {
@@ -18870,8 +19002,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_services_podexecservices",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "podexecservices.go"
     },
     {
@@ -18881,8 +19013,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "services_podexecsession",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "podexecsession"
     },
     {
@@ -18892,8 +19024,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "pipewriter",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "pipewriter"
     },
     {
@@ -18903,8 +19035,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_podexecservices_go_cancelfunc",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "cancelfunc"
     },
     {
@@ -18914,8 +19046,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "services_execsizequeue",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "execsizequeue"
     },
     {
@@ -18925,8 +19057,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "terminalsize",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "terminalsize"
     },
     {
@@ -18936,8 +19068,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "services_execsizequeue_next",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".next()"
     },
     {
@@ -18947,8 +19079,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "internal_services_podexecservices_createpodexecsession",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "createpodexecsession()"
     },
     {
@@ -18958,8 +19090,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_podexecservices_go_clientset",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "clientset"
     },
     {
@@ -18969,8 +19101,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_services_podexecservices_go_config",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "config"
     },
     {
@@ -18980,8 +19112,8 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "internal_services_podexecservices_writetopodexecsession",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "writetopodexecsession()"
     },
     {
@@ -18991,8 +19123,8 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "internal_services_podexecservices_resizepodexecsession",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "resizepodexecsession()"
     },
     {
@@ -19002,8 +19134,8 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "internal_services_podexecservices_closepodexecsession",
-      "community": 34,
-      "community_name": "Events View & Store",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": "closepodexecsession()"
     },
     {
@@ -21279,8 +21411,8 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "tui_app_stopautorefresh",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".stopautorefresh()"
     },
     {
@@ -21565,8 +21697,8 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tui_app_closedescribe",
-      "community": 21,
-      "community_name": "CRD List & Shared List View",
+      "community": 5,
+      "community_name": "App Bootstrap & IPC Hub",
       "norm_label": ".closedescribe()"
     },
     {
@@ -21664,8 +21796,8 @@
       "source_location": "L309",
       "_origin": "ast",
       "id": "internal_tui_describe_textbar",
-      "community": 11,
-      "community_name": "TUI Describe & Metrics Render",
+      "community": 69,
+      "community_name": "Community 69",
       "norm_label": "textbar()"
     },
     {
@@ -22082,8 +22214,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tui_rowaction",
-      "community": 69,
-      "community_name": "Community 69",
+      "community": 39,
+      "community_name": "Community 39",
       "norm_label": "rowaction"
     },
     {
@@ -43259,7 +43391,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L110",
+      "source_location": "L124",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster",
@@ -43270,7 +43402,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L82",
+      "source_location": "L65",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_business_cluster",
+      "target": "internal_business_cluster_clusterfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L92",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster",
@@ -43281,7 +43424,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L106",
+      "source_location": "L120",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster",
@@ -43292,7 +43435,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L70",
+      "source_location": "L80",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster",
@@ -43336,7 +43479,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L62",
+      "source_location": "L72",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster",
@@ -43347,7 +43490,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L90",
+      "source_location": "L100",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster",
@@ -43383,22 +43526,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L83",
+      "source_location": "L66",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "internal_business_cluster_deletecluster",
-      "target": "internal_business_cluster_kubeinsdir",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/business/cluster.go",
-      "source_location": "L71",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "internal_business_cluster_getclustercontent",
+      "source": "internal_business_cluster_clusterfile",
       "target": "internal_business_cluster_kubeinsdir",
       "confidence_score": 1.0
     },
@@ -43419,19 +43550,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/cluster.go",
-      "source_location": "L63",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "internal_business_cluster_savecluster",
-      "target": "internal_business_cluster_kubeinsdir",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/business/cluster.go",
-      "source_location": "L91",
+      "source_location": "L101",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster_setactivecluster",
@@ -43444,7 +43563,67 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/cluster.go",
-      "source_location": "L97",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_business_cluster_clusterfile",
+      "target": "internal_repository_k8sclient_clusterconfigpath"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_business_cluster_deletecluster",
+      "target": "internal_business_cluster_clusterfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_business_cluster_getclustercontent",
+      "target": "internal_business_cluster_clusterfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L73",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_business_cluster_savecluster",
+      "target": "internal_business_cluster_clusterfile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L111",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_business_cluster_setactivecluster",
+      "target": "internal_repository_k8sclient_clusterconfigpath"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/business/cluster.go",
+      "source_location": "L107",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster_setactivecluster",
@@ -43456,7 +43635,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/cluster.go",
-      "source_location": "L111",
+      "source_location": "L125",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_cluster_checkclusterconnection",
@@ -44540,7 +44719,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/log.go",
-      "source_location": "L77",
+      "source_location": "L78",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_log",
@@ -44584,7 +44763,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/log.go",
-      "source_location": "L72",
+      "source_location": "L73",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_log",
@@ -44681,11 +44860,11 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/log.go",
-      "source_location": "L65",
+      "source_location": "L66",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_log_startlogstream",
-      "target": "internal_repository_k8sclient_newk8sclientforcluster"
+      "target": "internal_repository_k8sclient_newk8sclientforclusterstreaming"
     },
     {
       "relation": "calls",
@@ -44693,7 +44872,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/log.go",
-      "source_location": "L78",
+      "source_location": "L79",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_log_getpodlogstail",
@@ -45421,7 +45600,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/pod.go",
-      "source_location": "L25",
+      "source_location": "L29",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_pod",
@@ -45443,7 +45622,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/pod.go",
-      "source_location": "L34",
+      "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_pod",
@@ -45468,7 +45647,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/pod.go",
-      "source_location": "L17",
+      "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_pod_getpods",
@@ -45492,7 +45671,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/pod.go",
-      "source_location": "L26",
+      "source_location": "L30",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_pod_deletepod",
@@ -45504,7 +45683,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/pod.go",
-      "source_location": "L35",
+      "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_pod_getpodyaml",
@@ -45514,7 +45693,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/podExec.go",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_podexec",
@@ -45536,7 +45715,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/podExec.go",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_podexec",
@@ -45547,7 +45726,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/business/podExec.go",
-      "source_location": "L16",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_podexec",
@@ -45560,11 +45739,11 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "internal/business/podExec.go",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_business_podexec_createpodexecsession",
-      "target": "internal_repository_k8sclient_newk8sclientandconfigforcluster"
+      "target": "internal_repository_k8sclient_newk8sclientandconfigforclusterstreaming"
     },
     {
       "relation": "contains",
@@ -53662,7 +53841,29 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L20",
+      "source_location": "L166",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_clusterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_clusterconfigpath",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L64",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53673,7 +53874,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L110",
+      "source_location": "L198",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53684,7 +53885,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L24",
+      "source_location": "L68",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53695,7 +53896,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L37",
+      "source_location": "L81",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53706,7 +53907,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L74",
+      "source_location": "L112",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53717,7 +53918,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L57",
+      "source_location": "L152",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_newk8sclientandconfigforclusterstreaming",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L101",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53728,7 +53940,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L49",
+      "source_location": "L141",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_newk8sclientforclusterstreaming",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L93",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53739,7 +53962,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L94",
+      "source_location": "L127",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53750,7 +53973,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L16",
+      "source_location": "L60",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient",
@@ -53758,99 +53981,96 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L180",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_streamingconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_tune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient",
+      "target": "internal_repository_k8sclient_validateclustername",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L25",
+      "source_location": "L41",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclient",
-      "target": "internal_repository_k8sclient_getk8sconfig",
+      "source": "internal_repository_k8sclient_clusterconfigpath",
+      "target": "internal_repository_k8sclient_validateclustername",
       "confidence_score": 1.0
     },
     {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L24",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L70",
       "weight": 1.0,
-      "context": "return_type",
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclient",
-      "target": "internal_repository_k8sclient_go_clientset",
-      "confidence_score": 1.0
+      "source": "internal_repository_k8sclient_test_testvalidateclusternameacceptslistclustersoutput",
+      "target": "internal_repository_k8sclient_validateclustername"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L59",
+      "source_location": "L167",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclientforcluster",
-      "target": "internal_repository_k8sclient_newk8sclient",
+      "source": "internal_repository_k8sclient_clusterconfig",
+      "target": "internal_repository_k8sclient_clusterconfigpath",
       "confidence_score": 1.0
     },
     {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L37",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L41",
       "weight": 1.0,
-      "context": "return_type",
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclientandconfig",
-      "target": "internal_repository_k8sclient_go_clientset",
-      "confidence_score": 1.0
+      "source": "internal_repository_k8sclient_test_testclusterconfigpath",
+      "target": "internal_repository_k8sclient_clusterconfigpath"
     },
     {
-      "relation": "references",
+      "relation": "calls",
+      "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
       "source_location": "L74",
       "weight": 1.0,
-      "context": "return_type",
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
-      "target": "internal_repository_k8sclient_go_clientset",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L57",
-      "weight": 1.0,
-      "context": "return_type",
-      "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclientforcluster",
-      "target": "internal_repository_k8sclient_go_clientset",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L49",
-      "weight": 1.0,
-      "context": "return_type",
-      "_origin": "ast",
-      "source": "internal_repository_k8sclient_newmetricsclient",
-      "target": "internal_repository_k8sclient_go_clientset",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L94",
-      "weight": 1.0,
-      "context": "return_type",
-      "_origin": "ast",
-      "source": "internal_repository_k8sclient_newmetricsclientforcluster",
-      "target": "internal_repository_k8sclient_go_clientset",
+      "source": "internal_repository_k8sclient_newk8sclient",
+      "target": "internal_repository_k8sclient_tune",
       "confidence_score": 1.0
     },
     {
@@ -53858,42 +54078,90 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L38",
+      "source_location": "L86",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient_newk8sclientandconfig",
-      "target": "internal_repository_k8sclient_getk8sconfig",
+      "target": "internal_repository_k8sclient_tune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L120",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
+      "target": "internal_repository_k8sclient_tune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientforcluster",
+      "target": "internal_repository_k8sclient_tune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L98",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newmetricsclient",
+      "target": "internal_repository_k8sclient_tune",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L135",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newmetricsclientforcluster",
+      "target": "internal_repository_k8sclient_tune",
       "confidence_score": 1.0
     },
     {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L37",
+      "source_location": "L53",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclientandconfig",
+      "source": "internal_repository_k8sclient_tune",
       "target": "internal_repository_k8sclient_go_config",
       "confidence_score": 1.0
     },
     {
-      "relation": "calls",
-      "context": "call",
+      "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L76",
+      "source_location": "L166",
       "weight": 1.0,
+      "context": "return_type",
       "_origin": "ast",
-      "source": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
-      "target": "internal_repository_k8sclient_newk8sclientandconfig",
+      "source": "internal_repository_k8sclient_clusterconfig",
+      "target": "internal_repository_k8sclient_go_config",
       "confidence_score": 1.0
     },
     {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L110",
+      "source_location": "L198",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -53905,7 +54173,19 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L74",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfig",
+      "target": "internal_repository_k8sclient_go_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L112",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -53914,11 +54194,179 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L152",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforclusterstreaming",
+      "target": "internal_repository_k8sclient_go_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L180",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_streamingconfig",
+      "target": "internal_repository_k8sclient_go_config",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L50",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclient",
+      "target": "internal_repository_k8sclient_getk8sconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L68",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclient",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientforcluster",
+      "target": "internal_repository_k8sclient_newk8sclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfig",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L112",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L152",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforclusterstreaming",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L101",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientforcluster",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L141",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientforclusterstreaming",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L93",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newmetricsclient",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newmetricsclientforcluster",
+      "target": "internal_repository_k8sclient_go_clientset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfig",
+      "target": "internal_repository_k8sclient_getk8sconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L114",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
+      "target": "internal_repository_k8sclient_newk8sclientandconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L94",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient_newmetricsclient",
@@ -53930,11 +54378,141 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "internal/repository/k8sClient.go",
-      "source_location": "L96",
+      "source_location": "L129",
       "weight": 1.0,
       "_origin": "ast",
       "source": "internal_repository_k8sclient_newmetricsclientforcluster",
       "target": "internal_repository_k8sclient_newmetricsclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L105",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientforcluster",
+      "target": "internal_repository_k8sclient_clusterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforcluster",
+      "target": "internal_repository_k8sclient_clusterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L131",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newmetricsclientforcluster",
+      "target": "internal_repository_k8sclient_clusterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L142",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientforclusterstreaming",
+      "target": "internal_repository_k8sclient_streamingconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L153",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_newk8sclientandconfigforclusterstreaming",
+      "target": "internal_repository_k8sclient_streamingconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L188",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_streamingconfig",
+      "target": "internal_repository_k8sclient_clusterconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient.go",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_streamingconfig",
+      "target": "internal_repository_k8sclient_getk8sconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_test",
+      "target": "internal_repository_k8sclient_test_testclusterconfigpath",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_test",
+      "target": "internal_repository_k8sclient_test_testvalidateclusternameacceptslistclustersoutput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_test_testclusterconfigpath",
+      "target": "internal_repository_k8sclient_test_go_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/repository/k8sClient_test.go",
+      "source_location": "L68",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "internal_repository_k8sclient_test_testvalidateclusternameacceptslistclustersoutput",
+      "target": "internal_repository_k8sclient_test_go_t",
       "confidence_score": 1.0
     },
     {
@@ -68038,5 +68616,5 @@
       "source_file": ".claude/skills/graphify/SKILL.md"
     }
   ],
-  "built_at_commit": "7cdb70c281343b4e65fb35e3538f01e029ff9c4d"
+  "built_at_commit": "5e38d8ee92730552e09b46a0c0606790bacd6f09"
 }
