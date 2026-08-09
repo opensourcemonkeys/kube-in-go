@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"kube-ins/internal/models"
+	"sigs.k8s.io/yaml"
 )
 
 func GetPersistentVolumes(client *kubernetes.Clientset) ([]models.PersistentVolumeInfo, error) {
@@ -32,6 +33,19 @@ func GetPersistentVolumeYaml(name string, client *kubernetes.Clientset) (string,
 		return "", err
 	}
 	return toApplyYaml(pv)
+}
+
+func UpdatePersistentVolumeYaml(name, yamlContent string, client *kubernetes.Clientset) error {
+	if name == "" {
+		return errNamespaceNameRequired
+	}
+	var pv corev1.PersistentVolume
+	if err := yaml.Unmarshal([]byte(yamlContent), &pv); err != nil {
+		return fmt.Errorf("failed to parse YAML: %w", err)
+	}
+	pv.Name = name
+	_, err := client.CoreV1().PersistentVolumes().Update(context.Background(), &pv, metav1.UpdateOptions{})
+	return err
 }
 
 func pvToInfo(pv corev1.PersistentVolume) models.PersistentVolumeInfo {

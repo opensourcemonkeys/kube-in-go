@@ -52,6 +52,13 @@ func UpdateLimitRangeYaml(namespace, name, yamlContent string, client *kubernete
 	return err
 }
 
+func DeleteLimitRange(namespace, name string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceNameRequired
+	}
+	return client.CoreV1().LimitRanges(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
+}
+
 func limitRangeToInfo(lr corev1.LimitRange) models.LimitRangeInfo {
 	limits := make([]models.LimitRangeItemInfo, 0, len(lr.Spec.Limits))
 	for _, item := range lr.Spec.Limits {

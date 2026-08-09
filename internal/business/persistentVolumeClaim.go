@@ -27,6 +27,14 @@ func DeletePersistentVolumeClaim(clusterName string, name string, namespace stri
 	return services.DeletePersistentVolumeClaim(name, namespace, client)
 }
 
+func UpdatePersistentVolumeClaimYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.UpdatePersistentVolumeClaimYaml(name, namespace, yamlContent, client)
+}
+
 func GetPersistentVolumeClaimYaml(clusterName string, name string, namespace string) (string, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

@@ -47,6 +47,7 @@ export default function JobListComponent({ clusterName, api }: { clusterName: st
             deleter={DeleteJob}
             deleteLabel="job"
             pollInterval={5000}
+            describeResource="jobs"
             defaultFilters={defaultFilters}
             emptyMessage="No jobs found"
             onRowDoubleClick={(job) => openYamlPanel({ clusterName, resourceKind: 'job', name: job.name, namespace: job.namespace, referencePanel })}

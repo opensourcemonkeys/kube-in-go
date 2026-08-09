@@ -8,7 +8,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { GetLimitRanges } from '../../../wailsjs/go/controller_app/App';
+import { GetLimitRanges, DeleteLimitRange } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
@@ -44,6 +44,9 @@ export default function LimitRangeListComponent({ clusterName, api }: { clusterN
                 fetcher={GetLimitRanges}
                 createFrom={models.LimitRangeInfo.createFrom}
                 pollInterval={5000}
+                deleter={DeleteLimitRange}
+                deleteLabel="limit range"
+                describeResource="limitranges"
                 defaultFilters={defaultFilters}
                 emptyMessage="No limit ranges found"
                 onRowDoubleClick={(row) => openYamlPanel({ clusterName, resourceKind: 'limitrange', name: row.name, namespace: row.namespace, referencePanel })}

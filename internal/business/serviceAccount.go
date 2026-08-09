@@ -36,6 +36,14 @@ func UpdateServiceAccountYaml(clusterName string, name, namespace, yamlContent s
 	return services.UpdateServiceAccountYaml(namespace, name, yamlContent, client)
 }
 
+func DeleteServiceAccount(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.DeleteServiceAccount(namespace, name, client)
+}
+
 func UpdateServiceAccount(clusterName string, name, namespace string, labels, annotations map[string]string) error {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

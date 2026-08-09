@@ -15,7 +15,7 @@
 - [x] **S6** — Yerel loglama + diagnostics paneli ✅
 - [x] **S7** — 24 business fonksiyonuna error return *(en riskli)* ✅
 - [x] **S8** — UI'da hata + yükleme durumu ✅
-- [ ] **S9** — Describe, Resource Quota, eksik delete/update, namespace create
+- [x] **S9** — Describe, Resource Quota, eksik delete/update, namespace create ✅
 - [ ] **S10** — Scale ve Rollout Restart
 - [ ] **S11** — Port forwarding
 - [ ] **S12** — i18n altyapısı + İngilizce katalog + dil seçici
@@ -721,7 +721,7 @@ kapsanıyor.
 
 ---
 
-## Step 9 — Eksik eylemler A: Describe, Resource Quota, eksik delete/update, namespace create
+## Step 9 — Eksik eylemler A: Describe, Resource Quota, eksik delete/update, namespace create ✅
 
 **Saf ekleme. Mevcut hiçbir davranış değişmiyor. Düşük risk.** S10 ve S11 ile paralel çalışabilir (üçü de bindings regen ettiği için ya sıraya koy ya her biri kendi regen'ini koşsun).
 
@@ -752,6 +752,77 @@ grep -c "GetObjectDescribe\|DeleteServiceAccount\|CreateNamespace" frontend/wail
 cd frontend && npx tsc --noEmit && npm run build
 ```
 Manuel: Pods → bir pod'da Describe → Events dahil tam `kubectl describe` metni. `kubectl describe pod <name> -n <ns>` ile karşılaştır. Bir ServiceAccount, bir Role, bir Endpoint sil. Namespace oluştur, sonra sil.
+
+### Uygulandı — sonuç
+
+**9a. Describe.** `GetObjectDescribe` binding'i eklendi (backend'e tek satır bile
+yazılmadı — S9'un öngördüğü gibi implementasyon hazırdı, sadece bağlanmamıştı).
+Yeni `components/workspace/DescribePanel.tsx` düz `<pre>`; **Monaco bilinçli
+olarak kullanılmadı** (dökümün dili yok, şeması yok, düzenlenmiyor — bundle'daki
+en ağır import'u bir metin bloğu için ödemek anlamsız). Refresh **scroll
+pozisyonunu koruyor**, hata S8'in `ErrorBanner`'ıyla gösteriliyor ve son iyi
+metin ekranda kalıyor (liste view'larıyla aynı kural). `describe` paneli
+`DockviewContainer`'a kaydedildi, `TabContext`'e `openDescribePanel` +
+`openReceivedPanel`'e `describe` case'i eklendi — yani panel pencereler ve
+instance'lar arası taşınabiliyor (params saf veri, structured-clone güvenli).
+
+**Tek prop ile 22 view.** `ResourceListView`'a `describeResource?: string`
+eklendi; buton kolonu otomatik olarak **en sona** ekleniyor. Burada gerçek bir
+tuzak vardı: `columns` render-prop'u bir Fragment döndürüyor ve
+`React.Children.toArray` dizileri düzleştirirken **Fragment'leri düzleştirmiyor**
+— bu yüzden `<>{columns(...)}{describeColumn}</>` şeklinde sarmak *bütün veri
+kolonlarını görünmez yapardı* (dosyanın başındaki `toColumnArray` yorumu tam
+olarak bu hatayı anlatıyor). Çözüm: `toColumnArray(node, extra)` — Fragment
+açıldıktan **sonra** ekleme. Ayrıca ek kolon action-kolonu imzasına uyduğu için
+mevcut action kolonu onun sol komşusu oluyor ve ikisinin de resize handle'ı
+zaten var olan kurala göre gizleniyor.
+
+CRD `InstanceTable` ve Security Role Map detay modalı da Describe kazandı — ikisi
+de zaten (group, resource, ns, name) konuşuyordu, describe'a group bile gerekmiyor
+(plural'ı REST mapper çözüyor, CRD'ler generic describer'a düşüyor).
+
+**9b. Resource Quotas.** `GetResourceQuotas` bind edildi ve view `GetNamespaces`
+üzerinden yeniden kurmayı bıraktı — eskiden namespace başına bir quota list'i
+fan-out ediliyordu, şimdi tek çağrı. Düz liste namespace'e göre gruplanıp
+alfabetik sıralanıyor. **Bilinçli kayıp:** namespace başlığındaki Active/
+Terminating rozeti gitti (`NamespacedResourceQuota` status taşımıyor); yerine
+o namespace'teki quota sayısı yazıyor. Quota satırlarına Describe de eklendi.
+
+**9c. Eksik delete'ler.** Typed: ServiceAccount, Role, RoleBinding, LimitRange,
+Endpoint (mevcut `errNamespace*Required` guard'larıyla). Generic
+`DeleteObject` üzerinden: IngressClass, PersistentVolume, StorageClass.
+**Node delete eklenmedi** — plan böyle diyordu; S16'da Known Limitations'a
+yazılacak.
+
+**9d. Eksik update'ler.** Job, IngressClass, Endpoint, PV, PVC, StorageClass için
+`UpdateXYaml` eklendi ve `YamlEditorPanel`'in `editable` listesi genişletildi.
+Job'ın spec'i büyük ölçüde immutable — API server'ın net reddi artık toast'ta
+görünüyor, ki bu sebepsiz read-only bir editörden dürüst.
+
+**9e. Namespace create.** `CreateNamespace(cluster, name, labels)`. İsim **elle
+doğrulanmıyor**: DNS-1123 kurallarının sahibi API server ve reddi birebir
+gösteriliyor, böylece kurallar değişse de doğru kalıyor. `ResourceListView`'a
+`toolbarExtra` render-prop'u eklendi (`{ reload }` alıyor) ki dialog başarıyla
+kapandığında liste 10 saniyelik poll'ü beklemeden yenilensin.
+
+**TUI parite (registry.go).** GUI'ye eklenen her delete/update TUI'ye de indi:
+`clusterScopedUpdate` ve `clusterScopedDelete` yardımcıları eklendi (mevcut
+`clusterScopedYAML`'ın yazma/silme karşılıkları), sonra endpoints /
+serviceaccounts / roles / rolebindings / limitranges / jobs / pvc'ye `del:` ve
+`updateYAML:`, ingressclasses / persistentvolumes / storageclasses'a generic
+delete bağlandı.
+
+**Verify çıktısı:** `go build` / `go vet` / `go test ./...` temiz (17 Go paketi),
+`grep -rn "wailsapp/wails" internal/tui cmd/tui` boş, bindings regen sonrası
+plandaki grep 3 döndü, `npx tsc --noEmit` temiz, `npm run test` 17/17,
+`npm run build` geçti, `npm run lint` **0 hata** (127 uyarı — S8'deki sayının
+aynısı, hepsi önceden var), `frontend/dist/.gitkeep` geri alındı,
+`graphify update .` koşuldu.
+
+**Yapılmayan:** plandaki manuel kontrol (Describe çıktısını `kubectl describe`
+ile karşılaştırma, gerçek silme/oluşturma) canlı cluster istiyor; bu oturumda
+koşulmadı. Ayrıca `node/main.tsx` el-yazımı olduğu için Describe almadı —
+plan onu saymıyordu ama Node describe'ı doğal bir adaydır, S16'ya not.
 
 ---
 

@@ -27,6 +27,14 @@ func DeleteJob(clusterName string, name, namespace string) error {
 	return services.DeleteJob(namespace, name, client)
 }
 
+func UpdateJobYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.UpdateJobYaml(namespace, name, yamlContent, client)
+}
+
 func GetJobYaml(clusterName string, name, namespace string) (string, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

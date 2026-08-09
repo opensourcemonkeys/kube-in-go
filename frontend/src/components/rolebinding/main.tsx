@@ -5,7 +5,7 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { GetRoleBindings } from '../../../wailsjs/go/controller_app/App';
+import { GetRoleBindings, DeleteRoleBinding } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
@@ -38,6 +38,9 @@ export default function RoleBindingListComponent({ clusterName, api }: { cluster
             fetcher={GetRoleBindings}
             createFrom={createFrom}
             pollInterval={10000}
+            deleter={DeleteRoleBinding}
+            deleteLabel="role binding"
+            describeResource="rolebindings"
             defaultFilters={defaultFilters}
             emptyMessage="No role bindings found"
             onRowDoubleClick={(rb) => openYamlPanel({ clusterName, resourceKind: 'rolebinding', name: rb.name, namespace: rb.namespace, referencePanel })}

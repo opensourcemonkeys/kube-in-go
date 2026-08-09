@@ -38,6 +38,7 @@ export default function NetworkPolicyListComponent({ clusterName, api }: { clust
             deleter={DeleteNetworkPolicy}
             deleteLabel="network policy"
             pollInterval={2000}
+            describeResource="networkpolicies"
             defaultFilters={defaultFilters}
             emptyMessage="No network policies found"
             onRowDoubleClick={(policy) => openPolicyViewer({ clusterName, name: policy.name, namespace: policy.namespace, referencePanel })}

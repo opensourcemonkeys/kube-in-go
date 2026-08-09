@@ -6,7 +6,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { InputText } from 'primereact/inputtext';
 import { MultiSelect } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
-import { VscNote, VscRefresh, VscTrash, VscTypeHierarchySub } from 'react-icons/vsc';
+import { VscInfo, VscNote, VscRefresh, VscTrash, VscTypeHierarchySub } from 'react-icons/vsc';
 import { models } from '../../../wailsjs/go/models';
 
 // Must match the fixed row height enforced by theme-monolith.css
@@ -28,6 +28,7 @@ interface InstanceTableProps {
     error: string | null;
     onRefresh: () => void;
     onOpenYaml: (row: InstanceRow) => void;
+    onDescribe: (row: InstanceRow) => void;
     onDeleteRows: (rows: InstanceRow[]) => void;
     onEditCrd: () => void;
     onDeleteCrd: () => void;
@@ -39,7 +40,7 @@ interface InstanceTableProps {
  * additionalPrinterColumns), so the table matches `kubectl get <plural>`.
  */
 export default function InstanceTable(props: InstanceTableProps) {
-    const { crd, table, loading, error, onRefresh, onOpenYaml, onDeleteRows, onEditCrd, onDeleteCrd } = props;
+    const { crd, table, loading, error, onRefresh, onOpenYaml, onDescribe, onDeleteRows, onEditCrd, onDeleteCrd } = props;
 
     const [nameFilter, setNameFilter] = useState('');
     const [namespaceFilter, setNamespaceFilter] = useState<string[]>([]);
@@ -258,9 +259,18 @@ export default function InstanceTable(props: InstanceTableProps) {
                     ))}
                     <Column
                         header=""
-                        style={{ width: '7rem' }}
+                        style={{ width: '9.5rem' }}
                         body={(row: InstanceRow) => (
                             <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'flex-end' }}>
+                                <Button
+                                    icon={<VscInfo size={16} />}
+                                    text
+                                    size="small"
+                                    severity="secondary"
+                                    onClick={() => onDescribe(row)}
+                                    tooltip="Describe"
+                                    tooltipOptions={{ position: 'top' }}
+                                />
                                 <Button
                                     icon={<VscNote size={16} />}
                                     text

@@ -71,6 +71,7 @@ export default function IngressListComponent({ clusterName, api }: { clusterName
             deleter={DeleteIngress}
             deleteLabel="ingress"
             pollInterval={2000}
+            describeResource="ingresses"
             defaultFilters={defaultFilters}
             emptyMessage="No ingresses found"
             onRowDoubleClick={(ing) => openYamlPanel({ clusterName, resourceKind: 'ingress', name: ing.name, namespace: ing.namespace, referencePanel })}

@@ -2,12 +2,14 @@ package services_k8sclient
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"kube-ins/internal/models"
+	"sigs.k8s.io/yaml"
 )
 
 func GetStorageClasses(client *kubernetes.Clientset) ([]models.StorageClassInfo, error) {
@@ -31,6 +33,19 @@ func GetStorageClassYaml(name string, client *kubernetes.Clientset) (string, err
 		return "", err
 	}
 	return toApplyYaml(sc)
+}
+
+func UpdateStorageClassYaml(name, yamlContent string, client *kubernetes.Clientset) error {
+	if name == "" {
+		return errNamespaceNameRequired
+	}
+	var sc storagev1.StorageClass
+	if err := yaml.Unmarshal([]byte(yamlContent), &sc); err != nil {
+		return fmt.Errorf("failed to parse YAML: %w", err)
+	}
+	sc.Name = name
+	_, err := client.StorageV1().StorageClasses().Update(context.Background(), &sc, metav1.UpdateOptions{})
+	return err
 }
 
 func storageClassToInfo(sc storagev1.StorageClass) models.StorageClassInfo {

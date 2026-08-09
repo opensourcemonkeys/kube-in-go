@@ -4,10 +4,15 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { GetStorageClasses } from '../../../wailsjs/go/controller_app/App';
+import { GetStorageClasses, DeleteObject } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+
+// Cluster-scoped and without a typed delete of its own: addressed
+// generically by (group, resource, name) like the CRD view does.
+const deleteEntry = (clusterName: string, name: string) =>
+    DeleteObject(clusterName, 'storage.k8s.io', 'storageclasses', '', name);
 
 const defaultFilters: DataTableFilterMeta = {
     name:                { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -28,6 +33,9 @@ export default function StorageClassListComponent({ clusterName, api }: { cluste
             fetcher={GetStorageClasses}
             createFrom={models.StorageClassInfo.createFrom}
             pollInterval={10000}
+            deleter={deleteEntry}
+            deleteLabel="storage class"
+            describeResource="storageclasses"
             defaultFilters={defaultFilters}
             emptyMessage="No storage classes found"
             onRowDoubleClick={(sc) => openYamlPanel({ clusterName, resourceKind: 'storageclass', name: sc.name, namespace: '', referencePanel })}

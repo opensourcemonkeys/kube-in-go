@@ -41,7 +41,7 @@ type DeleteTarget = {
  */
 export default function CrdListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const explorer = useCrdExplorer(clusterName, api);
-    const { openObjectYaml } = useTabContext();
+    const { openObjectYaml, openDescribePanel } = useTabContext();
     const toast = useRef<Toast | null>(null);
 
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
@@ -56,6 +56,20 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
             clusterName,
             kind: selected.kind,
             group: selected.group,
+            resource: selected.plural,
+            name: row.name,
+            namespace: row.namespace,
+            referencePanel,
+        });
+    };
+
+    // The plural alone addresses the instance: the backend resolves it to a
+    // GroupKind through the REST mapper and falls back to kubectl's generic
+    // describer for kinds (like these) that have no dedicated one.
+    const openInstanceDescribe = (row: InstanceRow) => {
+        if (!selected) return;
+        openDescribePanel({
+            clusterName,
             resource: selected.plural,
             name: row.name,
             namespace: row.namespace,
@@ -192,6 +206,7 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
                             error={explorer.tableError}
                             onRefresh={explorer.refreshTable}
                             onOpenYaml={openInstanceYaml}
+                            onDescribe={openInstanceDescribe}
                             onDeleteRows={(rows) =>
                                 selected &&
                                 setDeleteTarget({

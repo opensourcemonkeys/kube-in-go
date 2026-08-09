@@ -40,6 +40,7 @@ export default function ConfigMapListComponent({ clusterName, api }: { clusterNa
             deleteLabel="configmap"
             dataKey="_uid"
             pollInterval={2000}
+            describeResource="configmaps"
             defaultFilters={defaultFilters}
             emptyMessage="No configmaps found"
             onRowDoubleClick={(cm) => openYamlPanel({ clusterName, resourceKind: 'configmap', name: cm.name, namespace: cm.namespace, referencePanel })}

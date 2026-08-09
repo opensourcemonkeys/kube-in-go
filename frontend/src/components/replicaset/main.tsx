@@ -46,6 +46,7 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
             deleter={DeleteReplicaSet}
             deleteLabel="replicaset"
             pollInterval={2000}
+            describeResource="replicasets"
             defaultFilters={defaultFilters}
             emptyMessage="No replicasets found"
             onRowDoubleClick={(r) => openYamlPanel({ clusterName, resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel })}

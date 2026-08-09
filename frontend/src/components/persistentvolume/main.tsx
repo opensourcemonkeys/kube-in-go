@@ -4,10 +4,15 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { GetPersistentVolumes } from '../../../wailsjs/go/controller_app/App';
+import { GetPersistentVolumes, DeleteObject } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+
+// Cluster-scoped and without a typed delete of its own: addressed
+// generically by (group, resource, name) like the CRD view does.
+const deleteEntry = (clusterName: string, name: string) =>
+    DeleteObject(clusterName, '', 'persistentvolumes', '', name);
 import { ARRAY_IN } from '../../lib/tableFilters';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
@@ -44,6 +49,9 @@ export default function PersistentVolumeListComponent({ clusterName, api }: { cl
             fetcher={GetPersistentVolumes}
             createFrom={models.PersistentVolumeInfo.createFrom}
             pollInterval={5000}
+            deleter={deleteEntry}
+            deleteLabel="persistent volume"
+            describeResource="persistentvolumes"
             defaultFilters={defaultFilters}
             emptyMessage="No persistent volumes found"
             onRowDoubleClick={(pv) => openYamlPanel({ clusterName, resourceKind: 'persistentvolume', name: pv.name, namespace: '', referencePanel })}

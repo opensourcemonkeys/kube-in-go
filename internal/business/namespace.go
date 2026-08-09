@@ -7,6 +7,17 @@ import (
 	services "kube-ins/internal/services"
 )
 
+func CreateNamespace(clusterName string, name string, labels map[string]string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return fmt.Errorf("connect to cluster %q: %w", clusterName, err)
+	}
+	if err := services.CreateNamespace(name, labels, client); err != nil {
+		return fmt.Errorf("create namespace %q in cluster %q: %w", name, clusterName, err)
+	}
+	return nil
+}
+
 func DeleteNamespace(clusterName string, name string) error {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

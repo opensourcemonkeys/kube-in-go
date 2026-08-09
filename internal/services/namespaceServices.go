@@ -68,6 +68,20 @@ func namespaceToInfo(ns corev1.Namespace, k8sClient *kubernetes.Clientset) model
 	return info
 }
 
+// CreateNamespace creates a namespace. The name is not validated here beyond
+// being non-empty — the API server owns the DNS-1123 rules and returns a far
+// better message than a hand-rolled regex would.
+func CreateNamespace(name string, labels map[string]string, k8sClient *kubernetes.Clientset) error {
+	if name == "" {
+		return errNameRequired
+	}
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{Name: name, Labels: labels},
+	}
+	_, err := k8sClient.CoreV1().Namespaces().Create(context.Background(), ns, metav1.CreateOptions{})
+	return err
+}
+
 func DeleteNamespace(name string, k8sClient *kubernetes.Clientset) error {
 	return k8sClient.CoreV1().Namespaces().Delete(context.Background(), name, metav1.DeleteOptions{})
 }

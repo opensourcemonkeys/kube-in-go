@@ -1,28 +1,18 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Chart } from 'primereact/chart';
 
 
 
-import { VscGraph, VscNote, VscTypeHierarchySub, VscClose } from 'react-icons/vsc';
+import { VscGraph, VscNote, VscInfo, VscTypeHierarchySub, VscClose } from 'react-icons/vsc';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { GetNamespaces } from '../../../wailsjs/go/controller_app/App';
+import { GetResourceQuotas } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
-
-type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
-
-const getStatusSeverity = (status: string): Severity => {
-    switch (status) {
-        case 'Active':      return 'success';
-        case 'Terminating': return 'danger';
-        default:            return 'warning';
-    }
-};
 
 const getUsageColor = (pct: number) => {
     if (pct < 60) return '#5fc98a'; // var(--green)
@@ -85,10 +75,10 @@ function ResourceBar({ entry }: { entry: models.ResourceQuotaEntry }) {
     );
 }
 
-function QuotaRow({ rq, namespace, onEdit }: {
-    rq: models.ResourceQuotaInfo;
-    namespace: string;
+function QuotaRow({ rq, onEdit, onDescribe }: {
+    rq: models.NamespacedResourceQuota;
     onEdit: (quotaName: string, ns: string) => void;
+    onDescribe: (quotaName: string, ns: string) => void;
 }) {
     return (
         <div style={{ padding: '0.6rem 0.75rem', borderBottom: '1px solid var(--line)' }}>
@@ -100,11 +90,18 @@ function QuotaRow({ rq, namespace, onEdit }: {
                     color: 'var(--ink)',
                 }} title={rq.name}>{rq.name}</span>
                 <Button
+                    icon={<VscInfo size={16} />}
+                    text size="small" severity="secondary"
+                    style={{ padding: '0.15rem', flexShrink: 0 }}
+                    tooltip="Describe" tooltipOptions={{ position: 'top' }}
+                    onClick={() => onDescribe(rq.name, rq.namespace)}
+                />
+                <Button
                     icon={<VscNote size={16} />}
                     text size="small" severity="secondary"
                     style={{ padding: '0.15rem', flexShrink: 0 }}
                     tooltip="Edit YAML" tooltipOptions={{ position: 'top' }}
-                    onClick={() => onEdit(rq.name, namespace)}
+                    onClick={() => onEdit(rq.name, rq.namespace)}
                 />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
@@ -116,9 +113,11 @@ function QuotaRow({ rq, namespace, onEdit }: {
     );
 }
 
-function NamespaceGroup({ ns, onEdit }: {
-    ns: models.NamespaceInfo;
+function NamespaceGroup({ namespace, quotas, onEdit, onDescribe }: {
+    namespace: string;
+    quotas: models.NamespacedResourceQuota[];
     onEdit: (quotaName: string, namespace: string) => void;
+    onDescribe: (quotaName: string, namespace: string) => void;
 }) {
     return (
         <div style={{
@@ -134,31 +133,32 @@ function NamespaceGroup({ ns, onEdit }: {
                 borderBottom: '1px solid var(--line)',
             }}>
                 <VscTypeHierarchySub size={14} color="var(--teal)" />
-                <span style={{ fontWeight: 700, fontSize: '0.9rem', flex: 1, color: 'var(--ink)' }}>{ns.name}</span>
-                <Tag value={ns.status} severity={getStatusSeverity(ns.status)} style={{ fontSize: '0.65rem' }} />
+                <span style={{ fontWeight: 700, fontSize: '0.9rem', flex: 1, color: 'var(--ink)' }}>{namespace}</span>
+                <Tag value={`${quotas.length} quota`} severity="info" style={{ fontSize: '0.65rem' }} />
             </div>
 
-            {ns.resource_quotas.map(rq => (
-                <QuotaRow key={rq.name} rq={rq} namespace={ns.name} onEdit={onEdit} />
+            {quotas.map(rq => (
+                <QuotaRow key={rq.name} rq={rq} onEdit={onEdit} onDescribe={onDescribe} />
             ))}
         </div>
     );
 }
 
 export default function ResourceQuotaListComponent({ clusterName }: { clusterName: string }) {
-    const [namespaces, setNamespaces] = useState<models.NamespaceInfo[]>([]);
+    const [quotas, setQuotas] = useState<models.NamespacedResourceQuota[]>([]);
     const [nsFilter, setNsFilter] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const { openYamlPanel } = useTabContext();
+    const { openYamlPanel, openDescribePanel } = useTabContext();
 
-    const loadData = async () => {
+    // One quota list for the whole cluster (S9b). This used to rebuild the same
+    // data out of GetNamespaces, which fanned out a quota list per namespace.
+    const loadData = useCallback(async () => {
         setRefreshing(true);
         try {
-            const items = await GetNamespaces(clusterName);
-            const all = items.map((item: any) => models.NamespaceInfo.createFrom(item));
-            setNamespaces(all.filter((ns: models.NamespaceInfo) => ns.resource_quotas?.length > 0));
+            const items = await GetResourceQuotas(clusterName);
+            setQuotas(items.map((item: any) => models.NamespacedResourceQuota.createFrom(item)));
             setError(null);
         } catch (e) {
             // Last good quotas stay on screen; the banner marks them stale.
@@ -168,30 +168,50 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
             setLoaded(true);
             setRefreshing(false);
         }
-    };
+    }, [clusterName]);
 
     useEffect(() => {
         loadData();
         const id = window.setInterval(loadData, 10000);
         return () => window.clearInterval(id);
-    }, []);
+    }, [loadData]);
+
+    const referencePanel = `resourcequotas:${clusterName}`;
 
     const handleEdit = (quotaName: string, namespace: string) => {
-        openYamlPanel({ clusterName,
-            resourceKind: 'resourcequota', name: quotaName, namespace, referencePanel: `resourcequotas:${clusterName}` });
+        openYamlPanel({ clusterName, resourceKind: 'resourcequota', name: quotaName, namespace, referencePanel });
     };
 
-    const filtered = nsFilter.trim()
-        ? namespaces.filter(ns => ns.name.toLowerCase().includes(nsFilter.toLowerCase()))
-        : namespaces;
+    const handleDescribe = (quotaName: string, namespace: string) => {
+        openDescribePanel({ clusterName, resource: 'resourcequotas', name: quotaName, namespace, referencePanel });
+    };
 
-    const totalQuotas = filtered.reduce((sum, ns) => sum + ns.resource_quotas.length, 0);
+    // The flat list arrives sorted by nothing in particular; group it back into
+    // namespaces for display, keeping namespaces and quotas alphabetical.
+    const groups = useMemo(() => {
+        const needle = nsFilter.trim().toLowerCase();
+        const byNamespace = new Map<string, models.NamespacedResourceQuota[]>();
+        for (const rq of quotas) {
+            if (needle && !rq.namespace.toLowerCase().includes(needle)) continue;
+            const bucket = byNamespace.get(rq.namespace);
+            if (bucket) bucket.push(rq);
+            else byNamespace.set(rq.namespace, [rq]);
+        }
+        return [...byNamespace.entries()]
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(([namespace, items]) => ({
+                namespace,
+                items: [...items].sort((a, b) => a.name.localeCompare(b.name)),
+            }));
+    }, [quotas, nsFilter]);
+
+    const totalQuotas = groups.reduce((sum, g) => sum + g.items.length, 0);
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>Resource Quotas</h3>
-                <Tag value={`${totalQuotas} quota · ${filtered.length} namespace`} severity="info" />
+                <Tag value={`${totalQuotas} quota · ${groups.length} namespace`} severity="info" />
                 <InputText
                     value={nsFilter}
                     onChange={e => setNsFilter(e.target.value)}
@@ -207,7 +227,7 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
                 message={error}
                 onRetry={loadData}
                 busy={refreshing}
-                stale={namespaces.length > 0}
+                stale={quotas.length > 0}
                 context={`Resource Quotas (${clusterName})`}
             />
 
@@ -217,15 +237,21 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
                 </div>
             ) : (
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {filtered.length === 0 ? (
+                {groups.length === 0 ? (
                     error ? null : (
                     <div style={{ color: 'var(--ink2)', padding: '2rem', textAlign: 'center' }}>
                         {nsFilter ? 'No matching namespaces.' : 'No Resource Quotas defined in any namespace.'}
                     </div>
                     )
                 ) : (
-                    filtered.map(ns => (
-                        <NamespaceGroup key={ns.name} ns={ns} onEdit={handleEdit} />
+                    groups.map(g => (
+                        <NamespaceGroup
+                            key={g.namespace}
+                            namespace={g.namespace}
+                            quotas={g.items}
+                            onEdit={handleEdit}
+                            onDescribe={handleDescribe}
+                        />
                     ))
                 )}
             </div>

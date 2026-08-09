@@ -124,12 +124,23 @@ func (a *App) GetNamespaces(clusterName string) ([]models.NamespaceInfo, error) 
 	return bussiness.GetNamespaces(clusterName)
 }
 
+func (a *App) CreateNamespace(clusterName string, name string, labels map[string]string) error {
+	return bussiness.CreateNamespace(clusterName, name, labels)
+}
+
 func (a *App) DeleteNamespace(clusterName string, name string) error {
 	return bussiness.DeleteNamespace(clusterName, name)
 }
 
 func (a *App) GetNamespaceYaml(clusterName string, name string) (string, error) {
 	return bussiness.GetNamespaceYaml(clusterName, name)
+}
+
+// GetResourceQuotas lists every quota in the cluster with one API call. The
+// Resource Quotas view used to rebuild this from GetNamespaces, which fanned
+// out one quota list per namespace.
+func (a *App) GetResourceQuotas(clusterName string) ([]models.NamespacedResourceQuota, error) {
+	return bussiness.GetResourceQuotas(clusterName)
 }
 
 func (a *App) GetResourceQuotaYaml(clusterName string, name string, namespace string) (string, error) {
@@ -291,6 +302,10 @@ func (a *App) GetJobYaml(clusterName string, name string, namespace string) (str
 	return bussiness.GetJobYaml(clusterName, name, namespace)
 }
 
+func (a *App) UpdateJobYaml(clusterName string, name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateJobYaml(clusterName, name, namespace, yamlContent)
+}
+
 func (a *App) GetCronJobs(clusterName string) ([]models.CronJobInfo, error) {
 	return bussiness.GetCronJobs(clusterName)
 }
@@ -375,6 +390,10 @@ func (a *App) GetServiceAccountYaml(clusterName string, name string, namespace s
 	return bussiness.GetServiceAccountYaml(clusterName, name, namespace)
 }
 
+func (a *App) DeleteServiceAccount(clusterName string, name string, namespace string) error {
+	return bussiness.DeleteServiceAccount(clusterName, name, namespace)
+}
+
 func (a *App) UpdateServiceAccountYaml(clusterName string, name string, namespace string, yamlContent string) error {
 	return bussiness.UpdateServiceAccountYaml(clusterName, name, namespace, yamlContent)
 }
@@ -391,6 +410,10 @@ func (a *App) GetRoleYaml(clusterName string, name string, namespace string) (st
 	return bussiness.GetRoleYaml(clusterName, name, namespace)
 }
 
+func (a *App) DeleteRole(clusterName string, name string, namespace string) error {
+	return bussiness.DeleteRole(clusterName, name, namespace)
+}
+
 func (a *App) UpdateRoleYaml(clusterName string, name string, namespace string, yamlContent string) error {
 	return bussiness.UpdateRoleYaml(clusterName, name, namespace, yamlContent)
 }
@@ -405,6 +428,10 @@ func (a *App) GetRoleBindings(clusterName string) ([]models.RoleBindingInfo, err
 
 func (a *App) GetRoleBindingYaml(clusterName string, name string, namespace string) (string, error) {
 	return bussiness.GetRoleBindingYaml(clusterName, name, namespace)
+}
+
+func (a *App) DeleteRoleBinding(clusterName string, name string, namespace string) error {
+	return bussiness.DeleteRoleBinding(clusterName, name, namespace)
 }
 
 func (a *App) UpdateRoleBindingYaml(clusterName string, name string, namespace string, yamlContent string) error {
@@ -527,6 +554,10 @@ func (a *App) GetLimitRangeYaml(clusterName string, name string, namespace strin
 	return bussiness.GetLimitRangeYaml(clusterName, name, namespace)
 }
 
+func (a *App) DeleteLimitRange(clusterName string, name string, namespace string) error {
+	return bussiness.DeleteLimitRange(clusterName, name, namespace)
+}
+
 func (a *App) UpdateLimitRangeYaml(clusterName string, name string, namespace string, yamlContent string) error {
 	return bussiness.UpdateLimitRangeYaml(clusterName, name, namespace, yamlContent)
 }
@@ -571,6 +602,10 @@ func (a *App) GetIngressClassYaml(clusterName string, name string) (string, erro
 	return bussiness.GetIngressClassYaml(clusterName, name)
 }
 
+func (a *App) UpdateIngressClassYaml(clusterName string, name string, yamlContent string) error {
+	return bussiness.UpdateIngressClassYaml(clusterName, name, yamlContent)
+}
+
 // ============================================================================
 // Network Screen: Endpoints
 // ============================================================================
@@ -583,6 +618,14 @@ func (a *App) GetEndpointYaml(clusterName string, name string, namespace string)
 	return bussiness.GetEndpointYaml(clusterName, name, namespace)
 }
 
+func (a *App) UpdateEndpointYaml(clusterName string, name string, namespace string, yamlContent string) error {
+	return bussiness.UpdateEndpointYaml(clusterName, name, namespace, yamlContent)
+}
+
+func (a *App) DeleteEndpoint(clusterName string, name string, namespace string) error {
+	return bussiness.DeleteEndpoint(clusterName, name, namespace)
+}
+
 // ============================================================================
 // Storage Screen: Persistent Volumes
 // ============================================================================
@@ -593,6 +636,10 @@ func (a *App) GetPersistentVolumes(clusterName string) ([]models.PersistentVolum
 
 func (a *App) GetPersistentVolumeYaml(clusterName string, name string) (string, error) {
 	return bussiness.GetPersistentVolumeYaml(clusterName, name)
+}
+
+func (a *App) UpdatePersistentVolumeYaml(clusterName string, name string, yamlContent string) error {
+	return bussiness.UpdatePersistentVolumeYaml(clusterName, name, yamlContent)
 }
 
 // ============================================================================
@@ -611,6 +658,10 @@ func (a *App) GetPersistentVolumeClaimYaml(clusterName string, name string, name
 	return bussiness.GetPersistentVolumeClaimYaml(clusterName, name, namespace)
 }
 
+func (a *App) UpdatePersistentVolumeClaimYaml(clusterName string, name string, namespace string, yamlContent string) error {
+	return bussiness.UpdatePersistentVolumeClaimYaml(clusterName, name, namespace, yamlContent)
+}
+
 // ============================================================================
 // Storage Screen: Storage Classes
 // ============================================================================
@@ -621,6 +672,10 @@ func (a *App) GetStorageClasses(clusterName string) ([]models.StorageClassInfo, 
 
 func (a *App) GetStorageClassYaml(clusterName string, name string) (string, error) {
 	return bussiness.GetStorageClassYaml(clusterName, name)
+}
+
+func (a *App) UpdateStorageClassYaml(clusterName string, name string, yamlContent string) error {
+	return bussiness.UpdateStorageClassYaml(clusterName, name, yamlContent)
 }
 
 // ============================================================================
@@ -727,6 +782,13 @@ func (a *App) TrivyStopK8sScan(scanId string) error {
 
 func (a *App) GetObjectYaml(clusterName, group, resource, namespace, name string) (string, error) {
 	return bussiness.GetObjectYaml(clusterName, group, resource, namespace, name)
+}
+
+// GetObjectDescribe renders the full `kubectl describe` text for any object,
+// addressed by its plural resource name (the same strings the sidebar/TUI use).
+// Implemented over kubectl's own describers via the API — no subprocess.
+func (a *App) GetObjectDescribe(clusterName, resource, namespace, name string) (string, error) {
+	return bussiness.GetObjectDescribe(clusterName, resource, namespace, name)
 }
 
 func (a *App) UpdateObjectYaml(clusterName, group, resource, namespace, name, yamlContent string) error {

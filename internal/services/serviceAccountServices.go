@@ -50,6 +50,13 @@ func UpdateServiceAccountYaml(namespace, name, yamlContent string, client *kuber
 	return err
 }
 
+func DeleteServiceAccount(namespace, name string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceServiceAccountRequired
+	}
+	return client.CoreV1().ServiceAccounts(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
+}
+
 func UpdateServiceAccount(namespace, name string, labels, annotations map[string]string, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return errNamespaceServiceAccountRequired

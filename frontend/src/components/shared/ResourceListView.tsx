@@ -7,18 +7,26 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { VscInfo } from 'react-icons/vsc';
 import { useResourceList, ResourceRow } from '../../lib/useResourceList';
+import { useTabContext } from '../../contexts/TabContext';
 import ErrorBanner from './ErrorBanner';
 
 // PrimeReact's DataTable finds its columns via React.Children.toArray(children),
 // which flattens arrays but NOT Fragments. The `columns` render-prop returns a
 // single <>…</> Fragment, so we must unwrap it into a keyed array here — otherwise
 // the data columns are invisible and the table renders empty.
-function toColumnArray(node: React.ReactNode): React.ReactNode {
-    const children =
+// `extra` is appended after the view's own columns. It must be added *after*
+// the Fragment is unwrapped, never by wrapping both in another Fragment: the
+// outer wrapper's children would then be [innerFragment, extra], and
+// React.Children.toArray would leave the inner Fragment intact — losing every
+// data column, which is the exact failure this function exists to prevent.
+function toColumnArray(node: React.ReactNode, extra?: React.ReactNode): React.ReactNode {
+    const unwrapped =
         React.isValidElement(node) && node.type === React.Fragment
             ? (node as React.ReactElement<{ children?: React.ReactNode }>).props.children
             : node;
+    const children = extra ? [unwrapped, extra] : unwrapped;
     // Action columns (the control-button column) are declared with an empty
     // header and carry no `field`. They have a fixed width and must not be
     // user-resizable. In PrimeReact's default "fit" resize mode the action
@@ -72,10 +80,22 @@ export interface ResourceListViewProps<T extends ResourceRow> {
     deleteLabel?: string;
     /** DataTable row key (default "name"). Use a synthetic id when names can collide across namespaces. */
     dataKey?: string;
+    /**
+     * Plural resource name (e.g. "pods"). When set, a Describe button column is
+     * appended automatically — one prop instead of a hand-written button in
+     * every view. The strings match the sidebar/TUI view keys and are resolved
+     * to a GroupKind server-side by the REST mapper.
+     */
+    describeResource?: string;
     defaultFilters: DataTableFilterMeta;
     pollInterval?: number;
     emptyMessage: string;
     onRowDoubleClick?: (row: T) => void;
+    /**
+     * Extra toolbar content, rendered left of Delete Selected. Receives `reload`
+     * so a create action can refresh immediately instead of waiting out a poll.
+     */
+    toolbarExtra?: (ctx: { reload: () => Promise<void> }) => React.ReactNode;
     /** Returns the <Column> elements for this resource (excluding the selection column). */
     columns: (ctx: ColumnsContext<T>) => React.ReactNode;
 }
@@ -90,10 +110,12 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         deleter,
         deleteLabel = 'resource',
         dataKey = 'name',
+        describeResource,
         defaultFilters,
         pollInterval,
         emptyMessage,
         onRowDoubleClick,
+        toolbarExtra,
         columns,
     } = props;
 
@@ -126,6 +148,39 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
     });
 
     const deletable = !!deleter;
+    const { openDescribePanel } = useTabContext();
+
+    // Appended after the view's own columns, so on views that already have an
+    // action column this lands immediately to its right — and `toColumnArray`
+    // tags both (it tags the action column *and* its left neighbour), which is
+    // exactly the pair whose resize handles must stay hidden.
+    const describeColumn = describeResource ? (
+        <Column
+            key="__describe"
+            header=""
+            headerStyle={{ width: '3.2rem' }}
+            style={{ minWidth: '3.2rem', maxWidth: '3.2rem' }}
+            body={(row: T) => (
+                <Button
+                    icon={<VscInfo size={16} />}
+                    text
+                    size="small"
+                    severity="secondary"
+                    aria-label="Describe"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        openDescribePanel({
+                            clusterName,
+                            resource: describeResource,
+                            name: row.name,
+                            namespace: row.namespace ?? '',
+                            referencePanel: `${describeResource}:${clusterName}`,
+                        });
+                    }}
+                />
+            )}
+        />
+    ) : null;
 
     // PrimeReact's VirtualScroller derives its visible row count from the viewport
     // height captured at init() time. With scrollHeight="flex" that height is
@@ -182,7 +237,8 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0 }}>{title}</h3>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    {toolbarExtra?.({ reload })}
                     <Button
                         icon={<VscClearAll size={16} />}
                         text
@@ -251,7 +307,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     {deletable && (
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
                     )}
-                    {toColumnArray(columns({ items, buildInOptions }))}
+                    {toColumnArray(columns({ items, buildInOptions }), describeColumn)}
                 </DataTable>
             </div>
             )}

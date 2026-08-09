@@ -47,6 +47,7 @@ export default function DeploymentListComponent({ clusterName, api }: { clusterN
             deleter={DeleteDeployment}
             deleteLabel="deployment"
             pollInterval={2000}
+            describeResource="deployments"
             defaultFilters={defaultFilters}
             emptyMessage="No deployments found"
             onRowDoubleClick={(dep) => openYamlPanel({ clusterName, resourceKind: 'deployment', name: dep.name, namespace: dep.namespace, referencePanel })}

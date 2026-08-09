@@ -31,6 +31,7 @@ export default function CronJobListComponent({ clusterName, api }: { clusterName
             deleter={DeleteCronJob}
             deleteLabel="cronjob"
             pollInterval={10000}
+            describeResource="cronjobs"
             defaultFilters={defaultFilters}
             emptyMessage="No cronjobs found"
             onRowDoubleClick={(cj) => openYamlPanel({ clusterName, resourceKind: 'cronjob', name: cj.name, namespace: cj.namespace, referencePanel })}

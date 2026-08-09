@@ -2,12 +2,14 @@ package services_k8sclient
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"kube-ins/internal/models"
+	"sigs.k8s.io/yaml"
 )
 
 func GetPersistentVolumeClaims(namespace string, client *kubernetes.Clientset) ([]models.PersistentVolumeClaimInfo, error) {
@@ -35,6 +37,20 @@ func GetPersistentVolumeClaimYaml(name string, namespace string, client *kuberne
 		return "", err
 	}
 	return toApplyYaml(pvc)
+}
+
+func UpdatePersistentVolumeClaimYaml(name, namespace, yamlContent string, client *kubernetes.Clientset) error {
+	if name == "" || namespace == "" {
+		return errNamespaceNameRequired
+	}
+	var pvc corev1.PersistentVolumeClaim
+	if err := yaml.Unmarshal([]byte(yamlContent), &pvc); err != nil {
+		return fmt.Errorf("failed to parse YAML: %w", err)
+	}
+	pvc.Name = name
+	pvc.Namespace = namespace
+	_, err := client.CoreV1().PersistentVolumeClaims(namespace).Update(context.Background(), &pvc, metav1.UpdateOptions{})
+	return err
 }
 
 func pvcToInfo(pvc corev1.PersistentVolumeClaim) models.PersistentVolumeClaimInfo {

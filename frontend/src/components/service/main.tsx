@@ -59,6 +59,7 @@ export default function ServiceListComponent({ clusterName, api }: { clusterName
             deleter={DeleteService}
             deleteLabel="service"
             pollInterval={2000}
+            describeResource="services"
             defaultFilters={defaultFilters}
             emptyMessage="No services found"
             onRowDoubleClick={(svc) => openYamlPanel({ clusterName, resourceKind: 'service', name: svc.name, namespace: svc.namespace, referencePanel })}

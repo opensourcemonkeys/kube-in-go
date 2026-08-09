@@ -19,6 +19,14 @@ func GetLimitRanges(clusterName string) ([]models.LimitRangeInfo, error) {
 	return items, nil
 }
 
+func DeleteLimitRange(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.DeleteLimitRange(namespace, name, client)
+}
+
 func GetLimitRangeYaml(clusterName string, name, namespace string) (string, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

@@ -45,6 +45,7 @@ export default function PersistentVolumeClaimListComponent({ clusterName, api }:
             deleter={DeletePersistentVolumeClaim}
             deleteLabel="volume claim"
             pollInterval={5000}
+            describeResource="persistentvolumeclaims"
             defaultFilters={defaultFilters}
             emptyMessage="No volume claims found"
             onRowDoubleClick={(pvc) => openYamlPanel({ clusterName, resourceKind: 'persistentvolumeclaim', name: pvc.name, namespace: pvc.namespace, referencePanel })}

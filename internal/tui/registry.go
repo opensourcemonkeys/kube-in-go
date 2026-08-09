@@ -215,7 +215,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetJobYaml, del: business.DeleteJob,
+			getYAML: business.GetJobYaml, updateYAML: business.UpdateJobYaml, del: business.DeleteJob,
 		},
 		{
 			view: "cronjobs", title: "CronJobs", namespaced: true,
@@ -291,7 +291,9 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: clusterScopedYAML(business.GetIngressClassYaml),
+			getYAML:    clusterScopedYAML(business.GetIngressClassYaml),
+			updateYAML: clusterScopedUpdate(business.UpdateIngressClassYaml),
+			del:        clusterScopedDelete("networking.k8s.io", "ingressclasses"),
 		},
 		{
 			view: "endpoints", title: "Endpoints", namespaced: true,
@@ -308,7 +310,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetEndpointYaml,
+			getYAML: business.GetEndpointYaml, updateYAML: business.UpdateEndpointYaml, del: business.DeleteEndpoint,
 		},
 		{
 			view: "networkpolicies", title: "Network Policies", namespaced: true,
@@ -376,7 +378,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetServiceAccountYaml, updateYAML: business.UpdateServiceAccountYaml,
+			getYAML: business.GetServiceAccountYaml, updateYAML: business.UpdateServiceAccountYaml, del: business.DeleteServiceAccount,
 		},
 		{
 			view: "roles", title: "Roles", namespaced: true,
@@ -393,7 +395,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetRoleYaml, updateYAML: business.UpdateRoleYaml,
+			getYAML: business.GetRoleYaml, updateYAML: business.UpdateRoleYaml, del: business.DeleteRole,
 		},
 		{
 			view: "rolebindings", title: "Role Bindings", namespaced: true,
@@ -410,7 +412,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetRoleBindingYaml, updateYAML: business.UpdateRoleBindingYaml,
+			getYAML: business.GetRoleBindingYaml, updateYAML: business.UpdateRoleBindingYaml, del: business.DeleteRoleBinding,
 		},
 		{
 			view: "persistentvolumes", title: "Persistent Volumes", namespaced: false,
@@ -427,7 +429,9 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: clusterScopedYAML(business.GetPersistentVolumeYaml),
+			getYAML:    clusterScopedYAML(business.GetPersistentVolumeYaml),
+			updateYAML: clusterScopedUpdate(business.UpdatePersistentVolumeYaml),
+			del:        clusterScopedDelete("", "persistentvolumes"),
 		},
 		{
 			view: "persistentvolumeclaims", title: "Volume Claims", namespaced: true,
@@ -444,7 +448,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetPersistentVolumeClaimYaml, del: business.DeletePersistentVolumeClaim,
+			getYAML: business.GetPersistentVolumeClaimYaml, updateYAML: business.UpdatePersistentVolumeClaimYaml, del: business.DeletePersistentVolumeClaim,
 		},
 		{
 			view: "storageclasses", title: "Storage Classes", namespaced: false,
@@ -461,7 +465,9 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: clusterScopedYAML(business.GetStorageClassYaml),
+			getYAML:    clusterScopedYAML(business.GetStorageClassYaml),
+			updateYAML: clusterScopedUpdate(business.UpdateStorageClassYaml),
+			del:        clusterScopedDelete("storage.k8s.io", "storageclasses"),
 		},
 		{
 			view: "nodes", title: "Nodes", namespaced: false,
@@ -568,7 +574,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				}
 				return rows, nil
 			},
-			getYAML: business.GetLimitRangeYaml, updateYAML: business.UpdateLimitRangeYaml,
+			getYAML: business.GetLimitRangeYaml, updateYAML: business.UpdateLimitRangeYaml, del: business.DeleteLimitRange,
 		},
 		{
 			view: "crds", title: "CRDs", namespaced: false,
@@ -619,4 +625,17 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 // (cluster, name, namespace) signature the generic list screen expects.
 func clusterScopedYAML(fn func(cluster, name string) (string, error)) func(cluster, name, namespace string) (string, error) {
 	return func(cluster, name, _ string) (string, error) { return fn(cluster, name) }
+}
+
+// clusterScopedUpdate is the write-side counterpart of clusterScopedYAML.
+func clusterScopedUpdate(fn func(cluster, name, yaml string) error) func(cluster, name, namespace, yaml string) error {
+	return func(cluster, name, _, yaml string) error { return fn(cluster, name, yaml) }
+}
+
+// clusterScopedDelete adapts business.DeleteObject to the list screen's `del`
+// signature for cluster-scoped kinds that have no typed delete of their own.
+func clusterScopedDelete(group, resource string) func(cluster, name, namespace string) error {
+	return func(cluster, name, _ string) error {
+		return business.DeleteObject(cluster, group, resource, "", name)
+	}
 }

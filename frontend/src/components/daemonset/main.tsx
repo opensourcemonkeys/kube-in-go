@@ -47,6 +47,7 @@ export default function DaemonSetListComponent({ clusterName, api }: { clusterNa
             deleter={DeleteDaemonSet}
             deleteLabel="daemonset"
             pollInterval={2000}
+            describeResource="daemonsets"
             defaultFilters={defaultFilters}
             emptyMessage="No daemonsets found"
             onRowDoubleClick={(d) => openYamlPanel({ clusterName, resourceKind: 'daemonset', name: d.name, namespace: d.namespace, referencePanel })}

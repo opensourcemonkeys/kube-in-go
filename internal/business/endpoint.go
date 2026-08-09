@@ -26,3 +26,19 @@ func GetEndpointYaml(clusterName string, name, namespace string) (string, error)
 	}
 	return services.GetEndpointYaml(namespace, name, client)
 }
+
+func UpdateEndpointYaml(clusterName string, name, namespace, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.UpdateEndpointYaml(namespace, name, yamlContent, client)
+}
+
+func DeleteEndpoint(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.DeleteEndpoint(namespace, name, client)
+}

@@ -36,6 +36,14 @@ func UpdateRoleYaml(clusterName string, name, namespace, yamlContent string) err
 	return services.UpdateRoleYaml(namespace, name, yamlContent, client)
 }
 
+func DeleteRole(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.DeleteRole(namespace, name, client)
+}
+
 func UpdateRole(clusterName string, name, namespace string, labels, annotations map[string]string, rules []models.PolicyRuleInfo) error {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

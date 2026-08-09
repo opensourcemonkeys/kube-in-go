@@ -4,7 +4,7 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { MultiSelect } from 'primereact/multiselect';
 import { FilterMatchMode } from 'primereact/api';
-import { GetEndpoints } from '../../../wailsjs/go/controller_app/App';
+import { GetEndpoints, DeleteEndpoint } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
@@ -59,6 +59,9 @@ export default function EndpointListComponent({ clusterName, api }: { clusterNam
             fetcher={GetEndpoints}
             createFrom={createFrom}
             pollInterval={2000}
+            deleter={DeleteEndpoint}
+            deleteLabel="endpoint"
+            describeResource="endpoints"
             defaultFilters={defaultFilters}
             emptyMessage="No endpoints found"
             onRowDoubleClick={(ep) => openYamlPanel({ clusterName, resourceKind: 'endpoint', name: ep.name, namespace: ep.namespace, referencePanel })}

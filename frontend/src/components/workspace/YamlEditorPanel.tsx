@@ -15,7 +15,7 @@ import {
     GetStatefulSetYaml, UpdateStatefulSetYaml,
     GetReplicaSetYaml, UpdateReplicaSetYaml,
     GetDaemonSetYaml, UpdateDaemonSetYaml,
-    GetJobYaml,
+    GetJobYaml, UpdateJobYaml,
     GetCronJobYaml, UpdateCronJobYaml,
     GetConfigMapYaml, UpdateConfigMapYaml,
     GetSecretYaml, UpdateSecretYaml,
@@ -24,12 +24,12 @@ import {
     GetResourceQuotaYaml, UpdateResourceQuotaYaml,
     GetServiceYaml, UpdateServiceYaml,
     GetIngressYaml, UpdateIngressYaml,
-    GetIngressClassYaml,
-    GetEndpointYaml,
+    GetIngressClassYaml, UpdateIngressClassYaml,
+    GetEndpointYaml, UpdateEndpointYaml,
     GetLimitRangeYaml, UpdateLimitRangeYaml,
-    GetPersistentVolumeYaml,
-    GetPersistentVolumeClaimYaml,
-    GetStorageClassYaml,
+    GetPersistentVolumeYaml, UpdatePersistentVolumeYaml,
+    GetPersistentVolumeClaimYaml, UpdatePersistentVolumeClaimYaml,
+    GetStorageClassYaml, UpdateStorageClassYaml,
     GetServiceAccountYaml, UpdateServiceAccountYaml,
     GetRoleYaml, UpdateRoleYaml,
     GetRoleBindingYaml, UpdateRoleBindingYaml,
@@ -42,7 +42,15 @@ interface YamlEditorPanelParams {
     namespace: string;
 }
 
-const editable = (kind: string) => ['deployment', 'statefulset', 'replicaset', 'daemonset', 'cronjob', 'service', 'ingress', 'configmap', 'secret', 'node', 'resourcequota', 'limitrange', 'serviceaccount', 'role', 'rolebinding'].includes(kind);
+// `job` is editable even though most of its spec is immutable: the API server
+// rejects an immutable change with a precise message, which the toast now shows
+// — that is more honest than a read-only editor that gives no reason (S9d).
+const editable = (kind: string) => [
+    'deployment', 'statefulset', 'replicaset', 'daemonset', 'job', 'cronjob',
+    'service', 'ingress', 'ingressclass', 'endpoint', 'configmap', 'secret',
+    'node', 'resourcequota', 'limitrange', 'persistentvolume',
+    'persistentvolumeclaim', 'storageclass', 'serviceaccount', 'role', 'rolebinding',
+].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
     const { clusterName, resourceKind, name, namespace } = params;
@@ -136,6 +144,8 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateReplicaSetYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'daemonset') {
                 await UpdateDaemonSetYaml(clusterName, name, namespace, value);
+            } else if (resourceKind === 'job') {
+                await UpdateJobYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'cronjob') {
                 await UpdateCronJobYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'configmap') {
@@ -150,8 +160,18 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                 await UpdateServiceYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'ingress') {
                 await UpdateIngressYaml(clusterName, name, namespace, value);
+            } else if (resourceKind === 'ingressclass') {
+                await UpdateIngressClassYaml(clusterName, name, value);
+            } else if (resourceKind === 'endpoint') {
+                await UpdateEndpointYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'limitrange') {
                 await UpdateLimitRangeYaml(clusterName, name, namespace, value);
+            } else if (resourceKind === 'persistentvolume') {
+                await UpdatePersistentVolumeYaml(clusterName, name, value);
+            } else if (resourceKind === 'persistentvolumeclaim') {
+                await UpdatePersistentVolumeClaimYaml(clusterName, name, namespace, value);
+            } else if (resourceKind === 'storageclass') {
+                await UpdateStorageClassYaml(clusterName, name, value);
             } else if (resourceKind === 'serviceaccount') {
                 await UpdateServiceAccountYaml(clusterName, name, namespace, value);
             } else if (resourceKind === 'role') {

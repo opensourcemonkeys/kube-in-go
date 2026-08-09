@@ -50,6 +50,13 @@ func UpdateRoleBindingYaml(namespace, name, yamlContent string, client *kubernet
 	return err
 }
 
+func DeleteRoleBinding(namespace, name string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceRoleBindingRequired
+	}
+	return client.RbacV1().RoleBindings(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
+}
+
 func UpdateRoleBinding(namespace, name string, labels, annotations map[string]string, subjects []models.SubjectInfo, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return errNamespaceRoleBindingRequired

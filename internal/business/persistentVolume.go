@@ -19,6 +19,14 @@ func GetPersistentVolumes(clusterName string) ([]models.PersistentVolumeInfo, er
 	return items, nil
 }
 
+func UpdatePersistentVolumeYaml(clusterName string, name, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.UpdatePersistentVolumeYaml(name, yamlContent, client)
+}
+
 func GetPersistentVolumeYaml(clusterName string, name string) (string, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

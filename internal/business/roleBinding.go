@@ -36,6 +36,14 @@ func UpdateRoleBindingYaml(clusterName string, name, namespace, yamlContent stri
 	return services.UpdateRoleBindingYaml(namespace, name, yamlContent, client)
 }
 
+func DeleteRoleBinding(clusterName string, name, namespace string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.DeleteRoleBinding(namespace, name, client)
+}
+
 func UpdateRoleBinding(clusterName string, name, namespace string, labels, annotations map[string]string, subjects []models.SubjectInfo) error {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

@@ -3,7 +3,7 @@ import { DataTableFilterMeta } from 'primereact/datatable';
 import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { GetServiceAccounts } from '../../../wailsjs/go/controller_app/App';
+import { GetServiceAccounts, DeleteServiceAccount } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
@@ -25,6 +25,9 @@ export default function ServiceAccountListComponent({ clusterName, api }: { clus
             fetcher={GetServiceAccounts}
             createFrom={models.ServiceAccountInfo.createFrom}
             pollInterval={10000}
+            deleter={DeleteServiceAccount}
+            deleteLabel="service account"
+            describeResource="serviceaccounts"
             defaultFilters={defaultFilters}
             emptyMessage="No service accounts found"
             onRowDoubleClick={(sa) => openYamlPanel({ clusterName, resourceKind: 'serviceaccount', name: sa.name, namespace: sa.namespace, referencePanel })}

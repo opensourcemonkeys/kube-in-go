@@ -104,6 +104,15 @@ export interface RoleBindingEditorDef {
     referencePanel: string;
 }
 
+export interface DescribePanelDef {
+    clusterName: string;
+    /** Plural resource name, e.g. "pods" — matches the sidebar/TUI view keys. */
+    resource: string;
+    name: string;
+    namespace: string;
+    referencePanel: string;
+}
+
 export interface ObjectYamlDef {
     clusterName: string;
     kind: string;
@@ -133,6 +142,7 @@ interface TabContextValue {
     openRoleEditor: (def: RoleEditorDef) => void;
     openRoleBindingEditor: (def: RoleBindingEditorDef) => void;
     openObjectYaml: (def: ObjectYamlDef) => void;
+    openDescribePanel: (def: DescribePanelDef) => void;
     openTerminal: (clusterName: string) => void;
     openApplyYaml: (clusterName: string) => void;
     openDiagnostics: () => void;
@@ -500,6 +510,35 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         api.addPanel(addOptions);
     }, []);
 
+    const openDescribePanel = useCallback((def: DescribePanelDef) => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const panelId = `describe:${def.clusterName}:${def.resource}:${def.namespace}/${def.name}`;
+        const existing = api.getPanel(panelId);
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const addOptions: any = {
+            id: panelId,
+            component: 'describe',
+            title: `Describe ${def.name} • ${def.clusterName}`,
+            params: {
+                clusterName: def.clusterName,
+                resource: def.resource,
+                name: def.name,
+                namespace: def.namespace,
+            },
+        };
+
+        const pos = positionAfter(api, def.referencePanel);
+        if (pos) addOptions.position = pos;
+
+        api.addPanel(addOptions);
+    }, []);
+
     const openReceivedPanel = useCallback((panel: ReceivedPanel) => {
         const p = panel.params ?? {};
         const cn: string = p.clusterName ?? '';
@@ -539,6 +578,9 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             case 'objectYaml':
                 openObjectYaml({ clusterName: cn, kind: p.kind, group: p.group, resource: p.resource, name: p.name, namespace: p.namespace, referencePanel: '' });
                 break;
+            case 'describe':
+                openDescribePanel({ clusterName: cn, resource: p.resource, name: p.name, namespace: p.namespace, referencePanel: '' });
+                break;
             case 'clusterResource':
                 openClusterResourceView(cn);
                 break;
@@ -551,10 +593,10 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
                 openDiagnostics();
                 break;
         }
-    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openClusterResourceView, openApplyYaml, openDiagnostics]);
+    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openDescribePanel, openClusterResourceView, openApplyYaml, openDiagnostics]);
 
     return (
-        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openDiagnostics, openReceivedPanel }}>
+        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openDescribePanel, openTerminal, openApplyYaml, openClusterResourceView, openDiagnostics, openReceivedPanel }}>
             {children}
         </TabContext.Provider>
     );

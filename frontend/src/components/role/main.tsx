@@ -5,7 +5,7 @@ import { Column, ColumnFilterElementTemplateOptions } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { FilterMatchMode } from 'primereact/api';
 import { MultiSelect } from 'primereact/multiselect';
-import { GetRoles } from '../../../wailsjs/go/controller_app/App';
+import { GetRoles, DeleteRole } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
@@ -27,6 +27,9 @@ export default function RoleListComponent({ clusterName, api }: { clusterName: s
             fetcher={GetRoles}
             createFrom={models.RoleInfo.createFrom}
             pollInterval={10000}
+            deleter={DeleteRole}
+            deleteLabel="role"
+            describeResource="roles"
             defaultFilters={defaultFilters}
             emptyMessage="No roles found"
             onRowDoubleClick={(role) => openYamlPanel({ clusterName, resourceKind: 'role', name: role.name, namespace: role.namespace, referencePanel })}

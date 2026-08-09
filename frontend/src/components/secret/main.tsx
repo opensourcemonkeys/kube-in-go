@@ -32,6 +32,7 @@ export default function SecretListComponent({ clusterName, api }: { clusterName:
             deleter={DeleteSecret}
             deleteLabel="secret"
             pollInterval={2000}
+            describeResource="secrets"
             defaultFilters={defaultFilters}
             emptyMessage="No secrets found"
             onRowDoubleClick={(s) => openYamlPanel({ clusterName, resourceKind: 'secret', name: s.name, namespace: s.namespace, referencePanel })}

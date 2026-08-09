@@ -19,6 +19,14 @@ func GetIngressClasses(clusterName string) ([]models.IngressClassInfo, error) {
 	return items, nil
 }
 
+func UpdateIngressClassYaml(clusterName string, name, yamlContent string) error {
+	client, err := repository.NewK8sClientForCluster(clusterName)
+	if err != nil {
+		return err
+	}
+	return services.UpdateIngressClassYaml(name, yamlContent, client)
+}
+
 func GetIngressClassYaml(clusterName string, name string) (string, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {

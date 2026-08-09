@@ -96,6 +96,7 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
             deleter={DeletePod}
             deleteLabel="pod"
             pollInterval={2000}
+            describeResource="pods"
             defaultFilters={defaultFilters}
             emptyMessage="No pods found"
             onRowDoubleClick={(pod) => openYamlPanel({ clusterName, resourceKind: 'pod', name: pod.name, namespace: pod.namespace, referencePanel })}

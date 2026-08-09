@@ -2,12 +2,14 @@ package services_k8sclient
 
 import (
 	"context"
+	"fmt"
 	"kube-ins/internal/models"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/yaml"
 )
 
 func GetJobs(namespace string, client *kubernetes.Clientset) ([]models.JobInfo, error) {
@@ -42,6 +44,24 @@ func GetJobYaml(namespace, name string, client *kubernetes.Clientset) (string, e
 		return "", err
 	}
 	return toApplyYaml(j)
+}
+
+// UpdateJobYaml writes an edited Job back. Most of a Job's spec (selector,
+// template, completions) is immutable once created, so the API server rejects
+// anything beyond metadata/parallelism/ttl with a clear error — which the
+// caller surfaces verbatim rather than pretending the field is editable.
+func UpdateJobYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceNameRequired
+	}
+	var j batchv1.Job
+	if err := yaml.Unmarshal([]byte(yamlContent), &j); err != nil {
+		return fmt.Errorf("failed to parse YAML: %w", err)
+	}
+	j.Namespace = namespace
+	j.Name = name
+	_, err := client.BatchV1().Jobs(namespace).Update(context.Background(), &j, metav1.UpdateOptions{})
+	return err
 }
 
 func jobToInfo(j batchv1.Job) models.JobInfo {

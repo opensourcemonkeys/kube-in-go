@@ -2,12 +2,14 @@ package services_k8sclient
 
 import (
 	"context"
+	"fmt"
 	"kube-ins/internal/models"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"sigs.k8s.io/yaml"
 )
 
 func GetEndpoints(namespace string, client *kubernetes.Clientset) ([]models.EndpointInfo, error) {
@@ -31,6 +33,27 @@ func GetEndpointYaml(namespace, name string, client *kubernetes.Clientset) (stri
 		return "", err
 	}
 	return toApplyYaml(ep)
+}
+
+func UpdateEndpointYaml(namespace, name, yamlContent string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceNameRequired
+	}
+	var ep corev1.Endpoints
+	if err := yaml.Unmarshal([]byte(yamlContent), &ep); err != nil {
+		return fmt.Errorf("failed to parse YAML: %w", err)
+	}
+	ep.Namespace = namespace
+	ep.Name = name
+	_, err := client.CoreV1().Endpoints(namespace).Update(context.Background(), &ep, metav1.UpdateOptions{})
+	return err
+}
+
+func DeleteEndpoint(namespace, name string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceNameRequired
+	}
+	return client.CoreV1().Endpoints(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
 }
 
 func endpointToInfo(ep corev1.Endpoints) models.EndpointInfo {

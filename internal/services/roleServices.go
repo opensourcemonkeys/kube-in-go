@@ -50,6 +50,13 @@ func UpdateRoleYaml(namespace, name, yamlContent string, client *kubernetes.Clie
 	return err
 }
 
+func DeleteRole(namespace, name string, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceRoleRequired
+	}
+	return client.RbacV1().Roles(namespace).Delete(context.Background(), name, metav1.DeleteOptions{})
+}
+
 func UpdateRole(namespace, name string, labels, annotations map[string]string, rules []models.PolicyRuleInfo, client *kubernetes.Clientset) error {
 	if namespace == "" || name == "" {
 		return errNamespaceRoleRequired

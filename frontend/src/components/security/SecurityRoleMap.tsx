@@ -300,7 +300,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
     // Free-text filter for a Resource node's accessible-objects list.
     const [objFilter, setObjFilter] = useState('');
     const rfRef = useRef<ReactFlowInstance | null>(null);
-    const { openObjectYaml } = useTabContext();
+    const { openObjectYaml, openDescribePanel } = useTabContext();
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -354,6 +354,20 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
         });
         closeDetail();
     }, [cn, openObjectYaml, closeDetail]);
+
+    // Same addressing as openYaml, minus the group: describe resolves the plural
+    // to a GroupKind server-side through the REST mapper.
+    const openDescribe = useCallback((node: SecurityNodeData) => {
+        if (!node.resource) return;
+        openDescribePanel({
+            clusterName: cn,
+            resource: node.resource,
+            namespace: node.namespace ?? '',
+            name: node.name,
+            referencePanel: cn ? `securityrolemap:${cn}` : 'securityrolemap',
+        });
+        closeDetail();
+    }, [cn, openDescribePanel, closeDetail]);
 
     // Highlight only the clicked node's own RBAC chain: its ancestors (walking
     // edges backwards toward ServiceAccounts) and its descendants (walking
@@ -666,9 +680,16 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                             );
                         })()}
 
-                        {/* YAML action — only for nodes backed by a real object */}
+                        {/* Object actions — only for nodes backed by a real object */}
                         {detail.node.resource && (
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--surface-border)', paddingTop: 12 }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid var(--surface-border)', paddingTop: 12 }}>
+                                <Button
+                                    label="Describe"
+                                    icon="pi pi-info-circle"
+                                    size="small"
+                                    outlined
+                                    onClick={() => openDescribe(detail.node)}
+                                />
                                 <Button
                                     label="View / Edit YAML"
                                     icon="pi pi-file-edit"

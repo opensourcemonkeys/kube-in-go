@@ -26,6 +26,7 @@ import PodExecPanel from '../pod/PodExecPanel';
 import RoleEditorPanel from '../role/RoleEditorPanel';
 import RoleBindingEditorPanel from '../rolebinding/RoleBindingEditorPanel';
 import ObjectYamlPanel from './ObjectYamlPanel';
+import DescribePanel from './DescribePanel';
 import DiagnosticsPanel from '../diagnostics/DiagnosticsPanel';
 import { withBoundary } from '../shared/PanelErrorBoundary';
 
@@ -43,6 +44,7 @@ const rawComponents = {
     roleEditor: RoleEditorPanel,
     roleBindingEditor: RoleBindingEditorPanel,
     objectYaml: ObjectYamlPanel,
+    describe: DescribePanel,
     diagnostics: DiagnosticsPanel,
 };
 
