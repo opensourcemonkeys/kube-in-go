@@ -13,6 +13,7 @@ import { InstanceProvider } from '../../contexts/InstanceContext';
 import { appTour } from '../../lib/tourSteps';
 import TourCard from '../../components/tour/TourCard';
 import { isPrimaryWindow } from '../../lib/shellWindows';
+import PanelErrorBoundary from '../../components/shared/PanelErrorBoundary';
 
 const SIDEBAR_OPEN_KEY = 'kube-sidebar-open';
 
@@ -46,6 +47,11 @@ function Appmain() {
     };
 
     return (
+        // Outermost boundary: the per-panel ones cover the workspace, this one
+        // covers everything around it (providers, title bar, sidebar). A crash
+        // here still leaves a window that can be reloaded and a report that can
+        // be copied, instead of a blank one.
+        <PanelErrorBoundary label="app" root>
         <NextStepProvider>
             <NextStepReact
                 steps={appTour}
@@ -134,6 +140,7 @@ function Appmain() {
                 </ClusterProvider>
             </NextStepReact>
         </NextStepProvider>
+        </PanelErrorBoundary>
     );
 }
 

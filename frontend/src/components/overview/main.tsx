@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DockviewPanelApi } from 'dockview';
 import { Message } from 'primereact/message';
 import { VscCircleLarge, VscCopy, VscSync, VscServer, VscTypeHierarchySub, VscDashboard } from 'react-icons/vsc';
@@ -10,6 +10,8 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { usePanelActive } from '../../lib/usePanelActive';
 import { fmtCpu, fmtMem, pct, getUsageColor, CssBar } from '../../lib/usage';
+import { errText } from '../../lib/errText';
+import ErrorBanner from '../shared/ErrorBanner';
 
 const POLL_MS = 5000;
 
@@ -33,36 +35,45 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
     const [snap, setSnap] = useState<models.MetricsSnapshot | null>(null);
     const [nodes, setNodes] = useState<models.NodeInfo[] | null>(null);
     const [counts, setCounts] = useState<Counts | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const activeRef = useRef(active);
-    activeRef.current = active;
+    // Promise.all rejects on the first failing call, so one unreachable endpoint
+    // reports the whole tick as failed — which is the honest outcome here: the
+    // dashboard's numbers would be a mix of fresh and stale otherwise. Last good
+    // values stay on screen and the banner says so.
+    const tick = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            const [s, n, pods, deps, svcs, ns] = await Promise.all([
+                GetMetricsSnapshot(clusterName),
+                GetNodes(clusterName),
+                GetPods(clusterName),
+                GetDeployments(clusterName),
+                GetServices(clusterName),
+                GetNamespaces(clusterName),
+            ]);
+            setSnap(s);
+            setNodes(n);
+            setCounts({
+                pods: pods.length, deployments: deps.length, services: svcs.length,
+                nodes: n.length, namespaces: ns.length,
+            });
+            setError(null);
+        } catch (e) {
+            console.error('Failed to load the overview:', e);
+            setError(errText(e));
+        } finally {
+            setRefreshing(false);
+        }
+    }, [clusterName]);
 
     useEffect(() => {
         if (!active) return; // pause polling while the tab is backgrounded
-        let alive = true;
-        const tick = async () => {
-            try {
-                const [s, n, pods, deps, svcs, ns] = await Promise.all([
-                    GetMetricsSnapshot(clusterName),
-                    GetNodes(clusterName),
-                    GetPods(clusterName),
-                    GetDeployments(clusterName),
-                    GetServices(clusterName),
-                    GetNamespaces(clusterName),
-                ]);
-                if (!alive) return;
-                setSnap(s);
-                setNodes(n);
-                setCounts({
-                    pods: pods.length, deployments: deps.length, services: svcs.length,
-                    nodes: n.length, namespaces: ns.length,
-                });
-            } catch { /* offline — keep last values */ }
-        };
         tick();
         const id = window.setInterval(tick, POLL_MS);
-        return () => { alive = false; window.clearInterval(id); };
-    }, [clusterName, active]);
+        return () => window.clearInterval(id);
+    }, [active, tick]);
 
     const openView = (t: TileDef) =>
         openTab({ view: t.view, title: t.title, clusterName, icon: t.icon });
@@ -76,6 +87,14 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
             <div className="mon-header">
                 <VscDashboard /> <span>Overview</span><span className="mon-cluster">• {clusterName}</span>
             </div>
+
+            <ErrorBanner
+                message={error}
+                onRetry={tick}
+                busy={refreshing}
+                stale={counts !== null}
+                context={`Overview (${clusterName})`}
+            />
 
             {/* Resource count tiles */}
             <div className="ov-tiles">

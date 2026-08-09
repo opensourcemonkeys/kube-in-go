@@ -3,6 +3,7 @@ import type { DockviewPanelApi } from 'dockview';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { Toast } from 'primereact/toast';
 import { usePanelActive } from './usePanelActive';
+import { errText } from './errText';
 
 /** Minimal shape every list row shares. Namespace is absent for cluster-scoped resources. */
 export interface ResourceRow {
@@ -29,6 +30,16 @@ export interface UseResourceListOptions<T extends ResourceRow> {
 
 export interface UseResourceListResult<T extends ResourceRow> {
     items: T[];
+    /**
+     * Message from the last failed fetch, or null when the last fetch worked.
+     * Non-null with a non-empty `items` means the rows on screen are stale, not
+     * gone — see the note in `reload`.
+     */
+    error: string | null;
+    /** True until the very first fetch settles (success or failure). */
+    loading: boolean;
+    /** True while any fetch is in flight, including background polls. */
+    refreshing: boolean;
     selected: T[];
     setSelected: (rows: T[]) => void;
     filters: DataTableFilterMeta;
@@ -63,6 +74,9 @@ export function useResourceList<T extends ResourceRow>(
     } = options;
 
     const [items, setItems] = useState<T[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [loaded, setLoaded] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [selected, setSelected] = useState<T[]>([]);
     const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -71,12 +85,23 @@ export function useResourceList<T extends ResourceRow>(
     const active = usePanelActive(api);
 
     const reload = useCallback(async () => {
+        setRefreshing(true);
         try {
             const data = await fetcher(clusterName);
             setItems(data.map(createFrom));
-        } catch (error) {
-            console.error(`Failed to load ${deleteLabel} list:`, error);
-            setItems([]);
+            setError(null);
+        } catch (e) {
+            // The rows are deliberately left alone: the last good ones stay on
+            // screen so a transient poll failure cannot blank a table someone is
+            // reading, and the banner is what says the data is stale. Emptying
+            // them here is what used to make an RBAC 403, a dead API server and
+            // a genuinely empty namespace all render the same "No pods found"
+            // (beta-plan S8).
+            console.error(`Failed to load ${deleteLabel} list:`, e);
+            setError(errText(e));
+        } finally {
+            setLoaded(true);
+            setRefreshing(false);
         }
     }, [clusterName, fetcher, createFrom, deleteLabel]);
 
@@ -129,10 +154,16 @@ export function useResourceList<T extends ResourceRow>(
         await reload();
     }, [deleter, selected, clusterName, reload]);
 
+    // Per-field cache of the last option array handed out, keyed by the sorted
+    // values themselves. `items` gets a brand new array identity on every poll
+    // even when nothing changed, so without this every MultiSelect in every open
+    // panel receives a new `options` array (and re-renders) twice a second.
+    const optionsCache = useRef(new Map<keyof T, { sig: string; options: { label: string; value: string }[] }>());
+
     const buildInOptions = useCallback(
         (field: keyof T) => {
-            // Alan bir dizi ise (access_modes, external_ips, sentetik _hosts …)
-            // öğeleri düzleştir; skaler alanlar eskisi gibi davranır.
+            // Array-valued fields (access_modes, external_ips, the synthetic
+            // _hosts …) are flattened; scalar fields behave as before.
             const set = new Set<string>();
             for (const item of items) {
                 const value = item[field] as unknown;
@@ -140,7 +171,15 @@ export function useResourceList<T extends ResourceRow>(
                     if (entry != null && entry !== '') set.add(String(entry));
                 }
             }
-            return [...set].sort().map((v) => ({ label: v, value: v }));
+            const values = [...set].sort();
+            // NUL cannot occur in a Kubernetes field value, so it is a safe
+            // separator: no two distinct value sets can share a signature.
+            const sig = values.join('\u0000');
+            const cached = optionsCache.current.get(field);
+            if (cached && cached.sig === sig) return cached.options;
+            const options = values.map((v) => ({ label: v, value: v }));
+            optionsCache.current.set(field, { sig, options });
+            return options;
         },
         [items],
     );
@@ -148,6 +187,9 @@ export function useResourceList<T extends ResourceRow>(
     return useMemo(
         () => ({
             items,
+            error,
+            loading: !loaded,
+            refreshing,
             selected,
             setSelected,
             filters,
@@ -163,6 +205,9 @@ export function useResourceList<T extends ResourceRow>(
         }),
         [
             items,
+            error,
+            loaded,
+            refreshing,
             selected,
             filters,
             deleting,

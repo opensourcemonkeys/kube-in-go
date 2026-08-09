@@ -27,8 +27,9 @@ import RoleEditorPanel from '../role/RoleEditorPanel';
 import RoleBindingEditorPanel from '../rolebinding/RoleBindingEditorPanel';
 import ObjectYamlPanel from './ObjectYamlPanel';
 import DiagnosticsPanel from '../diagnostics/DiagnosticsPanel';
+import { withBoundary } from '../shared/PanelErrorBoundary';
 
-const components = {
+const rawComponents = {
     view: ViewPanel,
     yamlEditor: YamlEditorPanel,
     terminal: TerminalPanel,
@@ -44,6 +45,16 @@ const components = {
     objectYaml: ObjectYamlPanel,
     diagnostics: DiagnosticsPanel,
 };
+
+// Every panel type gets an error boundary, applied here in one place so a new
+// entry above cannot forget one. Without it a single component that throws
+// during render unmounts the whole tree — one bad panel whites out the window
+// and takes every other open tab with it. Wrapped at module scope so the
+// component identities stay stable across renders (a fresh wrapper per render
+// would remount every panel).
+const components = Object.fromEntries(
+    Object.entries(rawComponents).map(([key, Component]) => [key, withBoundary(Component as any, key)]),
+);
 
 export default function DockviewContainer() {
     const { registerApi, openTab, openReceivedPanel } = useTabContext();

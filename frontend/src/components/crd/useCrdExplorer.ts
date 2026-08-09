@@ -3,6 +3,7 @@ import type { DockviewPanelApi } from 'dockview';
 import { GetCRDs, GetCRDInstanceCounts, GetResourceTable } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { usePanelActive } from '../../lib/usePanelActive';
+import { errText } from '../../lib/errText';
 
 // The catalog sweep costs one API round-trip per CRD (see
 // services.GetCRDInstanceCounts), so it refreshes far more slowly than the
@@ -51,8 +52,6 @@ export interface CrdExplorer {
     tableError: string | null;
     refreshTable: () => void;
 }
-
-const errText = (e: any) => e?.message ?? String(e);
 
 /**
  * Owns every piece of CRD explorer state: the catalog (definitions + instance

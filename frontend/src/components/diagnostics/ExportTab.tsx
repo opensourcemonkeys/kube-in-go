@@ -10,7 +10,9 @@ import {
     RunHealthChecks,
 } from '../../../wailsjs/go/controller_app/App';
 import { useAiChatStore } from '../../stores/aiChatStore';
+import { useDiagnosticsStore } from '../../stores/diagnosticsStore';
 import { writeClipboard } from '../../lib/clipboard';
+import { renderReport } from '../../lib/diagnosticsReport';
 
 function humanBytes(n: number): string {
     if (n < 1024) return `${n} B`;
@@ -24,30 +26,6 @@ function humanBytes(n: number): string {
     return `${v.toFixed(1)} ${units[i]}`;
 }
 
-function renderReport(rep: models.DiagnosticsReport, checks: models.HealthCheck[]): string {
-    const lines = [
-        'Kube Inspector diagnostics',
-        `generated       ${rep.generatedAt}`,
-        '',
-        `version         ${rep.appVersion}`,
-        rep.commit ? `commit          ${rep.commit}` : '',
-        rep.buildDate ? `built           ${rep.buildDate}` : '',
-        `go              ${rep.goVersion}`,
-        `platform        ${rep.goos}/${rep.goarch}`,
-        `os              ${rep.osRelease}`,
-        `shell           ${rep.shell || '-'}`,
-        '',
-        `log level       ${rep.logLevel}`,
-        `clusters        ${rep.clusterCount} configured (names redacted)`,
-        `active cluster  ${rep.activeCluster || '-'}`,
-        `instance hub    ${rep.hub?.role || '-'}`,
-        '',
-        'health checks',
-        ...checks.map((c) => `  [${c.status.padEnd(4)}] ${c.label} — ${c.detail}`),
-    ];
-    return lines.filter((l) => l !== '').join('\n');
-}
-
 /**
  * The export tab. Everything it produces is redacted on the Go side before it
  * reaches a file or the clipboard — there is no unredacted path out of the app.
@@ -56,6 +34,7 @@ export default function ExportTab({ report }: { report: models.DiagnosticsReport
     const toast = useRef<Toast | null>(null);
     const [busy, setBusy] = useState(false);
     const ollamaHost = useAiChatStore((s) => s.host);
+    const uiErrors = useDiagnosticsStore((s) => s.uiErrors);
 
     const saveZip = () => {
         setBusy(true);
@@ -89,7 +68,7 @@ export default function ExportTab({ report }: { report: models.DiagnosticsReport
                 GetDiagnostics(),
                 RunHealthChecks(ollamaHost),
             ]);
-            const ok = await writeClipboard(renderReport(rep, checks));
+            const ok = await writeClipboard(renderReport(rep, checks, undefined, uiErrors));
             toast.current?.show({
                 severity: ok ? 'success' : 'error',
                 summary: ok ? 'Copied' : 'Could not copy',

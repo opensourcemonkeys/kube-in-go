@@ -6,9 +6,12 @@ import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { GetNodes, CordonNode, UncordonNode, DrainNode } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import { errText } from '../../lib/errText';
+import ErrorBanner from '../shared/ErrorBanner';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -221,16 +224,27 @@ function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string
 
 export default function NodeListComponent({ clusterName }: { clusterName: string }) {
     const [nodes, setNodes] = useState<models.NodeInfo[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [loaded, setLoaded] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
 
+    // Mirrors lib/useResourceList: keep the last good cards on a failed poll and
+    // let the banner say the data is stale, rather than blanking to a message
+    // that reads like "this cluster has no nodes".
     const loadNodes = async () => {
+        setRefreshing(true);
         try {
             const items = await GetNodes(clusterName);
             setNodes(items.map((item: any) => models.NodeInfo.createFrom(item)));
-        } catch (error) {
-            console.error('Failed to load nodes:', error);
-            setNodes([]);
+            setError(null);
+        } catch (e) {
+            console.error('Failed to load nodes:', e);
+            setError(errText(e));
+        } finally {
+            setLoaded(true);
+            setRefreshing(false);
         }
     };
 
@@ -260,17 +274,33 @@ export default function NodeListComponent({ clusterName }: { clusterName: string
                 <Tag value={`${readyCount} / ${nodes.length} Ready`} severity={readyCount === nodes.length && nodes.length > 0 ? 'success' : 'warning'} />
             </div>
 
+            <ErrorBanner
+                message={error}
+                onRetry={loadNodes}
+                busy={refreshing}
+                stale={nodes.length > 0}
+                context={`Nodes (${clusterName})`}
+            />
+
+            {!loaded ? (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ProgressSpinner style={{ width: 40, height: 40 }} strokeWidth="4" />
+                </div>
+            ) : (
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {nodes.length === 0 ? (
+                    error ? null : (
                     <div style={{ color: 'var(--ink2)', padding: '2rem', textAlign: 'center' }}>
-                        No nodes found or cluster is not connected.
+                        No nodes found in this cluster.
                     </div>
+                    )
                 ) : (
                     nodes.map(node => (
                         <NodeCard key={node.name} node={node} clusterName={clusterName} onEditYaml={handleEditYaml} onAction={loadNodes} onToast={showToast} />
                     ))
                 )}
             </div>
+            )}
         </div>
     );
 }

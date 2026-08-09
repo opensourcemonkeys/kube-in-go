@@ -6,7 +6,9 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { useResourceList, ResourceRow } from '../../lib/useResourceList';
+import ErrorBanner from './ErrorBanner';
 
 // PrimeReact's DataTable finds its columns via React.Children.toArray(children),
 // which flattens arrays but NOT Fragments. The `columns` render-prop returns a
@@ -97,6 +99,9 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
 
     const {
         items,
+        error,
+        loading,
+        refreshing,
         selected,
         setSelected,
         filters,
@@ -106,6 +111,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         openDeleteDialog,
         closeDeleteDialog,
         handleDeleteSelected,
+        reload,
         toastRef,
         buildInOptions,
     } = useResourceList<T>({
@@ -147,7 +153,10 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         });
         observer.observe(el);
         return () => observer.disconnect();
-    }, []);
+        // Re-runs when the first-load spinner gives way to the table: the wrapper
+        // does not exist while `loading`, so a mount-only effect would observe
+        // nothing and the scroller would never get a measured height.
+    }, [loading]);
 
     // PrimeReact's DataTable selection props are a discriminated union; spreading a
     // conditionally-typed object keeps TS from trying to resolve `selectionMode` as
@@ -194,6 +203,22 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                 </div>
             </div>
 
+            {/* Three distinct outcomes, deliberately not collapsed into one
+                "nothing here" state (beta-plan S8): still loading, failed, or
+                genuinely empty. `error` with rows behind it means stale, not gone. */}
+            <ErrorBanner
+                message={error}
+                onRetry={reload}
+                busy={refreshing}
+                stale={items.length > 0}
+                context={`${title} (${clusterName})`}
+            />
+
+            {loading ? (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ProgressSpinner style={{ width: 40, height: 40 }} strokeWidth="4" />
+                </div>
+            ) : (
             <div ref={tableWrapRef} className="ktable-fill" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <DataTable
                     // The virtual scroller captures its viewport height once at init time.
@@ -219,7 +244,9 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     scrollable
                     scrollHeight={scrollHeight}
                     virtualScrollerOptions={{ itemSize: ROW_HEIGHT }}
-                    emptyMessage={emptyMessage}
+                    // A failed fetch must not read as "there are none of these":
+                    // the banner above is the message in that case.
+                    emptyMessage={error ? ' ' : emptyMessage}
                 >
                     {deletable && (
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
@@ -227,6 +254,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     {toColumnArray(columns({ items, buildInOptions }))}
                 </DataTable>
             </div>
+            )}
 
             {deletable && (
                 <Dialog

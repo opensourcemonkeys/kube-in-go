@@ -1277,6 +1277,61 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .ai-model__cancel:hover { color: #e06c6c; border-color: #e06c6c; }
 .ai-model__installed { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; color: var(--green); }
 
+/* ── Error surfaces ────────────────────────────────────────────────────────
+   The strip every list/dashboard shows when a backend call fails
+   (components/shared/ErrorBanner.tsx) and the card an error boundary renders in
+   place of a crashed panel (components/shared/PanelErrorBoundary.tsx).
+   Palette variables only — no hardcoded hex — so both re-skin with the theme. */
+
+.err-banner {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--red);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--red) 35%, transparent);
+}
+.err-banner__icon { flex-shrink: 0; font-size: 15px; }
+.err-banner__body { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+/* One line with an ellipsis: these messages carry a full Kubernetes error and
+   a wrapping banner would push the table off screen. The full text is in the
+   title attribute and in the copied diagnostics report. */
+.err-banner__msg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.err-banner__tag {
+  flex-shrink: 0; font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+  padding: 1px 6px; border-radius: 3px; color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 15%, transparent);
+}
+.err-banner__actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.err-banner__btn,
+.crash-card__btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; font: inherit; font-size: 11.5px; line-height: 1.6;
+  color: var(--ink); background: var(--panel2);
+  border: 1px solid var(--line2); border-radius: 4px; cursor: pointer;
+}
+.err-banner__btn:hover,
+.crash-card__btn:hover { background: var(--hover); border-color: var(--ink3); }
+.err-banner__btn:disabled { opacity: .55; cursor: default; }
+.err-banner__btn--icon { padding: 3px 5px; }
+.err-banner__spin { animation: err-banner-spin 1s linear infinite; }
+@keyframes err-banner-spin { to { transform: rotate(360deg); } }
+
+.crash-card {
+  height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  padding: 24px; text-align: center;
+  background: var(--app); color: var(--ink);
+}
+.crash-card__icon { font-size: 30px; color: var(--red); }
+.crash-card__title { font-size: 14px; font-weight: 600; }
+.crash-card__msg {
+  max-width: 46rem; font-family: var(--font-family-mono);
+  font-size: 12px; color: var(--red); word-break: break-word;
+}
+.crash-card__actions { display: flex; gap: 8px; margin-top: 4px; }
+.crash-card__hint { font-size: 11.5px; color: var(--ink3); }
+
 /* ── Diagnostics panel ─────────────────────────────────────────────────────
    Only palette variables are used, so the panel re-skins with every theme.
    The log list is plain DOM rather than a DataTable: 500 monospace rows with a

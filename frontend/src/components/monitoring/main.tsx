@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Chart } from 'primereact/chart';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -13,6 +13,8 @@ import { GetMetricsSnapshot, SaveSnapshot } from '../../../wailsjs/go/controller
 import { models } from '../../../wailsjs/go/models';
 import { useMetricsStore, ClusterPoint, EntityPoint } from '../../stores/metricsStore';
 import { fmtCpu, fmtMem, pct, getUsageColor, UsageBarChart, CssBar } from '../../lib/usage';
+import { errText } from '../../lib/errText';
+import ErrorBanner from '../shared/ErrorBanner';
 
 const POLL_MS = 4000;
 
@@ -111,6 +113,8 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
     const [selected, setSelected] = useState<Selected | null>(null);
     const [windowMin, setWindowMin] = useState(15);
     const [snapping, setSnapping] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
     const record = useMetricsStore((s) => s.record);
     const buf = useMetricsStore((s) => s.tabs[storeKey]);
@@ -156,32 +160,40 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
         }
     };
 
+    const tick = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            const s = await GetMetricsSnapshot(clusterName);
+            setSnap(s);
+            const cp: ClusterPoint = {
+                t: s.timestamp || Date.now(),
+                cpu: s.cluster?.cpuMillis ?? 0, mem: s.cluster?.memMi ?? 0,
+                cpuCap: s.cluster?.cpuCapMillis ?? 0, memCap: s.cluster?.memCapMi ?? 0,
+            };
+            let eid: string | null = null;
+            let ep: EntityPoint | null = null;
+            const sel = selRef.current;
+            if (sel) {
+                const u = findUsage(s, sel);
+                if (u) { eid = sel.id; ep = { t: cp.t, cpu: u.cpuMillis, mem: u.memMi }; }
+            }
+            record(storeKey, cp, eid, ep);
+            setError(null);
+        } catch (e) {
+            // Keep the last snapshot and the rolling series: a gap in the charts
+            // is worse than a stale point, and the banner explains the gap.
+            console.error('Failed to load metrics:', e);
+            setError(errText(e));
+        } finally {
+            setRefreshing(false);
+        }
+    }, [clusterName, storeKey, record]);
+
     useEffect(() => {
-        let alive = true;
-        const tick = async () => {
-            try {
-                const s = await GetMetricsSnapshot(clusterName);
-                if (!alive) return;
-                setSnap(s);
-                const cp: ClusterPoint = {
-                    t: s.timestamp || Date.now(),
-                    cpu: s.cluster?.cpuMillis ?? 0, mem: s.cluster?.memMi ?? 0,
-                    cpuCap: s.cluster?.cpuCapMillis ?? 0, memCap: s.cluster?.memCapMi ?? 0,
-                };
-                let eid: string | null = null;
-                let ep: EntityPoint | null = null;
-                const sel = selRef.current;
-                if (sel) {
-                    const u = findUsage(s, sel);
-                    if (u) { eid = sel.id; ep = { t: cp.t, cpu: u.cpuMillis, mem: u.memMi }; }
-                }
-                record(storeKey, cp, eid, ep);
-            } catch { /* offline — keep last snapshot */ }
-        };
         tick();
         const id = window.setInterval(tick, POLL_MS);
-        return () => { alive = false; window.clearInterval(id); };
-    }, [clusterName, storeKey, record]);
+        return () => window.clearInterval(id);
+    }, [tick]);
 
     const select = (s: Selected) => setSelected((cur) => (cur?.id === s.id ? null : s));
 
@@ -194,11 +206,22 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
         }));
     }, [snap, mode]);
 
-    if (!snap) return <div className="mon-root"><div className="mon-empty">Loading metrics…</div></div>;
+    // Never reached a first snapshot: with an error that is a failure to report,
+    // not a load that is still running.
+    if (!snap) {
+        return (
+            <div className="mon-root">
+                <div className="mon-header"><VscPulse /> <span>Resource Monitoring</span><span className="mon-cluster">• {clusterName}</span></div>
+                <ErrorBanner message={error} onRetry={tick} busy={refreshing} context={`Monitoring (${clusterName})`} />
+                {!error && <div className="mon-empty">Loading metrics…</div>}
+            </div>
+        );
+    }
     if (!snap.metricsAvailable) {
         return (
             <div className="mon-root">
                 <div className="mon-header"><VscPulse /> <span>Resource Monitoring</span><span className="mon-cluster">• {clusterName}</span></div>
+                <ErrorBanner message={error} onRetry={tick} busy={refreshing} stale context={`Monitoring (${clusterName})`} />
                 <Message severity="warn" text="metrics-server is not available on this cluster — resource usage cannot be shown. Install metrics-server to enable monitoring." />
             </div>
         );
@@ -213,9 +236,16 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
 
     const xMax = Date.now();
     const xMin = xMax - windowMin * 60_000;
-    const clusterTrend = {
+    // One dataset per card. Both cards used to be handed the same two-series
+    // object, so the "Cluster Memory" chart plotted CPU alongside memory and the
+    // two cards were pixel-identical.
+    const cpuTrend = {
         datasets: [
             { label: 'CPU %', data: clusterPts.map((p) => ({ x: p.t, y: +pct(p.cpu, p.cpuCap).toFixed(1) })), borderColor: '#3fc8b4', backgroundColor: 'rgba(63,200,180,.15)', fill: true },
+        ],
+    };
+    const memTrend = {
+        datasets: [
             { label: 'Mem %', data: clusterPts.map((p) => ({ x: p.t, y: +pct(p.mem, p.memCap).toFixed(1) })), borderColor: '#6ea8e6', backgroundColor: 'rgba(110,168,230,.12)', fill: true },
         ],
     };
@@ -230,6 +260,8 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
                 </div>
             </div>
 
+            <ErrorBanner message={error} onRetry={tick} busy={refreshing} stale context={`Monitoring (${clusterName})`} />
+
             <div className="mon-layout">
                 <div className="mon-main">
                     {/* Cluster summary */}
@@ -237,12 +269,12 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
                         <div className="mon-card">
                             <div className="mon-card__head"><span>Cluster CPU</span><b>{fmtCpu(c.cpuMillis)} / {fmtCpu(c.cpuCapMillis)}</b></div>
                             <div className="mon-card__pct" style={{ color: getUsageColor(cpuClusterPct) }}>{cpuClusterPct.toFixed(0)}%</div>
-                            <div className="mon-trend"><Chart type="line" data={clusterTrend} options={lineOptions(100, xMin, xMax)} style={{ height: 130 }} /></div>
+                            <div className="mon-trend"><Chart type="line" data={cpuTrend} options={lineOptions(100, xMin, xMax)} style={{ height: 130 }} /></div>
                         </div>
                         <div className="mon-card">
                             <div className="mon-card__head"><span>Cluster Memory</span><b>{fmtMem(c.memMi)} / {fmtMem(c.memCapMi)}</b></div>
                             <div className="mon-card__pct" style={{ color: getUsageColor(memClusterPct) }}>{memClusterPct.toFixed(0)}%</div>
-                            <div className="mon-trend"><Chart type="line" data={clusterTrend} options={lineOptions(100, xMin, xMax)} style={{ height: 130 }} /></div>
+                            <div className="mon-trend"><Chart type="line" data={memTrend} options={lineOptions(100, xMin, xMax)} style={{ height: 130 }} /></div>
                         </div>
                     </div>
 

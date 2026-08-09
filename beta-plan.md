@@ -14,7 +14,7 @@
 - [x] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı ✅
 - [x] **S6** — Yerel loglama + diagnostics paneli ✅
 - [x] **S7** — 24 business fonksiyonuna error return *(en riskli)* ✅
-- [ ] **S8** — UI'da hata + yükleme durumu
+- [x] **S8** — UI'da hata + yükleme durumu ✅
 - [ ] **S9** — Describe, Resource Quota, eksik delete/update, namespace create
 - [ ] **S10** — Scale ve Rollout Restart
 - [ ] **S11** — Port forwarding
@@ -572,7 +572,7 @@ Yani iki dal ayırt edilebiliyor: **`connect to cluster ...`** = kubeconfig/eri�
 
 ---
 
-## Step 8 — UI'da hata + yükleme durumu (FRONTEND)
+## Step 8 — UI'da hata + yükleme durumu (FRONTEND) ✅
 
 **Step 7'ye bağımlı.** Beta deneyimindeki en büyük kazanç: bugün RBAC-403, ölü API server ve gerçekten boş namespace ~21 view'da **aynı** `"No pods found"` metnini veriyor.
 
@@ -633,6 +633,91 @@ Manuel, Pods panelinde üç yönlü ayrım:
 2. `list pods` RBAC'i olmayan kullanıcı → banner birebir 403 metnini göstermeli.
 3. Sağlıklı cluster + boş namespace → düz `No pods found`, **banner yok**.
 4. Bir column body'ye geçici `throw` koy → panel boundary kartı göstermeli, uygulamanın geri kalanı çalışmaya devam etmeli.
+
+### Uygulandı — sonuç
+
+**Üç yönlü ayrım tek yerde kuruldu.** `useResourceList` artık `error` / `loading`
+(yalnız ilk settle'a kadar) / `refreshing` (her fetch sırasında) veriyor ve
+hatada **satırlara dokunmuyor**. Bu tek dosya 21 list view'ı birden kapsıyor;
+`ResourceListView` üçlü ayrımı çiziyor: `loading` → `ProgressSpinner`,
+`error` → banner, `error && boş` → DataTable'ın `emptyMessage`'ı `' '`e
+düşürülüyor ki "No pods found" bir hatayı taklit etmesin.
+
+**Yeni paylaşılan parçalar:**
+- `lib/errText.ts` — CRD explorer'daki yerel kopya buraya taşındı (`useCrdExplorer`
+  artık buradan import ediyor). İki shell farklı reddediyor: Wails çıplak Go
+  hata **string**'i, RPC bridge ise `Error` — ikisi de burada normalize ediliyor.
+- `components/shared/ErrorBanner.tsx` — VscWarning + mesaj + **Retry** +
+  **Copy diagnostics** + kapat. Mesaj **birebir** gösteriliyor (S7'nin
+  `list pods in cluster "prod": … forbidden` metni banner'ın kendisi).
+  Kapatma **mesaj başına**: aynı hata tekrar gelirse gizli kalıyor, farklı bir
+  hata banner'ı geri açıyor. Stil `theme-monolith.css`'te `--red`/`--amber` ile
+  (S14g'ye borç bırakmadan, hardcoded hex yok).
+- `components/shared/PanelErrorBoundary.tsx` + `withBoundary()` —
+  `DockviewContainer`'ın components map'i **tek seferde** sarıldı (modül
+  seviyesinde, yoksa her render'da yeni component identity'si tüm panelleri
+  remount ederdi), ayrıca `appmain.tsx`'te kök boundary (`root` varyantı
+  "Reload window" gösteriyor).
+- `lib/diagnosticsReport.ts` — `ExportTab`'ın `renderReport`'u buraya çıkarıldı;
+  `copyDiagnostics(context)` raporu kurup panoya yazıyor. Banner'ın ve crash
+  kartının "Copy diagnostics"i bunu çağırıyor, yani **25 panelin hiçbiri** bir
+  raporun neyden oluştuğunu bilmek zorunda değil. Backend raporu kurulamazsa
+  (ki hata anında en muhtemel durum) client tarafı bilgilerle kısmi rapor
+  kopyalanıyor.
+
+**`diagnosticsStore` genişletildi:** `uiErrors` + `recordUiError`. Boundary
+stack'i buraya yazıyor — Go log dosyası bir renderer crash'ini **göremez**, bu
+tek kayıt. `partialize` eklendi: sadece tercihler persist ediliyor, önceki
+oturumun crash'i bu oturumun raporuna sızmıyor (store'un kendi felsefesi zaten
+buydu).
+
+**El-yazımı view'lar (8d) + events:** `node`, `resourcequota`, `overview`,
+`monitoring` aynı `error`/`loading`/`refreshing` + banner kalıbını aldı.
+`overview`'ün tick'i `useCallback`'e çıkarıldı (Retry'ın çağırabilmesi için) ve
+ölü `activeRef` silindi; `monitoring`'inki de aynı şekilde, ayrıca ilk snapshot
+hiç gelmediğinde artık sonsuza kadar "Loading metrics…" yazmıyor.
+Plan `events`'i saymıyordu ama 8e'nin ölü Toast ref'i oradaydı ve view zaten
+hatayı sessizce yutuyordu — Toast silindi, yerine banner geldi.
+
+**8e'nin iki gerçek hatası:** `clusterTrend` `cpuTrend`/`memTrend` olarak
+ayrıldı (iki kart birbirinin **aynısını** çiziyordu; `metricsStore` zaten hem
+cpu hem mem tutuyor, store'a dokunmak gerekmedi). `events/main.tsx` ve
+`resourcequota/main.tsx`'teki kullanılmayan `Toast` ref'leri (+ import'ları)
+silindi.
+
+**Bedava alınan perf işi:** `buildInOptions` artık alan başına, değerlerin
+kendisinden türetilen bir imzayla önbelleklenmiş — değerler değişmediği sürece
+**aynı dizi kimliği** dönüyor. S14e'nin "her MultiSelect 2 saniyede bir yeniden
+render oluyor" maddesinin yarısı burada kapandı (kalan yarısı: `setItems`'ın
+kendisi).
+
+**Plandan bilinçli sapma:** plan `reload`'a `clusterName` değişiminde reset
+öneriyordu; eklendi, sonra **geri alındı** — `setItems([])` gate'ini kırıyordu
+ve panel zaten cluster'a pinli (CLAUDE.md), yani pratikte hiç tetiklenmiyor.
+
+**Testler (8f):** `lib/useResourceList.test.ts` (4) — reddeden fetcher `error`'ı
+set edip satırları **koruyor**, başarı `error`'ı temizliyor, `loading` yalnız
+ilk settle'a kadar true, `buildInOptions` aynı değerlerde aynı diziyi dönüyor.
+Ek olarak `components/shared/PanelErrorBoundary.test.tsx` (6) — boundary crash
+kartını çiziyor + stack'i store'a yazıyor, "Reload panel" subtree'yi remount
+ediyor, `uiErrors` persist **edilmiyor**, banner mesajı birebir gösteriyor ve
+mesaj başına kapanıyor. Toplam 17 test geçiyor.
+
+> Boundary testinde bir tuzak: "Reload panel" **children'ı remount ediyor ama
+> ebeveyni yeniden render etmiyor**, dolayısıyla throw'u prop olarak geçen bir
+> test kurgusu remount'u hiç göremez. Bayrağı render içinde okumak gerekiyor.
+
+**Verify çıktısı:** `npx tsc --noEmit` temiz, `npm run test` 17/17,
+`npm run build` geçti (`frontend/dist/.gitkeep` geri alındı), `npm run lint`
+**0 hata** (127 uyarı, hepsi önceden var olan `no-explicit-any` /
+`exhaustive-deps` sınıfı), `grep "setItems(\[\])" lib/useResourceList.ts` boş,
+`go build`/`go vet`/`go test ./...` etkilenmedi (backend'e tek satır
+dokunulmadı, binding yüzeyi değişmedi → `make bindings` gerekmedi).
+
+**Yapılmayan:** plandaki 4 maddelik manuel kontrol (ölü IP'li kubeconfig, RBAC'siz
+kullanıcı, sağlıklı+boş namespace, geçici `throw`) canlı cluster istiyor; bu
+oturumda koşulmadı. Dördüncüsünün mekaniği yukarıdaki boundary testiyle
+kapsanıyor.
 
 ---
 

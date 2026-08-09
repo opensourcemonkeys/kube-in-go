@@ -5,12 +5,14 @@ import { Chart } from 'primereact/chart';
 
 import { VscGraph, VscNote, VscTypeHierarchySub, VscClose } from 'react-icons/vsc';
 import { Tag } from 'primereact/tag';
-import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { ProgressSpinner } from 'primereact/progressspinner';
 import { GetNamespaces } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
+import { errText } from '../../lib/errText';
+import ErrorBanner from '../shared/ErrorBanner';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -146,17 +148,25 @@ function NamespaceGroup({ ns, onEdit }: {
 export default function ResourceQuotaListComponent({ clusterName }: { clusterName: string }) {
     const [namespaces, setNamespaces] = useState<models.NamespaceInfo[]>([]);
     const [nsFilter, setNsFilter] = useState('');
-    const toast = useRef<Toast | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [loaded, setLoaded] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const { openYamlPanel } = useTabContext();
 
     const loadData = async () => {
+        setRefreshing(true);
         try {
             const items = await GetNamespaces(clusterName);
             const all = items.map((item: any) => models.NamespaceInfo.createFrom(item));
             setNamespaces(all.filter((ns: models.NamespaceInfo) => ns.resource_quotas?.length > 0));
-        } catch (error) {
-            console.error('Failed to load resource quotas:', error);
-            setNamespaces([]);
+            setError(null);
+        } catch (e) {
+            // Last good quotas stay on screen; the banner marks them stale.
+            console.error('Failed to load resource quotas:', e);
+            setError(errText(e));
+        } finally {
+            setLoaded(true);
+            setRefreshing(false);
         }
     };
 
@@ -179,8 +189,6 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="bottom-right" />
-
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>Resource Quotas</h3>
                 <Tag value={`${totalQuotas} quota · ${filtered.length} namespace`} severity="info" />
@@ -195,17 +203,33 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
                 )}
             </div>
 
+            <ErrorBanner
+                message={error}
+                onRetry={loadData}
+                busy={refreshing}
+                stale={namespaces.length > 0}
+                context={`Resource Quotas (${clusterName})`}
+            />
+
+            {!loaded ? (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ProgressSpinner style={{ width: 40, height: 40 }} strokeWidth="4" />
+                </div>
+            ) : (
             <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {filtered.length === 0 ? (
+                    error ? null : (
                     <div style={{ color: 'var(--ink2)', padding: '2rem', textAlign: 'center' }}>
                         {nsFilter ? 'No matching namespaces.' : 'No Resource Quotas defined in any namespace.'}
                     </div>
+                    )
                 ) : (
                     filtered.map(ns => (
                         <NamespaceGroup key={ns.name} ns={ns} onEdit={handleEdit} />
                     ))
                 )}
             </div>
+            )}
         </div>
     );
 }

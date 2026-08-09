@@ -6,7 +6,6 @@ import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
-import { Toast } from 'primereact/toast';
 import { MultiSelect } from 'primereact/multiselect';
 import { ColumnFilterElementTemplateOptions } from 'primereact/column';
 import type { DockviewPanelApi } from 'dockview';
@@ -15,6 +14,8 @@ import { models } from '../../../wailsjs/go/models';
 import { useEventsStore, defaultEventFilters } from '../../stores/eventsStore';
 import { usePanelActive } from '../../lib/usePanelActive';
 import { useDeferredMount } from '../../lib/useDeferredMount';
+import { errText } from '../../lib/errText';
+import ErrorBanner from '../shared/ErrorBanner';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
@@ -85,7 +86,8 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
         [events]
     );
     const [selectedEvent, setSelectedEvent] = useState<models.EventInfo | null>(null);
-    const toast = useRef<Toast | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
 
     // PrimeReact's VirtualScroller captures its viewport height once at init()
     // time. With scrollHeight="flex" that height is purely CSS-flex-derived and
@@ -114,13 +116,19 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
     }, [active, showTable]);
 
     const loadEvents = async () => {
+        setRefreshing(true);
         try {
             const items = await GetEvents(clusterName);
             setEvents(items.map((item: any) => models.EventInfo.createFrom(item)));
-        } catch (error) {
+            setError(null);
+        } catch (e) {
             // Keep the last persisted snapshot on a transient fetch failure so the
-            // tab still shows where it left off instead of going blank.
-            console.error('Failed to load events:', error);
+            // tab still shows where it left off instead of going blank. Until S8
+            // that failure was invisible; now the banner says the rows are stale.
+            console.error('Failed to load events:', e);
+            setError(errText(e));
+        } finally {
+            setRefreshing(false);
         }
     };
 
@@ -145,8 +153,6 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <Toast ref={toast} position="bottom-right" />
-
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
                 <h3 style={{ margin: 0 }}>Event List</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
@@ -170,6 +176,14 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 </div>
             </div>
 
+            <ErrorBanner
+                message={error}
+                onRetry={loadEvents}
+                busy={refreshing}
+                stale={events.length > 0}
+                context={`Events (${clusterName})`}
+            />
+
             <div ref={tableWrapRef} style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {!showTable ? (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -191,7 +205,7 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 scrollable
                 scrollHeight={scrollHeight}
                 virtualScrollerOptions={{ itemSize: 46 }}
-                emptyMessage="No events found"
+                emptyMessage={error ? ' ' : 'No events found'}
                 sortField="last_timestamp"
                 sortOrder={-1}
                 onRowDoubleClick={(e: any) => setSelectedEvent(e.data as models.EventInfo)}
