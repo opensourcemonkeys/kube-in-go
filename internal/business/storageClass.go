@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetStorageClasses(clusterName string) []models.StorageClassInfo {
+func GetStorageClasses(clusterName string) ([]models.StorageClassInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetStorageClasses(client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list storageclasses in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetStorageClassYaml(clusterName string, name string) (string, error) {

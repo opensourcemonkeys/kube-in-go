@@ -129,7 +129,10 @@ func aiTools() []ai.Tool {
 			Schema:      `{"type":"object","properties":{"namespace":{"type":"string","description":"Filter to this namespace; omit for all namespaces"}}}`,
 			Run: func(clusterName string, args map[string]any) (string, error) {
 				ns := argStr(args, "namespace")
-				pods := GetPods(clusterName)
+				pods, err := GetPods(clusterName)
+				if err != nil {
+					return "", err
+				}
 				if ns != "" {
 					filtered := pods[:0:0]
 					for _, p := range pods {
@@ -148,7 +151,10 @@ func aiTools() []ai.Tool {
 			Schema:      `{"type":"object","properties":{"namespace":{"type":"string"}}}`,
 			Run: func(clusterName string, args map[string]any) (string, error) {
 				ns := argStr(args, "namespace")
-				deps := GetDeployments(clusterName)
+				deps, err := GetDeployments(clusterName)
+				if err != nil {
+					return "", err
+				}
 				if ns != "" {
 					filtered := deps[:0:0]
 					for _, d := range deps {
@@ -167,7 +173,10 @@ func aiTools() []ai.Tool {
 			Schema:      `{"type":"object","properties":{"namespace":{"type":"string"}}}`,
 			Run: func(clusterName string, args map[string]any) (string, error) {
 				ns := argStr(args, "namespace")
-				events := GetEvents(clusterName)
+				events, err := GetEvents(clusterName)
+				if err != nil {
+					return "", err
+				}
 				if ns != "" {
 					filtered := events[:0:0]
 					for _, e := range events {

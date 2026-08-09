@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetCronJobs(clusterName string) []models.CronJobInfo {
+func GetCronJobs(clusterName string) ([]models.CronJobInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetCronJobs("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list cronjobs in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func DeleteCronJob(clusterName string, name, namespace string) error {

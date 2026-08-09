@@ -118,8 +118,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "pods", title: "Pods", namespaced: true, isPods: true,
 			headers: []string{"NAMESPACE", "NAME", "STATUS", "CONTAINERS", "AGE", "LAST RESTART"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetPods(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, p := range business.GetPods(c) {
+				for _, p := range items {
 					rows = append(rows, rowData{name: p.Name, namespace: p.Namespace,
 						cells: []string{p.Namespace, p.Name, string(p.Status), iN(len(p.Containers)), humanSince(p.CreatedAt), humanSince(p.LastRestartAt)}})
 				}
@@ -132,8 +136,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "deployments", title: "Deployments", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "READY", "UPDATED", "AVAILABLE", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetDeployments(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, d := range business.GetDeployments(c) {
+				for _, d := range items {
 					rows = append(rows, rowData{name: d.Name, namespace: d.Namespace,
 						cells: []string{d.Namespace, d.Name, fmt.Sprintf("%d/%d", d.ReadyReplicas, d.Replicas), i32(d.UpdatedReplicas), i32(d.AvailableReplicas), dash(d.CreatedAt)}})
 				}
@@ -145,8 +153,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "statefulsets", title: "StatefulSets", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "READY", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetStatefulSets(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, s := range business.GetStatefulSets(c) {
+				for _, s := range items {
 					rows = append(rows, rowData{name: s.Name, namespace: s.Namespace,
 						cells: []string{s.Namespace, s.Name, fmt.Sprintf("%d/%d", s.ReadyReplicas, s.Replicas), dash(s.CreatedAt)}})
 				}
@@ -158,8 +170,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "replicasets", title: "ReplicaSets", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "READY", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetReplicaSets(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, r := range business.GetReplicaSets(c) {
+				for _, r := range items {
 					rows = append(rows, rowData{name: r.Name, namespace: r.Namespace,
 						cells: []string{r.Namespace, r.Name, fmt.Sprintf("%d/%d", r.ReadyReplicas, r.Replicas), dash(r.CreatedAt)}})
 				}
@@ -171,8 +187,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "daemonsets", title: "DaemonSets", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "DESIRED", "READY", "AVAILABLE", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetDaemonSets(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, d := range business.GetDaemonSets(c) {
+				for _, d := range items {
 					rows = append(rows, rowData{name: d.Name, namespace: d.Namespace,
 						cells: []string{d.Namespace, d.Name, i32(d.DesiredNumberScheduled), i32(d.NumberReady), i32(d.NumberAvailable), dash(d.CreatedAt)}})
 				}
@@ -184,8 +204,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "jobs", title: "Jobs", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "COMPLETIONS", "STATUS", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetJobs(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, j := range business.GetJobs(c) {
+				for _, j := range items {
 					rows = append(rows, rowData{name: j.Name, namespace: j.Namespace,
 						cells: []string{j.Namespace, j.Name, fmt.Sprintf("%d/%d", j.Succeeded, j.Completions), dash(j.Status), dash(j.CreatedAt)}})
 				}
@@ -197,8 +221,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "cronjobs", title: "CronJobs", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "SCHEDULE", "SUSPEND", "ACTIVE", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetCronJobs(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, cj := range business.GetCronJobs(c) {
+				for _, cj := range items {
 					rows = append(rows, rowData{name: cj.Name, namespace: cj.Namespace,
 						cells: []string{cj.Namespace, cj.Name, dash(cj.Schedule), boolStr(cj.Suspend), iN(cj.ActiveCount), dash(cj.CreatedAt)}})
 				}
@@ -210,8 +238,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "services", title: "Services", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "TYPE", "CLUSTER-IP", "PORTS", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetServices(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, s := range business.GetServices(c) {
+				for _, s := range items {
 					var ports []string
 					for _, p := range s.Ports {
 						ports = append(ports, fmt.Sprintf("%d/%s", p.Port, p.Protocol))
@@ -227,8 +259,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "ingresses", title: "Ingresses", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "CLASS", "HOSTS", "ADDRESS", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetIngresses(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, ig := range business.GetIngresses(c) {
+				for _, ig := range items {
 					var hosts []string
 					for _, r := range ig.Rules {
 						hosts = append(hosts, r.Host)
@@ -244,8 +280,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "ingressclasses", title: "Ingress Classes", namespaced: false,
 			headers: []string{"NAME", "CONTROLLER", "DEFAULT", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetIngressClasses(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, ic := range business.GetIngressClasses(c) {
+				for _, ic := range items {
 					rows = append(rows, rowData{name: ic.Name, namespace: "",
 						cells: []string{ic.Name, dash(ic.Controller), boolStr(ic.IsDefault), dash(ic.CreatedAt)}})
 				}
@@ -257,8 +297,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "endpoints", title: "Endpoints", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "READY", "NOT-READY", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetEndpoints(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, e := range business.GetEndpoints(c) {
+				for _, e := range items {
 					rows = append(rows, rowData{name: e.Name, namespace: e.Namespace,
 						cells: []string{e.Namespace, e.Name, iN(e.Ready), iN(e.NotReady), dash(e.CreatedAt)}})
 				}
@@ -270,8 +314,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "networkpolicies", title: "Network Policies", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "POD-SELECTOR", "TYPES", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetNetworkPolicies(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, n := range business.GetNetworkPolicies(c) {
+				for _, n := range items {
 					rows = append(rows, rowData{name: n.Name, namespace: n.Namespace,
 						cells: []string{n.Namespace, n.Name, dash(n.PodSelector), join(n.PolicyTypes), dash(n.CreatedAt)}})
 				}
@@ -283,8 +331,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "configmaps", title: "ConfigMaps", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "DATA", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetConfigMaps(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, cm := range business.GetConfigMaps(c) {
+				for _, cm := range items {
 					rows = append(rows, rowData{name: cm.Name, namespace: cm.Namespace,
 						cells: []string{cm.Namespace, cm.Name, iN(cm.DataCount), dash(cm.CreatedAt)}})
 				}
@@ -296,8 +348,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "secrets", title: "Secrets", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "TYPE", "DATA", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetSecrets(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, s := range business.GetSecrets(c) {
+				for _, s := range items {
 					rows = append(rows, rowData{name: s.Name, namespace: s.Namespace,
 						cells: []string{s.Namespace, s.Name, dash(s.Type), iN(s.DataCount), dash(s.CreatedAt)}})
 				}
@@ -309,8 +365,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "serviceaccounts", title: "Service Accounts", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "SECRETS", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetServiceAccounts(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, sa := range business.GetServiceAccounts(c) {
+				for _, sa := range items {
 					rows = append(rows, rowData{name: sa.Name, namespace: sa.Namespace,
 						cells: []string{sa.Namespace, sa.Name, iN(sa.Secrets), dash(sa.CreatedAt)}})
 				}
@@ -322,8 +382,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "roles", title: "Roles", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "RULES", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetRoles(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, r := range business.GetRoles(c) {
+				for _, r := range items {
 					rows = append(rows, rowData{name: r.Name, namespace: r.Namespace,
 						cells: []string{r.Namespace, r.Name, iN(len(r.Rules)), dash(r.CreatedAt)}})
 				}
@@ -335,8 +399,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "rolebindings", title: "Role Bindings", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "ROLE", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetRoleBindings(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, rb := range business.GetRoleBindings(c) {
+				for _, rb := range items {
 					rows = append(rows, rowData{name: rb.Name, namespace: rb.Namespace,
 						cells: []string{rb.Namespace, rb.Name, dash(rb.RoleRefName), dash(rb.CreatedAt)}})
 				}
@@ -348,8 +416,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "persistentvolumes", title: "Persistent Volumes", namespaced: false,
 			headers: []string{"NAME", "STATUS", "CAPACITY", "RECLAIM", "STORAGECLASS", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetPersistentVolumes(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, pv := range business.GetPersistentVolumes(c) {
+				for _, pv := range items {
 					rows = append(rows, rowData{name: pv.Name, namespace: "",
 						cells: []string{pv.Name, dash(pv.Status), dash(pv.Capacity), dash(pv.ReclaimPolicy), dash(pv.StorageClassName), dash(pv.CreatedAt)}})
 				}
@@ -361,8 +433,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "persistentvolumeclaims", title: "Volume Claims", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "STATUS", "VOLUME", "CAPACITY", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetPersistentVolumeClaims(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, pvc := range business.GetPersistentVolumeClaims(c) {
+				for _, pvc := range items {
 					rows = append(rows, rowData{name: pvc.Name, namespace: pvc.Namespace,
 						cells: []string{pvc.Namespace, pvc.Name, dash(pvc.Status), dash(pvc.VolumeName), dash(pvc.Request), dash(pvc.CreatedAt)}})
 				}
@@ -374,8 +450,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "storageclasses", title: "Storage Classes", namespaced: false,
 			headers: []string{"NAME", "PROVISIONER", "RECLAIM", "BINDING", "DEFAULT"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetStorageClasses(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, sc := range business.GetStorageClasses(c) {
+				for _, sc := range items {
 					rows = append(rows, rowData{name: sc.Name, namespace: "",
 						cells: []string{sc.Name, dash(sc.Provisioner), dash(sc.ReclaimPolicy), dash(sc.VolumeBindingMode), boolStr(sc.IsDefault)}})
 				}
@@ -387,8 +467,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "nodes", title: "Nodes", namespaced: false,
 			headers: []string{"NAME", "STATUS", "INTERNAL-IP", "VERSION", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetNodes(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, n := range business.GetNodes(c) {
+				for _, n := range items {
 					status := n.Status
 					if n.Unschedulable {
 						status += ",SchedDisabled"
@@ -410,8 +494,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "namespaces", title: "Namespaces", namespaced: false,
 			headers: []string{"NAME", "STATUS"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetNamespaces(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, ns := range business.GetNamespaces(c) {
+				for _, ns := range items {
 					rows = append(rows, rowData{name: ns.Name, namespace: "", cells: []string{ns.Name, dash(ns.Status)}})
 				}
 				return rows, nil
@@ -423,8 +511,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "events", title: "Events", namespaced: true,
 			headers: []string{"NAMESPACE", "TYPE", "REASON", "OBJECT", "MESSAGE", "COUNT"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetEvents(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, e := range business.GetEvents(c) {
+				for _, e := range items {
 					rows = append(rows, rowData{name: e.Name, namespace: e.Namespace,
 						cells: []string{e.Namespace, dash(e.Type), dash(e.Reason), dash(e.Object), dash(e.Message), i32(e.Count)}})
 				}
@@ -465,8 +557,12 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			view: "limitranges", title: "Limit Ranges", namespaced: true,
 			headers: []string{"NAMESPACE", "NAME", "ITEMS", "AGE"},
 			list: func(c string) ([]rowData, error) {
+				items, err := business.GetLimitRanges(c)
+				if err != nil {
+					return nil, err
+				}
 				var rows []rowData
-				for _, lr := range business.GetLimitRanges(c) {
+				for _, lr := range items {
 					rows = append(rows, rowData{name: lr.Name, namespace: lr.Namespace,
 						cells: []string{lr.Namespace, lr.Name, iN(len(lr.Limits)), dash(lr.CreatedAt)}})
 				}

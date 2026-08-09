@@ -13,7 +13,7 @@
 - [x] **S4** — IPC hub sertleştirme *(güvenlik)* ✅
 - [x] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı ✅
 - [x] **S6** — Yerel loglama + diagnostics paneli ✅
-- [ ] **S7** — 24 business fonksiyonuna error return *(en riskli)*
+- [x] **S7** — 24 business fonksiyonuna error return *(en riskli)* ✅
 - [ ] **S8** — UI'da hata + yükleme durumu
 - [ ] **S9** — Describe, Resource Quota, eksik delete/update, namespace create
 - [ ] **S10** — Scale ve Rollout Restart
@@ -422,7 +422,7 @@ TUI ekranına tek satır sızmıyor; backend + cli kayıtları tek dosyada, `jq`
 
 ---
 
-## Step 7 — 24 business list fonksiyonuna error return (BACKEND)
+## Step 7 — 24 business list fonksiyonuna error return (BACKEND) ✅
 
 **Risk: YÜKSEK / breaking — plandaki en büyük mekanik değişiklik.** Dokunmadan önce bu bölümün tamamını oku.
 
@@ -500,13 +500,75 @@ GOEXPERIMENT=jsonv2 go build ./... && GOEXPERIMENT=jsonv2 go vet ./...
 grep -rn "^func Get[A-Za-z]*(clusterName string) \[\]models\." internal/business/   # boş olmalı
 # S6'dan devralındı: business'ın 48 print'i bu step'te error return'e dönüşüyor,
 # dolayısıyla repo geneli print gate'i ancak burada geçebilir.
-grep -rn "fmt.Print\|log.Print" internal/ | grep -v _test.go | grep -v internal/tui   # boş olmalı
+# NOT: plandaki ilk hâli (`grep -rn "fmt.Print\|log.Print"`) boş çıkmıyor — `.`
+# wildcard olduğu için internal/logging/{logging.go:19,stdlib.go:18}'deki iki DÜZ
+# YORUM satırı ("...swallowed every log.Print in this binary...") eşleşiyor.
+# Kodda kalan print yok; gate'in kendisi hatalıydı. Doğru hâli:
+grep -rnE '(^|[^/[:alnum:]_.])(fmt|log)\.Print' internal/ \
+  | grep -v _test.go | grep -v internal/tui | grep -v internal/logging          # boş olmalı
 grep -rn "wailsapp/wails" internal/tui cmd/tui                                      # boş olmalı
+
+# Binding yüzeyinin DEĞİŞMEDİĞİNİ kanıtla (bu step'in temel varsayımı):
+cp frontend/wailsjs/go/controller_app/App.d.ts /tmp/App.d.ts.before
 rm -rf frontend/wailsjs && make bindings
+diff /tmp/App.d.ts.before frontend/wailsjs/go/controller_app/App.d.ts   # boş olmalı
 cd frontend && npx tsc --noEmit    # SIFIR değişiklikle geçmeli — 1. maddeyi kanıtlar
 GOEXPERIMENT=jsonv2 go build ./cmd/tui
 ```
+> `npm run build` `frontend/dist`'i boşaltıp **takipli `.gitkeep`'i siliyor**
+> (CLAUDE.md'deki uyarı). Frontend build'inden sonra `git checkout -- frontend/dist/.gitkeep`.
+
 Manuel: ölü IP'li kubeconfig ile TUI → boş tablo değil, bağlantı hatası göstermeli.
+
+### Uygulandı — sonuç
+
+**Kırılan çağrı sitesi tam olarak 51'di, 3 dosyada** (repo geneli çıplak-isim
+taramasıyla doğrulandı): `functionBuilder.go` 24 wrapper, `tui/registry.go` 24
+closure, `business/ai.go` 3 tool. **Planın "diğer TUI çağıranları grep'le" notu boş
+çıktı** — `monitoring/exec/logs/crd/clusters/describe.go` yalnızca zaten error dönen
+fonksiyonları çağırıyor. `metrics.go`/`securityGraph.go`/`resourceQuota.go`/
+`diagnostics.go` doğrudan `services.*` çağırdığı için etkilenmedi.
+
+**1. maddesi kanıtlandı:** regen sonrası `App.d.ts` **ve** `App.js` bayt bayt aynı
+(`diff` boş). Frontend'de tek satır değişmedi, `tsc --noEmit` + `npm run build` geçti.
+
+**Frontend regresyon riski yok:** bu 24'ün her frontend çağrı sitesi zaten
+`try/catch` içindeydi — `useResourceList.ts` (21 view) + el-yazımı dördü
+(`node`, `resourcequota`, `events`, `overview`'ün `Promise.all`'u). Reject
+sessizce yutuluyor; banner S8'in işi. Unhandled rejection üretilmiyor.
+
+**`"fmt"` import'u 24 dosyada da kaldı** — `fmt.Println` gitti, `fmt.Errorf` geldi.
+Sarmalamayı bırakıp çıplak `return nil, err` seçilseydi 24 import'un da silinmesi
+gerekirdi.
+
+**`pod.go` + `node.go`:** metrics client toleranslı bırakıldı ama artık `_` ile
+yutulmuyor — `logging.With("business.{pod,node}").Debug` ile loglanıyor.
+`node.go`/`namespace.go`'nun `[]models.X{}` dönen ikinci şekli `nil, err`'de
+birleştirildi.
+
+**`tui/resourcelist.go` — ticker hatayı yutuyordu, düzeltildi.** Ama `a.flash`
+**bloklayan bir modal**, status bar değil: her tick'te modal açmak fokusu çalardı.
+Bunun yerine `listErr` durumu eklendi ve `render` çiziyor — boş tabloda `(no items)`
+yerine hata metni (`colDanger`), dolu tabloda başlıkta `· stale`. Modal yalnızca
+manuel yolda (`r` tuşu / ilk yükleme) kalıyor. Ayrıca `reload` artık hatada
+`allRows`'u **ezmiyor**: geçici bir hata okunan tabloyu boşaltmasın diye son iyi
+satırlar korunuyor — S8'in frontend'de vereceği kararla aynı.
+
+**Not:** `resourcequotas` ve `crds` closure'ları zaten hedef şekildeydi, 24'e dahil
+değil, dokunulmadı.
+
+**Üretilen hata metni — ölçüldü** (geçici bir `127.0.0.1:1` kubeconfig'i ile;
+dosya ve geçici test sonrasında silindi). S8 banner'ının göstereceği metin bu:
+```
+list pods in cluster "s7-deadip-check": Get "https://127.0.0.1:1/api/v1/pods":
+    dial tcp 127.0.0.1:1: connect: connection refused
+list nodes in cluster "s7-deadip-check": Get "https://127.0.0.1:1/api/v1/nodes":
+    dial tcp 127.0.0.1:1: connect: connection refused
+connect to cluster "s7-no-such-cluster":
+    stat /home/mfx/.kube-ins/s7-no-such-cluster.yaml: no such file or directory
+```
+Yani iki dal ayırt edilebiliyor: **`connect to cluster ...`** = kubeconfig/erişim,
+**`list <kind> in cluster ...`** = API çağrısı (RBAC 403 buraya düşer).
 
 ---
 

@@ -8,18 +8,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetServiceAccounts(clusterName string) []models.ServiceAccountInfo {
+func GetServiceAccounts(clusterName string) ([]models.ServiceAccountInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetServiceAccounts("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list serviceaccounts in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetServiceAccountYaml(clusterName string, name, namespace string) (string, error) {

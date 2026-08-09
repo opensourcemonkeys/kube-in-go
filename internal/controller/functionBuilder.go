@@ -112,7 +112,7 @@ func (a *App) GetK8sSchema() string {
 // Cluster Screen: Nodes & Namespaces
 // ============================================================================
 
-func (a *App) GetNodes(clusterName string) []models.NodeInfo {
+func (a *App) GetNodes(clusterName string) ([]models.NodeInfo, error) {
 	return bussiness.GetNodes(clusterName)
 }
 
@@ -120,7 +120,7 @@ func (a *App) GetMetricsSnapshot(clusterName string) (models.MetricsSnapshot, er
 	return bussiness.GetMetricsSnapshot(clusterName)
 }
 
-func (a *App) GetNamespaces(clusterName string) []models.NamespaceInfo {
+func (a *App) GetNamespaces(clusterName string) ([]models.NamespaceInfo, error) {
 	return bussiness.GetNamespaces(clusterName)
 }
 
@@ -164,7 +164,7 @@ func (a *App) UpdateNodeYaml(clusterName string, name string, yamlContent string
 // Workloads Screen: Pods
 // ============================================================================
 
-func (a *App) GetPods(clusterName string) []models.PodInfo {
+func (a *App) GetPods(clusterName string) ([]models.PodInfo, error) {
 	return bussiness.GetPods(clusterName)
 }
 
@@ -199,7 +199,7 @@ func (a *App) ClosePodExecSession(sessionId string) error {
 // Workloads Screen: Deployments
 // ============================================================================
 
-func (a *App) GetDeployments(clusterName string) []models.DeploymentInfo {
+func (a *App) GetDeployments(clusterName string) ([]models.DeploymentInfo, error) {
 	return bussiness.GetDeployments(clusterName)
 }
 
@@ -219,7 +219,7 @@ func (a *App) UpdateDeploymentYaml(clusterName string, name string, namespace st
 // Workloads Screen: StatefulSets
 // ============================================================================
 
-func (a *App) GetStatefulSets(clusterName string) []models.StatefulSetInfo {
+func (a *App) GetStatefulSets(clusterName string) ([]models.StatefulSetInfo, error) {
 	return bussiness.GetStatefulSets(clusterName)
 }
 
@@ -239,7 +239,7 @@ func (a *App) UpdateStatefulSetYaml(clusterName string, name string, namespace s
 // Workloads Screen: ReplicaSets
 // ============================================================================
 
-func (a *App) GetReplicaSets(clusterName string) []models.ReplicaSetInfo {
+func (a *App) GetReplicaSets(clusterName string) ([]models.ReplicaSetInfo, error) {
 	return bussiness.GetReplicaSets(clusterName)
 }
 
@@ -259,7 +259,7 @@ func (a *App) UpdateReplicaSetYaml(clusterName string, name string, namespace st
 // Workloads Screen: DaemonSets
 // ============================================================================
 
-func (a *App) GetDaemonSets(clusterName string) []models.DaemonSetInfo {
+func (a *App) GetDaemonSets(clusterName string) ([]models.DaemonSetInfo, error) {
 	return bussiness.GetDaemonSets(clusterName)
 }
 
@@ -279,7 +279,7 @@ func (a *App) UpdateDaemonSetYaml(clusterName string, name string, namespace str
 // Workloads Screen: Jobs & CronJobs
 // ============================================================================
 
-func (a *App) GetJobs(clusterName string) []models.JobInfo {
+func (a *App) GetJobs(clusterName string) ([]models.JobInfo, error) {
 	return bussiness.GetJobs(clusterName)
 }
 
@@ -291,7 +291,7 @@ func (a *App) GetJobYaml(clusterName string, name string, namespace string) (str
 	return bussiness.GetJobYaml(clusterName, name, namespace)
 }
 
-func (a *App) GetCronJobs(clusterName string) []models.CronJobInfo {
+func (a *App) GetCronJobs(clusterName string) ([]models.CronJobInfo, error) {
 	return bussiness.GetCronJobs(clusterName)
 }
 
@@ -311,7 +311,7 @@ func (a *App) UpdateCronJobYaml(clusterName string, name string, namespace strin
 // Configuration Screen: Secrets
 // ============================================================================
 
-func (a *App) GetSecrets(clusterName string) []models.SecretInfo {
+func (a *App) GetSecrets(clusterName string) ([]models.SecretInfo, error) {
 	return bussiness.GetSecrets(clusterName)
 }
 
@@ -339,7 +339,7 @@ func (a *App) UpdateSecretData(clusterName string, name string, namespace string
 // Configuration Screen: ConfigMaps
 // ============================================================================
 
-func (a *App) GetConfigMaps(clusterName string) []models.ConfigMapInfo {
+func (a *App) GetConfigMaps(clusterName string) ([]models.ConfigMapInfo, error) {
 	return bussiness.GetConfigMaps(clusterName)
 }
 
@@ -367,7 +367,7 @@ func (a *App) UpdateConfigMapData(clusterName string, name string, namespace str
 // Access Control: ServiceAccounts, Roles, RoleBindings
 // ============================================================================
 
-func (a *App) GetServiceAccounts(clusterName string) []models.ServiceAccountInfo {
+func (a *App) GetServiceAccounts(clusterName string) ([]models.ServiceAccountInfo, error) {
 	return bussiness.GetServiceAccounts(clusterName)
 }
 
@@ -383,7 +383,7 @@ func (a *App) UpdateServiceAccount(clusterName string, name string, namespace st
 	return bussiness.UpdateServiceAccount(clusterName, name, namespace, labels, annotations)
 }
 
-func (a *App) GetRoles(clusterName string) []models.RoleInfo {
+func (a *App) GetRoles(clusterName string) ([]models.RoleInfo, error) {
 	return bussiness.GetRoles(clusterName)
 }
 
@@ -399,7 +399,7 @@ func (a *App) UpdateRole(clusterName string, name string, namespace string, labe
 	return bussiness.UpdateRole(clusterName, name, namespace, labels, annotations, rules)
 }
 
-func (a *App) GetRoleBindings(clusterName string) []models.RoleBindingInfo {
+func (a *App) GetRoleBindings(clusterName string) ([]models.RoleBindingInfo, error) {
 	return bussiness.GetRoleBindings(clusterName)
 }
 
@@ -471,7 +471,7 @@ func (a *App) CloseCliModeSession(id string) error {
 // Network Screen: Network Policies
 // ============================================================================
 
-func (a *App) GetNetworkPolicies(clusterName string) []models.NetworkPolicyInfo {
+func (a *App) GetNetworkPolicies(clusterName string) ([]models.NetworkPolicyInfo, error) {
 	return bussiness.GetNetworkPolicies(clusterName)
 }
 
@@ -499,7 +499,7 @@ func (a *App) ParseNetworkPolicyYaml(yamlContent string) (*models.NetworkPolicyD
 // Network Screen: Services
 // ============================================================================
 
-func (a *App) GetServices(clusterName string) []models.ServiceInfo {
+func (a *App) GetServices(clusterName string) ([]models.ServiceInfo, error) {
 	return bussiness.GetServices(clusterName)
 }
 
@@ -519,7 +519,7 @@ func (a *App) UpdateServiceYaml(clusterName string, name string, namespace strin
 // Cluster Screen: LimitRanges
 // ============================================================================
 
-func (a *App) GetLimitRanges(clusterName string) []models.LimitRangeInfo {
+func (a *App) GetLimitRanges(clusterName string) ([]models.LimitRangeInfo, error) {
 	return bussiness.GetLimitRanges(clusterName)
 }
 
@@ -535,7 +535,7 @@ func (a *App) UpdateLimitRangeYaml(clusterName string, name string, namespace st
 // Cluster Screen: Events
 // ============================================================================
 
-func (a *App) GetEvents(clusterName string) []models.EventInfo {
+func (a *App) GetEvents(clusterName string) ([]models.EventInfo, error) {
 	return bussiness.GetEvents(clusterName)
 }
 
@@ -543,7 +543,7 @@ func (a *App) GetEvents(clusterName string) []models.EventInfo {
 // Network Screen: Ingresses
 // ============================================================================
 
-func (a *App) GetIngresses(clusterName string) []models.IngressInfo {
+func (a *App) GetIngresses(clusterName string) ([]models.IngressInfo, error) {
 	return bussiness.GetIngresses(clusterName)
 }
 
@@ -563,7 +563,7 @@ func (a *App) UpdateIngressYaml(clusterName string, name string, namespace strin
 // Network Screen: IngressClasses
 // ============================================================================
 
-func (a *App) GetIngressClasses(clusterName string) []models.IngressClassInfo {
+func (a *App) GetIngressClasses(clusterName string) ([]models.IngressClassInfo, error) {
 	return bussiness.GetIngressClasses(clusterName)
 }
 
@@ -575,7 +575,7 @@ func (a *App) GetIngressClassYaml(clusterName string, name string) (string, erro
 // Network Screen: Endpoints
 // ============================================================================
 
-func (a *App) GetEndpoints(clusterName string) []models.EndpointInfo {
+func (a *App) GetEndpoints(clusterName string) ([]models.EndpointInfo, error) {
 	return bussiness.GetEndpoints(clusterName)
 }
 
@@ -587,7 +587,7 @@ func (a *App) GetEndpointYaml(clusterName string, name string, namespace string)
 // Storage Screen: Persistent Volumes
 // ============================================================================
 
-func (a *App) GetPersistentVolumes(clusterName string) []models.PersistentVolumeInfo {
+func (a *App) GetPersistentVolumes(clusterName string) ([]models.PersistentVolumeInfo, error) {
 	return bussiness.GetPersistentVolumes(clusterName)
 }
 
@@ -599,7 +599,7 @@ func (a *App) GetPersistentVolumeYaml(clusterName string, name string) (string, 
 // Storage Screen: Persistent Volume Claims
 // ============================================================================
 
-func (a *App) GetPersistentVolumeClaims(clusterName string) []models.PersistentVolumeClaimInfo {
+func (a *App) GetPersistentVolumeClaims(clusterName string) ([]models.PersistentVolumeClaimInfo, error) {
 	return bussiness.GetPersistentVolumeClaims(clusterName)
 }
 
@@ -615,7 +615,7 @@ func (a *App) GetPersistentVolumeClaimYaml(clusterName string, name string, name
 // Storage Screen: Storage Classes
 // ============================================================================
 
-func (a *App) GetStorageClasses(clusterName string) []models.StorageClassInfo {
+func (a *App) GetStorageClasses(clusterName string) ([]models.StorageClassInfo, error) {
 	return bussiness.GetStorageClasses(clusterName)
 }
 

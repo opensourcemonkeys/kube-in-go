@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetConfigMaps(clusterName string) []models.ConfigMapInfo {
+func GetConfigMaps(clusterName string) ([]models.ConfigMapInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetConfigMaps("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list configmaps in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func DeleteConfigMap(clusterName string, name, namespace string) error {

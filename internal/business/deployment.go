@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetDeployments(clusterName string) []models.DeploymentInfo {
+func GetDeployments(clusterName string) ([]models.DeploymentInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetDeployments("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list deployments in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func DeleteDeployment(clusterName string, name, namespace string) error {

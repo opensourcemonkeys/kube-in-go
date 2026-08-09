@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetReplicaSets(clusterName string) []models.ReplicaSetInfo {
+func GetReplicaSets(clusterName string) ([]models.ReplicaSetInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetReplicaSets("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list replicasets in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func DeleteReplicaSet(clusterName string, name, namespace string) error {

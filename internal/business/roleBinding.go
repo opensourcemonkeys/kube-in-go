@@ -8,18 +8,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetRoleBindings(clusterName string) []models.RoleBindingInfo {
+func GetRoleBindings(clusterName string) ([]models.RoleBindingInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetRoleBindings("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list rolebindings in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetRoleBindingYaml(clusterName string, name, namespace string) (string, error) {

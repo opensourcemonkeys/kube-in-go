@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetEndpoints(clusterName string) []models.EndpointInfo {
+func GetEndpoints(clusterName string) ([]models.EndpointInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetEndpoints("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list endpoints in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetEndpointYaml(clusterName string, name, namespace string) (string, error) {

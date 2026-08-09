@@ -34,6 +34,11 @@ func (a *App) buildResource(def *resourceDef) (tview.Primitive, *tview.Table, st
 
 	var allRows []rowData
 	var shown []rowData
+	// Text of the last failed list, or "" when the last fetch succeeded. Drawn by
+	// render so a failing cluster is visible without a modal — the auto-refresh
+	// runs every few seconds and cannot pop one up per tick. Only ever touched on
+	// the UI thread (render/reload, and the ticker's QueueUpdateDraw callback).
+	var listErr string
 	statusCol := statusColumnIndex(def.headers)
 
 	render := func(query string) {
@@ -61,7 +66,14 @@ func (a *App) buildResource(def *resourceDef) (tview.Primitive, *tview.Table, st
 			}
 		}
 		if len(shown) == 0 {
-			table.SetCell(1, 0, tview.NewTableCell(" (no items) ").SetTextColor(colMuted).SetSelectable(false))
+			// "the cluster says there is nothing here" and "we could not ask the
+			// cluster" used to draw the identical empty table; show the wrapped
+			// error instead so RBAC-403 and a dead API server are legible.
+			msg, color := " (no items) ", colMuted
+			if listErr != "" {
+				msg, color = " "+listErr+" ", colDanger
+			}
+			table.SetCell(1, 0, tview.NewTableCell(msg).SetTextColor(color).SetSelectable(false))
 		} else {
 			if prevRow < 1 {
 				prevRow = 1
@@ -71,17 +83,31 @@ func (a *App) buildResource(def *resourceDef) (tview.Primitive, *tview.Table, st
 			}
 			table.Select(prevRow, 0)
 		}
-		table.SetTitle(fmt.Sprintf(" %s (%d) ", def.title, len(shown)))
+		title := fmt.Sprintf(" %s (%d) ", def.title, len(shown))
+		if listErr != "" && len(shown) > 0 {
+			// Rows survived a failed refresh: say so, rather than letting the user
+			// read stale data as live.
+			title = fmt.Sprintf(" %s (%d) · stale ", def.title, len(shown))
+		}
+		table.SetTitle(title)
 	}
 
+	// reload runs on the UI thread: initial load and the manual 'r' key. The modal
+	// is fine here because the user asked for the refresh; the ticker below must
+	// not use one.
 	reload := func() {
 		start := time.Now()
 		rows, err := def.list(a.cluster)
 		a.updateRate(time.Since(start), err == nil)
 		if err != nil {
-			a.flash("Error", err.Error(), colDanger)
+			listErr = err.Error()
+			a.flash("Error", listErr, colDanger)
+		} else {
+			// Keep the last good rows on a failed refresh — a transient error
+			// should not blank a table the user is reading; the title says stale.
+			listErr = ""
+			allRows = rows
 		}
-		allRows = rows
 		render(filter.GetText())
 	}
 	reload()
@@ -112,10 +138,18 @@ func (a *App) buildResource(def *resourceDef) (tview.Primitive, *tview.Table, st
 				}
 				a.app.QueueUpdateDraw(func() {
 					a.updateRate(elapsed, err == nil)
-					if err == nil {
+					if err != nil {
+						// Surface it in the table rather than swallowing it: a
+						// persistently failing list would otherwise freeze on stale
+						// rows with only the rate readout hinting at trouble. No
+						// modal here — this fires every few seconds and would steal
+						// focus from whatever the user is doing.
+						listErr = err.Error()
+					} else {
+						listErr = ""
 						allRows = rows
-						render(filter.GetText())
 					}
+					render(filter.GetText())
 				})
 			}
 		}

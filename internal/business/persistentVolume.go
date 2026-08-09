@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetPersistentVolumes(clusterName string) []models.PersistentVolumeInfo {
+func GetPersistentVolumes(clusterName string) ([]models.PersistentVolumeInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetPersistentVolumes(client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list persistentvolumes in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetPersistentVolumeYaml(clusterName string, name string) (string, error) {

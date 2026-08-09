@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetSecrets(clusterName string) []models.SecretInfo {
+func GetSecrets(clusterName string) ([]models.SecretInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetSecrets("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list secrets in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func DeleteSecret(clusterName string, name, namespace string) error {

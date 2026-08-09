@@ -2,6 +2,7 @@ package business
 
 import (
 	"fmt"
+	"kube-ins/internal/logging"
 	"kube-ins/internal/models"
 	repository "kube-ins/internal/repository"
 	services "kube-ins/internal/services"
@@ -47,17 +48,21 @@ func DrainNode(clusterName string, name string) error {
 	return services.DrainNode(name, client)
 }
 
-func GetNodes(clusterName string) []models.NodeInfo {
+func GetNodes(clusterName string) ([]models.NodeInfo, error) {
 	k8sClient, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println("GetNodes k8s client error:", err)
-		return []models.NodeInfo{}
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
-	metricsClient, _ := repository.NewMetricsClientForCluster(clusterName)
+	// metrics-server is optional: a nil client makes the service report usage as
+	// unavailable rather than failing the whole listing.
+	metricsClient, err := repository.NewMetricsClientForCluster(clusterName)
+	if err != nil {
+		logging.With("business.node").Debug("metrics-server unavailable",
+			"cluster", clusterName, "err", err)
+	}
 	result, err := services.GetNodes(k8sClient, metricsClient)
 	if err != nil {
-		fmt.Println("GetNodes error:", err)
-		return []models.NodeInfo{}
+		return nil, fmt.Errorf("list nodes in cluster %q: %w", clusterName, err)
 	}
-	return result
+	return result, nil
 }

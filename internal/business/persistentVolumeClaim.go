@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetPersistentVolumeClaims(clusterName string) []models.PersistentVolumeClaimInfo {
+func GetPersistentVolumeClaims(clusterName string) ([]models.PersistentVolumeClaimInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetPersistentVolumeClaims("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list persistentvolumeclaims in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func DeletePersistentVolumeClaim(clusterName string, name string, namespace string) error {

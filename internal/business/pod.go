@@ -2,28 +2,31 @@ package business
 
 import (
 	"fmt"
+	"kube-ins/internal/logging"
 	"kube-ins/internal/models"
 	repository "kube-ins/internal/repository"
 	services "kube-ins/internal/services"
 )
 
 // GetPods exposes pod data to the Wails app context.
-func GetPods(clusterName string) []models.PodInfo {
+func GetPods(clusterName string) ([]models.PodInfo, error) {
 
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	// metrics-server is optional: a nil client makes the service report usage as
 	// unavailable rather than failing the whole listing.
-	mc, _ := repository.NewMetricsClientForCluster(clusterName)
+	mc, err := repository.NewMetricsClientForCluster(clusterName)
+	if err != nil {
+		logging.With("business.pod").Debug("metrics-server unavailable",
+			"cluster", clusterName, "err", err)
+	}
 	podItem, err := services.GetPods("", client, mc)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list pods in cluster %q: %w", clusterName, err)
 	}
-	return podItem
+	return podItem, nil
 }
 
 func DeletePod(clusterName string, name string, namespace string) error {

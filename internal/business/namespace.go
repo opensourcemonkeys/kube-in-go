@@ -23,16 +23,14 @@ func GetNamespaceYaml(clusterName string, name string) (string, error) {
 	return services.GetNamespaceYaml(name, client)
 }
 
-func GetNamespaces(clusterName string) []models.NamespaceInfo {
+func GetNamespaces(clusterName string) ([]models.NamespaceInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println("GetNamespaces k8s client error:", err)
-		return []models.NamespaceInfo{}
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	result, err := services.GetNamespaces(client)
 	if err != nil {
-		fmt.Println("GetNamespaces error:", err)
-		return []models.NamespaceInfo{}
+		return nil, fmt.Errorf("list namespaces in cluster %q: %w", clusterName, err)
 	}
-	return result
+	return result, nil
 }

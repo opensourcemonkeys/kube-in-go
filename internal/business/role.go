@@ -8,18 +8,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetRoles(clusterName string) []models.RoleInfo {
+func GetRoles(clusterName string) ([]models.RoleInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetRoles("", client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list roles in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetRoleYaml(clusterName string, name, namespace string) (string, error) {

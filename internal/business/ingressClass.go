@@ -7,18 +7,16 @@ import (
 	services "kube-ins/internal/services"
 )
 
-func GetIngressClasses(clusterName string) []models.IngressClassInfo {
+func GetIngressClasses(clusterName string) ([]models.IngressClassInfo, error) {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("connect to cluster %q: %w", clusterName, err)
 	}
 	items, err := services.GetIngressClasses(client)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return nil, fmt.Errorf("list ingressclasses in cluster %q: %w", clusterName, err)
 	}
-	return items
+	return items, nil
 }
 
 func GetIngressClassYaml(clusterName string, name string) (string, error) {

@@ -15,8 +15,8 @@
     "semantic_hash": "30834f3adf2c8fd39abc82be7dc16932"
   },
   "cmd/tui/main.go": {
-    "mtime": 1786216258.7958877,
-    "ast_hash": "54f234a6b6e2083bfa09786b9d22074a",
+    "mtime": 1786218264.7281015,
+    "ast_hash": "e16eee126ab5dba4f245ecb199930b8c",
     "semantic_hash": ""
   },
   "docs/javascripts/changelog.js": {
@@ -1245,8 +1245,8 @@
     "semantic_hash": "42557934f420f57f4ac73aea9f9cd146"
   },
   "main.go": {
-    "mtime": 1786216299.541947,
-    "ast_hash": "b19a747564c5df4979bfce7fe80d16d3",
+    "mtime": 1786218272.1130137,
+    "ast_hash": "79257272db6638de60acf64e83b0c7bb",
     "semantic_hash": ""
   },
   "mkdocs_hooks.py": {
@@ -1470,8 +1470,8 @@
     "semantic_hash": "585e319d1ee37ca9a41d14ac900c4606"
   },
   "electron/electron-builder.yml": {
-    "mtime": 1785074288.1514037,
-    "ast_hash": "af1b8d3745e17a3868b4b2b1f89d2d88",
+    "mtime": 1786218227.6565425,
+    "ast_hash": "8ba30578ef43ab5044847a85d7f770f0",
     "semantic_hash": ""
   },
   "frontend/index.html": {
