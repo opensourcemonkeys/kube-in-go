@@ -13,6 +13,7 @@ import (
 
 	"kube-ins/internal/business"
 	app_controller "kube-ins/internal/controller"
+	"kube-ins/internal/logging"
 	"kube-ins/internal/tui"
 
 	"github.com/wailsapp/wails/v2"
@@ -39,6 +40,9 @@ func serve(shellChannel bool) error {
 	}
 	srv.Bootstrap(context.Background())
 
+	// These two lines are a protocol, not output: electron/main.cjs line-parses
+	// stdout for them and hangs for 30s if either fails to arrive intact. This
+	// is why internal/logging is file-only and never touches os.Stdout.
 	fmt.Println("kube-ins serving at", srv.URL())
 
 	// The shell's main process needs the token to open /shell, and it cannot
@@ -50,6 +54,9 @@ func serve(shellChannel bool) error {
 	if shellChannel {
 		fmt.Println("kube-ins shell token", srv.Token())
 	}
+
+	// The URL is safe to record; the token above never is.
+	logging.With("main").Debug("rpc server bound", "url", srv.URL())
 
 	// Orphan guard: our parent closes stdin when it dies, including on SIGKILL
 	// where no signal reaches us. Without this a 262MB process holding live
@@ -79,29 +86,55 @@ func main() {
 	// terminal UI instead of bootstrapping Wails/webview.
 	for _, arg := range os.Args[1:] {
 		if arg == "--tui" || arg == "tui" {
-			if err := tui.Run(context.Background(), business.GetAppInfo().AppVersion); err != nil {
+			version := business.GetAppInfo().AppVersion
+			// File-only, and Init forces the stderr tee off for this role:
+			// tview owns the screen. This branch returns before the
+			// log.SetOutput below, so without this the CLI's standard log
+			// output goes nowhere at all — and on the failure path it must be
+			// discarded rather than left at its stderr default, which would
+			// scramble the terminal.
+			log.SetFlags(0)
+			if err := logging.Init(logging.RoleCLI, version); err == nil {
+				log.SetOutput(logging.StdlibWriter())
+			} else {
+				log.SetOutput(io.Discard)
+			}
+			logging.With("main").Info("kube-ins starting", "mode", "tui", "binary", "gui")
+			if err := tui.Run(context.Background(), version); err != nil {
 				fmt.Fprintln(os.Stderr, "kube-ins:", err)
 				os.Exit(1)
 			}
+			_ = logging.Close()
 			return
 		}
 	}
 
-	// Restore the standard logger. Trivy's pkg/log has an init() that calls
-	// slog.SetDefault with a handler which only buffers records into a slice
-	// until Trivy initialises its own logger — and since Go 1.21 slog.SetDefault
-	// also reroutes the standard log package through that handler. Importing the
-	// scanner therefore silently swallowed every log.Print in the binary; the
-	// output reappears in test binaries, which never link Trivy, so it looked
-	// like the logging worked. Stderr, never stdout: stdout is the Electron
-	// sidecar protocol (see serve() below).
+	// Open the log file and take the standard logger back.
 	//
-	// Deliberately after the --tui branch: the terminal UI owns the screen, and
-	// anything written to stderr corrupts it.
-	// The flags go back too: slog.SetDefault zeroes them so its handler can own
-	// the timestamp, which left every line bare once the output was restored.
-	log.SetOutput(os.Stderr)
-	log.SetFlags(log.LstdFlags)
+	// Trivy's pkg/log has an init() that calls slog.SetDefault with a handler
+	// which only buffers records into a slice until Trivy initialises its own
+	// logger — and since Go 1.21 slog.SetDefault also reroutes the standard log
+	// package through that handler. Importing the scanner therefore silently
+	// swallowed every log.Print in the binary; the output reappears in test
+	// binaries, which never link Trivy, so it looked like the logging worked.
+	//
+	// internal/logging owns its own *slog.Logger and never calls
+	// slog.SetDefault, precisely so it cannot be captured the same way; pointing
+	// the standard logger at its writer is what pulls third-party log.Print
+	// output into the same file. Flags go to 0 because our handler owns the
+	// timestamp.
+	//
+	// Deliberately after the --tui branch, which sets this up for itself: the
+	// terminal UI owns the screen.
+	version := business.GetAppInfo().AppVersion
+	if err := logging.Init(logging.RoleBackend, version); err != nil {
+		// Nothing is on disk, but the app is still usable. Say so on stderr —
+		// never stdout, which is the Electron sidecar protocol (see serve()).
+		fmt.Fprintln(os.Stderr, "kube-ins: file logging disabled:", err)
+	}
+	log.SetOutput(logging.StdlibWriter())
+	log.SetFlags(0)
+	defer func() { _ = logging.Close() }()
 
 	// Serve mode: expose the controller over loopback HTTP/WebSocket and print
 	// the URL instead of opening a window. This is how the Electron shell runs
@@ -118,12 +151,16 @@ func main() {
 		}
 	}
 	if serveMode {
+		logging.With("main").Info("kube-ins starting", "mode", "serve", "shellChannel", shellChannel)
 		if err := serve(shellChannel); err != nil {
+			logging.With("main").Error("serve failed", "err", err)
 			fmt.Fprintln(os.Stderr, "kube-ins:", err)
 			os.Exit(1)
 		}
 		return
 	}
+
+	logging.With("main").Info("kube-ins starting", "mode", "wails")
 
 	// Create an instance of the app structure
 	app := app_controller.NewApp()

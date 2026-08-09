@@ -5,17 +5,16 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"kube-ins/internal/logging"
 	"kube-ins/internal/models"
 	"kube-ins/internal/safego"
 )
@@ -148,7 +147,7 @@ func NewInstanceHub(wailsCtx context.Context, onTabReceived func(panel models.Se
 		// token any page the user visits could dial the fixed port, list every
 		// running instance and inject a panel. Discovery stays off; the app is
 		// otherwise unaffected, GetInstances just reports this process alone.
-		log.Printf("[IPC] instance discovery disabled: %v", err)
+		logging.With("ipc.hub").Warn("instance discovery disabled", "err", err)
 		return h
 	}
 	h.token = token
@@ -196,7 +195,7 @@ func (h *InstanceHub) tryBecomeServer(ctx context.Context) bool {
 	h.knownInstances = []models.InstanceInfo{{ID: h.InstanceID, Name: h.instanceName}}
 	h.instancesMu.Unlock()
 
-	log.Printf("[IPC] Hub started: Instance 1 (%s)", shortID(h.InstanceID))
+	logging.With("ipc.hub").Info("hub started", "instance", shortID(h.InstanceID), "name", "Instance 1")
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", h.handleWS)
@@ -208,7 +207,7 @@ func (h *InstanceHub) tryBecomeServer(ctx context.Context) bool {
 	})
 
 	if err := srv.Serve(ln); err != nil && err != http.ErrServerClosed {
-		log.Printf("[IPC] Hub server stopped: %v", err)
+		logging.With("ipc.hub").Warn("hub server stopped", "err", err)
 	}
 
 	h.isServer.Store(false)
@@ -219,7 +218,7 @@ func (h *InstanceHub) tryBecomeServer(ctx context.Context) bool {
 	h.clients = make(map[string]*wsClient)
 	h.clientsMu.Unlock()
 
-	log.Println("[IPC] Hub stopped")
+	logging.With("ipc.hub").Info("hub stopped")
 	return true
 }
 
@@ -238,7 +237,7 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 	// everyone. run() already refuses to start in that state — this keeps the
 	// invariant local to the check that depends on it.
 	if h.token == "" || subtle.ConstantTimeCompare([]byte(tok), []byte(h.token)) != 1 {
-		log.Printf("[IPC] rejected unauthenticated connection from %s", r.RemoteAddr)
+		logging.With("ipc.hub").Warn("rejected unauthenticated connection", "remote", r.RemoteAddr)
 		http.Error(w, "forbidden", http.StatusForbidden)
 		return
 	}
@@ -248,8 +247,8 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 		// Almost always CheckOrigin rejecting a browser. Worth a line: it is the
 		// exact attack this handshake exists to stop, and gorilla answers 403
 		// without telling anyone.
-		log.Printf("[IPC] handshake refused for %s (origin %q): %v",
-			r.RemoteAddr, r.Header.Get("Origin"), err)
+		logging.With("ipc.hub").Warn("handshake refused",
+			"remote", r.RemoteAddr, "origin", r.Header.Get("Origin"), "err", err)
 		return
 	}
 
@@ -279,12 +278,12 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 	// with no writePump behind: its 64-slot sendCh filled up, every later send()
 	// hit the default: branch, and the ghost stayed in the instance list forever.
 	if _, err := uuid.Parse(reg.ID); err != nil {
-		log.Printf("[IPC] rejected register with malformed id %q", shortID(reg.ID))
+		logging.With("ipc.hub").Warn("rejected register with malformed id", "id", shortID(reg.ID))
 		_ = conn.Close()
 		return
 	}
 	if reg.ID == h.InstanceID {
-		log.Print("[IPC] rejected register claiming this hub's own id")
+		logging.With("ipc.hub").Warn("rejected register claiming this hub's own id")
 		_ = conn.Close()
 		return
 	}
@@ -295,7 +294,7 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 		// Overwriting would strand the first connection (never closed) and let
 		// its cleanup delete the second one's entry. Neither instance would then
 		// be reachable by TransferTab.
-		log.Printf("[IPC] rejected duplicate register for %s", shortID(reg.ID))
+		logging.With("ipc.hub").Warn("rejected duplicate register", "id", shortID(reg.ID))
 		_ = conn.Close()
 		return
 	}
@@ -315,7 +314,8 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 	// cleanup can never remove a newer client that reused the id.
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("[IPC] panic serving client %s: %v\n%s", shortID(client.id), r, debug.Stack())
+			logging.With("ipc.hub").Error("panic serving client",
+				"client", shortID(client.id), "panic", fmt.Sprint(r), "stack", safego.Stack(8<<10))
 		}
 		h.clientsMu.Lock()
 		if cur, ok := h.clients[client.id]; ok && cur == client {
@@ -324,11 +324,11 @@ func (h *InstanceHub) handleWS(w http.ResponseWriter, r *http.Request) {
 		h.clientsMu.Unlock()
 		client.close()
 
-		log.Printf("[IPC] Client disconnected: %s", client.name)
+		logging.With("ipc.hub").Info("client disconnected", "name", client.name, "id", shortID(client.id))
 		h.broadcastInstanceList()
 	}()
 
-	log.Printf("[IPC] Client connected: %s (%s)", clientName, shortID(reg.ID))
+	logging.With("ipc.hub").Info("client connected", "name", clientName, "id", shortID(reg.ID))
 	h.broadcastInstanceList()
 
 	go client.writePump()
@@ -429,7 +429,7 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 	h.serverConn = conn
 	h.serverMu.Unlock()
 
-	log.Printf("[IPC] Connected to hub: %s", shortID(h.InstanceID))
+	logging.With("ipc.hub").Info("connected to hub", "instance", shortID(h.InstanceID))
 
 	safego.Go("ipc.hub.clientShutdown", func() {
 		<-ctx.Done()
@@ -486,7 +486,7 @@ func (h *InstanceHub) connectAsClient(ctx context.Context) {
 	h.serverMu.Unlock()
 	_ = conn.Close()
 
-	log.Println("[IPC] Disconnected from hub")
+	logging.With("ipc.hub").Info("disconnected from hub")
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -508,6 +508,25 @@ func (h *InstanceHub) GetSelfInfo() models.InstanceInfo {
 	h.instancesMu.RLock()
 	defer h.instancesMu.RUnlock()
 	return models.InstanceInfo{ID: h.InstanceID, Name: h.instanceName}
+}
+
+// Role reports this process's place in the hub: "server" if it owns the fixed
+// port, "client" if it is connected to one, "disabled" if discovery never
+// started (no shared token — see ensureHubToken).
+func (h *InstanceHub) Role() string {
+	if h.token == "" {
+		return "disabled"
+	}
+	if h.isServer.Load() {
+		return "server"
+	}
+	h.serverMu.Lock()
+	connected := h.serverConn != nil
+	h.serverMu.Unlock()
+	if connected {
+		return "client"
+	}
+	return "disconnected"
 }
 
 // TransferTab sends a panel to the given target instance.

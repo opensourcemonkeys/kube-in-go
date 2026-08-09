@@ -135,6 +135,7 @@ interface TabContextValue {
     openObjectYaml: (def: ObjectYamlDef) => void;
     openTerminal: (clusterName: string) => void;
     openApplyYaml: (clusterName: string) => void;
+    openDiagnostics: () => void;
     openClusterResourceView: (clusterName: string) => void;
     openReceivedPanel: (panel: ReceivedPanel) => void;
 }
@@ -215,6 +216,26 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             component: 'applyYaml',
             title: clusterName ? `YAML Editor • ${clusterName}` : 'YAML Editor',
             params: { clusterName },
+        });
+    }, []);
+
+    // A singleton, and deliberately outside the `${view}:${clusterName}` scheme:
+    // the panel describes this process, not a cluster. Empty params keep it
+    // structured-clone safe for a drag-out to another window.
+    const openDiagnostics = useCallback(() => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const existing = api.getPanel('diagnostics');
+        if (existing) {
+            existing.api.setActive();
+            return;
+        }
+        api.addPanel({
+            id: 'diagnostics',
+            component: 'diagnostics',
+            title: 'Diagnostics',
+            params: {},
         });
     }, []);
 
@@ -524,11 +545,16 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             case 'applyYaml':
                 openApplyYaml(cn);
                 break;
+            case 'diagnostics':
+                // Transferable on purpose: moving it to another instance shows
+                // THAT instance's diagnostics, which is the useful behaviour.
+                openDiagnostics();
+                break;
         }
-    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openClusterResourceView, openApplyYaml]);
+    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openClusterResourceView, openApplyYaml, openDiagnostics]);
 
     return (
-        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openReceivedPanel }}>
+        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openTerminal, openApplyYaml, openClusterResourceView, openDiagnostics, openReceivedPanel }}>
             {children}
         </TabContext.Provider>
     );

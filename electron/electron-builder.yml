@@ -15,6 +15,7 @@ directories:
 files:
   - main.cjs
   - preload.cjs
+  - logfile.cjs
   - package.json
 
 # The Go binary IS the application. Built by `make build-sidecar` (or the

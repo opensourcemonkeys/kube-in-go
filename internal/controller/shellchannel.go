@@ -3,6 +3,7 @@ package controller_app
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -12,8 +13,9 @@ import (
 )
 
 // The shell channel is a second WebSocket, opened by a native shell's *main*
-// process (Electron), over which Go asks the shell to do things only it can do
-// — currently just showing a native save dialog.
+// process (Electron), over which Go asks the shell to do things only it can do:
+// show a native save dialog, reveal a folder in the file manager, and describe
+// itself for the diagnostics report.
 //
 // Why the main process and not the renderer: App.saveFile is called
 // synchronously from an RPC handler, and the renderer may be reloading,
@@ -31,15 +33,31 @@ import (
 // silently writing somewhere unexpected.
 const dialogTimeout = 2 * time.Minute
 
+// callTimeout bounds the request types that need no human. A shell that is
+// attached but wedged must not stall an RPC handler for two minutes.
+const callTimeout = 10 * time.Second
+
+// Request types. The shell replies to an unknown type with an error rather
+// than dropping it, so a mismatched Go/Electron pair fails fast instead of
+// waiting out the timeout.
+const (
+	shellReqSaveFile      = "saveFile"
+	shellReqOpenLogFolder = "openLogFolder"
+	shellReqDiagnostics   = "diagnostics"
+)
+
 type shellRequest struct {
 	ID   string          `json:"id"`
 	Type string          `json:"type"`
-	Opts SaveFileOptions `json:"opts"`
+	Opts SaveFileOptions `json:"opts,omitempty"`
 }
 
 type shellReply struct {
-	ID    string `json:"id"`
-	Path  string `json:"path"`
+	ID   string `json:"id"`
+	Path string `json:"path,omitempty"`
+	// Data carries a JSON blob for request types that return structured
+	// information rather than a path.
+	Data  string `json:"data,omitempty"`
 	Error string `json:"error,omitempty"`
 }
 
@@ -114,19 +132,19 @@ func (s *Server) handleShell(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// shellSaveFile asks the shell for a path and blocks until it answers. An empty
-// path means the user cancelled, matching Wails' SaveFileDialog contract.
-func (s *Server) shellSaveFile(opts SaveFileOptions) (string, error) {
+// shellCall sends one request and blocks until the shell answers, the wait
+// expires, or the shell disconnects. Every request type shares this so the
+// pending map, the timeout and the disconnect drain are written once.
+func (s *Server) shellCall(req shellRequest, wait time.Duration) (shellReply, error) {
 	sc := s.shell
-
-	req := shellRequest{ID: uuid.NewString(), Type: "saveFile", Opts: opts}
+	req.ID = uuid.NewString()
 	ch := make(chan shellReply, 1)
 
 	sc.mu.Lock()
 	conn := sc.conn
 	if conn == nil {
 		sc.mu.Unlock()
-		return "", errors.New("shell not connected")
+		return shellReply{}, errors.New("shell not connected")
 	}
 	sc.pending[req.ID] = ch
 	sc.mu.Unlock()
@@ -141,19 +159,41 @@ func (s *Server) shellSaveFile(opts SaveFileOptions) (string, error) {
 		sc.mu.Lock()
 		delete(sc.pending, req.ID)
 		sc.mu.Unlock()
-		return "", err
+		return shellReply{}, err
 	}
 
 	select {
 	case rep := <-ch:
 		if rep.Error != "" {
-			return "", errors.New(rep.Error)
+			return rep, errors.New(rep.Error)
 		}
-		return rep.Path, nil
-	case <-time.After(dialogTimeout):
+		return rep, nil
+	case <-time.After(wait):
 		sc.mu.Lock()
 		delete(sc.pending, req.ID)
 		sc.mu.Unlock()
-		return "", errors.New("save dialog timed out")
+		return shellReply{}, fmt.Errorf("the shell did not answer %q in time", req.Type)
 	}
+}
+
+// shellSaveFile asks the shell for a path and blocks until it answers. An empty
+// path means the user cancelled, matching Wails' SaveFileDialog contract.
+func (s *Server) shellSaveFile(opts SaveFileOptions) (string, error) {
+	rep, err := s.shellCall(shellRequest{Type: shellReqSaveFile, Opts: opts}, dialogTimeout)
+	return rep.Path, err
+}
+
+// shellOpenLogFolder asks the shell to reveal the log directory. It carries no
+// path: the shell computes the directory itself, so no renderer-supplied string
+// ever reaches the OS.
+func (s *Server) shellOpenLogFolder() error {
+	_, err := s.shellCall(shellRequest{Type: shellReqOpenLogFolder}, callTimeout)
+	return err
+}
+
+// shellDiagnostics asks the shell to describe itself (runtime versions, GPU
+// status, its own log tail) for the diagnostics report.
+func (s *Server) shellDiagnostics() (string, error) {
+	rep, err := s.shellCall(shellRequest{Type: shellReqDiagnostics}, callTimeout)
+	return rep.Data, err
 }

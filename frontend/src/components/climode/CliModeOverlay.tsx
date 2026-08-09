@@ -9,6 +9,7 @@ import {
     ResizeCliModeSession,
     CloseCliModeSession,
 } from '../../../wailsjs/go/controller_app/App';
+import { writeClipboard as copyToClipboard } from '../../lib/clipboard';
 
 // CliModeOverlay renders a fullscreen xterm that hosts the kube-ins terminal UI
 // (the GUI re-execs itself with --tui in a pty). It covers the dockview + menu;
@@ -40,32 +41,12 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
         term.loadAddon(fitAddon);
         term.open(containerRef.current);
 
-        // Clipboard helpers. The TUI runs with mouse capture disabled (the backend
-        // sets KUBEINS_TUI_NOMOUSE) so drag-to-select works natively in xterm here.
-        // navigator.clipboard can be unavailable/blocked in the WebKitGTK webview,
-        // so fall back to a hidden-textarea execCommand copy.
+        // The TUI runs with mouse capture disabled (the backend sets
+        // KUBEINS_TUI_NOMOUSE) so drag-to-select works natively in xterm here.
+        // The copy itself lives in lib/clipboard: its execCommand fallback is
+        // what keeps this working in the WebKitGTK webview.
         const writeClipboard = (text: string) => {
-            if (!text) return;
-            if (navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(text).catch(() => execCopy(text));
-            } else {
-                execCopy(text);
-            }
-        };
-        const execCopy = (text: string) => {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.opacity = '0';
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-            } catch {
-                /* ignore */
-            }
-            document.body.removeChild(ta);
-            term.focus();
+            void copyToClipboard(text, () => term.focus());
         };
         const pasteClipboard = () => {
             navigator.clipboard

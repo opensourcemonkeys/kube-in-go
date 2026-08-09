@@ -2,8 +2,10 @@ package controller_app
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"kube-ins/internal/ai"
 	bussiness "kube-ins/internal/business"
@@ -979,4 +981,117 @@ func (a *App) StopAiChat(sessionId string) error {
 		sess.cancel()
 	}
 	return nil
+}
+
+// ============================================================================
+// Diagnostics
+// ============================================================================
+//
+// The panel behind these methods is the app's answer to "it broke, what do I
+// send you". Everything stays on the machine: the report is assembled here, the
+// user reads it, and the user decides whether to export it.
+
+// GetDiagnostics returns the environment report. Shell and Hub are filled in
+// here because only the controller knows which Transport is installed and owns
+// the InstanceHub — business must not import internal/ipc.
+func (a *App) GetDiagnostics() models.DiagnosticsReport {
+	rep := bussiness.GetDiagnostics()
+	rep.Shell = a.shellKind()
+	rep.Hub = a.hubDiagnostics()
+	return rep
+}
+
+// hubDiagnostics describes this process's place in the multi-instance hub.
+func (a *App) hubDiagnostics() models.HubDiagnostics {
+	if a.hub == nil {
+		return models.HubDiagnostics{Role: "disabled"}
+	}
+	self := a.hub.GetSelfInfo()
+	return models.HubDiagnostics{
+		Role:          a.hub.Role(),
+		InstanceID:    self.ID,
+		InstanceName:  self.Name,
+		InstanceCount: len(a.hub.GetInstances()),
+	}
+}
+
+// RunHealthChecks runs the preflight. ollamaHost comes from the frontend's chat
+// store; pass "" to skip the assistant check.
+func (a *App) RunHealthChecks(ollamaHost string) []models.HealthCheck {
+	checks := bussiness.RunHealthChecks(ollamaHost)
+	return append(checks, a.hubHealthCheck())
+}
+
+func (a *App) hubHealthCheck() models.HealthCheck {
+	hub := a.hubDiagnostics()
+	c := models.HealthCheck{Name: "ipc-hub", Label: "Instance discovery (IPC hub)"}
+	switch hub.Role {
+	case "server", "client":
+		c.Status = models.HealthOK
+		c.Detail = fmt.Sprintf("%s as %s, %d instance(s)", hub.Role, hub.InstanceName, hub.InstanceCount)
+	case "disabled":
+		// No shared token: the hub refuses to run rather than fall back to an
+		// unauthenticated one. Tab transfer is off, nothing else is affected.
+		c.Status = models.HealthWarn
+		c.Detail = "discovery is off; multi-window tab transfer is unavailable"
+	default:
+		c.Status = models.HealthWarn
+		c.Detail = "not connected to a hub"
+	}
+	return c
+}
+
+// TailLogs returns the tail of today's log file, filtered server-side so the
+// search covers the whole window on disk rather than the rows already loaded.
+func (a *App) TailLogs(n int, minLevel, query string) ([]models.LogEntry, error) {
+	return bussiness.TailLogs(n, minLevel, query)
+}
+
+// SetLogLevel changes the level of this process immediately and remembers it
+// for processes started later. Windows of one shell share a backend and so
+// share a level; a separate instance does not.
+func (a *App) SetLogLevel(level string) error { return bussiness.SetLogLevel(level) }
+
+func (a *App) GetLogLevel() string { return bussiness.GetLogLevel() }
+
+func (a *App) GetLogDir() string {
+	dir, err := bussiness.LogDir()
+	if err != nil {
+		return ""
+	}
+	return dir
+}
+
+// OpenLogFolder reveals the log directory in the OS file manager. It rejects in
+// browser mode, where the frontend falls back to copying the path.
+func (a *App) OpenLogFolder() error { return a.openLogFolder() }
+
+// ExportDiagnostics writes a redacted zip wherever the user chooses and returns
+// the path. An empty path with a nil error means the user cancelled.
+func (a *App) ExportDiagnostics(ollamaHost string) (string, error) {
+	name := "kube-inspector-diagnostics-" + time.Now().Format("20060102-150405") + ".zip"
+	path, err := a.saveFile(SaveFileOptions{
+		Title:       "Save diagnostics",
+		DefaultName: name,
+		FilterName:  "Zip archive (*.zip)",
+		Pattern:     "*.zip",
+	})
+	if err != nil || path == "" {
+		return "", err
+	}
+	if !strings.HasSuffix(strings.ToLower(path), ".zip") {
+		path += ".zip"
+	}
+
+	// Best-effort: the shell contributes its runtime versions and its own log
+	// tail. Absent under Wails and in a plain browser tab.
+	shellJSON := ""
+	if srv, ok := a.tr.(*Server); ok {
+		shellJSON = srv.ShellDiagnostics()
+	}
+
+	if err := bussiness.ExportDiagnosticsZip(path, ollamaHost, shellJSON, a.hubDiagnostics(), a.shellKind()); err != nil {
+		return "", err
+	}
+	return path, nil
 }

@@ -24,6 +24,20 @@ type SaveFileOptions struct {
 type Transport interface {
 	Emit(event string, data ...any)
 	SaveFile(opts SaveFileOptions) (string, error)
+
+	// OpenLogFolder reveals ~/.kube-ins/logs in the OS file manager.
+	//
+	// It deliberately takes no path. An OpenPath(string) would work just as
+	// well and cost less to write, but it would hand the renderer an
+	// arbitrary-path-to-OS primitive: any later App method that forwards a
+	// frontend string would then be able to ask the OS to open a downloaded
+	// .desktop, .lnk or .exe. With no argument there is nothing to validate,
+	// because each shell computes the directory itself.
+	OpenLogFolder() error
+
+	// Kind identifies the shell in the diagnostics report: "wails",
+	// "electron" or "browser".
+	Kind() string
 }
 
 // Bootstrap wires an App to a shell and starts it. Shells outside this package
@@ -54,4 +68,21 @@ func (a *App) saveFile(opts SaveFileOptions) (string, error) {
 		return "", errors.New("no transport installed")
 	}
 	return a.tr.SaveFile(opts)
+}
+
+// openLogFolder reveals the log directory in the OS file manager.
+func (a *App) openLogFolder() error {
+	if a.tr == nil {
+		return errors.New("no transport installed")
+	}
+	return a.tr.OpenLogFolder()
+}
+
+// shellKind names the shell for the diagnostics report. "cli" never appears
+// here — the terminal UI has no controller.
+func (a *App) shellKind() string {
+	if a.tr == nil {
+		return "none"
+	}
+	return a.tr.Kind()
 }

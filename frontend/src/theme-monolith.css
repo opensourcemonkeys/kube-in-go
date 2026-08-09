@@ -1276,3 +1276,66 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .ai-model__cancel { background: transparent; color: var(--ink3); border: 1px solid var(--line2); }
 .ai-model__cancel:hover { color: #e06c6c; border-color: #e06c6c; }
 .ai-model__installed { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; color: var(--green); }
+
+/* ── Diagnostics panel ─────────────────────────────────────────────────────
+   Only palette variables are used, so the panel re-skins with every theme.
+   The log list is plain DOM rather than a DataTable: 500 monospace rows with a
+   wrapping message column are exactly what DataTable is worst at. */
+
+.diag-panel { height: 100%; display: flex; flex-direction: column; background: var(--app); color: var(--ink); font-size: 12.5px; }
+.diag-panel > .p-tabview { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.diag-panel .p-tabview-panels { flex: 1; min-height: 0; padding: 0; background: transparent; overflow: hidden; }
+.diag-panel .p-tabview-panel { height: 100%; min-height: 0; }
+
+.diag-tab { height: 100%; overflow: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
+.diag-tab--logs { overflow: hidden; gap: 10px; }
+
+.diag-section { display: flex; flex-direction: column; gap: 4px; }
+.diag-section__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.diag-section__title { margin: 0 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink3); font-weight: 600; }
+.diag-note { margin: 4px 0 0; color: var(--ink2); line-height: 1.5; max-width: 68ch; }
+
+.diag-row { display: flex; gap: 12px; padding: 3px 0; border-bottom: 1px solid var(--line); }
+.diag-row__label { flex: 0 0 150px; color: var(--ink3); }
+.diag-row__value { flex: 1; color: var(--ink); font-family: var(--font-family-mono); word-break: break-all; }
+
+.diag-checks { display: flex; flex-direction: column; gap: 2px; }
+.diag-check { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.diag-check__body { flex: 1; min-width: 0; }
+.diag-check__label { color: var(--ink); }
+.diag-check__detail { color: var(--ink2); font-family: var(--font-family-mono); font-size: 11.5px; margin-top: 2px; word-break: break-word; }
+.diag-check__ms { color: var(--ink3); font-family: var(--font-family-mono); font-size: 11px; white-space: nowrap; }
+
+.diag-pill { flex: 0 0 auto; min-width: 46px; text-align: center; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .04em; font-family: var(--font-family-mono); border: 1px solid transparent; }
+.diag-pill--ok,    .diag-pill--info  { color: var(--teal);  border-color: color-mix(in srgb, var(--teal) 30%, transparent);  background: color-mix(in srgb, var(--teal) 10%, transparent); }
+.diag-pill--warn                     { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 30%, transparent); background: color-mix(in srgb, var(--amber) 10%, transparent); }
+.diag-pill--fail,  .diag-pill--error { color: var(--red);   border-color: color-mix(in srgb, var(--red) 30%, transparent);   background: color-mix(in srgb, var(--red) 12%, transparent); }
+.diag-pill--skip,  .diag-pill--debug { color: var(--ink3);  border-color: var(--line2); background: var(--panel2); }
+
+.diag-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 16px 0; }
+.diag-toolbar__level { min-width: 150px; }
+.diag-toolbar__search { flex: 1; min-width: 180px; }
+.diag-toolbar__roles { min-width: 160px; }
+.diag-toggle { display: flex; align-items: center; gap: 6px; color: var(--ink2); white-space: nowrap; cursor: pointer; }
+
+.diag-levelbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 0 16px; }
+.diag-levelbar__label { color: var(--ink3); text-transform: uppercase; font-size: 10.5px; letter-spacing: .08em; font-weight: 600; }
+.diag-levelbar__hint { color: var(--ink3); font-size: 11px; flex: 1; min-width: 220px; }
+
+.diag-log { flex: 1; min-height: 0; overflow: auto; margin: 0 16px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font-family: var(--font-family-mono); font-size: 11.5px; }
+.diag-log-row { display: flex; align-items: baseline; gap: 8px; padding: 2px 8px; border-bottom: 1px solid var(--line); }
+.diag-log-row:hover { background: var(--hover); }
+.diag-log-row__ts     { color: var(--ink3); white-space: nowrap; }
+.diag-log-row__role   { color: var(--violet); white-space: nowrap; }
+.diag-log-row__logger { color: var(--blue); white-space: nowrap; }
+.diag-log-row__msg    { color: var(--ink); flex: 1; min-width: 0; word-break: break-word; }
+.diag-log-row__fields { color: var(--ink2); word-break: break-all; }
+
+.diag-empty { padding: 18px 8px; color: var(--ink3); text-align: center; }
+.diag-error { margin: 0 16px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--red) 30%, transparent); border-radius: 6px; background: color-mix(in srgb, var(--red) 10%, transparent); color: var(--red); }
+
+.diag-actions { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+
+.about-modal__actions { display: flex; gap: 8px; justify-content: center; }
+.about-modal__close-btn--ghost { background: transparent; border-color: var(--line2); color: var(--ink2); }
+.about-modal__close-btn--ghost:hover { background: var(--hover); border-color: var(--line2); }

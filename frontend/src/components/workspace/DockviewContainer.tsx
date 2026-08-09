@@ -26,6 +26,7 @@ import PodExecPanel from '../pod/PodExecPanel';
 import RoleEditorPanel from '../role/RoleEditorPanel';
 import RoleBindingEditorPanel from '../rolebinding/RoleBindingEditorPanel';
 import ObjectYamlPanel from './ObjectYamlPanel';
+import DiagnosticsPanel from '../diagnostics/DiagnosticsPanel';
 
 const components = {
     view: ViewPanel,
@@ -41,6 +42,7 @@ const components = {
     roleEditor: RoleEditorPanel,
     roleBindingEditor: RoleBindingEditorPanel,
     objectYaml: ObjectYamlPanel,
+    diagnostics: DiagnosticsPanel,
 };
 
 export default function DockviewContainer() {

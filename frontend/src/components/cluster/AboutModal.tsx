@@ -7,6 +7,8 @@ import { models } from '../../../wailsjs/go/models';
 interface Props {
     visible: boolean;
     onHide: () => void;
+    /** Opens the Diagnostics panel. Omitted, the button is not rendered. */
+    onDiagnostics?: () => void;
 }
 
 const DEP_LABELS: Record<string, string> = {
@@ -18,7 +20,7 @@ const DEP_LABELS: Record<string, string> = {
     'sigs.k8s.io/yaml': 'YAML',
 };
 
-export default function AboutModal({ visible, onHide }: Props) {
+export default function AboutModal({ visible, onHide, onDiagnostics }: Props) {
     const [info, setInfo] = useState<models.AppInfo | null>(null);
 
     useEffect(() => {
@@ -79,9 +81,19 @@ export default function AboutModal({ visible, onHide }: Props) {
                     </>
                 )}
 
-                <button className="about-modal__close-btn" onClick={onHide}>
-                    Close
-                </button>
+                <div className="about-modal__actions">
+                    {onDiagnostics && (
+                        <button
+                            className="about-modal__close-btn about-modal__close-btn--ghost"
+                            onClick={() => { onHide(); onDiagnostics(); }}
+                        >
+                            Diagnostics
+                        </button>
+                    )}
+                    <button className="about-modal__close-btn" onClick={onHide}>
+                        Close
+                    </button>
+                </div>
             </div>
         </Dialog>
     );

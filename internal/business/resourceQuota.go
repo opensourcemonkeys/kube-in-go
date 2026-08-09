@@ -1,7 +1,7 @@
 package business
 
 import (
-	"fmt"
+	"kube-ins/internal/logging"
 	models "kube-ins/internal/models"
 	repository "kube-ins/internal/repository"
 	services "kube-ins/internal/services"
@@ -26,7 +26,8 @@ func GetResourceQuotaYaml(clusterName string, name, namespace string) (string, e
 func UpdateResourceQuotaYaml(clusterName string, name, namespace, yamlContent string) error {
 	client, err := repository.NewK8sClientForCluster(clusterName)
 	if err != nil {
-		fmt.Println("UpdateResourceQuotaYaml k8s client error:", err)
+		logging.With("business.resourceQuota").Error("update resource quota yaml failed",
+			"cluster", clusterName, "namespace", namespace, "name", name, "err", err)
 		return err
 	}
 	return services.UpdateResourceQuotaYaml(name, namespace, yamlContent, client)

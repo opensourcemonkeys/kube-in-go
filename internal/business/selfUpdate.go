@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"kube-ins/internal/logging"
 	"kube-ins/internal/models"
 	services "kube-ins/internal/services"
 )
@@ -22,13 +23,13 @@ import (
 func RunSelfUpdate(ctx context.Context, info models.UpdateInfo, onProgress func(models.UpdateProgress)) (string, error) {
 	if !info.Installable || info.AssetURL == "" {
 		err := errors.New("this release cannot be installed automatically here")
-		fmt.Println("Self-update:", err)
+		logging.With("business.selfUpdate").Error("self-update refused", "stage", "precheck", "err", err)
 		return "", err
 	}
 
 	dir, err := os.MkdirTemp("", "kube-ins-update-")
 	if err != nil {
-		fmt.Println("Self-update: could not create a temporary directory:", err)
+		logging.With("business.selfUpdate").Error("self-update failed", "stage", "tempdir", "err", err)
 		return "", err
 	}
 
@@ -39,7 +40,7 @@ func RunSelfUpdate(ctx context.Context, info models.UpdateInfo, onProgress func(
 	expected, err := services.FetchExpectedSha256(ctx, info.AssetURL)
 	if err != nil {
 		os.RemoveAll(dir)
-		fmt.Println("Self-update: could not fetch the checksum:", err)
+		logging.With("business.selfUpdate").Error("self-update failed", "stage", "checksum", "url", info.AssetURL, "err", err)
 		return "", err
 	}
 
@@ -56,13 +57,13 @@ func RunSelfUpdate(ctx context.Context, info models.UpdateInfo, onProgress func(
 		if ctx.Err() != nil {
 			return "", ctx.Err()
 		}
-		fmt.Println("Self-update: download failed:", err)
+		logging.With("business.selfUpdate").Error("self-update failed", "stage", "download", "url", info.AssetURL, "err", err)
 		return "", err
 	}
 
 	if err := services.VerifySha256(pkgPath, expected); err != nil {
 		os.RemoveAll(dir)
-		fmt.Println("Self-update: checksum verification failed:", err)
+		logging.With("business.selfUpdate").Error("self-update failed", "stage", "verify", "err", err)
 		return "", fmt.Errorf("the downloaded package failed verification and was discarded: %w", err)
 	}
 
@@ -73,7 +74,7 @@ func RunSelfUpdate(ctx context.Context, info models.UpdateInfo, onProgress func(
 	restart, err := services.RunInstaller(context.WithoutCancel(ctx), pkgPath, info.AssetKind)
 	if err != nil {
 		os.RemoveAll(dir)
-		fmt.Println("Self-update: install failed:", err)
+		logging.With("business.selfUpdate").Error("self-update failed", "stage", "install", "kind", info.AssetKind, "err", err)
 		return "", err
 	}
 

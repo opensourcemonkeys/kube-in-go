@@ -24,8 +24,10 @@ if (typeof electron === 'string') {
 
 const { app, BrowserWindow, dialog, shell, ipcMain, protocol, net, screen } = electron;
 const { spawn } = require('child_process');
+const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const logfile = require('./logfile.cjs');
 
 const isWindows = process.platform === 'win32';
 
@@ -73,13 +75,21 @@ const PRIMARY_WINDOW_ID = 1;
 const devRPC = process.env.KUBE_INS_DEV_RPC || '';
 
 // Last lines of sidecar output, shown if it dies before we get a URL.
+//
+// This buffer is kept even though everything now also goes to disk: fatal()
+// still needs something to put in the dialog when the log file itself is what
+// could not be written.
 const logTail = [];
 const rememberLog = (stream, text) => {
   for (const line of String(text).split('\n')) {
     if (!line) continue;
-    logTail.push(`[${stream}] ${line}`);
+    logTail.push(`[${stream}] ${logfile.scrub(line)}`);
     if (logTail.length > 50) logTail.shift();
     if (!app.isPackaged) console.log(`[sidecar:${stream}]`, line);
+    // The sidecar writes its own json_event records straight to the shared
+    // file; under the dev stderr tee they also arrive here. Don't double-write.
+    if (line.startsWith('{"@timestamp"')) continue;
+    logfile.write(stream === 'err' ? 'WARN' : 'INFO', 'shell.sidecar', line, { stream });
   }
 };
 
@@ -98,6 +108,7 @@ function resolveSidecar() {
 function startSidecar() {
   return new Promise((resolve, reject) => {
     const bin = resolveSidecar();
+    logfile.info('shell.main', 'starting backend', { binary: bin });
 
     // stdin stays piped and open: closing it is how the Go side learns we died
     // even when we are SIGKILLed and no signal reaches it.
@@ -135,11 +146,21 @@ function startSidecar() {
     // Missing/unreadable binary — a broken package.
     sidecar.on('error', (err) => {
       clearTimeout(timer);
+      logfile.error('shell.main', 'could not start the backend', {
+        binary: bin,
+        err: err.message,
+      });
       reject(new Error(`could not start backend (${bin}): ${err.message}`));
     });
 
     sidecar.on('exit', (code, signal) => {
       clearTimeout(timer);
+      logfile.write(quitting ? 'INFO' : 'ERROR', 'shell.main', 'backend exited', {
+        code,
+        signal,
+        expected: quitting,
+        hadURL: Boolean(serverURL),
+      });
       if (quitting) return;
       const why = signal ? `signal ${signal}` : `code ${code}`;
       // Before the window exists this rejects startup; after, it is a crash.
@@ -182,7 +203,13 @@ function stopSidecar() {
 }
 
 function fatal(title, message) {
-  dialog.showErrorBox(title, `${message}\n\n${logTail.slice(-20).join('\n')}`);
+  logfile.error('shell.main', `${title}: ${message}`, { tail: logTail.slice(-20) });
+  // logTail is already scrubbed on the way in, but the dialog is the one place
+  // a token would be rendered on screen, so this stays explicit.
+  dialog.showErrorBox(
+    title,
+    `${message}\n\n${logfile.scrub(logTail.slice(-20).join('\n'))}`,
+  );
   quitting = true;
   stopSidecar().finally(() => app.exit(1));
 }
@@ -221,23 +248,63 @@ function connectShellChannel() {
     } catch {
       return;
     }
-    if (req.type !== 'saveFile') return;
+    const reply = (body) => ws.send(JSON.stringify({ id: req.id, ...body }));
 
-    const opts = req.opts || {};
     try {
-      // Parent it to whichever window the user is looking at; the Go side has
-      // no notion of windows, so focus is the best signal we have.
-      const parent =
-        BrowserWindow.getFocusedWindow() ?? windows.get(PRIMARY_WINDOW_ID) ?? null;
-      const { canceled, filePath } = await dialog.showSaveDialog(parent, {
-        title: opts.Title || 'Save',
-        defaultPath: opts.DefaultName || undefined,
-        filters: toFilters(opts),
-      });
-      // Empty path means cancelled — same contract as Wails' SaveFileDialog.
-      ws.send(JSON.stringify({ id: req.id, path: canceled ? '' : filePath }));
+      switch (req.type) {
+        case 'saveFile': {
+          const opts = req.opts || {};
+          // Parent it to whichever window the user is looking at; the Go side
+          // has no notion of windows, so focus is the best signal we have.
+          const parent =
+            BrowserWindow.getFocusedWindow() ?? windows.get(PRIMARY_WINDOW_ID) ?? null;
+          const { canceled, filePath } = await dialog.showSaveDialog(parent, {
+            title: opts.Title || 'Save',
+            defaultPath: opts.DefaultName || undefined,
+            filters: toFilters(opts),
+          });
+          // Empty path means cancelled — same contract as Wails'
+          // SaveFileDialog.
+          reply({ path: canceled ? '' : filePath });
+          break;
+        }
+
+        case 'openLogFolder': {
+          // The directory is computed here and never received, so no string
+          // from the Go side — let alone from the renderer — reaches the OS.
+          const dir = logfile.dir();
+          fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+          // shell.openPath resolves to an error STRING rather than throwing.
+          const problem = await shell.openPath(dir);
+          reply({ error: problem || undefined });
+          break;
+        }
+
+        case 'diagnostics': {
+          reply({
+            data: JSON.stringify({
+              electron: process.versions.electron,
+              chrome: process.versions.chrome,
+              node: process.versions.node,
+              platform: process.platform,
+              arch: process.arch,
+              packaged: app.isPackaged,
+              locale: app.getLocale(),
+              windows: windows.size,
+              gpuFeatures: app.getGPUFeatureStatus(),
+              logTail: logTail.slice(-50),
+            }),
+          });
+          break;
+        }
+
+        default:
+          // Answer, never drop. An older shell paired with a newer backend
+          // would otherwise leave the Go caller waiting out the full timeout.
+          reply({ error: `unsupported request type "${req.type}"` });
+      }
     } catch (err) {
-      ws.send(JSON.stringify({ id: req.id, path: '', error: String(err) }));
+      reply({ error: String(err) });
     }
   });
 
@@ -609,6 +676,23 @@ ipcMain.on('shell:sendPanel', (_e, { targetWindowId, panel } = {}) => {
 // transferring tabs between them is a product feature (internal/ipc).
 
 app.whenReady().then(async () => {
+  logfile.setVersion(app.getVersion());
+  logfile.info('shell.main', 'shell starting', {
+    electron: process.versions.electron,
+    chrome: process.versions.chrome,
+    packaged: app.isPackaged,
+    dev: Boolean(devRPC),
+  });
+
+  // A renderer or GPU process dying is the single most valuable line a
+  // packaged crash can leave behind, and until now it left none at all.
+  app.on('render-process-gone', (_e, _wc, details) => {
+    logfile.error('shell.window', 'render process gone', details);
+  });
+  app.on('child-process-gone', (_e, details) => {
+    logfile.error('shell.main', 'child process gone', details);
+  });
+
   if (devRPC) {
     // dev.cjs owns the Go process; we only attach. The dev build skips the
     // token check (devShell in internal/controller/dev_on.go), so any non-empty

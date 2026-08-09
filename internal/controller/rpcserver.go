@@ -6,6 +6,7 @@ import (
 	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net"
@@ -18,6 +19,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	"kube-ins/internal/logging"
 	"kube-ins/internal/safego"
 )
 
@@ -50,6 +52,9 @@ type Server struct {
 	// native save dialog. When nil the server falls back to the user's
 	// download directory, which keeps plain-browser mode fully functional.
 	NativeDialog func(SaveFileOptions) (string, error)
+
+	// NativeOpenLogFolder is the same escape hatch for revealing a folder.
+	NativeOpenLogFolder func() error
 }
 
 type wsClient struct {
@@ -105,7 +110,7 @@ func (s *Server) Bootstrap(ctx context.Context) *App {
 
 	safego.Go("controller.rpc.serve", func() {
 		if err := s.srv.Serve(s.ln); err != nil && err != http.ErrServerClosed {
-			fmt.Fprintln(os.Stderr, "kube-ins rpc:", err)
+			logging.With("controller.rpc").Error("rpc server stopped", "err", err)
 		}
 	})
 
@@ -175,6 +180,41 @@ func (s *Server) SaveFile(opts SaveFileOptions) (string, error) {
 		return "", err
 	}
 	return filepath.Join(dir, opts.DefaultName), nil
+}
+
+// OpenLogFolder mirrors SaveFile's three branches. Browser mode gets an error
+// rather than a fallback: a page in a tab has no way to reach the file manager,
+// and the frontend answers by copying the path to the clipboard instead.
+func (s *Server) OpenLogFolder() error {
+	if s.NativeOpenLogFolder != nil {
+		return s.NativeOpenLogFolder()
+	}
+	if s.shell.connected() {
+		return s.shellOpenLogFolder()
+	}
+	return errors.New("opening a folder is not supported in browser mode")
+}
+
+func (s *Server) Kind() string {
+	if s.shell.connected() {
+		return "electron"
+	}
+	return "browser"
+}
+
+// ShellDiagnostics returns whatever the attached shell reports about itself, as
+// a JSON blob, or "" when no shell is attached. Best-effort: the diagnostics
+// export must not fail because a shell is slow.
+func (s *Server) ShellDiagnostics() string {
+	if !s.shell.connected() {
+		return ""
+	}
+	data, err := s.shellDiagnostics()
+	if err != nil {
+		logging.With("controller.rpc").Debug("shell diagnostics unavailable", "err", err)
+		return ""
+	}
+	return data
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +309,8 @@ func (s *Server) handleRPC(w http.ResponseWriter, r *http.Request) {
 func (s *Server) invoke(name string, fn reflect.Value, in []reflect.Value) (resp rpcResponse) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Fprintf(os.Stderr, "kube-ins rpc: %s panicked: %v\n", name, r)
+			logging.With("controller.rpc").Error("rpc handler panicked",
+				"method", name, "panic", fmt.Sprint(r), "stack", safego.Stack(8<<10))
 			resp = rpcResponse{Error: fmt.Sprintf("%s failed: %v", name, r)}
 		}
 	}()

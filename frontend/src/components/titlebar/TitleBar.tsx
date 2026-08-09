@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import {
@@ -31,7 +31,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const [aboutOpen, setAboutOpen] = useState(false);
     const [updateOpen, setUpdateOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
-    const { openTerminal, openApplyYaml } = useTabContext();
+    const { openTerminal, openApplyYaml, openDiagnostics } = useTabContext();
     const { activeCluster } = useClusterContext();
     const { startNextStep } = useNextStep();
     const toggleAi = useAiChatStore((s) => s.toggle);
@@ -89,8 +89,9 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
         {
             label: 'Help',
             items: [
-                { label: 'Tutorial', icon: <VscQuestion size={13} />, command: () => startNextStep('main') },
-                { label: 'About',    icon: <VscInfo size={13} />,     command: () => setAboutOpen(true) },
+                { label: 'Tutorial',    icon: <VscQuestion size={13} />, command: () => startNextStep('main') },
+                { label: 'Diagnostics', icon: <VscPulse size={13} />,    command: () => openDiagnostics() },
+                { label: 'About',       icon: <VscInfo size={13} />,     command: () => setAboutOpen(true) },
             ],
         },
     ];
@@ -164,7 +165,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 </div>
             </div>
 
-            <AboutModal visible={aboutOpen} onHide={() => setAboutOpen(false)} />
+            <AboutModal visible={aboutOpen} onHide={() => setAboutOpen(false)} onDiagnostics={openDiagnostics} />
 
             {update?.available && (
                 <UpdateModal visible={updateOpen} onHide={() => setUpdateOpen(false)} info={update} />

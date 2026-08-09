@@ -12,7 +12,7 @@
 - [x] **S3** — Backend doğruluk paketi: nil panic, path traversal, timeout ✅
 - [x] **S4** — IPC hub sertleştirme *(güvenlik)* ✅
 - [x] **S5** — Session yaşam döngüsü: zombiler, sızıntılar, restart yarışı ✅
-- [ ] **S6** — Yerel loglama + diagnostics blob
+- [x] **S6** — Yerel loglama + diagnostics paneli ✅
 - [ ] **S7** — 24 business fonksiyonuna error return *(en riskli)*
 - [ ] **S8** — UI'da hata + yükleme durumu
 - [ ] **S9** — Describe, Resource Quota, eksik delete/update, namespace create
@@ -314,67 +314,111 @@ Manuel:
 
 ---
 
-## Step 6 — Yerel loglama + diagnostics blob (telemetri yok)
+## Step 6 — Yerel loglama + Diagnostics paneli (telemetri yok) ✅
 
-**Kısıt (`main.go:41-51`): stdout, RPC URL'ini ve shell token'ını taşıyan Electron'a giden özel bir pipe. O protokol dışında hiçbir şey oraya yazmamalı, asla yönlendirilmemeli.** Logger sadece dosyaya yazar.
+**Uygulandı.** Aşağısı fiilen inşa edilen tasarımdır; orijinal taslaktan sapmalar
+gerekçeleriyle işaretli.
 
-**Kısıt 2 (S4'te keşfedildi): `slog.Default()`'a güvenme.** Trivy'nin `pkg/log`
-`init()`'i `slog.SetDefault`'u yalnızca kayıtları bir slice'a biriktiren bir
-handler ile çağırıyor; Go 1.21'den beri `slog.SetDefault` standart `log`
-paketini de o handler'a yönlendiriyor. Sonuç: binary'deki **her** `log.Print*`
-sessizce yutuluyordu (testlerde çalışıyor — test binary'si Trivy'yi linklemiyor).
-`main.go` artık `--tui` dalından hemen sonra `log.SetOutput(os.Stderr)` +
-`log.SetFlags` ile bunu geri alıyor. `internal/logging` **kendi `*slog.Logger`
-örneğini** tutmalı; `slog.Default()` kullanırsa aynı tuzağa düşer. Kendi
-handler'ıyla `slog.SetDefault` çağırmak istiyorsa bunu Trivy'nin init'inden
-**sonra** (yani `Init()` içinde, paket init'inde değil) yapmalı.
+**Kısıt 1 (`main.go`): stdout, RPC URL'ini ve shell token'ını taşıyan Electron'a
+giden özel bir pipe.** O protokol dışında hiçbir şey oraya yazmaz. `internal/logging`
+**dosya-only**; isteğe bağlı geliştirme tee'si stderr'e gider ve `RoleCLI` için
+`Init` içinde **zorla kapalıdır** (tview ekranı).
 
-**Kısıt 3 (S5'te eklendi): `internal/safego` var artık.** Her goroutine
-`safego.Go("ad", fn)` ile başlıyor; panic'i `recover` edip standart `log` ile
-stack'iyle birlikte yazıyor. Bu step `internal/logging`'i kurunca
-`safego.Go`/`safego.Recover`'ın `log.Printf` çağrısını `logging.L().Error`'a
-çevir — panic log'u diagnostics blob'una girmesi gereken ilk şey. safego'nun
-`internal/logging`'i import etmesi bir döngü yaratmaz (logging hiçbir şey
-import etmiyor), ama tersi olmamalı.
+**Kısıt 2: `slog.Default()`'a asla güvenme.** Trivy'nin `pkg/log` `init()`'i
+`slog.SetDefault`'u kayıtları yalnızca bir slice'a biriktiren bir handler ile
+çağırıyor; Go 1.21'den beri bu standart `log` paketini de yönlendiriyor.
+`internal/logging` **kendi `*slog.Logger`'ını** tutar ve `slog.SetDefault`'u
+**hiç çağırmaz**; `main.go`/`cmd/tui` bunun yerine
+`log.SetOutput(logging.StdlibWriter())` + `log.SetFlags(0)` yapar.
 
-**6a. `internal/logging/logging.go`** — `log/slog` üzerine ince sarmalayıcı:
-- `Init(appVersion string) error` — `~/.kube-ins/logs/` oluştur, `kube-inspector.log` aç (mod 0600), `slog.NewTextHandler` `LevelInfo` (`KUBE_INS_LOG_LEVEL=debug` ile `LevelDebug`).
-- Rotasyon: boyut tabanlı, **bağımlılık ekleme**. 5 MB'ı geçince `.1`'e taşı, `.1`→`.2`, `.3`'ü düşür. `*os.File`'ı mutex'li küçük bir `rotatingWriter`'a sar.
-- `L() *slog.Logger`; `Init` öncesi no-op handler dönmeli ki `internal/tui` ve testler patlamasın.
-- `Tail(n int) []string` — mevcut dosyanın son n satırı (diagnostics blob için).
-- Her iki giriş noktasından çağır: `main.go`'nun `serve()` ve Wails dalı, ve `cmd/tui/main.go`. `internal/logging` **Wails'siz** kalmalı (TUI import edecek).
+**6a. `internal/logging`** — sadece stdlib import eder (leaf paket; `safego → logging`
+tek intra-proje kenarı).
+- Format: **logstash `json_event` v1** — `@timestamp` (UTC, 3 hane), `@version:"1"`,
+  `level`, `message`, `logger`, ve tüm çağıran attr'ları **`fields` altında**.
+  `slog.NewJSONHandler` + `WithGroup("fields")` + `ReplaceAttr`; `ReplaceAttr`'daki
+  `if len(groups) != 0 { return a }` guard'ı `level` adlı bir caller attr'ının üst
+  seviyeyi ezmesini imkânsız kılar (`TestCallerAttrsCannotEscape`).
+- Dosya: `~/.kube-ins/logs/kube-inspector-<yerel tarih>.log`, `0600`, dizin `0700`.
+  **Tek dosya, tüm roller** — backend + cli + Electron shell. Satırlar `fields.role`
+  ve `fields.pid` ile ayrışır.
+- Eşzamanlılık: `O_APPEND` + **kayıt başına tek `Write`** (cross-process kilit yok;
+  `slog.commonHandler` zaten kayıt başına tek `w.Write` garantisi veriyor).
+  32 KiB kayıt cap'i kısmi yazmanın kaydı ikiye bölmesini engeller.
+- Gün dönüşü: **her yazımda deadline karşılaştırması, ticker değil** (suspend/resume
+  ve DST'de kendini düzeltir). Rename yok — her gün baştan kendi dosyasını açar.
+- Retention: **7 gün, boyut tavanı yok** (bilinçli). `.retention` marker + `O_EXCL`
+  `.retention.lock` ile koordine; dosya adındaki tarihe göre siler, mtime'a göre değil;
+  katı `^kube-inspector-\d{4}-\d{2}-\d{2}\.log$` regex'i başka dosyayı silmeyi
+  yapısal olarak imkânsız kılar.
+- Seviye: `*slog.LevelVar` → runtime değişimi rebuild gerektirmez.
+  Öncelik `KUBE_INS_LOG_LEVEL` > `logs/.level` > `INFO`.
+- `Init` öncesi `slog.DiscardHandler` — argümanlar değerlenmez bile.
+- **`logging.With(name)`'i paket seviyesi değişkende çağırma** — `Init`'ten önce
+  bağlanır ve discard handler'ı kalıcı yakalar. Log yerinde çağır.
 
-**6b. Print'leri süpür.** `internal/`'daki **44 `fmt.Println` + 3 `log.Printf`**'i `logging.L().Error("...", "err", err, "cluster", clusterName)` ile değiştir. Muaf tutulacaklar (yorumla belgele): `main.go`'nun URL/token `fmt.Println`'leri (protokol), `internal/tui/*` kullanıcıya dönük çıktı.
+**6b. Giriş noktaları — 2 değil 3.** `--tui` dalı (`main.go`) eski `log.SetOutput`
+satırından **önce** return ediyordu, yani CLI binary'sinde hiçbir `log.Print` çıkmıyordu.
+Init: `main.go` tui dalı, `main.go` (serve+wails ortak), `cmd/tui/main.go`.
+
+**6c. Print süpürmesi — kısmi, bilinçli.** `internal/ipc` (14), `internal/repository` (3),
+`internal/controller` (2), `internal/safego` (1), `business/selfUpdate.go` (6),
+`business/resourceQuota.go` (1) süpürüldü. **`internal/business`'ın kalan 48 print'i
+S7'ye bırakıldı**: S7 zaten o 24 fonksiyonu `return nil, fmt.Errorf(...)` şekline
+çeviriyor ve log satırı bırakmıyor — S6'da yazılacak 48 satırı S7 hemen silerdi.
+Muaf: `main.go:42,51` (protokol), `internal/tui/exec.go` (raw-mode kullanıcı çıktısı),
+`internal/tui/logs.go:100` (tview widget'a yazıyor).
+
+**6d. Electron (`electron/logfile.cjs`).** Node **aynı dosyaya** `role:"shell"` ile
+yazar — sidecar URL basmadan ölünce iki tarafın satırlarını zaman damgasına göre iç içe
+okumak gerekiyor. `fs.openSync(p,'a')` + `fs.writeSync` (tek syscall);
+`createWriteStream`/`appendFileSync` **kullanılmaz**. Aynı 7 günlük sweep'i aynı marker
++ lock ile çalıştırır. **`SECRET` scrub'ı zorunlu**: `rememberLog` ham sidecar stdout'unu
+alıyor, içinde `kube-ins shell token <64 hex>` var. `fatal()` de scrub'lanır (eskiden
+token'ı ekrana basıyordu). Yeni siteler: sidecar start/error/exit, `fatal`,
+`render-process-gone`, `child-process-gone`.
+
+**6e. Diagnostics.** `business/redact.go` + `business/diagnostics.go` +
+`services/diagnosticsServices.go` + `models/diagnosticsInfo.go`.
+- Redaksiyon sırası **zorunlu**: `$HOME` → cluster adları → secret → base64 → URL.
+  (`$HOME` önce olmalı: ev dizininin son parçası bir cluster adıysa ters sırada
+  `/home/` sızar.) Cluster numaralandırması alfabetik → iki export diff'lenebilir.
+  **40 karakterlik hex (git commit) korunur**; **64 karakterlik hex silinir** — bu
+  uygulamanın iki gerçek sırrı (RPC ve hub token'ı) tam da o şekilde.
+  Base64 sınıfında `/` **yok** (uzun mutlak yolları yemesin). `redact(redact(s))==redact(s)`.
+- Sağlık kontrolleri `safego.Go` ile eşzamanlı, 6s/kontrol + 20s toplam, önceden
+  boyutlandırılmış slice'a indeksle yazılır → sıra sabit, mutex yok, panik eden bir
+  kontrol WaitGroup'u serbest bırakır.
+- Zip: `diagnostics.txt` + `report.json` + `shell.json` + `logs/*`, hepsi redakte.
+  `copyRedacted` **`bufio.Reader`** kullanır, `Scanner` değil (32 KiB'lık kırpılmış
+  panic kaydı Scanner'ın 64 KiB limitini patlatır ve kopyayı sessizce keser).
+
+**6f. Transport.** `Transport`'a **`OpenLogFolder() error`** (sıfır argümanlı) ve
+`Kind() string` eklendi. `OpenPath(string)` **reddedildi**: renderer'dan gelen bir
+string'in `shell.openPath`'e ulaşması `.desktop`/`.lnk`/`.exe` açtırma primitifi yaratır.
+`shellchannel.go` generic `shellCall`'a çevrildi; tipler `saveFile|openLogFolder|diagnostics`.
+`main.cjs`'teki `if (req.type !== 'saveFile') return;` **`default:` hızlı-hata dalına**
+çevrildi — eskiden bilinmeyen tipi cevapsız düşürüp Go tarafını 2 dakika bekletirdi.
+
+**6g. Frontend.** `components/diagnostics/` — Dockview paneli, `TabView` ile üç sekme:
+Overview (ortam + sağlık kontrolleri, **otomatik yenileme yok**), Logs (2 sn tail,
+`usePanelActive` ile gated, backend-tarafı level+arama filtresi, role/pid filtresi,
+runtime level seçici), Export. Panel id **`diagnostics`** — singleton, cluster-scoped
+değil, `params: {}` (structured-clone güvenli). Giriş: Help ▸ Diagnostics ve About
+modalı. `lib/clipboard.ts` `CliModeOverlay`'den çıkarıldı (WebKitGTK async clipboard'u
+blokluyor). Stiller `theme-monolith.css`'te `.diag-*`.
+
+**Verify (koşuldu, geçti)**
 ```bash
-grep -rn "fmt.Print\|log.Print" internal/ | grep -v _test.go
+GOEXPERIMENT=jsonv2 go build ./... && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go test ./...
+grep -rn "kube-ins/internal/" internal/logging/*.go | grep -v _test.go          # boş (stdlib-only)
+grep -rn "fmt.Print\|log.Print\|fmt.Fprint" internal/ipc internal/repository \
+     internal/controller internal/safego | grep -v _test.go                     # boş
+rm -rf frontend/wailsjs && make bindings && cd frontend && npx tsc --noEmit && npm run build
+go run . --serve --shell-channel < /dev/null | head -5    # TAM OLARAK iki satır
 ```
-
-**6c. Electron shell logu.** `electron/main.cjs:82` sadece `!app.isPackaged`'de logluyor. `rememberLog`'u her zaman `~/.kube-ins/logs/shell.log`'a append edecek şekilde değiştir (aynı rotasyon fikri veya açılışta 1 MB'da truncate), `dialog.showErrorBox` (`:185`) için in-memory `logTail`'i koru. Paketlenmiş çökme şu an tamamen teşhis edilemez durumda.
-
-**6d. Diagnostics blob.** Yeni `internal/business/diagnostics.go` → `GetDiagnostics() (string, error)`. `business.GetAppInfo()` (`internal/business/appInfo.go:122`) zaten app version, Go version ve bağımlılık sürümlerini dönüyor — **onu kullan**.
-```
-Kube Inspector diagnostics
-  version / commit / build date
-  go version, GOOS/GOARCH, shell (electron|wails|browser)
-  OS release
-  clusters configured: 3 (names redacted)
-  active cluster: <sha256[:8] of name>
-  dependencies: <from GetAppInfo>
-  --- last 200 log lines (redacted) ---
-```
-**Redaction** (`redact(string) string`, unit-test'li): `$HOME` → `~`; `(?i)(bearer|token|password|secret|apikey)[\s:=]+\S+` düşür; ≥40 karakterlik base64-vari dizileri düşür; cluster adlarını (`ListClusters`'tan) `<cluster-1>` ile değiştir; `kubeinspector.com` dışındaki URL'leri scheme+`<host>`'a indir.
-
-`functionBuilder.go`'ya yeni "Diagnostics" bölümü: `GetDiagnostics() (string, error)` ve `OpenLogFolder() error` (mevcut `Transport` üzerinden; Electron'da `shell:relaunch`'ı yansıtan bir `shell:openPath` IPC kanalı ekle — `main.cjs` + `preload.cjs`).
-
-**6e. Frontend.** Yeni `frontend/src/components/diagnostics/DiagnosticsModal.tsx` — read-only monospace `<pre>`, **Copy diagnostics** butonu (`navigator.clipboard.writeText` + Toast) ve **Open log folder**. Erişim: `cluster/AboutModal.tsx`'e "Diagnostics" butonu, ve Step 8'in hata banner'ı/ErrorBoundary fallback'inden (küçük bir `stores/diagnosticsStore.ts` — `themeStore.ts` şablon).
-
-**Verify**
-```bash
-GOEXPERIMENT=jsonv2 go test ./internal/business/... -run TestRedact -v
-grep -rn "fmt.Print\|log.Print" internal/ | grep -v _test.go | grep -v internal/tui   # boş
-make dev && ls -la ~/.kube-ins/logs/ && tail -20 ~/.kube-ins/logs/kube-inspector.log
-```
-Manuel: bir panel poll ederken cluster'ın kubeconfig'ini sil, About → Diagnostics → Copy. Editöre yapıştır: hata görünmeli, **hiçbir** mutlak home path'i, cluster adı veya bearer token görünmemeli.
+Canlı doğrulandı: 15 sağlık kontrolü gerçek cluster'lara karşı ~15 ms; export zip'inde
+`$HOME`, kullanıcı adı, cluster adı, bearer **yok**, TLS hatası ve git commit **var**;
+TUI ekranına tek satır sızmıyor; backend + cli kayıtları tek dosyada, `jq` hepsini parse ediyor.
 
 ---
 
@@ -396,6 +440,12 @@ Manuel: bir panel poll ederken cluster'ın kubeconfig'ini sil, About → Diagnos
 4. **Reddedilen anti-pattern:** hem hatayı loglayıp hem hata durumunda nil-olmayan slice dönmek. Birini seç: hatada **`return nil, err`**. Çağıranlar ikisini birden kontrol etmek zorunda kalmamalı.
 
 ### Tekrarlanabilir kalıp
+
+> **S6'dan devir:** o step bu 24 dosyaya bilinçli olarak dokunmadı — buradaki hedef şekil
+> log satırı bırakmıyor, dolayısıyla S6'da yazılacak 48 satırı bu step hemen silerdi.
+> Mevcut `fmt.Println(err)` çiftlerini silip yerine `return nil, fmt.Errorf(...)` koy;
+> `logging.L()` çağırma. (`GetNamespaces`/`GetNodes` şu an `[]models.X{}` dönüyor,
+> diğerleri `nil` — bu step ikisini `nil, err`'de birleştiriyor.)
 
 **Referans: `internal/business/deployment.go:10-22`** (zaten iki-dallı şekilde, sadece error return'ü yok).
 
@@ -448,6 +498,9 @@ Generic list ekranı (`internal/tui/resourcelist.go`) error return'ü zaten alı
 ```bash
 GOEXPERIMENT=jsonv2 go build ./... && GOEXPERIMENT=jsonv2 go vet ./...
 grep -rn "^func Get[A-Za-z]*(clusterName string) \[\]models\." internal/business/   # boş olmalı
+# S6'dan devralındı: business'ın 48 print'i bu step'te error return'e dönüşüyor,
+# dolayısıyla repo geneli print gate'i ancak burada geçebilir.
+grep -rn "fmt.Print\|log.Print" internal/ | grep -v _test.go | grep -v internal/tui   # boş olmalı
 grep -rn "wailsapp/wails" internal/tui cmd/tui                                      # boş olmalı
 rm -rf frontend/wailsjs && make bindings
 cd frontend && npx tsc --noEmit    # SIFIR değişiklikle geçmeli — 1. maddeyi kanıtlar

@@ -2,6 +2,9 @@ package controller_app
 
 import (
 	"context"
+	"path/filepath"
+
+	"kube-ins/internal/logging"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -23,6 +26,20 @@ func (t *wailsTransport) SaveFile(opts SaveFileOptions) (string, error) {
 		Filters:         []runtime.FileFilter{{DisplayName: opts.FilterName, Pattern: opts.Pattern}},
 	})
 }
+
+// OpenLogFolder reveals the log directory. Wails has no reveal-in-file-manager
+// API, so this goes through the browser opener, which the WebKit/GTK stack
+// turns into xdg-open (and the equivalent elsewhere).
+func (t *wailsTransport) OpenLogFolder() error {
+	dir, err := logging.Dir()
+	if err != nil {
+		return err
+	}
+	runtime.BrowserOpenURL(t.ctx, "file://"+filepath.ToSlash(dir))
+	return nil
+}
+
+func (t *wailsTransport) Kind() string { return "wails" }
 
 // Startup is the Wails OnStartup hook: it installs the Wails transport and then
 // runs the shell-agnostic initialisation.

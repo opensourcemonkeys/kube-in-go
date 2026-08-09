@@ -2,11 +2,12 @@ package repository_k8sclient
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"kube-ins/internal/logging"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -217,7 +218,7 @@ func clusterConfig(clusterName string) (*rest.Config, error) {
 	}
 	config, err := clientcmd.BuildConfigFromFlags("", path)
 	if err != nil {
-		log.Printf("Failed to load kubeconfig for cluster %s: %v", clusterName, err)
+		logging.With("repository.k8sclient").Warn("load kubeconfig failed", "cluster", clusterName, "err", err)
 		return nil, err
 	}
 	return config, nil
@@ -247,7 +248,7 @@ func getK8sConfig() (*rest.Config, error) {
 	if activeKubeconfigPath != "" {
 		config, err := clientcmd.BuildConfigFromFlags("", activeKubeconfigPath)
 		if err != nil {
-			log.Printf("Failed to load active kubeconfig from %s: %v", activeKubeconfigPath, err)
+			logging.With("repository.k8sclient").Warn("load active kubeconfig failed", "path", activeKubeconfigPath, "err", err)
 			return nil, err
 		}
 		return config, nil
@@ -269,7 +270,7 @@ func getK8sConfig() (*rest.Config, error) {
 
 	config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		log.Printf("Failed to load kubeconfig from %s: %v", kubeconfig, err)
+		logging.With("repository.k8sclient").Warn("load kubeconfig failed", "path", kubeconfig, "err", err)
 		return nil, err
 	}
 

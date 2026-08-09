@@ -200,6 +200,65 @@ Clusters are stored as YAML files in `~/.kube-ins/` with a `.yaml` extension (e.
 2. This updates the global active path used by `NewK8sClient()` / `NewK8sClientAndConfig()` / `NewMetricsClient()`.
 3. Newly opened panels pass the selected cluster name through `clusterName` and call `NewK8sClientForCluster(clusterName)` directly — so the global path matters only for the cluster-management functions (listing clusters, checking connections, etc.).
 
+### Logging & Diagnostics
+
+Every process writes **logstash `json_event` v1** lines to **one shared daily file**,
+`~/.kube-ins/logs/kube-inspector-<local-date>.log` (`0600`, directory `0700`): the GUI
+backend, the TUI, *and* the Electron main process, told apart by `fields.role`
+(`backend`/`cli`/`shell`) and `fields.pid`. One file rather than three because the failure
+this exists to diagnose — the sidecar dying before it prints a URL — can only be read by
+interleaving the shell's lines with the backend's by timestamp.
+
+`internal/logging` is a **leaf package that imports only the standard library**;
+`safego → logging` is the one intra-project edge pointing at it, and `logging → anything`
+is forbidden (a cycle back through safego). Four rules are load-bearing:
+
+- **Nothing ever writes to `os.Stdout`.** Stdout is the Electron protocol pipe carrying
+  the RPC URL and shell token (`main.go:42,51`); one stray byte hangs the handshake for
+  30s. The optional dev tee goes to stderr and `Init` forces it **off for `RoleCLI`**,
+  because tview owns the screen.
+- **`slog.SetDefault` is never called** — not in `init()`, not in `Init()`. That is the
+  exact global Trivy's `pkg/log` `init()` takes over, which since Go 1.21 also swallows
+  the standard `log` package. The package owns its own `*slog.Logger`; `main.go` and
+  `cmd/tui/main.go` do `log.SetOutput(logging.StdlibWriter())` + `log.SetFlags(0)` to pull
+  third-party `log.Print` output in without joining a fight over a process-global.
+- **Call `logging.With(name)` at the log site, never in a package-level var.** A package
+  var binds before `Init` runs and captures the discard handler permanently — silent, and
+  the easiest way to kill a whole file's logging.
+- **`L()` already has the `fields` group open**, so `L().With("logger", x)` produces
+  `fields.logger`. `With(name)` is the only way to set the top-level logger name.
+
+Mechanics worth knowing before editing: records are written with `O_APPEND` and **exactly
+one `Write` per record** (that, not a lock, is what makes cross-process appending safe —
+`slog.commonHandler` already guarantees one `w.Write` per `Handle`, so never wrap the
+writer in a `bufio.Writer`); a record over 32 KiB is replaced by a valid truncation
+notice; day rollover is a **deadline compare on each write, not a ticker** (a ticker does
+not survive suspend); retention is **7 days with no size cap**, coordinated by a
+`.retention` marker plus an `O_EXCL` `.retention.lock`, matching on a strict
+`^kube-inspector-\d{4}-\d{2}-\d{2}\.log$` so nothing else in the directory can be
+deleted. `electron/logfile.cjs` mirrors all of this in ~150 lines of dependency-free Node
+and **must stay in sync** (local date in the name, UTC `@timestamp`, same sweep). It also
+scrubs `kube-ins shell token <hex>` out of every line, because `rememberLog` is fed the
+raw sidecar stdout and the export is a file users email.
+
+**Diagnostics** is a singleton Dockview panel (`components/diagnostics/`, panel id
+`diagnostics`, deliberately outside the `${view}:${clusterName}` scheme — it describes the
+process, not a cluster) with Overview / Logs / Export tabs, opened from Help ▸ Diagnostics
+and the About modal. Backend: `business/diagnostics.go` (report, concurrent health checks
+via `safego.Go` writing into a pre-sized slice so row order is stable, log tail, zip
+export) + `business/redact.go`. **Redaction order is mandatory** — `$HOME` → cluster names
+→ secrets → base64 → URLs — and each step's ordering hazard is documented at the function;
+40-char hex (git commits) survives while 64-char hex does not, because this app's RPC and
+hub tokens are exactly that shape. `GetDiagnostics` leaves `Shell` and `Hub` empty:
+`business` must not import `internal/ipc`, and only the controller knows its `Transport`.
+
+`Transport` gained **`OpenLogFolder() error` (no arguments)** and `Kind() string`. The
+zero-argument signature is the point: an `OpenPath(string)` would hand the renderer an
+arbitrary-path-to-OS primitive, so each shell computes `~/.kube-ins/logs` itself. The
+shell channel is now a generic `shellCall` over `saveFile` / `openLogFolder` /
+`diagnostics`, and `electron/main.cjs` answers an unknown `req.type` with an error instead
+of dropping it (dropping made a mismatched pair wait out the 2-minute timeout).
+
 ### TUI / CLI Mode
 
 The `tview` terminal UI (`internal/tui/`) is an alternative front end that drives the **same `internal/business` functions** the GUI uses (no new service endpoints). It ships two ways:

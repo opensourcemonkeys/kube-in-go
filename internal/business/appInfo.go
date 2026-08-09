@@ -29,6 +29,17 @@ func GetAppInfo() models.AppInfo {
 		return info
 	}
 
+	// The toolchain stamps these when it can; `go run` and -buildvcs=false
+	// leave them out, so both stay optional everywhere they are consumed.
+	for _, s := range buildInfo.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			info.Commit = s.Value
+		case "vcs.time":
+			info.BuildDate = s.Value
+		}
+	}
+
 	tracked := make(map[string]bool, len(trackedDeps))
 	for _, d := range trackedDeps {
 		tracked[d] = true
