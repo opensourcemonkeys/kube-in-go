@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse, VscArrowSwap } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import {
@@ -16,6 +16,7 @@ import { useThemeStore, THEMES } from '../../stores/themeStore';
 import { useNextStep } from 'nextstepjs';
 import AboutModal from '../cluster/AboutModal';
 import UpdateModal from './UpdateModal';
+import PortForwardPill from './PortForwardPill';
 
 // Re-check for a newer release every 6 hours while the app stays open.
 const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
@@ -31,7 +32,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const [aboutOpen, setAboutOpen] = useState(false);
     const [updateOpen, setUpdateOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
-    const { openTerminal, openApplyYaml, openDiagnostics } = useTabContext();
+    const { openTerminal, openApplyYaml, openDiagnostics, openPortForwards } = useTabContext();
     const { activeCluster } = useClusterContext();
     const { startNextStep } = useNextStep();
     const toggleAi = useAiChatStore((s) => s.toggle);
@@ -68,6 +69,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml(activeCluster) },
                 { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal(activeCluster) },
                 { label: 'CLI Mode',    icon: <VscScreenFull size={13} />,  command: () => onToggleCli?.() },
+                { label: 'Port Forwards', icon: <VscArrowSwap size={13} />, command: () => openPortForwards() },
                 { separator: true },
                 {
                     label: 'AI Assistant (experimental)',
@@ -136,6 +138,10 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                     onDoubleClick={handleMaximise}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMaximise(); } }}
                 />
+
+                {/* Active tunnels (top-right, left of the update pill). Renders
+                    nothing when there are none. */}
+                <PortForwardPill onOpenPanel={openPortForwards} />
 
                 {/* Update available (top-right, before window controls) */}
                 {update?.available && (

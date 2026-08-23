@@ -125,13 +125,20 @@ func ownedByCronJob(refs []metav1.OwnerReference, cronJobName string) bool {
 	return false
 }
 
-func podsByLabelSelector(namespace string, matchLabels map[string]string, client *kubernetes.Clientset) ([]string, error) {
-	var parts []string
+// labelSelectorString renders matchLabels as an equality selector. Shared with
+// the port-forward target resolver, which needs the same selector but the pod
+// objects rather than their names.
+func labelSelectorString(matchLabels map[string]string) string {
+	parts := make([]string, 0, len(matchLabels))
 	for k, v := range matchLabels {
 		parts = append(parts, fmt.Sprintf("%s=%s", k, v))
 	}
+	return strings.Join(parts, ",")
+}
+
+func podsByLabelSelector(namespace string, matchLabels map[string]string, client *kubernetes.Clientset) ([]string, error) {
 	pods, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
-		LabelSelector: strings.Join(parts, ","),
+		LabelSelector: labelSelectorString(matchLabels),
 	})
 	if err != nil {
 		return nil, err

@@ -28,6 +28,7 @@ import RoleBindingEditorPanel from '../rolebinding/RoleBindingEditorPanel';
 import ObjectYamlPanel from './ObjectYamlPanel';
 import DescribePanel from './DescribePanel';
 import DiagnosticsPanel from '../diagnostics/DiagnosticsPanel';
+import PortForwardsPanel from '../portforward/PortForwardsPanel';
 import { withBoundary } from '../shared/PanelErrorBoundary';
 
 const rawComponents = {
@@ -46,6 +47,7 @@ const rawComponents = {
     objectYaml: ObjectYamlPanel,
     describe: DescribePanel,
     diagnostics: DiagnosticsPanel,
+    portforwards: PortForwardsPanel,
 };
 
 // Every panel type gets an error boundary, applied here in one place so a new

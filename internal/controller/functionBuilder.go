@@ -8,6 +8,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+
 	"kube-ins/internal/ai"
 	bussiness "kube-ins/internal/business"
 	"kube-ins/internal/models"
@@ -1192,3 +1194,47 @@ func (a *App) ExportDiagnostics(ollamaHost string) (string, error) {
 	}
 	return path, nil
 }
+
+// ============================================================================
+// Port Forwarding
+// ============================================================================
+
+// StartPortForward opens a tunnel and returns it once it is ready, so the
+// frontend can show the port that was actually bound even when the user asked
+// for an automatic one.
+//
+// The ports are `int`, not `int32`: JavaScript has no int32 and the generated
+// TypeScript is `number` either way (same reasoning as ScaleWorkload).
+func (a *App) StartPortForward(clusterName, kind, name, namespace string, localPort, remotePort int) (models.PortForwardInfo, error) {
+	id := uuid.NewString()
+	return bussiness.StartPortForward(clusterName, kind, name, namespace, localPort, remotePort, id, func(info models.PortForwardInfo) {
+		// One broadcast channel, not an event suffixed with the session id.
+		// Log and exec streams are consumed by the one panel that owns them; a
+		// forward is owned by the process, its consumers are a registry view and
+		// a title-bar indicator, and the payload already carries the id.
+		//
+		// Unlike tab:received this is deliberately *not* gated to the primary
+		// window: every window of this shell shares one backend and so shares
+		// these tunnels, and all of them should show the same list.
+		a.emit("portforward:update", info)
+	})
+}
+
+// StopPortForward closes a tunnel, or dismisses the row of one that already
+// failed. Idempotent.
+func (a *App) StopPortForward(id string) error { return bussiness.StopPortForward(id) }
+
+// ListPortForwards returns the process-wide registry. It is a pure in-memory
+// snapshot, which is why the frontend can poll it as a cheap safety net behind
+// the portforward:update events.
+func (a *App) ListPortForwards() []models.PortForwardInfo { return bussiness.ListPortForwards() }
+
+// GetForwardablePorts lists the target's real ports so the dialog can offer
+// them instead of asking the user to remember one.
+func (a *App) GetForwardablePorts(clusterName, kind, name, namespace string) ([]models.PortOption, error) {
+	return bussiness.GetForwardablePorts(clusterName, kind, name, namespace)
+}
+
+// SuggestLocalPort returns a free local port, preferring the remote one. Zero
+// means "let the kernel choose".
+func (a *App) SuggestLocalPort(preferred int) int { return bussiness.SuggestLocalPort(preferred) }

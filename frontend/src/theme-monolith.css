@@ -357,6 +357,7 @@ html.electron-shell .tb-actions,
 html.electron-shell .tb-controls,
 html.electron-shell .tb-btn,
 html.electron-shell .tb-update,
+html.electron-shell .tb-pf,
 html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 
 /* "Update available" pill in the title bar (clickable, stays out of the drag region) */
@@ -371,6 +372,53 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
   box-shadow: 0 0 0 1px rgba(63,200,180,.4), 0 2px 10px rgba(63,200,180,.35);
 }
 .tb-update:hover { filter: brightness(1.08); box-shadow: 0 0 0 1px rgba(63,200,180,.6), 0 3px 14px rgba(63,200,180,.5); }
+
+/* ── Port-forward pill + popover ──────────────────────────────────────────────
+   A forward outlives the panel that started it, so the title bar is the only
+   place that can truthfully say one is running. Styled quieter than the update
+   pill: it reports a normal state, not a call to action. */
+.tb-pf {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-right: 8px; padding: 2px 9px;
+  font-family: var(--font-family); font-size: 11px; font-weight: 600;
+  color: var(--teal); background: transparent;
+  border: 1px solid var(--line2); border-radius: 5px;
+  cursor: pointer; white-space: nowrap;
+  -webkit-app-region: no-drag;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.tb-pf:hover { background: var(--hover); border-color: var(--teal); }
+.tb-pf--warn  { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 55%, transparent); }
+.tb-pf--warn:hover  { border-color: var(--amber); }
+.tb-pf--error { color: var(--red);   border-color: color-mix(in srgb, var(--red) 55%, transparent); }
+.tb-pf--error:hover { border-color: var(--red); }
+
+.pf-overlay.p-overlaypanel { min-width: 340px; max-width: 520px; }
+.pf-overlay .p-overlaypanel-content { padding: 6px; }
+.pf-overlay__list { display: flex; flex-direction: column; max-height: 300px; overflow-y: auto; }
+.pf-overlay__row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 7px; border-radius: 6px; font-size: 12px;
+}
+.pf-overlay__row:hover { background: var(--hover); }
+.pf-overlay__dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; background: var(--ink3); }
+.pf-overlay__dot--ready { background: var(--green); }
+.pf-overlay__dot--starting { background: var(--blue); }
+.pf-overlay__dot--reconnecting { background: var(--amber); }
+.pf-overlay__dot--error { background: var(--red); }
+.pf-overlay__addr { font-family: var(--font-mono, monospace); color: var(--ink); white-space: nowrap; }
+.pf-overlay__target {
+  color: var(--ink3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto;
+}
+.pf-overlay__actions { display: flex; gap: 1px; flex: 0 0 auto; }
+.pf-overlay__more {
+  width: 100%; margin-top: 4px; padding: 6px;
+  font-family: var(--font-family); font-size: 11.5px; color: var(--ink2);
+  background: transparent; border: none; border-top: 1px solid var(--line);
+  cursor: pointer; text-align: center;
+}
+.pf-overlay__more:hover { color: var(--teal); }
+
 /* ── Exec container picker (pod list terminal button) ─────────────────────── */
 .exec-container-menu.p-menu {
   background: var(--panel2);

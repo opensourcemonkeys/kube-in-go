@@ -5,8 +5,8 @@ package tui
 const (
 	hintClusters  = "[teal]↵[-] select  [teal]a[-] add  [teal]d[-] delete  [teal]v[-] view  [teal]?[-] help  [teal]q[-] quit"
 	hintMenu      = "[teal]→/↵[-] open  [teal]c[-] cluster  [teal]?[-] help  [teal]q[-] back"
-	hintList      = "[teal]←[-] menu  [teal]↵[-] describe  [teal]→[-] scroll  [teal]y[-] yaml  [teal]e[-] edit  [teal]d[-] del  [teal]/[-] filter  [teal]r[-] refresh  [teal]q[-] back"
-	hintListPod   = "[teal]←[-] menu  [teal]↵[-] describe  [teal]→[-] scroll  [teal]y[-] yaml  [teal]e[-] edit  [teal]l[-] logs  [teal]s[-] shell  [teal]d[-] del  [teal]/[-] filter  [teal]q[-] back"
+	hintList      = "[teal]←[-] menu  [teal]↵[-] describe  [teal]→[-] scroll  [teal]y[-] yaml  [teal]e[-] edit  [teal]d[-] del  [teal]F[-] fwd  [teal]/[-] filter  [teal]r[-] refresh  [teal]q[-] back"
+	hintListPod   = "[teal]←[-] menu  [teal]↵[-] describe  [teal]→[-] scroll  [teal]y[-] yaml  [teal]e[-] edit  [teal]l[-] logs  [teal]s[-] shell  [teal]F[-] fwd  [teal]d[-] del  [teal]/[-] filter  [teal]q[-] back"
 	hintListDrill = "[teal]←[-] menu  [teal]↵[-] open instances  [teal]y[-] yaml  [teal]e[-] edit  [teal]d[-] del  [teal]/[-] filter  [teal]r[-] refresh  [teal]q[-] back"
 	hintYaml      = "[teal]e[-] edit  [teal]/[-] search  [teal]n/N[-] next/prev  [teal]g/G[-] top/bottom  [teal]q[-] back"
 	hintEdit      = "[teal]^O[-] save  [teal]^X[-] exit"

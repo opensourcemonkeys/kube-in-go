@@ -49,6 +49,7 @@ export default function StatefulSetListComponent({ clusterName, api }: { cluster
             deleteLabel="statefulset"
             pollInterval={2000}
             describeResource="statefulsets"
+            portForward={{ kind: 'statefulset' }}
             defaultFilters={defaultFilters}
             emptyMessage="No statefulsets found"
             onRowDoubleClick={(s) => openYamlPanel({ clusterName, resourceKind: 'statefulset', name: s.name, namespace: s.namespace, referencePanel })}

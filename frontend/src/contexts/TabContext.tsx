@@ -146,6 +146,7 @@ interface TabContextValue {
     openTerminal: (clusterName: string) => void;
     openApplyYaml: (clusterName: string) => void;
     openDiagnostics: () => void;
+    openPortForwards: () => void;
     openClusterResourceView: (clusterName: string) => void;
     openReceivedPanel: (panel: ReceivedPanel) => void;
 }
@@ -245,6 +246,27 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             id: 'diagnostics',
             component: 'diagnostics',
             title: 'Diagnostics',
+            params: {},
+        });
+    }, []);
+
+    // Also a singleton outside the `${view}:${clusterName}` scheme, for the same
+    // reason as Diagnostics: it describes this process rather than a cluster.
+    // Port forwards are owned by the backend and span every cluster the user has
+    // opened, so there is nothing sensible to pin it to.
+    const openPortForwards = useCallback(() => {
+        const api = apiRef.current;
+        if (!api) return;
+
+        const existing = api.getPanel('portforwards');
+        if (existing) {
+            existing.api.setActive();
+            return;
+        }
+        api.addPanel({
+            id: 'portforwards',
+            component: 'portforwards',
+            title: 'Port Forwards',
             params: {},
         });
     }, []);
@@ -587,16 +609,21 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             case 'applyYaml':
                 openApplyYaml(cn);
                 break;
+            case 'portforwards':
+                // Same rule as diagnostics: moving it shows THAT process's
+                // tunnels, which is the only thing it could truthfully show.
+                openPortForwards();
+                break;
             case 'diagnostics':
                 // Transferable on purpose: moving it to another instance shows
                 // THAT instance's diagnostics, which is the useful behaviour.
                 openDiagnostics();
                 break;
         }
-    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openDescribePanel, openClusterResourceView, openApplyYaml, openDiagnostics]);
+    }, [openTab, openYamlPanel, openLogPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openDescribePanel, openClusterResourceView, openApplyYaml, openDiagnostics, openPortForwards]);
 
     return (
-        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openDescribePanel, openTerminal, openApplyYaml, openClusterResourceView, openDiagnostics, openReceivedPanel }}>
+        <TabContext.Provider value={{ registerApi, getApi, openTab, openYamlPanel, openLogPanel, openExecPanel, openPolicyViewer, openConfigMapEditor, openSecretEditor, openRoleEditor, openRoleBindingEditor, openObjectYaml, openDescribePanel, openTerminal, openApplyYaml, openClusterResourceView, openDiagnostics, openPortForwards, openReceivedPanel }}>
             {children}
         </TabContext.Provider>
     );

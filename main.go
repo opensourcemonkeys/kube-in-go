@@ -77,6 +77,10 @@ func serve(shellChannel bool) error {
 	case <-sig:
 	case <-stop:
 	}
+
+	// Tunnels outlive the panels that opened them, so nothing else closes them.
+	// Skipped on SIGKILL, where the kernel reclaims the listeners instead.
+	business.StopAllPortForwards()
 	return srv.Close()
 }
 
@@ -176,6 +180,10 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 6, G: 14, B: 32, A: 1},
 		OnStartup:        app.Startup,
+		// Not a method on App: Wails binds every exported method into the
+		// generated TypeScript, and closing every tunnel is not part of the
+		// frontend API.
+		OnShutdown: func(context.Context) { business.StopAllPortForwards() },
 		Linux: &linux.Options{
 			WebviewGpuPolicy: linux.WebviewGpuPolicyAlways,
 		},

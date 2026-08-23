@@ -48,6 +48,7 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
             deleteLabel="replicaset"
             pollInterval={2000}
             describeResource="replicasets"
+            portForward={{ kind: 'replicaset' }}
             defaultFilters={defaultFilters}
             emptyMessage="No replicasets found"
             onRowDoubleClick={(r) => openYamlPanel({ clusterName, resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel })}

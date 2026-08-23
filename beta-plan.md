@@ -17,7 +17,7 @@
 - [x] **S8** — UI'da hata + yükleme durumu ✅
 - [x] **S9** — Describe, Resource Quota, eksik delete/update, namespace create ✅
 - [x] **S10** — Scale ve Rollout Restart ✅
-- [ ] **S11** — Port forwarding
+- [x] **S11** — Port forwarding: process-ömürlü tünel modeli ✅
 - [ ] **S12** — i18n altyapısı + İngilizce katalog + dil seçici
 - [ ] **S13** — tr / de / ru / zh / ja çevirileri + çürüme koruması
 - [ ] **S14** — Performans ve render hijyeni
@@ -972,87 +972,229 @@ Known Limitations'a yazılmalı.
 
 ---
 
-## Step 11 — Port forwarding: tam session modeli
+## Step 11 — Port forwarding: process-ömürlü tünel modeli ✅
 
 **En büyük yeni özellik. Yaşam döngüsü kararı işin can alıcı kısmı.**
 
 ### Yaşam döngüsü kararı
-Log ve exec session'ları **panele bağlı**: panel açar, panel kapanınca ölür. Port-forward bunun **tersi** olmalı — **process'e bağlı**. Kullanıcı `localhost:8080 → svc/api:80` başlatır, paneli kapatıp tarayıcısında çalışmaya gider. Panel kapanınca tüneli öldürmek hatadan ayırt edilemez.
-- Forward'lar servis katmanında **process-global registry**'de yaşar (`logSessions`/`execSessions` gibi), ama panel dispose'ta hiçbir şey onları kapatmaz.
-- "Port Forwards" paneli backend registry'sine **bakan bir view**, sahibi değil. State `ListPortForwards()` ile çekilir → panel kapanıp açılınca aynı canlı forward'lar görünür, pencere reload'unda da hayatta kalır.
-- Sadece kullanıcı açıkça durdurur veya process çıkışında `StopAllPortForwards()` (`Server.Close` / Wails shutdown).
-- Forward'lar **instance başına**, instance'lar arası paylaşılmaz (yerel port bind ediyorlar; aynı yerel portu iki instance forward ederse ikincisi "address already in use" alır — bu doğru ve dürüst).
+Log ve exec session'ları **panele bağlı**: panel açar, panel kapanınca ölür. Port-forward bunun **tersi** — **process'e bağlı**. Kullanıcı `127.0.0.1:8080 → svc/api:80` başlatır, paneli kapatıp tarayıcısında çalışmaya gider. Panel kapanınca tüneli öldürmek hatadan ayırt edilemez.
+- Forward'lar servis katmanında **process-global registry**'de yaşar, ama panel dispose'ta hiçbir şey onları kapatmaz.
+- "Port Forwards" paneli backend registry'sine **bakan bir view**, sahibi değil.
+- Sadece kullanıcı açıkça durdurur veya process çıkışında `StopAllPortForwards()`.
+- Forward'lar **instance başına**; aynı yerel portu iki instance forward ederse ikincisi "already in use" alır — bu doğru ve dürüst.
 
-### Model — yeni `internal/models/portForwardInfo.go`
-```go
-type PortForwardInfo struct {
-    ID, ClusterName, Namespace string
-    ResourceKind string  // pod | deployment | statefulset | replicaset | service
-    ResourceName, PodName string
-    LocalPort, RemotePort int   // LocalPort: 0 istendiyse gerçekte bağlanan port
-    Address string              // her zaman 127.0.0.1
-    Status  string              // starting | ready | error | closed
-    Error   string
-    StartedAt string            // RFC3339
-}
-```
+### Kullanıcı onaylı kararlar (planlama oturumu)
 
-### Services — yeni `internal/services/portForwardServices.go`
-`StartPortForward(id, cfg, client, req, onEvent) (models.PortForwardInfo, error)`:
-1. **Hedef çözümleme.** Port-forward yalnızca **Pod**'a karşı çalışır.
-   - `pod` → doğrudan.
-   - `deployment`/`statefulset`/`replicaset` → **`internal/services/logServices.go`'daki mevcut helper'ları kullan** (`GetDeploymentPods`, `GetStatefulSetPods`, `GetReplicaSetPods` ve ortak `podsByLabelSelector`). İkinci bir selector resolver yazma. Phase `Running` **ve** tüm container'ları ready olan ilk pod'u seç; yoksa net hata.
-   - `service` → `Services(ns).Get(...)`, `spec.selector`'ı `podsByLabelSelector` ile çöz, istenen service port'unu `targetPort`'a eşle (isimli targetPort'u pod'un container port'larından çöz).
-2. **Dialer:**
-   ```go
-   url := client.CoreV1().RESTClient().Post().
-       Resource("pods").Namespace(ns).Name(pod).SubResource("portforward").URL()
-   transport, upgrader, err := spdy.RoundTripperFor(cfg)
-   dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", url)
-   ```
-   **Step 3c'nin streaming rest config'ini kullan** (`Timeout: 0`); 20s timeout tüneli öldürür.
-3. **Sadece loopback bind — pazarlık konusu değil.** `portforward.NewOnAddresses(dialer, []string{"127.0.0.1"}, ports, stopCh, readyCh, out, errOut)` kullan, `portforward.New` **değil** (o `localhost` bind eder → `::1` içerebilir ve tarihsel olarak daha genişti). Frontend'den asla adres parametresi kabul etme. Nedenini yoruma yaz: forward edilmiş bir port, cluster iş yüküne kimliksiz erişimdir.
-4. **Yerel port 0 = otomatik.** `readyCh` kapandıktan sonra `fw.GetPorts()` ile gerçek `Local`'i `info.LocalPort`'a yaz, sonra `ready` yayınla.
-5. Goroutine `safego.Go` ile (S5d): `fw.ForwardPorts()` bloklar; dönünce mutex altında registry'den sil, `closed`/`error` durumunu `onEvent` ile yayınla.
-6. **Ready bekleme**: `select { case <-readyCh: case <-time.After(15*time.Second): stop; return error }`. Dolu `PortForwardInfo`'yu senkron dön ki UI bağlanan portu hemen gösterebilsin.
-7. `out`/`errOut` `io.Writer` — atma, `logging.L().Debug`'a bağla.
+| Konu | Karar |
+|---|---|
+| Tünel öldüğünde | **Akıllı kural**: hedef workload/service ise pod'u yeniden çöz + backoff'lu 5 deneme; hedef doğrudan Pod ise reconnect yok, `error` göster |
+| Global görünürlük | **Başlık çubuğunda pill + popover**, yalnız canlı forward varken |
+| Kalıcılık | **Kapanışta hepsi ölür** — kaydedilmiş forward yok |
+| TUI | **Tam parite** — `F` ile başlat, `portforwards` view'ı, `X` ile durdur |
 
-`StopPortForward(id)` — `s.once.Do(func(){ close(s.stopCh) })`, mutex altında sil, idempotent. `ListPortForwards()` — mutex altında snapshot, `StartedAt`'e göre sıralı. `StopAllPortForwards()` — shutdown'dan çağrılır.
+---
 
-### Business / Controller
-`internal/business/portForward.go` — cluster'ın streaming client+config'ini çözüp delege eder.
-`functionBuilder.go` yeni "Port Forwarding" bölümü:
-```go
-func (a *App) StartPortForward(clusterName, kind, name, namespace string, localPort, remotePort int) (models.PortForwardInfo, error)
-func (a *App) StopPortForward(id string) error
-func (a *App) ListPortForwards() []models.PortForwardInfo
-```
-`StartPortForward` id'yi `uuid.New()` ile üretir, `onEvent` = `a.emit("portforward:update", info)`. **Session-son ekli event değil, tek broadcast kanal** — log/exec'in aksine tüketici tek bir registry view'ı, payload id taşıyor. Start'ta ve close'ta da yayınla. Shutdown yoluna (`rpcserver.go`'da `Server.Close`, Wails `OnShutdown`) `StopAllPortForwards()` kaydet.
+### Uygulandı — sonuç
 
-### Frontend
-- Yeni `frontend/src/components/portforward/main.tsx` — `ViewPanel.tsx`'te `portforwards` view'ı + `menuItems.tsx`'te menü girdisi. Kolonlar: cluster, kind/name, namespace, `127.0.0.1:local → remote`, status tag, age, Stop, ve `BrowserOpenURL(\`http://127.0.0.1:${local}\`)` çağıran Open. Veri `ListPortForwards()`'tan, `portforward:update` event'i (`EventsOn`) + 5s güvenlik poll'ü ile tazelenir.
-- Yeni `frontend/src/components/shared/PortForwardDialog.tsx` — yerel port (boş = otomatik), uzak port (satırdan ön dolu), Start.
-- `pod/`, `service/`, `deployment/`, `statefulset/` `main.tsx`'lerine "Port forward" satır eylemi (S9'daki Describe ile aynı action-column kalıbı).
-- Bu view `api` prop'unu alsın ve `usePanelActive` kullansın (S14 kuralı) — forward'lar backend'e ait olduğu için poll'ü duraklatmak zararsız.
+**11a. Model.** Yeni `internal/models/portForwardInfo.go`: `PortForwardInfo`
+(id, cluster, ns, kind/name, **pod** — reconnect'te değişir —, local/remote/**target**
+port, address, status, error, startedAt, attempts, **hint**, **reconnect**) ve
+`PortOption` (dialog'un uzak-port seçicisini besler).
 
-**Beta kapsamı dışı:** tünel ölünce otomatik yeniden bağlanma (`error` durumu göster, kullanıcı yeniden başlatsın) ve Service ClusterIP'sine forward (kubectl gibi arkadaki pod'a forward ediyoruz).
+`Hint` plandan sonra eklendi: "Open in browser" butonunun ne zaman gösterileceğine
+karar veriyor. Port **numarasından** türetiliyor (`portHint("", RemotePort)`) —
+Postgres tüneline tarayıcı açmak kimseye faydası olmadığı için buton gizleniyor,
+ama "Copy address" her zaman duruyor, yani yanlış tahmin en fazla bir butona mal olur.
+
+**11b. Services — iki dosya, kasten ayrı.**
+- `portForwardTarget.go` — "hangi pod, hangi port?" Cluster'sız test edilebilen
+  kısım burada: `resolveForwardTarget`, `resolveServiceTargetPort`, `pickReadyPod`,
+  `workloadPodTemplate`, `ResolveForwardablePorts`, `portHint`, `SuggestLocalPort`.
+- `portForwardServices.go` — registry, session yaşam döngüsü, dialer, supervisor.
+
+Plandaki "logServices.go helper'larını aynen kullan" tam olarak uygulanamadı:
+o helper'lar `[]string` **isim** dönüyor, port-forward'ın ise Running **ve** tüm
+container'ları ready olan bir pod objesine ihtiyacı var (değilse tünel kurulur ve
+her isteği reddeder — "uygulama bozuk" gibi görünür). Bunun yerine
+`labelSelectorString` `logServices.go`'dan **çıkarıldı** ve iki taraf da onu
+kullanıyor; selector çözümü tek yerde kaldı, readiness filtresi yeni.
+
+**Loopback-only, pazarlık konusu değil:** `portforward.NewOnAddresses(dialer,
+[]string{"127.0.0.1"}, ...)`. `portforward.New` yok. Frontend'den adres parametresi
+**alınmıyor** — gerekçe kodda yorum olarak.
+
+**Dialer plandan farklı ve daha iyi:** client-go v0.36.1'de
+`portforward.NewSPDYOverWebsocketDialer` + `NewFallbackDialer` var. kubectl 1.30+
+websocket'i önce dener, `httpstream.IsUpgradeFailure`/`IsHTTPSProxyError`'da SPDY'ye
+düşer. Taslak yalnızca SPDY diyordu; SPDY kalkıyor ve bazı proxy'ler upgrade'i
+blokluyor. Websocket dialer kurulamazsa **sessizce SPDY'ye düşülüyor** — tercih
+edilen transport'u kaybetmek forward'ı başarısız kılmaya değmez.
+
+**Supervisor.** `run()` session'ın tüm ömrünü sahipleniyor: çöz → bağlan → servis
+et → (uygunsa) yeniden bağlan. Üç kural:
+1. **Reconnect kuralı `reconnectForKind(kind)`** — `kind != "pod"`. Pinlenmiş bir
+   pod silindiyse başka bir pod'a sessizce geçmek yanlış cevap.
+2. **Reconnect'te yerel port sabit** (`boundPort()`), 0 değil. Kullanıcının açık
+   tarayıcı sekmesi/`curl`'ü çalışmaya devam etmeli; yeni port seçmek reconnect'i
+   anlamsız kılar.
+3. **Hiç ready olmadan ölen forward `StartPortForward`'ın hatası olarak dönüyor ve
+   registry'de iz bırakmıyor** (kullanıcı zaten dialog'a bakıyor); **ready olup
+   sonra ölen ise `error` durumuyla registry'de kalıyor** ki panelde nedeni
+   okunabilsin. Ayrım `everReady`.
+
+`runOnce` attempt başına ayrı bir `attemptStop` kanalı kullanıyor — bir denemeyi
+bırakmak session'ı bitirmemeli, ama session stop'u denemeyi bitirmeli.
+`ForwardPorts()` goroutine'i `defer close(errCh)` ile korunuyor: safego panic'i
+yakalarsa alıcı nil alır, sonsuza kadar beklemez.
+
+**Kayıt kimliğe göre siliniyor** (`pfRemove`), CLAUDE.md session-registry kuralı.
+`out`/`errOut` atılmıyor, `pfLogWriter` ile `logging.With("portforward").Debug`'a
+gidiyor — client-go bağlantı hatalarını başka hiçbir yere yazmıyor.
+
+**Ön bind kontrolü** (`localPortFree`): TOCTOU var ve kabul; amacı kriptik bir
+stream hatası yerine *"local port 8080 is already in use"* demek.
+
+**11c. Business / Controller.** `business/portForward.go` **streaming** client+config
+çözüyor (`NewK8sClientAndConfigForClusterStreaming`) — normal constructor'ların 20s
+timeout'u tüneli oturum ortasında keserdi. Controller'da beş metot; portlar `int`
+(JS'te int32 yok, S10'daki `ScaleWorkload` emsali); id `uuid.NewString()`.
+
+**Tek broadcast event `portforward:update`**, session-son ekli değil: tüketici bir
+registry view'ı + bir başlık çubuğu göstergesi, payload zaten id taşıyor. Ve
+`tab:received`'ın aksine **`isPrimaryWindow()` guard'ı yok** — bir shell'in tüm
+pencereleri aynı backend'i ve dolayısıyla aynı tünelleri paylaşıyor.
+
+**Kapanış iki yoldan da bağlandı:** `serve()` içinde `srv.Close()` öncesi, ve Wails
+`OnShutdown`. İkincisi **metot değil closure** — Wails her exported `App` metodunu
+binding'e çevirir.
+
+**11d. Frontend.**
+- `stores/portForwardStore.ts` — zustand, **persist yok** (`metricsStore` emsali:
+  bir forward, portunu bind eden process'ten uzun yaşayamaz, açılışta liste
+  göstermek yalan olurdu). `startSync()` idempotent; `EventsOn` + 5s güvenlik
+  poll'ü. **`TitleBar`'dan başlatılıyor, panelden değil** — pill, panel kapalıyken
+  de çalışmak zorunda.
+- `components/portforward/PortForwardsPanel.tsx` — singleton `portforwards` paneli,
+  `params: {}`, `${view}:${clusterName}` şemasının dışında (Diagnostics emsali).
+  Kolonlar: status, address, target, namespace, pod, cluster, age. Aksiyonlar:
+  Open in browser (yalnız `hint` http/https ise), Copy address, **Restart**, Stop.
+  Restart backend fiili değil, stop+start: yeni tünel hedefi yeniden çözer ve yeni
+  bir id alır — pod değiştikten sonra istenen tam olarak bu. Yerel port açıkça
+  isteniyor ki kullanıcının elindeki adres çalışmaya devam etsin.
+- `components/shared/PortForwardDialog.tsx` — **uzak port `Dropdown`'dan seçiliyor,
+  yazılmıyor**: `GetForwardablePorts` hedefin gerçek portlarını isimleriyle veriyor
+  (`http · 8080/TCP · api`), sonda `Custom…`. Tek portlu hedefte otomatik seçim.
+  UDP **disabled** (yok sayılmıyor — yokluğunu açıklamak gizlemekten iyi). Port
+  listelenemezse **engellemiyor**, elle girişe düşüyor. Yerel port
+  `SuggestLocalPort` ile öneriliyor, farklıysa *"Port 8080 is already in use —
+  suggesting 8081"*. Tek satır güvenlik notu: *"Bound to 127.0.0.1 only."*
+  Hata dialog'un **içinde** (S10 `ScaleDialog` kararı).
+- `ResourceListView`'a `portForward?: { kind }` prop'u. **`describeColumn` tek bir
+  `trailing` kolonuna dönüştürüldü**, iki ayrı kolon eklenmedi: `toColumnArray` tek
+  `extra` alıyor ve aksiyon kolonu **ile solundaki komşuyu** etiketleyerek resize
+  handle'larını gizliyor; araya ikinci bir kolon girseydi sürüklenebilir bir kenar
+  geri gelir ve butonlardan yer çalardı. `pods`/`services`/`deployments`/
+  `statefulsets`/`replicasets`'e tek satır prop.
+- `titlebar/PortForwardPill.tsx` + `theme-monolith.css`'te `.tb-pf` / `.pf-overlay__*`.
+  Update pill'inin solunda, **yalnız canlı forward varken**. Tek tık popover
+  (Open/Copy/Stop), çift tık panel. `reconnecting`/`starting` varsa amber, `error`
+  varsa kırmızı. Update pill'inden **daha sessiz** stillendi: normal bir durumu
+  bildiriyor, eyleme çağırmıyor.
+
+**11e. TUI — tam parite.** `portForwardAction('F')` pods/services/deployments/
+statefulsets/replicasets'e eklendi; prompt `"8080:80"`, `":80"` veya `"80"` kabul
+ediyor (`parsePortPair`). Yeni `portforwards` view'ı CLUSTER menüsünde,
+`list` cluster argümanını yok sayıyor, `X` durduruyor, `getYAML`/`del` nil
+(`resourcelist.go` nil-toleranslı). `keys.go`'ya `F` eklendi.
+**Büyük harf `F`**, çünkü `r` refresh ve `s` pod ekranında shell (S10'daki
+`S`/`R`/`P`/`U` ile aynı gerekçe).
+
+**Düzeltilen kusur (ilk denemede kaçtı, canlı cluster'da yakalandı).**
+Ready-işaretlemesi tasarımdaki `onReady` callback'inden `runOnce`'ın içine
+taşınırken **`report(nil)` çağrısı kayboldu**. Sonuç sinsi: tünel açılıyor,
+`ready` event'i yayınlanıyor, port gerçekten bind ediliyor — ama `run()` ancak
+`runOnce` döndükten sonra rapor ediyor, o da **tünel ölene kadar dönmüyor**.
+Yani `StartPortForward` süresiz bloke oluyordu; RPC settle olmadığı için
+dialog'un Start butonundaki promise hiç çözülmüyor, modal ne kapanıyor ne iptal
+edilebiliyordu. Backend'de hiçbir hata görünmüyor — belirti "uygulama dondu".
+
+Üç katmanlı düzeltme:
+1. `runOnce(t, localPort, onReady func())` — ready dalında `onReady()` çağrılıyor;
+   `run()` bunu `func() { report(nil) }` olarak geçiyor.
+2. `pfSession`'a **`resolve`/`attempt` seam'leri** eklendi (`newPFSession`'da
+   gerçekleriyle dolduruluyor). Kontrat — *hazır olunca* rapor et, tünel bitince
+   değil — canlı API server olmadan başka türlü gözlemlenemiyor;
+   `TestStartReturnsWhenReadyNotWhenTunnelEnds` bu seam sayesinde hermetik.
+3. `pfStartTimeout` (45s) backstop: `StartPortForward` artık hiçbir koşulda
+   süresiz beklemiyor — bir RPC'nin dönmemesi, iptal bile edilemeyen bir dialog
+   demek. 20s resolve + 15s ready zaten üst sınır, yani 45s'ye ulaşmak
+   "session hiç rapor etmedi" anlamına geliyor.
+
+**Frontend tarafı:** dialog artık **başlatma sürerken de kapatılabiliyor**.
+Forward backend'e ait, dialog'a değil — kullanıcı vazgeçtikten sonra başlatma
+başarılı olursa forward zaten Port Forwards panelinde ve pill'de belirir, ki
+doğru yeri orası. `alive` ref'i, dismiss'ten sonra düşen state yazımlarını
+koruyor.
+
+**11f. Testler.** `internal/services/portForwardServices_test.go` — 12 test,
+hepsi hermetik: kimliğe-göre-silme (aynı id'yle gelen replacement'ın eski
+session'ın cleanup'ıyla düşmemesi), idempotent stop, `StopAllPortForwards`,
+liste sıralaması, reconnect kuralı, `SuggestLocalPort` (gerçekten bir port bind
+edip önericinin atladığını doğruluyor), `resolveServiceTargetPort` (sayısal /
+boş / isimli / eşleşmeyen isim), `servicePortByNumber`, `podIsReady`,
+`containerPortOptions`, `portHint`, ve yukarıdaki iki regresyon testi
+(**ready'de rapor**, **start backstop**).
+`frontend/src/stores/portForwardStore.test.ts` — 7 test: id'ye göre upsert,
+sıra kararlılığı, `closed` düşüyor / `error` kalıyor, backend erişilemezken
+son liste korunuyor, `isWebForward`/`forwardUrl`/`forwardAddress`.
+
+### Bilinen kısıtlar (S16 Known Limitations'a)
+- **TUI ayrı bir process** — kendi forward registry'si var, GUI'ninkini görmez.
+  GUI'nin CLI Mode'u binary'yi bir pty'de yeniden exec ettiği için overlay
+  kapanınca o process ölür ve orada başlatılan tüneller de ölür.
+- TUI'de `F` **senkron** çalışıyor (tünel hazır olana kadar bekler, en kötü 15s).
+  Scale/restart de aynı şekilde senkron (20s client timeout'u ile), yani davranış
+  tutarlı; tek bir aksiyon için asenkron `rowAction` varyantı eklenmedi.
+- `Hint` yalnız **port numarasından** türüyor, port adından değil: `metrics`
+  adlı 9091 portu "Open in browser" butonunu almaz. Copy address her zaman var.
+- Otomatik reconnect **workload/service** hedeflerine mahsus ve **5 deneme** ile
+  sınırlı; sonrasında satır `error` durumunda kalır ve Restart bekler.
+
+**Yapılmayan:** aşağıdaki manuel kontroller canlı bir cluster istiyor ve bu
+oturumda koşulmadı.
 
 **Verify**
 ```bash
-GOEXPERIMENT=jsonv2 go build ./... && GOEXPERIMENT=jsonv2 go vet ./...
-grep -n "NewOnAddresses" internal/services/portForwardServices.go   # olmalı, portforward.New olmamalı
-rm -rf frontend/wailsjs && make bindings && cd frontend && npx tsc --noEmit
+GOEXPERIMENT=jsonv2 go build ./... && GOEXPERIMENT=jsonv2 go vet ./... && GOEXPERIMENT=jsonv2 go test ./...
+grep -n "NewOnAddresses" internal/services/portForwardServices.go        # olmalı
+grep -n "portforward\.New(" internal/services/portForwardServices.go     # BOŞ olmalı
+grep -rn '0\.0\.0\.0|"localhost"' internal/services/portForwardServices.go  # BOŞ olmalı
+grep -n "Streaming" internal/business/portForward.go                     # olmalı
+grep -rn "go func()" internal/services internal/controller internal/ipc  # BOŞ olmalı
+grep -rn "wailsapp/wails" internal/tui cmd/tui                           # BOŞ olmalı
+rm -rf frontend/wailsjs && make bindings
+grep -n "PortForward" frontend/wailsjs/go/controller_app/App.d.ts        # 5 metot
+cd frontend && npx tsc --noEmit && npm run lint && npm run test && npm run build
+git checkout -- frontend/dist/.gitkeep
 ```
 Manuel (kind):
 ```bash
 kubectl create deploy nginx --image=nginx && kubectl expose deploy nginx --port=80
-# App: Services → nginx → Port forward → local boş, remote 80 → Start
+# 1. Services -> nginx satirinda ⇄ -> dropdown 80/TCP'yi kendiliginden secmeli,
+#    local port onerilmis olmali. Start.
 curl -sSI http://127.0.0.1:<port>/ | head -1     # HTTP/1.1 200 OK
 ss -ltnp | grep <port>                            # 127.0.0.1 OLMALI, asla 0.0.0.0
-# Paneli kapat, yeniden aç -> forward hâlâ listede ve çalışıyor.
-# UI'dan durdur -> curl başarısız.
-kubectl delete pod -l app=nginx                   # tünel ölür -> status "error", panic yok
-# Uygulamadan çık -> ss portun serbest bırakıldığını göstermeli.
+# 2. Paneli kapat, yeniden ac -> forward hala listede. Pill panel kapaliyken de
+#    "1 forward" gostermeli.
+kubectl rollout restart deploy/nginx              # status reconnecting -> ready,
+                                                  # curl AYNI portta calismaya devam
+                                                  # etmeli, PodName degismeli
+# 3. Pods -> bir pod'a forward ac, kubectl delete pod <ad>
+#    -> status error, yeniden deneme YOK, panic yok, satir panelde kaliyor
+# 4. Ayni yerel portu ikinci kez iste -> "local port N is already in use"
+# 5. UI'dan Stop -> curl basarisiz, satir dusuyor, pill kayboluyor
+# 6. Uygulamadan cik -> ss bos (port serbest)
+# 7. TUI: Services'te F, "8081:80" -> Port Forwards view'inda gorunmeli, X durdurmali
 ```
 
 ---

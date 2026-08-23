@@ -7,10 +7,11 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { VscInfo } from 'react-icons/vsc';
+import { VscInfo, VscArrowSwap } from 'react-icons/vsc';
 import { useResourceList, ResourceRow } from '../../lib/useResourceList';
 import { useTabContext } from '../../contexts/TabContext';
 import ErrorBanner from './ErrorBanner';
+import PortForwardDialog, { type ForwardableKind } from './PortForwardDialog';
 
 // PrimeReact's DataTable finds its columns via React.Children.toArray(children),
 // which flattens arrays but NOT Fragments. The `columns` render-prop returns a
@@ -100,6 +101,12 @@ export interface ResourceListViewProps<T extends ResourceRow> {
      * to a GroupKind server-side by the REST mapper.
      */
     describeResource?: string;
+    /**
+     * Enables the port-forward button in the same trailing column, for kinds a
+     * tunnel can be opened against. `kind` is the backend's lowercase singular
+     * vocabulary.
+     */
+    portForward?: { kind: ForwardableKind };
     defaultFilters: DataTableFilterMeta;
     pollInterval?: number;
     emptyMessage: string;
@@ -124,6 +131,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         deleteLabel = 'resource',
         dataKey = '__rowKey',
         describeResource,
+        portForward,
         defaultFilters,
         pollInterval,
         emptyMessage,
@@ -163,34 +171,65 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
     const deletable = !!deleter;
     const { openDescribePanel } = useTabContext();
 
-    // Appended after the view's own columns, so on views that already have an
-    // action column this lands immediately to its right — and `toColumnArray`
-    // tags both (it tags the action column *and* its left neighbour), which is
-    // exactly the pair whose resize handles must stay hidden.
-    const describeColumn = describeResource ? (
+    // One trailing column carries both built-in row actions.
+    //
+    // They are deliberately not two columns: `toColumnArray` takes a single
+    // `extra` and tags the action column *and* its left neighbour so their
+    // resize handles stay hidden. A second appended column would land between
+    // that pair and reintroduce a draggable edge that steals width from the
+    // buttons.
+    const [pfRow, setPfRow] = useState<{ name: string; namespace: string } | null>(null);
+    const trailing = describeResource || portForward ? (
         <Column
-            key="__describe"
+            key="__actions"
             header=""
-            headerStyle={{ width: '3.2rem' }}
-            style={{ minWidth: '3.2rem', maxWidth: '3.2rem' }}
+            headerStyle={{ width: describeResource && portForward ? '5.4rem' : '3.2rem' }}
+            style={
+                describeResource && portForward
+                    ? { minWidth: '5.4rem', maxWidth: '5.4rem' }
+                    : { minWidth: '3.2rem', maxWidth: '3.2rem' }
+            }
             body={(row: T) => (
-                <Button
-                    icon={<VscInfo size={16} />}
-                    text
-                    size="small"
-                    severity="secondary"
-                    aria-label="Describe"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        openDescribePanel({
-                            clusterName,
-                            resource: describeResource,
-                            name: row.name,
-                            namespace: row.namespace ?? '',
-                            referencePanel: `${describeResource}:${clusterName}`,
-                        });
-                    }}
-                />
+                <div className="flex gap-1">
+                    {portForward && (
+                        <Button
+                            icon={<VscArrowSwap size={16} />}
+                            text
+                            size="small"
+                            severity="secondary"
+                            style={{ padding: '0.2rem' }}
+                            tooltip="Port forward"
+                            tooltipOptions={{ position: 'top' }}
+                            aria-label="Port forward"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setPfRow({ name: row.name, namespace: row.namespace ?? '' });
+                            }}
+                        />
+                    )}
+                    {describeResource && (
+                        <Button
+                            icon={<VscInfo size={16} />}
+                            text
+                            size="small"
+                            severity="secondary"
+                            style={{ padding: '0.2rem' }}
+                            tooltip="Describe"
+                            tooltipOptions={{ position: 'top' }}
+                            aria-label="Describe"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                openDescribePanel({
+                                    clusterName,
+                                    resource: describeResource,
+                                    name: row.name,
+                                    namespace: row.namespace ?? '',
+                                    referencePanel: `${describeResource}:${clusterName}`,
+                                });
+                            }}
+                        />
+                    )}
+                </div>
             )}
         />
     ) : null;
@@ -344,7 +383,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     {deletable && (
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
                     )}
-                    {toColumnArray(columns({ items, buildInOptions, reload, toastRef }), describeColumn)}
+                    {toColumnArray(columns({ items, buildInOptions, reload, toastRef }), trailing)}
                 </DataTable>
                 )}
             </div>
@@ -365,6 +404,25 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                         ))}
                     </ul>
                 </Dialog>
+            )}
+
+            {portForward && pfRow && (
+                <PortForwardDialog
+                    visible
+                    clusterName={clusterName}
+                    kind={portForward.kind}
+                    name={pfRow.name}
+                    namespace={pfRow.namespace}
+                    onHide={() => setPfRow(null)}
+                    onStarted={(info) =>
+                        toastRef.current?.show({
+                            severity: 'success',
+                            summary: 'Port forward started',
+                            detail: `${info.address}:${info.local_port} → ${pfRow.name}:${info.remote_port}`,
+                            life: 5000,
+                        })
+                    }
+                />
             )}
         </div>
     );

@@ -144,6 +144,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			},
 			getYAML: business.GetPodYaml,
 			del:     business.DeletePod,
+			actions: []rowAction{portForwardAction("pod")},
 		},
 		{
 			view: "deployments", title: "Deployments", namespaced: true,
@@ -161,7 +162,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetDeploymentYaml, updateYAML: business.UpdateDeploymentYaml, del: business.DeleteDeployment,
-			actions: []rowAction{scaleAction("deployment"), restartAction("deployment")},
+			actions: []rowAction{scaleAction("deployment"), restartAction("deployment"), portForwardAction("deployment")},
 		},
 		{
 			view: "statefulsets", title: "StatefulSets", namespaced: true,
@@ -179,7 +180,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetStatefulSetYaml, updateYAML: business.UpdateStatefulSetYaml, del: business.DeleteStatefulSet,
-			actions: []rowAction{scaleAction("statefulset"), restartAction("statefulset")},
+			actions: []rowAction{scaleAction("statefulset"), restartAction("statefulset"), portForwardAction("statefulset")},
 		},
 		{
 			view: "replicasets", title: "ReplicaSets", namespaced: true,
@@ -198,7 +199,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			},
 			getYAML: business.GetReplicaSetYaml, updateYAML: business.UpdateReplicaSetYaml, del: business.DeleteReplicaSet,
 			// No restart: a ReplicaSet has no rollout of its own.
-			actions: []rowAction{scaleAction("replicaset")},
+			actions: []rowAction{scaleAction("replicaset"), portForwardAction("replicaset")},
 		},
 		{
 			view: "daemonsets", title: "DaemonSets", namespaced: true,
@@ -274,6 +275,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetServiceYaml, updateYAML: business.UpdateServiceYaml, del: business.DeleteService,
+			actions: []rowAction{portForwardAction("service")},
 		},
 		{
 			view: "ingresses", title: "Ingresses", namespaced: true,
@@ -597,6 +599,38 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 			getYAML: business.GetLimitRangeYaml, updateYAML: business.UpdateLimitRangeYaml, del: business.DeleteLimitRange,
 		},
 		{
+			// Cluster-scoped in shape only: forwards belong to this process and
+			// span every cluster, so `list` ignores the cluster argument. It is
+			// filed under CLUSTER because that is where the other
+			// not-a-namespaced-resource screens live.
+			//
+			// Note these are *this binary's* tunnels. The TUI is a separate
+			// process from the GUI backend and does not share its registry —
+			// and in the GUI's CLI Mode the pty dies with the overlay, taking
+			// any forward started here with it.
+			view: "portforwards", title: "Port Forwards", namespaced: false,
+			headers: []string{"STATUS", "ADDRESS", "TARGET", "NAMESPACE", "POD", "CLUSTER", "AGE"},
+			list: func(string) ([]rowData, error) {
+				var rows []rowData
+				for _, f := range business.ListPortForwards() {
+					rows = append(rows, rowData{name: f.ID, namespace: f.Namespace, cells: []string{
+						f.Status,
+						fmt.Sprintf("%s:%d -> %d", f.Address, f.LocalPort, f.RemotePort),
+						f.ResourceKind + "/" + f.ResourceName,
+						dash(f.Namespace),
+						dash(f.PodName),
+						dash(f.ClusterName),
+						humanSince(f.StartedAt),
+					}})
+				}
+				return rows, nil
+			},
+			actions: []rowAction{{
+				key: 'X', label: "stop",
+				run: func(_, name, _ string) error { return business.StopPortForward(name) },
+			}},
+		},
+		{
 			view: "crds", title: "CRDs", namespaced: false,
 			headers: []string{"NAME", "GROUP", "KIND", "SCOPE", "VERSION", "AGE"},
 			list: func(c string) ([]rowData, error) {
@@ -635,7 +669,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 		{"CONFIG & SECRETS", []menuItem{{"ConfigMaps", "configmaps"}, {"Secrets", "secrets"}}},
 		{"SECURITY", []menuItem{{"Service Accounts", "serviceaccounts"}, {"Roles", "roles"}, {"Role Bindings", "rolebindings"}}},
 		{"STORAGE", []menuItem{{"Persistent Volumes", "persistentvolumes"}, {"Volume Claims", "persistentvolumeclaims"}, {"Storage Classes", "storageclasses"}}},
-		{"CLUSTER", []menuItem{{"Monitoring", "monitoring"}, {"Nodes", "nodes"}, {"Namespaces", "namespaces"}, {"Events", "events"}, {"Resource Quotas", "resourcequotas"}, {"Limit Ranges", "limitranges"}, {"CRDs", "crds"}, {"Apply YAML", "applyyaml"}}},
+		{"CLUSTER", []menuItem{{"Monitoring", "monitoring"}, {"Nodes", "nodes"}, {"Namespaces", "namespaces"}, {"Events", "events"}, {"Resource Quotas", "resourcequotas"}, {"Limit Ranges", "limitranges"}, {"CRDs", "crds"}, {"Port Forwards", "portforwards"}, {"Apply YAML", "applyyaml"}}},
 	}
 
 	return groups, reg
@@ -687,6 +721,48 @@ func restartAction(kind string) rowAction {
 			return business.RestartWorkload(cluster, kind, name, namespace)
 		},
 	}
+}
+
+// portForwardAction builds the 'F' row action. It takes "local:remote" or a
+// bare remote port, because typing a local port is the part nobody wants to do:
+// an empty local half means "pick a free one", the same as leaving the GUI
+// dialog's local field blank.
+//
+// Uppercase, like the other row actions: 'r' is refresh and 's' is shell on the
+// pod screen.
+func portForwardAction(kind string) rowAction {
+	return rowAction{
+		key: 'F', label: "port-forward", promptLabel: "Local:Remote (e.g. 8080:80, or just 80)",
+		runArg: func(cluster, name, namespace, arg string) error {
+			local, remote, err := parsePortPair(arg)
+			if err != nil {
+				return err
+			}
+			id := fmt.Sprintf("tui-%s-%d", kind, time.Now().UnixNano())
+			_, err = business.StartPortForward(cluster, kind, name, namespace, local, remote, id, nil)
+			return err
+		},
+	}
+}
+
+// parsePortPair reads "8080:80", ":80" or "80".
+func parsePortPair(arg string) (local, remote int, err error) {
+	arg = strings.TrimSpace(arg)
+	localStr, remoteStr, hasColon := strings.Cut(arg, ":")
+	if !hasColon {
+		remoteStr, localStr = localStr, ""
+	}
+	remote, err = strconv.Atoi(strings.TrimSpace(remoteStr))
+	if err != nil {
+		return 0, 0, fmt.Errorf("remote port must be a number, got %q", remoteStr)
+	}
+	if strings.TrimSpace(localStr) != "" {
+		local, err = strconv.Atoi(strings.TrimSpace(localStr))
+		if err != nil {
+			return 0, 0, fmt.Errorf("local port must be a number, got %q", localStr)
+		}
+	}
+	return local, remote, nil
 }
 
 // suspendAction builds the CronJob pause/resume pair. They are two idempotent

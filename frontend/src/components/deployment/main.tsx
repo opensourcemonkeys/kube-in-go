@@ -49,6 +49,7 @@ export default function DeploymentListComponent({ clusterName, api }: { clusterN
             deleteLabel="deployment"
             pollInterval={2000}
             describeResource="deployments"
+            portForward={{ kind: 'deployment' }}
             defaultFilters={defaultFilters}
             emptyMessage="No deployments found"
             onRowDoubleClick={(dep) => openYamlPanel({ clusterName, resourceKind: 'deployment', name: dep.name, namespace: dep.namespace, referencePanel })}
