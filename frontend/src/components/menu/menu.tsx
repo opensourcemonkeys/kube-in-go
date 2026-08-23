@@ -3,6 +3,7 @@ import { VscChevronDown, VscTable, VscGlobe, VscSettings, VscFolder, VscExtensio
 import { useTabContext } from '../../contexts/TabContext';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { NAV_GROUPS, VIEW_GROUP, NavItem } from './menuItems';
+import { useT } from '../../i18n/useT';
 
 const SIDEBAR_STATE_KEY = 'kube-sidebar-state';
 
@@ -16,6 +17,7 @@ const GROUP_ICONS: Record<string, React.ReactNode> = {
 };
 
 export default function SideMenu() {
+    const t = useT();
     const { openTab } = useTabContext();
     const { activeCluster } = useClusterContext();
     const [activeView, setActiveView] = useState('pods');
@@ -28,7 +30,9 @@ export default function SideMenu() {
 
     const navigate = (item: NavItem) => {
         setActiveView(item.view);
-        openTab({ view: item.view, title: item.label, clusterName: activeCluster, icon: item.icon });
+        // No title: openTab resolves it from the view so the tab re-labels itself
+        // when the language changes (see TabContext).
+        openTab({ view: item.view, clusterName: activeCluster, icon: item.icon });
     };
 
     const toggleGroup = (key: string) => {
@@ -66,7 +70,7 @@ export default function SideMenu() {
                         />
                         <span className="sidebar-section__badge">
                             <span className="sidebar-section__badge-icon">{GROUP_ICONS[group.key]}</span>
-                            <span className="sidebar-section__badge-label">{group.label}</span>
+                            <span className="sidebar-section__badge-label">{t(group.labelKey)}</span>
                         </span>
                     </button>
                     {expanded[group.key] && (
@@ -78,7 +82,7 @@ export default function SideMenu() {
                                     onClick={() => navigate(item)}
                                 >
                                     <span className="sidebar-item__icon">{item.icon}</span>
-                                    <span className="sidebar-item__label">{item.label}</span>
+                                    <span className="sidebar-item__label">{t(item.labelKey)}</span>
                                 </button>
                             ))}
                         </div>

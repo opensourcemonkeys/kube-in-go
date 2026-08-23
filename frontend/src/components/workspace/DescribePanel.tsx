@@ -6,6 +6,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { GetObjectDescribe } from '../../../wailsjs/go/controller_app/App';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
+import { useT } from '../../i18n/useT';
 
 export interface DescribePanelParams {
     clusterName: string;
@@ -23,6 +24,7 @@ export interface DescribePanelParams {
  * paying for it here would slow every panel's first paint for a <pre> block.
  */
 export default function DescribePanel({ params }: IDockviewPanelProps<DescribePanelParams>) {
+    const t = useT();
     const { clusterName, resource, name, namespace } = params;
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export default function DescribePanel({ params }: IDockviewPanelProps<DescribePa
                 </span>
                 <div className="flex align-items-center gap-1 flex-shrink-0">
                     <Button
-                        label="Refresh"
+                        label={t('panels:describe.refresh')}
                         icon={<VscRefresh size={16} />}
                         text
                         size="small"
@@ -83,7 +85,7 @@ export default function DescribePanel({ params }: IDockviewPanelProps<DescribePa
                         onClick={load}
                     />
                     <Button
-                        label={copied ? 'Copied' : 'Copy'}
+                        label={t(copied ? 'panels:describe.copied' : 'panels:describe.copy')}
                         icon={copied ? <VscCheck size={16} /> : <VscCopy size={16} />}
                         text
                         size="small"

@@ -29,6 +29,7 @@ import TrivyScanner from '../security/TrivyScanner';
 import MonitoringDashboard from '../monitoring/main';
 import OverviewDashboard from '../overview/main';
 import CrdListComponent from '../crd/main';
+import { useT } from '../../i18n/useT';
 
 interface ViewPanelParams {
     view: string;
@@ -36,6 +37,7 @@ interface ViewPanelParams {
 }
 
 export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanelParams>) {
+    const t = useT();
     const { view, clusterName } = params;
     const cn = clusterName ?? '';
 
@@ -73,7 +75,7 @@ export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanel
     return (
         <div className="card p-4">
             <h2 className="mt-0 mb-2">{view}</h2>
-            <p className="m-0 text-color-secondary">This resource view is not yet connected.</p>
+            <p className="m-0 text-color-secondary">{t('panels:viewPanel.notConnected')}</p>
         </div>
     );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
+import { Trans } from 'react-i18next';
 import { Chart } from 'primereact/chart';
 import { VscServer, VscPass, VscCircleSlash, VscOutput, VscNote, VscClose, VscInfo, VscLocation, VscTag, VscDesktopDownload, VscChip, VscDatabase } from 'react-icons/vsc';
 import { Tag } from 'primereact/tag';
@@ -12,6 +13,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
+import { useT } from '../../i18n/useT';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -93,6 +95,7 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
     onAction: () => void;
     onToast: (severity: 'success' | 'error', summary: string, detail: string) => void;
 }) {
+    const t = useT();
     const [drainDialogVisible, setDrainDialogVisible] = useState(false);
     const [cordonLoading, setCordonLoading] = useState(false);
     const [drainLoading, setDrainLoading] = useState(false);
@@ -133,8 +136,8 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
 
     const drainFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<VscClose fontSize="small" />} text onClick={() => setDrainDialogVisible(false)} disabled={drainLoading} />
-            <Button label="Drain" icon={<VscOutput fontSize="small" />} severity="danger" onClick={handleDrain} loading={drainLoading} />
+            <Button label={t('action.cancel')} icon={<VscClose fontSize="small" />} text onClick={() => setDrainDialogVisible(false)} disabled={drainLoading} />
+            <Button label={t('panels:node.drain')} icon={<VscOutput fontSize="small" />} severity="danger" onClick={handleDrain} loading={drainLoading} />
         </div>
     );
 
@@ -158,12 +161,12 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
                 </div>
                 <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
                     {node.unschedulable ? (
-                        <Button label="Uncordon" icon={<VscPass fontSize="small" />} size="small" severity="success" text loading={cordonLoading} onClick={handleUncordon} tooltip="Make node schedulable" tooltipOptions={{ position: 'top' }} />
+                        <Button label={t('panels:node.uncordon')} icon={<VscPass fontSize="small" />} size="small" severity="success" text loading={cordonLoading} onClick={handleUncordon} tooltip={t('panels:node.uncordonTooltip')} tooltipOptions={{ position: 'top' }} />
                     ) : (
-                        <Button label="Cordon" icon={<VscCircleSlash fontSize="small" />} size="small" severity="warning" text loading={cordonLoading} onClick={handleCordon} tooltip="Mark node as unschedulable" tooltipOptions={{ position: 'top' }} />
+                        <Button label={t('panels:node.cordon')} icon={<VscCircleSlash fontSize="small" />} size="small" severity="warning" text loading={cordonLoading} onClick={handleCordon} tooltip={t('panels:node.cordonTooltip')} tooltipOptions={{ position: 'top' }} />
                     )}
-                    <Button label="Drain" icon={<VscOutput fontSize="small" />} size="small" severity="danger" text loading={drainLoading} onClick={() => setDrainDialogVisible(true)} tooltip="Evict pods and cordon node" tooltipOptions={{ position: 'top' }} />
-                    <Button icon={<VscNote fontSize="small" />} text size="small" severity="secondary" onClick={() => onEditYaml(node.name)} tooltip="Edit YAML" tooltipOptions={{ position: 'top' }} />
+                    <Button label={t('panels:node.drain')} icon={<VscOutput fontSize="small" />} size="small" severity="danger" text loading={drainLoading} onClick={() => setDrainDialogVisible(true)} tooltip={t('panels:node.drainTooltip')} tooltipOptions={{ position: 'top' }} />
+                    <Button icon={<VscNote fontSize="small" />} text size="small" severity="secondary" onClick={() => onEditYaml(node.name)} tooltip={t('panels:node.editYaml')} tooltipOptions={{ position: 'top' }} />
                 </div>
             </div>
 
@@ -171,10 +174,10 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
             <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flexShrink: 0, minWidth: '200px' }}>
                     <MetaItem icon={<VscLocation style={{ fontSize: '0.75rem' }} />}           label="IP"      value={node.internal_ip      || '—'} />
-                    <MetaItem icon={<VscTag style={{ fontSize: '0.75rem' }} />}           label="Version" value={node.kubelet_version   || '—'} />
+                    <MetaItem icon={<VscTag style={{ fontSize: '0.75rem' }} />}           label={t('panels:node.version')} value={node.kubelet_version   || '—'} />
                     <MetaItem icon={<VscDesktopDownload style={{ fontSize: '0.75rem' }} />}  label="OS"      value={node.os_image          || '—'} />
-                    <MetaItem icon={<VscChip style={{ fontSize: '0.75rem' }} />}          label="CPU Cap" value={node.cpu_capacity      || '—'} />
-                    <MetaItem icon={<VscDatabase style={{ fontSize: '0.75rem' }} />}         label="MEM Cap" value={node.memory_capacity   || '—'} />
+                    <MetaItem icon={<VscChip style={{ fontSize: '0.75rem' }} />}          label={t('panels:node.cpuCap')} value={node.cpu_capacity      || '—'} />
+                    <MetaItem icon={<VscDatabase style={{ fontSize: '0.75rem' }} />}         label={t('panels:node.memCap')} value={node.memory_capacity   || '—'} />
                 </div>
 
                 <div style={{ width: '1px', alignSelf: 'stretch', background: 'var(--line)', flexShrink: 0 }} />
@@ -187,7 +190,7 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
                 ) : (
                     <div style={{ flex: 1, color: 'var(--ink2)', fontSize: '0.8rem', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <VscInfo style={{ fontSize: '0.9rem' }} />
-                        Metrics Server not available — CPU/RAM usage unavailable
+                        {t('panels:node.noMetricsServer')}
                     </div>
                 )}
             </div>
@@ -201,11 +204,10 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
                 onHide={() => { if (!drainLoading) setDrainDialogVisible(false); }}
             >
                 <p className="m-0 mb-3">
-                    This will first <strong>cordon</strong> the node (mark it unschedulable),
-                    then evict all pods except DaemonSet and mirror pods.
+                    <Trans t={t} i18nKey="panels:node.drainWarning" components={{ 1: <strong /> }} />
                 </p>
                 <p className="m-0" style={{ fontSize: '0.85rem', color: 'var(--ink2)' }}>
-                    Node: <strong>{node.name}</strong>
+                    <Trans t={t} i18nKey="panels:node.drainTarget" values={{ name: node.name }} components={{ 1: <strong /> }} />
                 </p>
             </Dialog>
         </div>
@@ -223,6 +225,7 @@ function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string
 }
 
 export default function NodeListComponent({ clusterName }: { clusterName: string }) {
+    const t = useT();
     const [nodes, setNodes] = useState<models.NodeInfo[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
@@ -270,7 +273,7 @@ export default function NodeListComponent({ clusterName }: { clusterName: string
             <Toast ref={toast} position="bottom-right" />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>Node List</h3>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>{t('panels:node.title')}</h3>
                 <Tag value={`${readyCount} / ${nodes.length} Ready`} severity={readyCount === nodes.length && nodes.length > 0 ? 'success' : 'warning'} />
             </div>
 
@@ -291,7 +294,7 @@ export default function NodeListComponent({ clusterName }: { clusterName: string
                 {nodes.length === 0 ? (
                     error ? null : (
                     <div style={{ color: 'var(--ink2)', padding: '2rem', textAlign: 'center' }}>
-                        No nodes found in this cluster.
+                        {t('panels:node.empty')}
                     </div>
                     )
                 ) : (

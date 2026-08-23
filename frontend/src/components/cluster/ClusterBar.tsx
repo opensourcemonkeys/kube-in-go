@@ -10,8 +10,10 @@ import { useTabContext } from '../../contexts/TabContext';
 import { defaultColorId, hexForId } from '../../lib/clusterColors';
 import { useClusterColorStore } from '../../stores/clusterColorStore';
 import ClusterModal from './ClusterModal';
+import { useT } from '../../i18n/useT';
 
 export default function ClusterBar() {
+    const t = useT();
     const { clusters, activeCluster, loaded, connectionError, refreshClusters, selectCluster } = useClusterContext();
     const { openClusterResourceView } = useTabContext();
     const [modalOpen, setModalOpen] = useState(false);
@@ -58,7 +60,7 @@ export default function ClusterBar() {
     // lost: on error the dot dims and gains a red ring, and the warning button
     // in the actions row appears alongside it.
     const clusterValueTemplate = (value: string) => {
-        if (!value) return <span style={{ color: 'var(--ink3)', fontSize: '13px' }}>Select cluster…</span>;
+        if (!value) return <span style={{ color: 'var(--ink3)', fontSize: '13px' }}>{t('panels:cluster.select')}</span>;
         const color = colorOf(value);
         return (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
@@ -93,23 +95,23 @@ export default function ClusterBar() {
                     value={activeCluster || null}
                     options={clusters}
                     onChange={e => selectCluster(e.value)}
-                    placeholder="Select cluster…"
+                    placeholder={t('panels:cluster.select')}
                     className="cluster-header__dropdown"
-                    emptyMessage="No clusters yet"
+                    emptyMessage={t('panels:cluster.none')}
                     valueTemplate={clusterValueTemplate}
                     itemTemplate={clusterItemTemplate}
                 />
 
                 <div className="cluster-header__actions">
-                    <button className="cluster-header__icon-btn" onClick={openAdd} title="Add Cluster">
+                    <button className="cluster-header__icon-btn" onClick={openAdd} title={t('panels:cluster.add')}>
                         <VscAdd size={14} />
                     </button>
                     {activeCluster && (
                         <>
-                            <button className="cluster-header__icon-btn" onClick={openEdit} title="Edit cluster">
+                            <button className="cluster-header__icon-btn" onClick={openEdit} title={t('panels:cluster.edit')}>
                                 <VscEdit size={14} />
                             </button>
-                            <button className="cluster-header__icon-btn" onClick={() => openClusterResourceView(activeCluster)} title="Resource Graph">
+                            <button className="cluster-header__icon-btn" onClick={() => openClusterResourceView(activeCluster)} title={t('panels:cluster.graph')}>
                                 <VscTypeHierarchySub size={14} />
                             </button>
                         </>
@@ -119,14 +121,14 @@ export default function ClusterBar() {
                             <button
                                 className="cluster-header__icon-btn cluster-header__icon-btn--warn"
                                 onClick={e => errorPanelRef.current?.toggle(e)}
-                                title="Connection error"
+                                title={t('panels:cluster.connectionErrorTitle')}
                             >
                                 <VscWarning size={14} />
                             </button>
                             <OverlayPanel ref={errorPanelRef} className="cluster-error-panel">
                                 <div className="cluster-error-panel__header">
                                     <VscWarning className="cluster-error-panel__icon" size={16} />
-                                    <span>Connection Error</span>
+                                    <span>{t('panels:cluster.connectionError')}</span>
                                 </div>
                                 <pre className="cluster-error-panel__detail">{connectionError}</pre>
                             </OverlayPanel>

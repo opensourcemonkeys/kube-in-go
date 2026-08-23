@@ -14,13 +14,18 @@ import {
     CloseTerminalSession,
 } from '../../../wailsjs/go/controller_app/App';
 import { useClusterContext } from '../../contexts/ClusterContext';
+import { renderPanelTitle } from '../../contexts/TabContext';
+import { useT } from '../../i18n/useT';
 
 export interface TerminalPanelParams {
     sessionId: string;
     clusterName?: string;
+    titleKey?: string;
+    titleVars?: Record<string, string | number | undefined>;
 }
 
 export default function TerminalPanel({ api, params }: IDockviewPanelProps<TerminalPanelParams>) {
+    const t = useT();
     const { sessionId } = params;
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -38,9 +43,12 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
     const handleClusterChange = (next: string) => {
         setCluster(next);
         SetTerminalSessionCluster(sessionId, next).catch(() => {});
-        api.updateParameters({ clusterName: next });
-        const label = api.title?.split(' • ')[0] ?? 'Terminal';
-        api.setTitle(next ? `${label} • ${next}` : label);
+        // Retitle through the panel's own i18n key rather than by splicing the
+        // current title string: that keeps the title translatable after a
+        // language switch (DockviewContainer re-renders it from these params).
+        const titleVars = { ...(params.titleVars ?? {}), suffix: next || undefined };
+        api.updateParameters({ clusterName: next, titleVars });
+        api.setTitle(renderPanelTitle(t, { titleKey: params.titleKey, titleVars }));
     };
 
     useEffect(() => {
@@ -130,16 +138,16 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
         <div className="flex flex-column h-full" style={{ background: '#10141a' }}>
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
-                    <VscTerminal size={14} /> Terminal
+                    <VscTerminal size={14} /> {t('panels:terminal.label')}
                 </span>
                 <Dropdown
                     value={cluster || null}
                     options={clusters}
                     onChange={(e) => handleClusterChange(e.value ?? '')}
-                    placeholder="Select cluster"
+                    placeholder={t('panels:terminal.selectCluster')}
                     className="yaml-editor-toolbar__cluster"
                     style={{ minWidth: '11rem' }}
-                    aria-label="Kubeconfig cluster"
+                    aria-label={t('panels:terminal.clusterAria')}
                 />
             </div>
 

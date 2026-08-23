@@ -1,0 +1,19 @@
+{
+  "banner": {
+    "stale": "showing last known data",
+    "retry": "Retry",
+    "copyDiagnostics": "Copy diagnostics",
+    "copied": "Copied",
+    "copyFailed": "Copy failed",
+    "dismiss": "Dismiss"
+  },
+  "boundary": {
+    "appTitle": "Kube Inspector hit an error",
+    "panelTitle": "This panel hit an error",
+    "reloadWindow": "Reload window",
+    "reloadPanel": "Reload panel",
+    "copied": "Copied",
+    "copyDiagnostics": "Copy diagnostics",
+    "hint": "The rest of the app keeps working. The stack is in the diagnostics report."
+  }
+}

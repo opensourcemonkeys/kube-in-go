@@ -10,6 +10,7 @@ import { GetConfigMaps, DeleteConfigMap } from '../../../wailsjs/go/controller_a
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -26,12 +27,13 @@ const createFrom = (raw: any): ConfigMapRow => {
 };
 
 export default function ConfigMapListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openConfigMapEditor } = useTabContext();
     const referencePanel = `configmaps:${clusterName}`;
 
     return (
         <ResourceListView<ConfigMapRow>
-            title="ConfigMap List"
+            title={t('resources:configmap.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetConfigMaps}
@@ -42,16 +44,16 @@ export default function ConfigMapListComponent({ clusterName, api }: { clusterNa
             pollInterval={2000}
             describeResource="configmaps"
             defaultFilters={defaultFilters}
-            emptyMessage="No configmaps found"
+            emptyMessage={t('resources:configmap.empty')}
             onRowDoubleClick={(cm) => openYamlPanel({ clusterName, resourceKind: 'configmap', name: cm.name, namespace: cm.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="data_count" header="Data Keys" sortable filter filterField="data_count" filterPlaceholder="Count" showFilterMenu={false} dataType="numeric" style={{ minWidth: '8rem' }}
+                    <Column field="data_count" header={t('resources:column.dataKeys')} sortable filter filterField="data_count" filterPlaceholder={t('resources:filter.count')} showFilterMenu={false} dataType="numeric" style={{ minWidth: '8rem' }}
                         body={(row: models.ConfigMapInfo) => <Tag value={row.data_count} severity={row.data_count > 0 ? 'info' : 'secondary'} />} />
                     <Column header="" style={{ width: '4rem', textAlign: 'center' }}
                         body={(row: models.ConfigMapInfo) => (

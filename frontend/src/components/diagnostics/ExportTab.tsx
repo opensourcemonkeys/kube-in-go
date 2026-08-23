@@ -13,6 +13,7 @@ import { useAiChatStore } from '../../stores/aiChatStore';
 import { useDiagnosticsStore } from '../../stores/diagnosticsStore';
 import { writeClipboard } from '../../lib/clipboard';
 import { renderReport } from '../../lib/diagnosticsReport';
+import { useT } from '../../i18n/useT';
 
 function humanBytes(n: number): string {
     if (n < 1024) return `${n} B`;
@@ -31,6 +32,7 @@ function humanBytes(n: number): string {
  * reaches a file or the clipboard — there is no unredacted path out of the app.
  */
 export default function ExportTab({ report }: { report: models.DiagnosticsReport | null }) {
+    const t = useT();
     const toast = useRef<Toast | null>(null);
     const [busy, setBusy] = useState(false);
     const ollamaHost = useAiChatStore((s) => s.host);
@@ -110,21 +112,16 @@ export default function ExportTab({ report }: { report: models.DiagnosticsReport
             <Toast ref={toast} position="bottom-right" />
 
             <section className="diag-section">
-                <h3 className="diag-section__title">What gets exported</h3>
-                <p className="diag-note">
-                    A zip containing this report, the health-check results and the log files
-                    below. Home directory paths, cluster names, bearer tokens and API server
-                    addresses are removed first. Nothing is sent anywhere — the file is written
-                    where you choose and it is yours to share or not.
-                </p>
+                <h3 className="diag-section__title">{t('panels:diagnostics.exportTitle')}</h3>
+                <p className="diag-note">{t('panels:diagnostics.exportNote')}</p>
             </section>
 
             <section className="diag-section">
                 <div className="diag-section__head">
-                    <h3 className="diag-section__title">Log files</h3>
-                    <span className="diag-row__value">{humanBytes(total)} total</span>
+                    <h3 className="diag-section__title">{t('panels:diagnostics.logFiles')}</h3>
+                    <span className="diag-row__value">{t('panels:diagnostics.logsTotal', { size: humanBytes(total) })}</span>
                 </div>
-                {files.length === 0 && <div className="diag-empty">No log files yet.</div>}
+                {files.length === 0 && <div className="diag-empty">{t('panels:diagnostics.noLogFiles')}</div>}
                 {files.map((f) => (
                     <div className="diag-row" key={f.name}>
                         <span className="diag-row__label">{f.name}</span>
@@ -133,25 +130,25 @@ export default function ExportTab({ report }: { report: models.DiagnosticsReport
                         </span>
                     </div>
                 ))}
-                <p className="diag-note">Log files older than 7 days are deleted automatically.</p>
+                <p className="diag-note">{t('panels:diagnostics.retentionNote')}</p>
             </section>
 
             <section className="diag-section diag-actions">
                 <Button
-                    label="Save diagnostics.zip"
+                    label={t('panels:diagnostics.saveZip')}
                     icon="pi pi-download"
                     disabled={busy}
                     onClick={saveZip}
                 />
                 <Button
-                    label="Copy report"
+                    label={t('panels:diagnostics.copyReport')}
                     icon="pi pi-copy"
                     outlined
                     disabled={busy}
                     onClick={copyReport}
                 />
                 <Button
-                    label="Open log folder"
+                    label={t('panels:diagnostics.openLogFolder')}
                     icon="pi pi-folder-open"
                     outlined
                     onClick={openFolder}

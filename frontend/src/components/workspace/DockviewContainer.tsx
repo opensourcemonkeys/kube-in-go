@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { VscDashboard } from 'react-icons/vsc';
 import { DockviewReact, DockviewReadyEvent, DockviewApi } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
-import { useTabContext } from '../../contexts/TabContext';
+import { useTabContext, renderPanelTitle } from '../../contexts/TabContext';
+import { useT } from '../../i18n/useT';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { initialPanel, onDragHover, onDragLeave, onPanelFromWindow } from '../../lib/shellWindows';
 import {
@@ -61,6 +62,7 @@ const components = Object.fromEntries(
 );
 
 export default function DockviewContainer() {
+    const t = useT();
     const { registerApi, openTab, openReceivedPanel } = useTabContext();
     const { activeCluster } = useClusterContext();
     const apiRef = useRef<DockviewApi | null>(null);
@@ -101,6 +103,21 @@ export default function DockviewContainer() {
         return () => { offHover?.(); offLeave?.(); offPanel?.(); };
     }, [openReceivedPanel]);
 
+    // Dockview writes a tab title once, at addPanel time, so a language change
+    // would leave every open tab in the old language. Every panel carries the
+    // i18n key it was titled from (TabContext.renderPanelTitle), so re-titling
+    // is a sweep rather than a reopen. Panels with no titleKey — anything not
+    // opened through TabContext — are left alone.
+    useEffect(() => {
+        const api = apiRef.current;
+        if (!api) return;
+        for (const panel of api.panels) {
+            const params = panel.params as { titleKey?: string; titleVars?: Record<string, string | number> } | undefined;
+            if (!params?.titleKey) continue;
+            panel.api.setTitle(renderPanelTitle(t, params));
+        }
+    }, [t]);
+
     // Dockview adds `.dv-tab-ghost-drag` to DOM when a tab drag starts (pointer mode).
     // We toggle `body.dv-dragging` so CSS can apply `user-select: none !important`
     // across all elements, preventing text highlight-scanning during drag.
@@ -131,7 +148,7 @@ export default function DockviewContainer() {
         // everything else starts on Overview.
         const seed = initialPanel();
         if (seed) openReceivedPanel(seed);
-        else openTab({ view: 'overview', title: 'Overview', clusterName: activeCluster, icon: <VscDashboard size={16} /> });
+        else openTab({ view: 'overview', clusterName: activeCluster, icon: <VscDashboard size={16} /> });
     };
 
     return (

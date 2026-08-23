@@ -7,6 +7,7 @@ import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { GetObjectYaml, UpdateObjectYaml } from '../../../wailsjs/go/controller_app/App';
+import { useT } from '../../i18n/useT';
 
 interface ObjectYamlPanelParams {
     clusterName: string;
@@ -21,6 +22,7 @@ interface ObjectYamlPanelParams {
 // (group, resource, namespace, name). Backed by the dynamic-client
 // GetObjectYaml / UpdateObjectYaml RPCs.
 export default function ObjectYamlPanel({ params }: IDockviewPanelProps<ObjectYamlPanelParams>) {
+    const t = useT();
     const { clusterName, kind, group, resource, name, namespace } = params;
     const [yaml, setYaml] = useState('Loading...');
     const [originalYaml, setOriginalYaml] = useState('');
@@ -82,8 +84,8 @@ export default function ObjectYamlPanel({ params }: IDockviewPanelProps<ObjectYa
                     {kind ? kind + ' · ' : ''}{titleLabel}
                 </span>
                 <div className="flex align-items-center gap-1 flex-shrink-0">
-                    <Button label="Revert" icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
-                    <Button label="Save" icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
+                    <Button label={t('panels:yaml.revert')} icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
+                    <Button label={t('panels:yaml.save')} icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
                 </div>
             </div>
 

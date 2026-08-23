@@ -1,3 +1,8 @@
+// Unreferenced demo component — nothing in src/ imports it. Left out of
+// the i18n migration (beta-plan S12b) rather than translated: adding
+// catalog keys for dead code would leave S13 translating strings no
+// user can reach. Delete it or wire it up; do not translate it in place.
+/* eslint-disable i18next/no-literal-string */
 import React, { useState } from "react";
 import { ListBox, ListBoxChangeEvent } from 'primereact/listbox';
 

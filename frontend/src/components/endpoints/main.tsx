@@ -9,6 +9,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import { ARRAY_IN } from '../../lib/tableFilters';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -48,12 +49,13 @@ const createFrom = (raw: any): EndpointRow => {
 };
 
 export default function EndpointListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `endpoints:${clusterName}`;
 
     return (
         <ResourceListView<EndpointRow>
-            title="Endpoint List"
+            title={t('resources:endpoints.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetEndpoints}
@@ -63,28 +65,28 @@ export default function EndpointListComponent({ clusterName, api }: { clusterNam
             deleteLabel="endpoint"
             describeResource="endpoints"
             defaultFilters={defaultFilters}
-            emptyMessage="No endpoints found"
+            emptyMessage={t('resources:endpoints.empty')}
             onRowDoubleClick={(ep) => openYamlPanel({ clusterName, resourceKind: 'endpoint', name: ep.name, namespace: ep.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Addresses" filter filterField="_addresses" showFilterMenu={false} style={{ minWidth: '18rem' }}
+                    <Column header={t('resources:column.addresses')} filter filterField="_addresses" showFilterMenu={false} style={{ minWidth: '18rem' }}
                         body={(row: EndpointRow) => addressesOf(row.subsets).join(', ') || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('_addresses')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('_addresses')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Ports" filter filterField="_ports" showFilterMenu={false} style={{ minWidth: '16rem' }}
+                    <Column header={t('resources:column.ports')} filter filterField="_ports" showFilterMenu={false} style={{ minWidth: '16rem' }}
                         body={(row: EndpointRow) => portsOf(row.subsets).join(', ') || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('_ports')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('_ports')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="ready" header="Ready" sortable style={{ minWidth: '7rem' }}
+                    <Column field="ready" header={t('resources:column.ready')} sortable style={{ minWidth: '7rem' }}
                         body={(row: EndpointRow) => <Tag value={String(row.ready)} severity={row.ready > 0 ? 'success' : 'secondary'} />} />
-                    <Column field="not_ready" header="Not Ready" sortable style={{ minWidth: '7rem' }}
+                    <Column field="not_ready" header={t('resources:column.notReady')} sortable style={{ minWidth: '7rem' }}
                         body={(row: EndpointRow) => (row.not_ready > 0 ? <Tag value={String(row.not_ready)} severity="warning" /> : <span style={{ color: 'var(--ink3)' }}>0</span>)} />
                 </>
             )}

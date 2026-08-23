@@ -11,6 +11,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import WorkloadActions from '../shared/WorkloadActions';
+import { useT } from '../../i18n/useT';
 
 const getReadySeverity = (ready: number, desired: number): 'success' | 'warning' | 'danger' => {
     if (desired === 0) return 'warning';
@@ -35,12 +36,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function DaemonSetListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openLogPanel } = useTabContext();
     const referencePanel = `daemonsets:${clusterName}`;
 
     return (
         <ResourceListView<models.DaemonSetInfo>
-            title="DaemonSet List"
+            title={t('resources:daemonset.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetDaemonSets}
@@ -50,23 +52,23 @@ export default function DaemonSetListComponent({ clusterName, api }: { clusterNa
             pollInterval={2000}
             describeResource="daemonsets"
             defaultFilters={defaultFilters}
-            emptyMessage="No daemonsets found"
+            emptyMessage={t('resources:daemonset.empty')}
             onRowDoubleClick={(d) => openYamlPanel({ clusterName, resourceKind: 'daemonset', name: d.name, namespace: d.namespace, referencePanel })}
             columns={({ buildInOptions, reload, toastRef }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="status" header={t('resources:column.status')} sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         body={(row: models.DaemonSetInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Desired / Ready" sortable sortField="desired_number_scheduled" style={{ minWidth: '11rem' }}
+                    <Column header={t('resources:column.desiredReady')} sortable sortField="desired_number_scheduled" style={{ minWidth: '11rem' }}
                         body={(row: models.DaemonSetInfo) => <Tag value={`${row.number_ready} / ${row.desired_number_scheduled}`} severity={getReadySeverity(row.number_ready, row.desired_number_scheduled)} />} />
-                    <Column header="Current / Available" sortable sortField="current_number_scheduled" style={{ minWidth: '12rem' }}
+                    <Column header={t('resources:column.currentAvailable')} sortable sortField="current_number_scheduled" style={{ minWidth: '12rem' }}
                         body={(row: models.DaemonSetInfo) => <Tag value={`${row.current_number_scheduled} current / ${row.number_available} available`} severity={row.number_available === row.desired_number_scheduled ? 'success' : 'warning'} />} />
                     {/* No Scale: a DaemonSet's replica count is the node count, not a
                         settable field — it has no scale subresource. */}

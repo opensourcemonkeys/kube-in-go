@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
+import i18next from 'eslint-plugin-i18next';
 import globals from 'globals';
 
 export default tseslint.config(
@@ -40,6 +41,108 @@ export default tseslint.config(
                 'warn',
                 { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
             ],
+        },
+    },
+
+    {
+        // beta-plan S12: no new hardcoded UI string may reach the catalogs.
+        //
+        // `error`, not `warn`. The plan deferred the promotion to S13, on the
+        // assumption that S12 would not finish the extraction — it did, and the
+        // rule reports zero across src/. Leaving it at `warn` through S13 would
+        // mean the one window in which the catalogs are being edited by hand is
+        // also the one window in which a new hardcoded string cannot break the
+        // build. The parity checker (S13) keeps the catalogs in step with each
+        // other; this rule keeps the code in step with the catalogs.
+        //
+        // Options are the v6 shape (`mode` + selector objects). The v5 names
+        // `markupOnly` / `onlyAttribute` that beta-plan.md quotes were removed.
+        files: ['src/components/**/*.tsx', 'src/pages/**/*.tsx'],
+        // Test fixtures are not UI: their strings are the assertions.
+        ignores: ['**/*.test.tsx', '**/*.spec.tsx'],
+        plugins: { i18next },
+        rules: {
+            'i18next/no-literal-string': ['error', {
+                mode: 'jsx-only',
+                // Exclude-based, not include-based, and that matters: with
+                // only an `include` list every *other* attribute is skipped,
+                // and the skip covers the JSX nested inside it. Every column in
+                // this app is declared inside a `columns={...}` render prop, so
+                // an include list hid all 203 `header=` strings — the single
+                // biggest group the rule exists to catch.
+                'jsx-attributes': {
+                    exclude: [
+                        // Plugin defaults (replaced wholesale when this key is set).
+                        'className', 'styleName', 'type', 'key', 'id',
+                        'width', 'height',
+                        // Any *Style prop (style, headerStyle, contentStyle, …)
+                        // and any *ClassName: CSS, never prose.
+                        '.*[Ss]tyle', '.*[Cc]lassName',
+                        // Form wiring.
+                        'inputId', 'htmlFor', 'dataType', 'matchMode', 'inputMode',
+                        'format', 'appendTo', 'optionDisabled', 'accept', 'color',
+                        'leftIcon', 'rightIcon', 'iconPos', 'layout', 'sortOrder',
+                        'floatingGroupBounds', 'dndStrategy', 'scrollWidth',
+                        'icon', 'fontSize', 'unit', 'nodeColor', 'maskColor', 'pt',
+                        'editMode', 'selectionPageOnly', 'responsiveLayout',
+                        'globalFilterFields', 'filterFields', 'sortMode',
+                        // Identifiers and layout knobs, never display text.
+                        'field', 'dataKey', 'filterField', 'sortField', 'filterMatchMode',
+                        'selectionMode', 'display', 'filterDisplay', 'severity', 'position',
+                        'mode', 'size', 'variant', 'align', 'target', 'rel', 'href', 'src',
+                        'role', 'view', 'component', 'resourceKind', 'describeResource',
+                        'deleteLabel', 'clusterName', 'name', 'value', 'theme', 'lang',
+                        'data-.*', 'aria-hidden', 'shadowRgb', 'shadowOpacity',
+                        'scrollHeight', 'headerClassName', 'itemTemplate', 'optionLabel',
+                        'optionValue', 'language', 'defaultLanguage', 'path',
+                    ],
+                },
+                words: {
+                    exclude: [
+                        // Plugin defaults, restored because naming this key
+                        // replaces them: punctuation-only, ALL_CAPS (Kubernetes
+                        // enum values like CRITICAL/Running come through as
+                        // data anyway), HTML entities, emoji.
+                        '[0-9!-/:-@[-`{-~]+',
+                        '[A-Z_-]+',
+                        // Typographic filler the app uses as a null marker.
+                        '[\\s—–•→·›‹|/…]+',
+                        // Glossary terms (locales/GLOSSARY.md) read the same in
+                        // every locale, so a bare one is not a missed string.
+                        '(Pod|Deployment|StatefulSet|ReplicaSet|DaemonSet|Job|CronJob'
+                        + '|Namespace|ConfigMap|Secret|Ingress|Service|Node|PersistentVolume'
+                        + '|StorageClass|ServiceAccount|Role|RoleBinding|CRD|YAML|kubectl'
+                        + '|kubeconfig|Kube Inspector|KUBE INSPECTOR|Trivy|Ollama|Go|CPU|IP)s?',
+                    ],
+                },
+                callees: {
+                    exclude: [
+                        'i18n(ext)?', 't', 'require', 'addEventListener',
+                        'removeEventListener', 'postMessage', 'getElementById',
+                        'dispatch', 'commit', 'includes', 'indexOf', 'endsWith',
+                        'startsWith',
+                        // App helpers whose arguments are field names, not prose.
+                        'buildInOptions', 'localStorage.(get|set|remove)Item',
+                        'classList.(add|remove|toggle)', 'setAttribute',
+                        'querySelector(All)?', 'getItem', 'setItem',
+                    ],
+                },
+                'object-properties': {
+                    exclude: [
+                        '[A-Z_-]+',
+                        // Wiring, not display text: these name a resource, a
+                        // panel or a field, and several are sent to the backend.
+                        'kind', 'resourceKind', 'resource', 'view', 'component',
+                        'componentType', 'field', 'name', 'namespace', 'clusterName',
+                        'container', 'containerName', 'severity', 'position',
+                        'referencePanel', 'id', 'panelId', 'tour', 'selector',
+                        'icon', 'side', 'className', 'group', 'cat',
+                        // Monaco / chart / motion option objects.
+                        'wordWrap', 'lineNumbers', 'renderLineHighlight', 'type',
+                        'cursorStyle', 'fontFamily', 'theme', 'language', 'ease',
+                    ],
+                },
+            }],
         },
     },
 

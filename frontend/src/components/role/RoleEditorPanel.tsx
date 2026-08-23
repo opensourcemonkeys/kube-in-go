@@ -12,6 +12,7 @@ import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { GetRoles, UpdateRole } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+import { useT } from '../../i18n/useT';
 
 interface RoleEditorPanelParams {
     clusterName: string;
@@ -64,6 +65,7 @@ const rowsEqual = (a: RuleRow[], b: RuleRow[]) => {
 };
 
 export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEditorPanelParams>) {
+    const t = useT();
     const { clusterName, name, namespace } = params;
     const cn = clusterName ?? '';
     const [rows, setRows] = useState<RuleRow[]>([]);
@@ -164,9 +166,9 @@ export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEdit
                 {namespace}/{name}
             </span>
             <div className="flex align-items-center gap-1">
-                <Button label="Add Rule" icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
-                <Button label="Revert" icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
-                <Button label="Save" icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
+                <Button label={t('panels:roleEditor.addRule')} icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
+                <Button label={t('panels:yaml.revert')} icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
+                <Button label={t('panels:yaml.save')} icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
             </div>
         </div>
     );
@@ -183,13 +185,13 @@ export default function RoleEditorPanel({ params }: IDockviewPanelProps<RoleEdit
                 scrollHeight="flex"
                 showGridlines
                 stripedRows
-                emptyMessage="No rules. Click 'Add Rule' to add one."
+                emptyMessage={t('panels:roleEditor.empty')}
                 style={{ flex: 1 }}
             >
-                <Column field="apiGroups" header="API Groups" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
-                <Column field="resources" header="Resources" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
-                <Column field="verbs" header="Verbs" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
-                <Column field="resourceNames" header="Resource Names" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="apiGroups" header={t('resources:column.apiGroups')} editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="resources" header={t('resources:column.resources')} editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="verbs" header={t('resources:column.verbs')} editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="resourceNames" header={t('resources:column.resourceNames')} editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '11rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
                 <Column header="" body={actionsBody} style={{ width: '3.5rem', textAlign: 'center' }} />
             </DataTable>
         </div>

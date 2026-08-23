@@ -7,6 +7,8 @@ import { models as goModels } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { useAiChatStore, ChatMessage, ToolLine } from '../../stores/aiChatStore';
+import { Trans } from 'react-i18next';
+import { useT } from '../../i18n/useT';
 
 interface ConfirmReq { id: string; name: string; args: Record<string, unknown>; }
 interface PullState { percent: number; status: string; error?: string; }
@@ -33,6 +35,7 @@ function fmtBytes(n?: number): string {
 }
 
 export default function AiChat() {
+    const t = useT();
     const { open, setOpen, host, model, messages, setModel, setMessages, clear } = useAiChatStore();
     const { getApi } = useTabContext();
     const { activeCluster } = useClusterContext();
@@ -235,14 +238,14 @@ export default function AiChat() {
             <div className="ai-float__head" onPointerDown={onDragStart}>
                 {view === 'models' ? (
                     <>
-                        <button className="ai-float__icon" title="Back to chat" onClick={(e) => { e.stopPropagation(); setView('chat'); }}><VscArrowLeft size={15} /></button>
-                        <span className="ai-float__title">Models</span>
-                        <button className="ai-float__icon" style={{ marginLeft: 'auto' }} title="Refresh" onClick={(e) => { e.stopPropagation(); loadCatalog(); }}><VscRefresh size={13} /></button>
+                        <button className="ai-float__icon" title={t('panels:ai.backToChat')} onClick={(e) => { e.stopPropagation(); setView('chat'); }}><VscArrowLeft size={15} /></button>
+                        <span className="ai-float__title">{t('panels:ai.models')}</span>
+                        <button className="ai-float__icon" style={{ marginLeft: 'auto' }} title={t('panels:ai.refresh')} onClick={(e) => { e.stopPropagation(); loadCatalog(); }}><VscRefresh size={13} /></button>
                     </>
                 ) : (
                     <>
                         <VscHubot size={15} className="ai-float__logo" />
-                        <span className="ai-float__title">Assistant</span>
+                        <span className="ai-float__title">{t('panels:ai.assistant')}</span>
                         <Dropdown
                             className="ai-float__model"
                             panelClassName="ai-model-dropdown"
@@ -250,54 +253,53 @@ export default function AiChat() {
                             value={model}
                             options={modelList.map((m) => ({ label: m, value: m }))}
                             onChange={(e) => setModel(e.value)}
-                            placeholder="model"
+                            placeholder={t('panels:ai.modelPlaceholder')}
                             disabled={!available}
                             filter={modelList.length > 6}
                             onClick={(e) => e.stopPropagation()}
                         />
-                        <button className="ai-float__icon" title="Manage models" disabled={!available} onClick={(e) => { e.stopPropagation(); setView('models'); loadCatalog(); }}><VscCloudDownload size={14} /></button>
-                        <button className="ai-float__icon" title="Clear chat" onClick={(e) => { e.stopPropagation(); clear(); }}><VscTrash size={13} /></button>
+                        <button className="ai-float__icon" title={t('panels:ai.manageModels')} disabled={!available} onClick={(e) => { e.stopPropagation(); setView('models'); loadCatalog(); }}><VscCloudDownload size={14} /></button>
+                        <button className="ai-float__icon" title={t('panels:ai.clearChat')} onClick={(e) => { e.stopPropagation(); clear(); }}><VscTrash size={13} /></button>
                     </>
                 )}
-                <button className="ai-float__icon" title="Close" onClick={(e) => { e.stopPropagation(); setOpen(false); }}><VscClose size={14} /></button>
+                <button className="ai-float__icon" title={t('panels:ai.close')} onClick={(e) => { e.stopPropagation(); setOpen(false); }}><VscClose size={14} /></button>
             </div>
 
             {/* Not-available gate */}
             {available === false && (
                 <div className="ai-install">
                     <VscHubot size={34} className="ai-install__logo" />
-                    <div className="ai-install__title">Ollama not found</div>
+                    <div className="ai-install__title">{t('panels:ai.ollamaMissingTitle')}</div>
                     <div className="ai-install__text">
-                        The assistant runs on a local Ollama server, which isn't reachable at <code>{host}</code>.
-                        Install Ollama (or start it if already installed), then retry.
+                        <Trans t={t} i18nKey="panels:ai.ollamaMissing" values={{ host }} components={{ 1: <code /> }} />
                     </div>
                     <div className="ai-install__btns">
-                        <button className="ai-install__primary" onClick={() => BrowserOpenURL(OLLAMA_DOWNLOAD_URL)}><VscCloudDownload size={13} /> Install Ollama</button>
-                        <button className="ai-install__retry" onClick={checkAvailable}><VscRefresh size={13} /> Retry</button>
+                        <button className="ai-install__primary" onClick={() => BrowserOpenURL(OLLAMA_DOWNLOAD_URL)}><VscCloudDownload size={13} /> {t('panels:ai.installOllama')}</button>
+                        <button className="ai-install__retry" onClick={checkAvailable}><VscRefresh size={13} /> {t('action.retry')}</button>
                     </div>
                 </div>
             )}
 
             {available === null && (
-                <div className="ai-float__empty" style={{ flex: 1 }}>Connecting to Ollama…</div>
+                <div className="ai-float__empty" style={{ flex: 1 }}>{t('panels:ai.connecting')}</div>
             )}
 
             {/* Model manager */}
             {available && view === 'models' && (
                 <div className="ai-models">
                     <div className="ai-models__search">
-                        <input value={modelSearch} onChange={(e) => setModelSearch(e.target.value)} placeholder="Search the catalog…" />
+                        <input value={modelSearch} onChange={(e) => setModelSearch(e.target.value)} placeholder={t('panels:ai.searchCatalog')} />
                     </div>
                     <div className="ai-models__pull">
                         <input
                             value={pullInput}
                             onChange={(e) => setPullInput(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); pullFreeText(); } }}
-                            placeholder="Pull any model, e.g. qwen2.5:0.5b"
+                            placeholder={t('panels:ai.pullPlaceholder')}
                         />
-                        <button className="ai-model__dl" title="Download" disabled={!pullInput.trim()} onClick={pullFreeText}><VscCloudDownload size={14} /></button>
+                        <button className="ai-model__dl" title={t('panels:ai.download')} disabled={!pullInput.trim()} onClick={pullFreeText}><VscCloudDownload size={14} /></button>
                     </div>
-                    {catalogError && <div className="ai-float__hint">Couldn't load catalog: {catalogError}</div>}
+                    {catalogError && <div className="ai-float__hint">{t('panels:ai.catalogError', { error: catalogError })}</div>}
 
                     <div className="ai-models__list">
                         {/* active downloads (covers free-text pulls not shown elsewhere) */}
@@ -315,7 +317,7 @@ export default function AiChat() {
                                             </div>
                                         </div>
                                         <div className="ai-model__action">
-                                            <button className="ai-model__cancel" title="Cancel" onClick={() => cancelPull(name)}><VscChromeClose size={13} /></button>
+                                            <button className="ai-model__cancel" title={t('panels:ai.cancel')} onClick={() => cancelPull(name)}><VscChromeClose size={13} /></button>
                                         </div>
                                     </div>
                                 ))}
@@ -326,17 +328,17 @@ export default function AiChat() {
                             const base = m.name.split(':')[0];
                             const pull = pulls[m.name];
                             const isOpen = !!expanded[base];
-                            const t = tags[base];
+                            const tagState = tags[base];
                             return (
                                 <div className="ai-model-group" key={m.name}>
                                     <div className="ai-model">
-                                        <button className="ai-model__expand" title="Show sizes" onClick={() => toggleExpand(base)}>
+                                        <button className="ai-model__expand" title={t('panels:ai.showSizes')} onClick={() => toggleExpand(base)}>
                                             {isOpen ? <VscChevronDown size={13} /> : <VscChevronRight size={13} />}
                                         </button>
                                         <div className="ai-model__info" onClick={() => toggleExpand(base)} style={{ cursor: 'pointer' }}>
                                             <div className="ai-model__name">
                                                 {m.name}
-                                                {m.installed && <span className="ai-model__badge">installed</span>}
+                                                {m.installed && <span className="ai-model__badge">{t('panels:ai.installed')}</span>}
                                                 {!!m.vramBytes && <span className="ai-model__meta">~{fmtBytes(m.vramBytes)} VRAM</span>}
                                             </div>
                                             {m.description && <div className="ai-model__desc">{m.description}</div>}
@@ -345,7 +347,7 @@ export default function AiChat() {
                                             {isInstalled(m.name) ? (
                                                 <span className="ai-model__installed"><VscCheck size={14} /></span>
                                             ) : pull && !pull.error ? (
-                                                <button className="ai-model__cancel" title="Cancel" onClick={() => cancelPull(m.name)}><VscChromeClose size={13} /></button>
+                                                <button className="ai-model__cancel" title={t('panels:ai.cancel')} onClick={() => cancelPull(m.name)}><VscChromeClose size={13} /></button>
                                             ) : (
                                                 <button className="ai-model__dl" title={`Download ${m.name}`} onClick={() => startPull(m.name)}><VscCloudDownload size={14} /></button>
                                             )}
@@ -354,10 +356,10 @@ export default function AiChat() {
 
                                     {isOpen && (
                                         <div className="ai-variants">
-                                            {t === 'loading' && <div className="ai-variants__msg">loading sizes…</div>}
-                                            {t === 'error' && <div className="ai-variants__msg">Couldn't load sizes — use the box above to pull a specific tag.</div>}
-                                            {Array.isArray(t) && t.length === 0 && <div className="ai-variants__msg">No tags found.</div>}
-                                            {Array.isArray(t) && t.map((tag) => {
+                                            {tagState === 'loading' && <div className="ai-variants__msg">{t('panels:ai.loadingSizes')}</div>}
+                                            {tagState === 'error' && <div className="ai-variants__msg">{t('panels:ai.sizesError')}</div>}
+                                            {Array.isArray(tagState) && tagState.length === 0 && <div className="ai-variants__msg">{t('panels:ai.noTags')}</div>}
+                                            {Array.isArray(tagState) && tagState.map((tag) => {
                                                 const ref = `${base}:${tag}`;
                                                 const vpull = pulls[ref];
                                                 return (
@@ -365,13 +367,13 @@ export default function AiChat() {
                                                         <span className="ai-variant__tag">{tag}</span>
                                                         {vpull && (
                                                             <span className={`ai-variant__status${vpull.error ? ' ai-model__pstatus--err' : ''}`}>
-                                                                {vpull.error ? 'error' : `${vpull.percent ? vpull.percent.toFixed(0) + '%' : vpull.status}`}
+                                                                {vpull.error ? t('panels:ai.pullError') : `${vpull.percent ? vpull.percent.toFixed(0) + '%' : vpull.status}`}
                                                             </span>
                                                         )}
                                                         {isInstalled(ref) ? (
                                                             <span className="ai-model__installed"><VscCheck size={13} /></span>
                                                         ) : vpull && !vpull.error ? (
-                                                            <button className="ai-model__cancel" title="Cancel" onClick={() => cancelPull(ref)}><VscChromeClose size={12} /></button>
+                                                            <button className="ai-model__cancel" title={t('panels:ai.cancel')} onClick={() => cancelPull(ref)}><VscChromeClose size={12} /></button>
                                                         ) : (
                                                             <button className="ai-model__dl ai-model__dl--sm" title={`Download ${ref}`} onClick={() => startPull(ref)}><VscCloudDownload size={13} /></button>
                                                         )}
@@ -383,7 +385,7 @@ export default function AiChat() {
                                 </div>
                             );
                         })}
-                        {filteredCatalog.length === 0 && !catalogError && <div className="ai-float__empty">No models match.</div>}
+                        {filteredCatalog.length === 0 && !catalogError && <div className="ai-float__empty">{t('panels:ai.noModelsMatch')}</div>}
                     </div>
                 </div>
             )}
@@ -394,30 +396,30 @@ export default function AiChat() {
                     <div className="ai-float__body" ref={scrollRef}>
                         {model && toolSupport === false && (
                             <div className="ai-float__warn">
-                                <b>{model}</b> doesn't natively support tool calling — using a compatibility mode that may be
-                                less reliable. For best results open <b>Manage models</b> and pick a tool-capable model
-                                (e.g. <code>llama3.1</code>, <code>qwen2.5</code>).
+                                <Trans
+                                    t={t}
+                                    i18nKey="panels:ai.noToolSupport"
+                                    values={{ model }}
+                                    components={{ 1: <b />, 3: <b />, 5: <code />, 7: <code /> }}
+                                />
                             </div>
                         )}
                         {modelList.length === 0 && (
                             <div className="ai-float__hint">
-                                No models installed. Open <b>Manage models</b> (the download icon) to get a tool-capable model like <code>llama3.1</code>.
+                                <Trans t={t} i18nKey="panels:ai.noModelsInstalled" components={{ 1: <b />, 3: <code /> }} />
                             </div>
                         )}
                         {messages.length === 0 && !streaming && (
-                            <div className="ai-float__empty">
-                                Ask about your cluster — e.g. "list pods in kube-system" or "why is pod X crashing?".
-                                I can also delete/scale/apply with your approval.
-                            </div>
+                            <div className="ai-float__empty">{t('panels:ai.emptyChat')}</div>
                         )}
                         {messages.map((m, i) => <Message key={i} msg={m} />)}
                         {streaming && (
                             <div className="ai-msg ai-msg--assistant">
                                 <ToolLines tools={liveTools} />
                                 {liveText && <div className="ai-msg__text">{liveText}</div>}
-                                <div className="ai-working" aria-label="working">
+                                <div className="ai-working" aria-label={t('panels:ai.working')}>
                                     <span /><span /><span />
-                                    <em>working…</em>
+                                    <em>{t('panels:ai.workingEllipsis')}</em>
                                 </div>
                             </div>
                         )}
@@ -425,11 +427,11 @@ export default function AiChat() {
 
                     {confirm && (
                         <div className="ai-confirm">
-                            <div className="ai-confirm__title">Approve action: <b>{confirm.name}</b></div>
+                            <div className="ai-confirm__title">{t('panels:ai.approveAction')} <b>{confirm.name}</b></div>
                             <pre className="ai-confirm__args">{JSON.stringify(confirm.args, null, 2)}</pre>
                             <div className="ai-confirm__btns">
-                                <button className="ai-confirm__deny" onClick={() => answerConfirm(false)}><VscChromeClose size={12} /> Deny</button>
-                                <button className="ai-confirm__approve" onClick={() => answerConfirm(true)}><VscCheck size={12} /> Approve</button>
+                                <button className="ai-confirm__deny" onClick={() => answerConfirm(false)}><VscChromeClose size={12} /> {t('panels:ai.deny')}</button>
+                                <button className="ai-confirm__approve" onClick={() => answerConfirm(true)}><VscCheck size={12} /> {t('panels:ai.approve')}</button>
                             </div>
                         </div>
                     )}
@@ -439,12 +441,12 @@ export default function AiChat() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-                            placeholder={model ? 'Message the assistant…' : 'Install/select a model first'}
+                            placeholder={t(model ? 'panels:ai.messagePlaceholder' : 'panels:ai.noModelPlaceholder')}
                             rows={2}
                         />
                         {streaming
-                            ? <button className="ai-float__send ai-float__send--stop" onClick={stop} title="Stop"><VscChromeClose size={15} /></button>
-                            : <button className="ai-float__send" onClick={send} disabled={!input.trim() || !model} title="Send"><VscSend size={15} /></button>}
+                            ? <button className="ai-float__send ai-float__send--stop" onClick={stop} title={t('panels:ai.stop')}><VscChromeClose size={15} /></button>
+                            : <button className="ai-float__send" onClick={send} disabled={!input.trim() || !model} title={t('panels:ai.send')}><VscSend size={15} /></button>}
                     </div>
                 </>
             )}
@@ -462,15 +464,16 @@ function Message({ msg }: { msg: ChatMessage }) {
 }
 
 function ToolLines({ tools }: { tools: ToolLine[] }) {
+    const t = useT();
     if (!tools.length) return null;
     return (
         <div className="ai-tools">
-            {tools.map((t) => (
-                <div key={t.id} className={`ai-tool ai-tool--${t.status}`}>
+            {tools.map((tool) => (
+                <div key={tool.id} className={`ai-tool ai-tool--${tool.status}`}>
                     <span className="ai-tool__dot" />
-                    <span className="ai-tool__name">{t.name}</span>
-                    {t.mutating && <span className="ai-tool__badge">mutating</span>}
-                    <span className="ai-tool__status">{t.status}</span>
+                    <span className="ai-tool__name">{tool.name}</span>
+                    {tool.mutating && <span className="ai-tool__badge">{t('panels:ai.mutating')}</span>}
+                    <span className="ai-tool__status">{tool.status}</span>
                 </div>
             ))}
         </div>

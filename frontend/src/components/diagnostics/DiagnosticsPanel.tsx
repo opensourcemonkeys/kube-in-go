@@ -8,6 +8,7 @@ import { useDiagnosticsStore } from '../../stores/diagnosticsStore';
 import OverviewTab from './OverviewTab';
 import LogsTab from './LogsTab';
 import ExportTab from './ExportTab';
+import { useT } from '../../i18n/useT';
 
 /**
  * The Diagnostics panel.
@@ -17,6 +18,7 @@ import ExportTab from './ExportTab';
  * empty so it survives a structured-clone trip to another window.
  */
 export default function DiagnosticsPanel({ api }: IDockviewPanelProps) {
+    const t = useT();
     const active = usePanelActive(api);
     const { activeTab, setActiveTab } = useDiagnosticsStore();
     const [report, setReport] = useState<models.DiagnosticsReport | null>(null);
@@ -28,15 +30,15 @@ export default function DiagnosticsPanel({ api }: IDockviewPanelProps) {
     return (
         <div className="diag-panel">
             <TabView activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)}>
-                <TabPanel header="Overview" leftIcon="pi pi-info-circle mr-2">
+                <TabPanel header={t('panels:diagnostics.tab.overview')} leftIcon="pi pi-info-circle mr-2">
                     <OverviewTab report={report} onReport={setReport} />
                 </TabPanel>
-                <TabPanel header="Logs" leftIcon="pi pi-list mr-2">
+                <TabPanel header={t('panels:diagnostics.tab.logs')} leftIcon="pi pi-list mr-2">
                     {/* Poll only while this tab is both the active Dockview panel
                         and the selected TabView tab. */}
                     <LogsTab active={active && activeTab === 1} ownPid={report?.pid ?? 0} />
                 </TabPanel>
-                <TabPanel header="Export" leftIcon="pi pi-download mr-2">
+                <TabPanel header={t('panels:diagnostics.tab.export')} leftIcon="pi pi-download mr-2">
                     <ExportTab report={report} />
                 </TabPanel>
             </TabView>

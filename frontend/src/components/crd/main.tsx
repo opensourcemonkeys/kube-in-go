@@ -15,6 +15,7 @@ import CrdTree from './CrdTree';
 import InstanceTable, { InstanceRow } from './InstanceTable';
 import { useCrdExplorer } from './useCrdExplorer';
 import './crd.css';
+import { useT } from '../../i18n/useT';
 
 const CRD_GROUP = 'apiextensions.k8s.io';
 const CRD_RESOURCE = 'customresourcedefinitions';
@@ -40,6 +41,7 @@ type DeleteTarget = {
  * printer columns.
  */
 export default function CrdListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const explorer = useCrdExplorer(clusterName, api);
     const { openObjectYaml, openDescribePanel } = useTabContext();
     const toast = useRef<Toast | null>(null);
@@ -127,8 +129,8 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<VscClose size={16} />} text onClick={() => setDeleteTarget(null)} disabled={deleting} />
-            <Button label="Delete" icon={<VscTrash size={16} />} severity="danger" onClick={confirmDelete} loading={deleting} />
+            <Button label={t('action.cancel')} icon={<VscClose size={16} />} text onClick={() => setDeleteTarget(null)} disabled={deleting} />
+            <Button label={t('action.delete')} icon={<VscTrash size={16} />} severity="danger" onClick={confirmDelete} loading={deleting} />
         </div>
     );
 
@@ -137,7 +139,7 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
             <Toast ref={toast} position="bottom-right" />
 
             <div className="crd-toolbar">
-                <h3>Custom Resource Definitions</h3>
+                <h3>{t('panels:crd.title')}</h3>
                 <Tag
                     value={
                         explorer.matchCount === explorer.crds.length
@@ -151,23 +153,23 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
                     <InputText
                         value={explorer.search}
                         onChange={(e) => explorer.setSearch(e.target.value)}
-                        placeholder="Search kind, group or resource…"
+                        placeholder={t('panels:crd.search')}
                         className="p-inputtext-sm"
                     />
                 </span>
-                <label className="crd-checkbox" title="Hide CRDs that currently have no instances">
+                <label className="crd-checkbox" title={t('panels:crd.onlyWithInstancesTooltip')}>
                     <Checkbox
                         inputId="crd-only-live"
                         checked={explorer.onlyWithInstances}
                         onChange={(e) => explorer.setOnlyWithInstances(!!e.checked)}
                     />
-                    <span>Only with instances</span>
+                    <span>{t('panels:crd.onlyWithInstances')}</span>
                 </label>
                 <MultiSelect
                     value={explorer.scopes}
                     options={SCOPE_OPTIONS}
                     onChange={(e) => explorer.setScopes(e.value ?? [])}
-                    placeholder="Any scope"
+                    placeholder={t('panels:crd.anyScope')}
                     maxSelectedLabels={1}
                     className="p-inputtext-sm"
                     style={{ minWidth: '10rem' }}
@@ -179,7 +181,7 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
                     style={{ marginLeft: 'auto' }}
                     loading={explorer.catalogLoading || explorer.countsLoading}
                     onClick={explorer.refreshCatalog}
-                    tooltip="Refresh definitions and instance counts"
+                    tooltip={t('panels:crd.refreshDefinitions')}
                     tooltipOptions={{ position: 'left' }}
                 />
             </div>
@@ -234,7 +236,7 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
             </div>
 
             <Dialog
-                header="Delete Confirmation"
+                header={t('resources:crd.deleteTitle')}
                 visible={!!deleteTarget}
                 style={{ width: '32rem' }}
                 modal
@@ -244,8 +246,8 @@ export default function CrdListComponent({ clusterName, api }: { clusterName: st
                 {deleteTarget && (
                     <>
                         <p className="m-0 mb-3">
-                            Delete the following {deleteTarget.items.length === 1 ? deleteTarget.label : `${deleteTarget.items.length} ${deleteTarget.label} records`}?
-                            {deleteTarget.kind === 'crd' && ' This also removes all of its custom resources.'}
+                            {t('panels:crd.deleteBody', { count: deleteTarget.items.length, label: deleteTarget.label })}
+                            {deleteTarget.kind === 'crd' && t('panels:crd.deleteAlsoRemoves')}
                         </p>
                         <ul className="m-0 pl-3">
                             {deleteTarget.items.map((item) => (

@@ -8,6 +8,7 @@ import { GetIngressClasses, DeleteObject } from '../../../wailsjs/go/controller_
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 // Cluster-scoped and without a typed delete of its own: addressed
 // generically by (group, resource, name) like the CRD view does.
@@ -20,12 +21,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function IngressClassListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `ingressclasses:${clusterName}`;
 
     return (
         <ResourceListView<models.IngressClassInfo>
-            title="Ingress Class List"
+            title={t('resources:ingressclass.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetIngressClasses}
@@ -35,16 +37,16 @@ export default function IngressClassListComponent({ clusterName, api }: { cluste
             deleteLabel="ingress class"
             describeResource="ingressclasses"
             defaultFilters={defaultFilters}
-            emptyMessage="No ingress classes found"
+            emptyMessage={t('resources:ingressclass.empty')}
             onRowDoubleClick={(ic) => openYamlPanel({ clusterName, resourceKind: 'ingressclass', name: ic.name, namespace: '', referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="controller" header="Controller" sortable filter filterField="controller" showFilterMenu={false} style={{ minWidth: '20rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="controller" header={t('resources:column.controller')} sortable filter filterField="controller" showFilterMenu={false} style={{ minWidth: '20rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('controller')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('controller')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="is_default" header="Default" sortable style={{ minWidth: '8rem' }}
+                    <Column field="is_default" header={t('resources:column.default')} sortable style={{ minWidth: '8rem' }}
                         body={(row: models.IngressClassInfo) => (row.is_default ? <Tag value="Default" severity="success" /> : <span style={{ color: 'var(--ink3)' }}>—</span>)} />
                 </>
             )}

@@ -11,6 +11,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import WorkloadActions from '../shared/WorkloadActions';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -19,12 +20,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function CronJobListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openLogPanel } = useTabContext();
     const referencePanel = `cronjobs:${clusterName}`;
 
     return (
         <ResourceListView<models.CronJobInfo>
-            title="CronJob List"
+            title={t('resources:cronjob.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetCronJobs}
@@ -34,22 +36,22 @@ export default function CronJobListComponent({ clusterName, api }: { clusterName
             pollInterval={10000}
             describeResource="cronjobs"
             defaultFilters={defaultFilters}
-            emptyMessage="No cronjobs found"
+            emptyMessage={t('resources:cronjob.empty')}
             onRowDoubleClick={(cj) => openYamlPanel({ clusterName, resourceKind: 'cronjob', name: cj.name, namespace: cj.namespace, referencePanel })}
             columns={({ buildInOptions, reload, toastRef }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="schedule" header="Schedule" sortable filter filterField="schedule" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="schedule" header={t('resources:column.schedule')} sortable filter filterField="schedule" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('schedule')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('schedule')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Status" sortable sortField="suspend" style={{ minWidth: '8rem' }}
+                    <Column header={t('resources:column.status')} sortable sortField="suspend" style={{ minWidth: '8rem' }}
                         body={(row: models.CronJobInfo) => <Tag value={row.suspend ? 'Suspended' : 'Active'} severity={row.suspend ? 'warning' : 'success'} />} />
-                    <Column field="active_count" header="Active Jobs" sortable style={{ minWidth: '8rem' }} body={(row: models.CronJobInfo) => row.active_count} />
+                    <Column field="active_count" header={t('resources:column.activeJobs')} sortable style={{ minWidth: '8rem' }} body={(row: models.CronJobInfo) => row.active_count} />
                     <Column header="" style={{ width: '6rem', textAlign: 'center' }}
                         body={(row: models.CronJobInfo) => (
                             <>

@@ -19,6 +19,7 @@ import {
 import { usePanelActive } from '../../lib/usePanelActive';
 import { writeClipboard } from '../../lib/clipboard';
 import { errText } from '../../lib/errText';
+import { useT } from '../../i18n/useT';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
 
@@ -55,6 +56,7 @@ const age = (iso: string): string => {
  * nothing.
  */
 export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<string, never>>) {
+    const t = useT();
     const active = usePanelActive(api);
     const forwards = usePortForwardStore((s) => s.forwards);
     const startSync = usePortForwardStore((s) => s.startSync);
@@ -125,9 +127,9 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
     const empty = (
         <div className="flex flex-column align-items-center gap-2" style={{ padding: '2rem 1rem', color: 'var(--ink3)' }}>
             <VscArrowSwap size={22} />
-            <span style={{ fontSize: '0.85rem' }}>No active port forwards.</span>
+            <span style={{ fontSize: '0.85rem' }}>{t('panels:portForwards.empty')}</span>
             <span style={{ fontSize: '0.78rem' }}>
-                Start one from the ⇄ button on a Pod, Service, Deployment, StatefulSet or ReplicaSet row.
+                {t('panels:portForwards.emptyHint')}
             </span>
         </div>
     );
@@ -146,13 +148,13 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                     flexShrink: 0,
                 }}
             >
-                <h3 style={{ margin: 0 }}>Port Forwards</h3>
+                <h3 style={{ margin: 0 }}>{t('panels:portForwards.title')}</h3>
                 <span
                     className="flex align-items-center gap-1"
                     style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--ink3)' }}
                 >
                     <VscLock size={12} />
-                    Bound to 127.0.0.1 only. Tunnels stay open until you stop them or quit the app.
+                    {t('panels:portForwards.loopbackNote')}
                 </span>
             </div>
 
@@ -167,7 +169,7 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                 >
                     <Column
                         field="status"
-                        header="Status"
+                        header={t('resources:column.status')}
                         style={{ minWidth: '9rem' }}
                         body={(f: PortForward) => (
                             <span className="flex align-items-center gap-2">
@@ -179,19 +181,19 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                         )}
                     />
                     <Column
-                        header="Address"
+                        header={t('resources:column.address')}
                         style={{ minWidth: '15rem' }}
                         body={(f: PortForward) => (
                             <span style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
                                 {f.address}:{f.local_port} → {f.remote_port}
                                 {f.target_port !== 0 && f.target_port !== f.remote_port && (
-                                    <span style={{ color: 'var(--ink3)' }}> (pod {f.target_port})</span>
+                                    <span style={{ color: 'var(--ink3)' }}>{t('panels:portForwards.podPort', { port: f.target_port })}</span>
                                 )}
                             </span>
                         )}
                     />
                     <Column
-                        header="Target"
+                        header={t('resources:column.target')}
                         style={{ minWidth: '14rem' }}
                         body={(f: PortForward) => (
                             <span>
@@ -200,14 +202,14 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                             </span>
                         )}
                     />
-                    <Column field="namespace" header="Namespace" style={{ minWidth: '9rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} style={{ minWidth: '9rem' }} />
                     <Column
-                        header="Pod"
+                        header={t('resources:column.pod')}
                         style={{ minWidth: '12rem' }}
                         body={(f: PortForward) => f.pod_name || '-'}
                     />
-                    <Column field="cluster_name" header="Cluster" style={{ minWidth: '9rem' }} />
-                    <Column header="Age" style={{ minWidth: '5rem' }} body={(f: PortForward) => age(f.started_at)} />
+                    <Column field="cluster_name" header={t('resources:column.cluster')} style={{ minWidth: '9rem' }} />
+                    <Column header={t('resources:column.age')} style={{ minWidth: '5rem' }} body={(f: PortForward) => age(f.started_at)} />
                     <Column
                         header=""
                         headerStyle={{ width: '9rem' }}
@@ -221,9 +223,9 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                                         size="small"
                                         severity="secondary"
                                         style={{ padding: '0.2rem' }}
-                                        tooltip="Open in browser"
+                                        tooltip={t('panels:portForwards.openInBrowser')}
                                         tooltipOptions={{ position: 'top' }}
-                                        aria-label="Open in browser"
+                                        aria-label={t('panels:portForwards.openInBrowser')}
                                         onClick={() => BrowserOpenURL(forwardUrl(f))}
                                     />
                                 )}
@@ -233,9 +235,9 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                                     size="small"
                                     severity="secondary"
                                     style={{ padding: '0.2rem' }}
-                                    tooltip="Copy address"
+                                    tooltip={t('panels:portForwards.copyAddress')}
                                     tooltipOptions={{ position: 'top' }}
-                                    aria-label="Copy address"
+                                    aria-label={t('panels:portForwards.copyAddress')}
                                     onClick={() => void copy(f)}
                                 />
                                 <Button
@@ -244,9 +246,9 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                                     size="small"
                                     severity="secondary"
                                     style={{ padding: '0.2rem' }}
-                                    tooltip="Restart"
+                                    tooltip={t('panels:portForwards.restart')}
                                     tooltipOptions={{ position: 'top' }}
-                                    aria-label="Restart"
+                                    aria-label={t('panels:portForwards.restart')}
                                     loading={busyId === f.id}
                                     onClick={() => void restart(f)}
                                 />
@@ -256,9 +258,9 @@ export default function PortForwardsPanel({ api }: IDockviewPanelProps<Record<st
                                     size="small"
                                     severity="danger"
                                     style={{ padding: '0.2rem' }}
-                                    tooltip={f.status === 'error' ? 'Dismiss' : 'Stop'}
+                                    tooltip={t(f.status === 'error' ? 'panels:portForwards.dismiss' : 'panels:portForwards.stop')}
                                     tooltipOptions={{ position: 'top' }}
-                                    aria-label={f.status === 'error' ? 'Dismiss' : 'Stop'}
+                                    aria-label={t(f.status === 'error' ? 'panels:portForwards.dismiss' : 'panels:portForwards.stop')}
                                     loading={busyId === f.id}
                                     onClick={() => void stop(f)}
                                 />

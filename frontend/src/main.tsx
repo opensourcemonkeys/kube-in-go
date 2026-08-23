@@ -2,6 +2,12 @@
 // under Wails, so the generated bindings work under a Chromium shell too.
 import './lib/wailsBridge'
 
+// After wailsBridge (which installs window.go / window.runtime) and before the
+// app tree: initI18n() is awaited below, so every t() call is synchronous from
+// the first render on and nothing ever suspends on a translation.
+import { initI18n } from './i18n'
+import { storedLocale } from './stores/localeStore'
+
 import React from 'react'
 import {createRoot} from 'react-dom/client'
 import './style.css'
@@ -52,17 +58,17 @@ class NoopWorker extends EventTarget {
     getWorker: () => new NoopWorker() as unknown as Worker,
 };
 
-root.render(
-    <React.StrictMode>
-        <PrimeReactProvider>
-            <HashRouter basename="/">
-                <Routes>
-                    <Route path="/" element={<Appmain />} />
-                    <Route path="/info" element={<Info />} />
-                </Routes>
-            </HashRouter>
-        </PrimeReactProvider>
-    </React.StrictMode>
-
-
-);
+initI18n(storedLocale()).then(() => {
+    root.render(
+        <React.StrictMode>
+            <PrimeReactProvider>
+                <HashRouter basename="/">
+                    <Routes>
+                        <Route path="/" element={<Appmain />} />
+                        <Route path="/info" element={<Info />} />
+                    </Routes>
+                </HashRouter>
+            </PrimeReactProvider>
+        </React.StrictMode>
+    );
+});

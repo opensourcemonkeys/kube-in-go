@@ -2,6 +2,7 @@ import React from 'react';
 import { VscWarning, VscRefresh, VscCopy, VscCheck } from 'react-icons/vsc';
 import { useDiagnosticsStore } from '../../stores/diagnosticsStore';
 import { copyDiagnostics } from '../../lib/diagnosticsReport';
+import { useT } from '../../i18n/useT';
 
 interface Props {
     /** Where the crash happened — a Dockview panel id, or "app" for the root. */
@@ -70,6 +71,7 @@ function CrashCard({ label, error, root, onReload }: {
     root?: boolean;
     onReload: () => void;
 }) {
+    const t = useT();
     const [copied, setCopied] = React.useState(false);
 
     const copy = async () => {
@@ -81,19 +83,17 @@ function CrashCard({ label, error, root, onReload }: {
     return (
         <div className="crash-card">
             <VscWarning className="crash-card__icon" />
-            <div className="crash-card__title">{root ? 'Kube Inspector hit an error' : 'This panel hit an error'}</div>
+            <div className="crash-card__title">{root ? t('errors:boundary.appTitle') : t('errors:boundary.panelTitle')}</div>
             <div className="crash-card__msg">{error?.message ?? String(error)}</div>
             <div className="crash-card__actions">
                 <button type="button" className="crash-card__btn" onClick={root ? () => window.location.reload() : onReload}>
-                    <VscRefresh /> {root ? 'Reload window' : 'Reload panel'}
+                    <VscRefresh /> {root ? t('errors:boundary.reloadWindow') : t('errors:boundary.reloadPanel')}
                 </button>
                 <button type="button" className="crash-card__btn" onClick={copy}>
-                    {copied ? <VscCheck /> : <VscCopy />} {copied ? 'Copied' : 'Copy diagnostics'}
+                    {copied ? <VscCheck /> : <VscCopy />} {copied ? t('errors:boundary.copied') : t('errors:boundary.copyDiagnostics')}
                 </button>
             </div>
-            <div className="crash-card__hint">
-                The rest of the app keeps working. The stack is in the diagnostics report.
-            </div>
+            <div className="crash-card__hint">{t('errors:boundary.hint')}</div>
         </div>
     );
 }

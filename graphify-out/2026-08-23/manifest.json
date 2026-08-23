@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1787480829.0028152,
-    "ast_hash": "2e2148a5e031cdec4a3804e3bb4a61f8",
+    "mtime": 1787481817.546712,
+    "ast_hash": "03125bc44996ef2ef70240b2d4bb087c",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1787480933.660149,
-    "ast_hash": "03b9a5233899aed08b4c7203c7ec310c",
+    "mtime": 1787481817.5453339,
+    "ast_hash": "fc4f74f20bb6db04e2d413124bf0a2f5",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
@@ -1920,8 +1920,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/shared/PortForwardDialog.tsx": {
-    "mtime": 1787480350.5870748,
-    "ast_hash": "a87b5d4bbab266aac18840dc5ef6f039",
+    "mtime": 1787481781.5611618,
+    "ast_hash": "f900d008f0f60f5d0078f5929b99f239",
     "semantic_hash": ""
   },
   "frontend/src/components/titlebar/PortForwardPill.tsx": {
@@ -1950,13 +1950,13 @@
     "semantic_hash": ""
   },
   "internal/services/portForwardServices.go": {
-    "mtime": 1787480285.4688506,
-    "ast_hash": "a26aa21868232ac6daf42f8e35d2a8ea",
+    "mtime": 1787481708.2419293,
+    "ast_hash": "f3377fe59c6d3039f2d1ec765d8e6a1d",
     "semantic_hash": ""
   },
   "internal/services/portForwardServices_test.go": {
-    "mtime": 1787480169.5005293,
-    "ast_hash": "814c661c8b739952cc10ead4ad59b152",
+    "mtime": 1787481636.1418412,
+    "ast_hash": "36807046e2ba9b1c0bc8a391f745db42",
     "semantic_hash": ""
   },
   "internal/services/portForwardTarget.go": {

@@ -15,6 +15,7 @@ import { useMetricsStore, ClusterPoint, EntityPoint } from '../../stores/metrics
 import { fmtCpu, fmtMem, pct, getUsageColor, UsageBarChart, CssBar } from '../../lib/usage';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
+import { useT } from '../../i18n/useT';
 
 const POLL_MS = 4000;
 
@@ -106,6 +107,7 @@ const podSel = (r: models.ResourceUsage): Selected => ({
 });
 
 export default function MonitoringDashboard({ clusterName }: { clusterName: string }) {
+    const t = useT();
     const storeKey = `metrics:${clusterName}`;
     const [snap, setSnap] = useState<models.MetricsSnapshot | null>(null);
     const [mode, setMode] = useState<'pods' | 'workloads'>('pods');
@@ -211,18 +213,18 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
     if (!snap) {
         return (
             <div className="mon-root">
-                <div className="mon-header"><VscPulse /> <span>Resource Monitoring</span><span className="mon-cluster">• {clusterName}</span></div>
+                <div className="mon-header"><VscPulse /> <span>{t('panels:monitoring.label')}</span><span className="mon-cluster">• {clusterName}</span></div>
                 <ErrorBanner message={error} onRetry={tick} busy={refreshing} context={`Monitoring (${clusterName})`} />
-                {!error && <div className="mon-empty">Loading metrics…</div>}
+                {!error && <div className="mon-empty">{t('panels:monitoring.loading')}</div>}
             </div>
         );
     }
     if (!snap.metricsAvailable) {
         return (
             <div className="mon-root">
-                <div className="mon-header"><VscPulse /> <span>Resource Monitoring</span><span className="mon-cluster">• {clusterName}</span></div>
+                <div className="mon-header"><VscPulse /> <span>{t('panels:monitoring.label')}</span><span className="mon-cluster">• {clusterName}</span></div>
                 <ErrorBanner message={error} onRetry={tick} busy={refreshing} stale context={`Monitoring (${clusterName})`} />
-                <Message severity="warn" text="metrics-server is not available on this cluster — resource usage cannot be shown. Install metrics-server to enable monitoring." />
+                <Message severity="warn" text={t('panels:monitoring.noMetricsServer')} />
             </div>
         );
     }
@@ -253,10 +255,10 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
     return (
         <div className="mon-root" ref={rootRef}>
             <div className="mon-header">
-                <VscPulse /> <span>Resource Monitoring</span><span className="mon-cluster">• {clusterName}</span>
+                <VscPulse /> <span>{t('panels:monitoring.label')}</span><span className="mon-cluster">• {clusterName}</span>
                 <div className="mon-header__actions">
-                    <Dropdown value={windowMin} options={WINDOWS} onChange={(e) => setWindowMin(e.value)} aria-label="Time window" />
-                    <Button label="Take snapshot" icon={<VscDeviceCamera />} outlined onClick={takeSnapshot} loading={snapping} />
+                    <Dropdown value={windowMin} options={WINDOWS} onChange={(e) => setWindowMin(e.value)} aria-label={t('panels:monitoring.timeWindow')} />
+                    <Button label={t('panels:monitoring.takeSnapshot')} icon={<VscDeviceCamera />} outlined onClick={takeSnapshot} loading={snapping} />
                 </div>
             </div>
 
@@ -267,12 +269,12 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
                     {/* Cluster summary */}
                     <div className="mon-grid">
                         <div className="mon-card">
-                            <div className="mon-card__head"><span>Cluster CPU</span><b>{fmtCpu(c.cpuMillis)} / {fmtCpu(c.cpuCapMillis)}</b></div>
+                            <div className="mon-card__head"><span>{t('panels:monitoring.clusterCpu')}</span><b>{fmtCpu(c.cpuMillis)} / {fmtCpu(c.cpuCapMillis)}</b></div>
                             <div className="mon-card__pct" style={{ color: getUsageColor(cpuClusterPct) }}>{cpuClusterPct.toFixed(0)}%</div>
                             <div className="mon-trend"><Chart type="line" data={cpuTrend} options={lineOptions(100, xMin, xMax)} style={{ height: 130 }} /></div>
                         </div>
                         <div className="mon-card">
-                            <div className="mon-card__head"><span>Cluster Memory</span><b>{fmtMem(c.memMi)} / {fmtMem(c.memCapMi)}</b></div>
+                            <div className="mon-card__head"><span>{t('panels:monitoring.clusterMemory')}</span><b>{fmtMem(c.memMi)} / {fmtMem(c.memCapMi)}</b></div>
                             <div className="mon-card__pct" style={{ color: getUsageColor(memClusterPct) }}>{memClusterPct.toFixed(0)}%</div>
                             <div className="mon-trend"><Chart type="line" data={memTrend} options={lineOptions(100, xMin, xMax)} style={{ height: 130 }} /></div>
                         </div>
@@ -305,11 +307,11 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
                             tabIndex={0}
                             onClick={() => setMode((m) => (m === 'pods' ? 'workloads' : 'pods'))}
                             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMode((m) => (m === 'pods' ? 'workloads' : 'pods')); } }}
-                            title="Switch Pods / Workloads"
+                            title={t('panels:monitoring.switchTooltip')}
                         >
                             <span className="mon-switch__thumb" />
-                            <button type="button" className={`mon-switch__opt${mode === 'pods' ? ' is-active' : ''}`} onClick={(e) => { e.stopPropagation(); setMode('pods'); }}>Pods</button>
-                            <button type="button" className={`mon-switch__opt${mode === 'workloads' ? ' is-active' : ''}`} onClick={(e) => { e.stopPropagation(); setMode('workloads'); }}>Workloads</button>
+                            <button type="button" className={`mon-switch__opt${mode === 'pods' ? ' is-active' : ''}`} onClick={(e) => { e.stopPropagation(); setMode('pods'); }}>{t('panels:monitoring.pods')}</button>
+                            <button type="button" className={`mon-switch__opt${mode === 'workloads' ? ' is-active' : ''}`} onClick={(e) => { e.stopPropagation(); setMode('workloads'); }}>{t('panels:monitoring.workloads')}</button>
                         </div>
                     </div>
                     <DataTable value={rows} size="small" dataKey="_id" scrollable scrollHeight="340px"
@@ -321,16 +323,16 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
                             if (mode === 'pods') select(podSel(r));
                             else select({ cat: 'workload', kind: r.kind, name: r.name, namespace: r.namespace, id: `wl/${r.kind}/${r.namespace}/${r.name}`, label: `${r.kind} · ${r.namespace}/${r.name}` });
                         }}
-                        emptyMessage="No data.">
-                        {mode === 'workloads' && <Column field="kind" header="Kind" sortable filter filterPlaceholder="Kind" style={{ width: 120 }} />}
-                        <Column field="namespace" header="Namespace" sortable filter filterPlaceholder="Namespace" style={{ width: 150 }} />
-                        <Column field="name" header="Name" sortable filter filterPlaceholder="Name" />
-                        {mode === 'pods' && <Column field="node" header="Node" sortable filter filterPlaceholder="Node" style={{ width: 140 }} />}
-                        {mode === 'workloads' && <Column field="pods" header="Pods" sortable dataType="numeric" style={{ width: 70 }} />}
-                        <Column field="cpuMillis" header="CPU" sortable dataType="numeric" style={{ width: 200 }} body={(r: models.ResourceUsage) => (
+                        emptyMessage={t('panels:monitoring.noData')}>
+                        {mode === 'workloads' && <Column field="kind" header={t('resources:column.kind')} sortable filter filterPlaceholder={t('resources:column.kind')} style={{ width: 120 }} />}
+                        <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterPlaceholder={t('resources:column.namespace')} style={{ width: 150 }} />
+                        <Column field="name" header={t('resources:column.name')} sortable filter filterPlaceholder={t('resources:column.name')} />
+                        {mode === 'pods' && <Column field="node" header={t('resources:column.node')} sortable filter filterPlaceholder={t('resources:column.node')} style={{ width: 140 }} />}
+                        {mode === 'workloads' && <Column field="pods" header={t('resources:column.pods')} sortable dataType="numeric" style={{ width: 70 }} />}
+                        <Column field="cpuMillis" header={t('resources:column.cpu')} sortable dataType="numeric" style={{ width: 200 }} body={(r: models.ResourceUsage) => (
                             <div className="mon-cell"><span className="mon-cell__val">{fmtCpu(r.cpuMillis)}</span><CssBar p={pct(r.cpuMillis, cpuCap)} /></div>
                         )} />
-                        <Column field="memMi" header="Memory" sortable dataType="numeric" style={{ width: 200 }} body={(r: models.ResourceUsage) => (
+                        <Column field="memMi" header={t('resources:column.memory')} sortable dataType="numeric" style={{ width: 200 }} body={(r: models.ResourceUsage) => (
                             <div className="mon-cell"><span className="mon-cell__val">{fmtMem(r.memMi)}</span><CssBar p={pct(r.memMi, memCap)} /></div>
                         )} />
                     </DataTable>
@@ -356,6 +358,7 @@ function DetailDrawer({ snap, selected, series, cpuCap, memCap, windowMin, onSel
     onSelect: (s: Selected) => void;
     onClose: () => void;
 }) {
+    const t = useT();
     const cur = findUsage(snap, selected);
     const curCpu = cur?.cpuMillis ?? 0;
     const curMem = cur?.memMi ?? 0;
@@ -372,8 +375,8 @@ function DetailDrawer({ snap, selected, series, cpuCap, memCap, windowMin, onSel
         const mMax = Math.max(1, ...conts.map((x) => x.memMi));
         breakdown = (
             <>
-                <div className="mon-drawer__sub">Containers ({conts.length})</div>
-                <BreakdownList empty="No container metrics." cpuMax={cMax} memMax={mMax}
+                <div className="mon-drawer__sub">{t('panels:monitoring.containers', { count: conts.length })}</div>
+                <BreakdownList empty={t('panels:monitoring.noContainerMetrics')} cpuMax={cMax} memMax={mMax}
                     rows={conts.map((x) => ({ id: x.name, label: x.name, cpu: x.cpuMillis, mem: x.memMi }))} />
             </>
         );
@@ -386,8 +389,8 @@ function DetailDrawer({ snap, selected, series, cpuCap, memCap, windowMin, onSel
         const sorted = [...members].sort((a, b) => b.cpuMillis - a.cpuMillis);
         breakdown = (
             <>
-                <div className="mon-drawer__sub">Pods ({members.length})</div>
-                <BreakdownList empty="No pods." cpuMax={cMax} memMax={mMax}
+                <div className="mon-drawer__sub">{t('panels:monitoring.memberPods', { count: members.length })}</div>
+                <BreakdownList empty={t('panels:monitoring.noPods')} cpuMax={cMax} memMax={mMax}
                     rows={sorted.map((p) => ({
                         id: `${p.namespace}/${p.name}`,
                         label: p.name,
@@ -406,17 +409,17 @@ function DetailDrawer({ snap, selected, series, cpuCap, memCap, windowMin, onSel
                     <span className="mon-drawer__kind">{selected.cat === 'pod' ? 'Pod' : selected.cat === 'node' ? 'Node' : selected.kind}</span>
                     <b title={selected.label}>{selected.label}</b>
                 </div>
-                <button className="mon-drawer__close" onClick={onClose} title="Close"><VscClose /></button>
+                <button className="mon-drawer__close" onClick={onClose} title={t('panels:monitoring.close')}><VscClose /></button>
             </div>
 
             <div className="mon-drawer__stats">
-                <div><span>CPU</span><b>{fmtCpu(curCpu)}</b><i>{pct(curCpu, cpuCap).toFixed(1)}% of cluster</i></div>
-                <div><span>Memory</span><b>{fmtMem(curMem)}</b><i>{pct(curMem, memCap).toFixed(1)}% of cluster</i></div>
+                <div><span>CPU</span><b>{fmtCpu(curCpu)}</b><i>{t('panels:monitoring.percentOfCluster', { percent: pct(curCpu, cpuCap).toFixed(1) })}</i></div>
+                <div><span>{t('panels:monitoring.memory')}</span><b>{fmtMem(curMem)}</b><i>{t('panels:monitoring.percentOfCluster', { percent: pct(curMem, memCap).toFixed(1) })}</i></div>
             </div>
 
-            <div className="mon-drawer__sub">Trend</div>
+            <div className="mon-drawer__sub">{t('panels:monitoring.trend')}</div>
             {series.length < 2 ? (
-                <div className="mon-empty">Collecting data… (updates every {POLL_MS / 1000}s)</div>
+                <div className="mon-empty">{t('panels:monitoring.collecting', { seconds: POLL_MS / 1000 })}</div>
             ) : (
                 <>
                     <div className="mon-trend mon-trend--lg"><Chart type="line" data={cpuTrend} options={lineOptions(undefined, xMin, xMax)} style={{ height: 130 }} /></div>

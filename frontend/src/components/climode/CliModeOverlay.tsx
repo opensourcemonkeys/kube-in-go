@@ -10,12 +10,14 @@ import {
     CloseCliModeSession,
 } from '../../../wailsjs/go/controller_app/App';
 import { writeClipboard as copyToClipboard } from '../../lib/clipboard';
+import { useT } from '../../i18n/useT';
 
 // CliModeOverlay renders a fullscreen xterm that hosts the kube-ins terminal UI
 // (the GUI re-execs itself with --tui in a pty). It covers the dockview + menu;
 // when the TUI process exits (climode:exit) or the user clicks "Exit", onClose
 // restores the GUI. Dockview/menu stay mounted underneath, preserving state.
 export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
+    const t = useT();
     const containerRef = useRef<HTMLDivElement>(null);
     const closeRef = useRef(onClose);
     closeRef.current = onClose;
@@ -159,8 +161,8 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
                 }}
             >
                 <span>
-                    <span style={{ color: '#2dd4bf', fontWeight: 600 }}>CLI MODE</span>
-                    &nbsp;— terminal UI
+                    <span style={{ color: '#2dd4bf', fontWeight: 600 }}>{t('panels:cliMode.badge')}</span>
+                    &nbsp;{t('panels:cliMode.subtitle')}
                 </span>
                 <button
                     onClick={() => closeRef.current()}
@@ -174,7 +176,7 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
                         fontSize: 12,
                     }}
                 >
-                    Exit CLI Mode
+                    {t('panels:cliMode.exit')}
                 </button>
             </div>
             <div

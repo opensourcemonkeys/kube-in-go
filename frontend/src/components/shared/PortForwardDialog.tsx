@@ -8,6 +8,7 @@ import { VscClose, VscArrowSwap, VscLock } from 'react-icons/vsc';
 import { GetForwardablePorts, SuggestLocalPort, StartPortForward } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { errText } from '../../lib/errText';
+import { useT } from '../../i18n/useT';
 
 export type ForwardableKind = 'pod' | 'deployment' | 'statefulset' | 'replicaset' | 'daemonset' | 'service';
 
@@ -43,6 +44,7 @@ export default function PortForwardDialog({
     onHide: () => void;
     onStarted: (info: models.PortForwardInfo) => void;
 }) {
+    const t = useT();
     const [options, setOptions] = useState<models.PortOption[]>([]);
     const [loadingPorts, setLoadingPorts] = useState(false);
     const [portsError, setPortsError] = useState<string | null>(null);
@@ -170,16 +172,16 @@ export default function PortForwardDialog({
 
     return (
         <Dialog
-            header="Port forward"
+            header={t('action.portForward')}
             visible={visible}
             style={{ width: '30rem' }}
             modal
             onHide={close}
             footer={
                 <div className="flex justify-content-end gap-2">
-                    <Button label="Cancel" icon={<VscClose size={16} />} text onClick={close} />
+                    <Button label={t('action.cancel')} icon={<VscClose size={16} />} text onClick={close} />
                     <Button
-                        label="Start"
+                        label={t('panels:portForwardDialog.start')}
                         icon={<VscArrowSwap size={16} />}
                         onClick={submit}
                         loading={busy}
@@ -195,12 +197,12 @@ export default function PortForwardDialog({
 
                 <div className="flex flex-column gap-2">
                     <label htmlFor="pf-remote" style={{ fontSize: '0.8rem', color: 'var(--ink2)' }}>
-                        Remote port
+                        {t('panels:portForwardDialog.remotePort')}
                     </label>
                     {loadingPorts ? (
                         <div className="flex align-items-center gap-2" style={{ height: '2rem' }}>
                             <ProgressSpinner style={{ width: 16, height: 16 }} strokeWidth="6" />
-                            <span style={{ fontSize: '0.8rem', color: 'var(--ink3)' }}>Reading declared ports…</span>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--ink3)' }}>{t('panels:portForwardDialog.readingPorts')}</span>
                         </div>
                     ) : (
                         <Dropdown
@@ -209,7 +211,7 @@ export default function PortForwardDialog({
                             options={dropdownOptions}
                             optionDisabled="disabled"
                             onChange={(e) => setRemotePort(e.value)}
-                            placeholder="Select a port"
+                            placeholder={t('panels:portForwardDialog.selectPort')}
                             style={{ width: '100%' }}
                         />
                     )}
@@ -219,7 +221,7 @@ export default function PortForwardDialog({
                             min={1}
                             max={65535}
                             useGrouping={false}
-                            placeholder="Port number"
+                            placeholder={t('panels:portForwardDialog.portNumber')}
                             autoFocus
                             onValueChange={(e) => setCustomPort(e.value ?? null)}
                             inputStyle={{ width: '100%' }}
@@ -227,14 +229,15 @@ export default function PortForwardDialog({
                     )}
                     {portsError && (
                         <span style={{ fontSize: '0.75rem', color: 'var(--ink3)' }}>
-                            Could not read the declared ports ({portsError}) — enter one manually.
+                            {t('panels:portForwardDialog.portsError', { error: portsError })}
                         </span>
                     )}
                 </div>
 
                 <div className="flex flex-column gap-2">
                     <label htmlFor="pf-local" style={{ fontSize: '0.8rem', color: 'var(--ink2)' }}>
-                        Local port <span style={{ opacity: 0.7 }}>(empty = pick one automatically)</span>
+                        {t('panels:portForwardDialog.localPort')}{' '}
+                        <span style={{ opacity: 0.7 }}>{t('panels:portForwardDialog.localPortHint')}</span>
                     </label>
                     <InputNumber
                         inputId="pf-local"
@@ -242,7 +245,7 @@ export default function PortForwardDialog({
                         min={1}
                         max={65535}
                         useGrouping={false}
-                        placeholder="Automatic"
+                        placeholder={t('panels:portForwardDialog.automatic')}
                         onValueChange={(e) => {
                             setLocalPort(e.value ?? null);
                             setSuggestedAway(false);
@@ -254,14 +257,14 @@ export default function PortForwardDialog({
                     />
                     {suggestedAway && effectiveRemote && (
                         <span style={{ fontSize: '0.75rem', color: 'var(--amber)' }}>
-                            Port {effectiveRemote} is already in use — suggesting {localPort}.
+                            {t('panels:portForwardDialog.inUse', { port: effectiveRemote, suggested: localPort })}
                         </span>
                     )}
                 </div>
 
                 <span className="flex align-items-center gap-2" style={{ fontSize: '0.75rem', color: 'var(--ink3)' }}>
                     <VscLock size={13} />
-                    Bound to 127.0.0.1 only — not reachable from your network.
+                    {t('panels:portForwardDialog.loopbackOnly')}
                 </span>
 
                 {error && (

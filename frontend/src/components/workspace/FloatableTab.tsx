@@ -4,6 +4,7 @@ import { IDockviewPanelHeaderProps } from 'dockview';
 import { useInstanceContext } from '../../contexts/InstanceContext';
 import { useClusterColor } from '../../stores/clusterColorStore';
 import InstancePickerMenu, { TabTarget } from '../transfer/InstancePickerMenu';
+import { useT } from '../../i18n/useT';
 import {
     PanelPayload,
     ShellWindow,
@@ -41,6 +42,7 @@ function getComponentType(panelId: string): string {
 }
 
 export default function FloatableTab({ api, containerApi, params }: IDockviewPanelHeaderProps) {
+    const t = useT();
     const { instances, selfInfo, transferTab } = useInstanceContext();
     const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
     const [siblingWindows, setSiblingWindows] = useState<ShellWindow[]>([]);
@@ -268,7 +270,7 @@ export default function FloatableTab({ api, containerApi, params }: IDockviewPan
             </span>
 
             <button
-                title="Kapat"
+                title={t('panels:tabMenu.close')}
                 onClick={e => { e.stopPropagation(); api.close(); }}
                 style={{
                     background: 'none',

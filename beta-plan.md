@@ -18,7 +18,8 @@
 - [x] **S9** — Describe, Resource Quota, eksik delete/update, namespace create ✅
 - [x] **S10** — Scale ve Rollout Restart ✅
 - [x] **S11** — Port forwarding: process-ömürlü tünel modeli ✅
-- [ ] **S12** — i18n altyapısı + İngilizce katalog + dil seçici
+- [x] **S12a** — i18n altyapısı + koruma bariyerleri + yüksek kaldıraçlı yüzeyler ✅
+- [x] **S12b** — kalan 21 list view + panellerin İngilizce çıkarımı ✅
 - [ ] **S13** — tr / de / ru / zh / ja çevirileri + çürüme koruması
 - [ ] **S14** — Performans ve render hijyeni
 - [ ] **S15** — Release altyapısı: CI, kanallar, updater, paketleme
@@ -1244,6 +1245,163 @@ i18next çoğul son eklerini kullan (`_one`/`_other`) — Rusça `_few` de istiy
 cd frontend && npx tsc --noEmit && npm run lint && npm run build
 ```
 Manuel: seçiciyi İngilizce ile diğer diller arasında değiştir (S13'e kadar İngilizce göstermeye devam edecekler — bu beklenen ara durum ve fallback'in çalıştığını kanıtlıyor). Yeniden başlat → seçim korunmalı. `document.documentElement.lang` güncellenmeli.
+
+### Uygulandı — S12a sonuç ✅
+
+**Step ikiye bölündü** (planlama oturumu kararı): ~600 sabit string sitesi 84
+`.tsx` dosyasına yayılmış; tek diff yarıda kalırsa ağaç yarı-migrate kalıyor.
+**S12a** altyapı + koruma bariyerleri + yüksek kaldıraçlı yüzeyleri kapsadı,
+**S12b** kalan view/panelleri alacak. İkisi de S13'ten önce.
+
+**Kurulan altyapı**
+- `i18next@26` + `react-i18next@17`. `en` **statik bundle** (`locales/en/index.ts`),
+  diğer beş locale `import.meta.glob` ile code-split — planın "aktif locale + en
+  fallback" hedefi, ama fallback her zaman senkron çözülüyor.
+- `main.tsx` `<Suspense>` yerine **`initI18n()`'i await ediyor**; hiçbir bileşen
+  çeviri için askıya alınmıyor ve İngilizce olmayan kullanıcı önce İngilizce bir
+  kare görmüyor.
+- `i18n/i18next.d.ts` — `CustomTypeOptions.resources = typeof en`. **Yanlış
+  yazılmış anahtar artık `tsc --noEmit` hatası.** Planda yoktu; statik `en`
+  importu bunu bedava yaptı ve S13'ün parite denetleyicisinden bağımsız üçüncü
+  bariyer oldu.
+- `i18n/useT.ts` — `useTranslation(NAMESPACES)` sarmalayıcısı. Zorunlu: çıplak
+  `useTranslation()` `t`'yi sadece `defaultNS`'e göre tipliyor, yani `ns:key`
+  formu her çağrı yerinde tip hatası veriyor.
+- `stores/localeStore.ts` (themeStore şablonu, `kube-ins-locale`), TitleBar'da
+  Theme'in yanında `Language` alt-menüsü.
+
+**Sekme başlıkları canlı çevriliyor.** `TabContext`'teki `viewLabels` map'i
+silindi; her panel `params`'ında `titleKey` + `titleVars` taşıyor ve
+`renderPanelTitle()` (16 çağrı yeri) tek üretim noktası. `DockviewContainer`
+locale değişiminde `api.panels`'i gezip `setTitle` çağırıyor. İki yan kazanç:
+`openReceivedPanel`'deki başlık-suffix soyma hack'i kalktı (alıcı başlığı **kendi**
+dilinde üretiyor), ve `TerminalPanel`/`ApplyYamlPanel`'in
+`api.title.split(' • ')[0]` splice'ı yerine kendi anahtarlarından yeniden
+adlandırıyorlar.
+
+**Kolon başlıkları paylaşıldı** (`resources.column.*`): 203 `header=` sitesi 98
+benzersiz stringe iniyor, planın `resources.pods.column.status` şemasından
+bilinçli sapma — katalog ve S13 çeviri hacmi yarıya indi.
+
+**Migrate edilenler:** `menuItems.tsx` + `menu.tsx`, `TabContext.tsx`,
+`DockviewContainer.tsx`, `ResourceListView.tsx` (21 list view'ın toolbar/delete
+dialog/aksiyon tooltip'leri), `ErrorBanner.tsx`, `PanelErrorBoundary.tsx`,
+`useResourceList.ts`, `TitleBar.tsx`, `AboutModal.tsx`, `UpdateModal.tsx`,
+`PortForwardPill.tsx`, `TerminalPanel.tsx`, `ApplyYamlPanel.tsx`,
+`tourSteps.ts` (`appTour` const → `buildAppTour(t)`), `appmain.tsx`,
+`overview/main.tsx`. **167 `en` anahtarı**, 6 namespace.
+
+**ESLint kuralı planlanandan farklı yazıldı.** `eslint-plugin-i18next` **v6**,
+plandaki `markupOnly` / `onlyAttribute` v5 seçeneklerini kaldırmış. Doğru şekil:
+```js
+'i18next/no-literal-string': ['warn', {
+    mode: 'jsx-only',
+    'jsx-attributes': { include: ['header','label','title','placeholder',
+        'filterPlaceholder','tooltip','emptyMessage','aria-label','alt',
+        'summary','detail'] },
+    words: { exclude: [ /* boşluk/rakam + GLOSSARY terimleri */ ] },
+}]
+```
+`**/*.test.tsx` kural kapsamı dışında (test fixture'ları UI değil).
+
+**Testler:** `vitest.config.ts`'e `setupFiles: ['./src/test/i18n-setup.ts']` —
+`en` ile senkron init, yoksa render edilen her bileşen ham anahtar döndürüp
+mevcut string assert'lerini kırıyordu. Artı 8 yeni test:
+`contexts/TabContext.test.tsx` (`renderPanelTitle` sözleşmesi: suffix
+kompozisyonu, bilinmeyen anahtar fallback'i) ve `i18n/i18n.test.ts` (kataloğu
+olmayan locale'e geçiş — S12↔S13 arası ara durum).
+
+**Doğrulama**
+```
+npx tsc --noEmit                      -> temiz
+npm test                              -> 7 dosya / 33 test geçti (25 -> 33)
+npm run build                         -> başarılı
+npx eslint .                          -> 0 error, 649 warning
+GOEXPERIMENT=jsonv2 go build/vet/test -> temiz (Go'ya dokunulmadı)
+grep -rn "wailsapp/wails" internal/tui cmd/tui -> boş
+```
+`en` değerlerinin bugünküyle **birebir aynı** olduğu makine kontrolüyle
+doğrulandı (30 nav item + 6 grup `git show HEAD` ile karşılaştırıldı; e2e ve
+vitest'in seçtiği 14 kritik string ayrıca) — `e2e_tests/` metinle element
+seçtiği için bu koşul zorunluydu.
+
+**Bindings regen edilmedi** — hiçbir exported App metodu veya `models` struct'ı
+değişmedi.
+
+### Uygulandı — S12b sonuç ✅
+
+**Lint kuralının kör noktası bulundu ve kapatıldı — bu step'in en önemli
+teknik sonucu.** `jsx-attributes` **`include`** listesiyle yapılandırıldığında
+plugin, listede olmayan *her* attribute'u atlıyor ve bu atlama o attribute'un
+**içindeki JSX'i de kapsıyor**. Bu uygulamada her kolon bir `columns={...}`
+render prop'unun içinde tanımlı olduğu için **203 `header=` stringinin tamamı
+kurala görünmezdi** — S12a sonundaki "528 uyarı" rakamı bu yüzden eksikti.
+Kural `exclude` tabanlına çevrildi (`className`, `.*[Ss]tyle`, `field`,
+`inputId`, `globalFilterFields` … gibi taşıyıcı attribute'lar hariç), gerçek
+sayı **797**'ye çıktı ve sıfırlandı.
+
+**Mekanik geçiş** (tekrar eden yüzeyler script'le):
+- 203 `header=` → **89 paylaşılan `resources.column.*` anahtarı**
+- 57 `placeholder="All"` → `common:filter.all`
+- 28 `filterPlaceholder=` → 3 `resources.filter.*` + mevcut kolon anahtarları
+- 23 `title=`/`emptyMessage=` → `resources.<dizin>.title` / `.empty`
+  (bölümler **dizin adıyla** anahtarlanıyor: `resources.pod.*` ⇄
+  `components/pod/main.tsx`)
+
+**Elle geçirilenler:** `ai/AiChat.tsx`, `security/{TrivyScanner,SecurityRoleMap}.tsx`,
+`cluster/{ClusterModal,ClusterBar}.tsx`, `monitoring/`, `node/`,
+`networkpolicy/PolicyViewerPanel.tsx`, `diagnostics/` (4 dosya), `crd/` (3),
+`shared/{WorkloadActions,ScaleDialog,PortForwardDialog,ConfirmActionDialog}.tsx`,
+`portforward/`, `events/`, `resourcequota/`, `namespace/`, `limitrange/`,
+`workspace/*`, `logs/`, `terminal/`, `climode/`, `transfer/`, `tour/`,
+`{role,rolebinding,secret,configmap}` editör panelleri, `pages/info/`.
+
+**İçine gömülü markup taşıyan cümleler `<Trans>` ile çevrildi** (düz `t()` ile
+`<strong>`/`<code>` kaybolurdu): node drain uyarısı, workload restart/suspend
+onayları, AI'ın Ollama-bulunamadı ve tool-desteği uyarıları.
+
+**Yol boyunca çıkan üç gerçek bulgu:**
+1. **`transfer/InstancePickerMenu.tsx` ve `workspace/FloatableTab.tsx` sabit
+   Türkçe string taşıyordu** ("Yeni pencerede aç", "Pencereye Taşı",
+   "Instance'a Taşı", "Kapat") — İngilizce varsayılan bir uygulamada hata.
+   `en` kataloğu İngilizcelerini aldı; Türkçeleri S13'te `tr`'ye gidecek.
+2. **`components/listbox.tsx` ölü kod** — `src/` içinde hiçbir yerden import
+   edilmiyor. Çevrilmedi; dosya başına gerekçeli `eslint-disable` konuldu
+   (ölü kod için katalog anahtarı üretmek S13'e erişilemeyen string çevirtir).
+   **Silinmesi ya da bağlanması gerekiyor — karar kullanıcının.**
+3. `PolicyViewerPanel.tsx::buildGraph` ve `TrivyScanner.tsx`'in
+   `severityFilterTemplate`'i bileşen değil; `t` birinciye **parametre** olarak
+   geçirildi, ikincisi gerçek bir bileşene (`SeverityFilter`) dönüştürüldü —
+   PrimeReact bir `filterElement` template'ini tablonun kendi render'ı içinde
+   çağırdığı için oraya konan hook, tablonun hook sırasına koşullu girerdi.
+
+**Lint kuralı `warn` → `error` yapıldı (plandan sapma).** Plan bunu S13'e
+bırakıyordu; gerekçe "S12 çıkarımı bitiremeyecek" varsayımıydı. Bitirdi ve
+kural `src/` genelinde sıfır rapor ediyor. `warn`'da bırakmak, katalogların
+elle düzenlendiği tek pencereyi aynı zamanda yeni bir sabit stringin build'i
+kıramadığı tek pencere yapardı. Geri alınması tek kelimelik.
+
+**Doğrulama**
+```
+npx tsc --noEmit                      -> temiz
+npm test                              -> 7 dosya / 33 test geçti
+npm run build                         -> başarılı
+npx eslint .                          -> 0 error, 132 warning
+                                         (i18next: 0; kalanlar önceden var olan
+                                          no-explicit-any 112 + exhaustive-deps 19)
+GOEXPERIMENT=jsonv2 go build/vet/test -> temiz (Go'ya dokunulmadı)
+grep -rn "wailsapp/wails" internal/tui cmd/tui -> boş
+```
+**628 `en` anahtarı**, 6 namespace. `e2e_tests/`'in metinle seçtiği 25 panel
+başlığı + 14 kritik string `git show HEAD` ile karşılaştırılarak **birebir aynı**
+olduğu makine kontrolüyle doğrulandı.
+
+### S13 için hazır
+
+`en` tek doğru kaynak olarak tamam. S13 `{tr,de,ru,zh,ja}/` altına 30 dosya
+yazacak; `tr` için hazır bir başlangıç var: yukarıdaki (1) numaralı bulgudaki
+dört Türkçe string zaten yazılmıştı. Parite denetleyicisi (13b) `en`'i referans
+alacak; lint kuralı 13c'de zaten `error` durumda.
 
 ---
 

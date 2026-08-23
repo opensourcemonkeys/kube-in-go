@@ -3,6 +3,7 @@ import { VscCloud } from 'react-icons/vsc';
 import { Dialog } from 'primereact/dialog';
 import { GetAppInfo } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+import { useT } from '../../i18n/useT';
 
 interface Props {
     visible: boolean;
@@ -21,6 +22,7 @@ const DEP_LABELS: Record<string, string> = {
 };
 
 export default function AboutModal({ visible, onHide, onDiagnostics }: Props) {
+    const t = useT();
     const [info, setInfo] = useState<models.AppInfo | null>(null);
 
     useEffect(() => {
@@ -47,14 +49,12 @@ export default function AboutModal({ visible, onHide, onDiagnostics }: Props) {
                 {info && (
                     <div className="about-modal__version">{info.app_version}</div>
                 )}
-                <p className="about-modal__desc">
-                    A desktop application for managing Kubernetes clusters with a visual interface.
-                    Built with Go, Wails and React.
-                </p>
+                <p className="about-modal__desc">{t('panels:about.description')}</p>
 
                 <div className="about-modal__meta">
                     <div className="about-modal__meta-row">
-                        <span className="about-modal__meta-label">Author</span>
+                        <span className="about-modal__meta-label">{t('panels:about.author')}</span>
+                        {/* eslint-disable-next-line i18next/no-literal-string -- a person's name */}
                         <span className="about-modal__meta-value">Hakan Yorulmaz</span>
                     </div>
                     {info && (
@@ -67,7 +67,7 @@ export default function AboutModal({ visible, onHide, onDiagnostics }: Props) {
 
                 {(info?.dependencies?.length ?? 0) > 0 && (
                     <>
-                        <div className="about-modal__section-title">Dependencies</div>
+                        <div className="about-modal__section-title">{t('panels:about.dependencies')}</div>
                         <div className="about-modal__meta">
                             {info!.dependencies.map(dep => (
                                 <div key={dep.name} className="about-modal__meta-row">
@@ -87,11 +87,11 @@ export default function AboutModal({ visible, onHide, onDiagnostics }: Props) {
                             className="about-modal__close-btn about-modal__close-btn--ghost"
                             onClick={() => { onHide(); onDiagnostics(); }}
                         >
-                            Diagnostics
+                            {t('panels:about.diagnostics')}
                         </button>
                     )}
                     <button className="about-modal__close-btn" onClick={onHide}>
-                        Close
+                        {t('panels:about.close')}
                     </button>
                 </div>
             </div>

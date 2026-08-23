@@ -8,6 +8,7 @@ import { MultiSelect } from 'primereact/multiselect';
 import { Tag } from 'primereact/tag';
 import { VscInfo, VscNote, VscRefresh, VscTrash, VscTypeHierarchySub } from 'react-icons/vsc';
 import { models } from '../../../wailsjs/go/models';
+import { useT } from '../../i18n/useT';
 
 // Must match the fixed row height enforced by theme-monolith.css
 // (.p-datatable-tbody > tr > td { height: 40px }).
@@ -40,6 +41,7 @@ interface InstanceTableProps {
  * additionalPrinterColumns), so the table matches `kubectl get <plural>`.
  */
 export default function InstanceTable(props: InstanceTableProps) {
+    const t = useT();
     const { crd, table, loading, error, onRefresh, onOpenYaml, onDescribe, onDeleteRows, onEditCrd, onDeleteCrd } = props;
 
     const [nameFilter, setNameFilter] = useState('');
@@ -145,7 +147,7 @@ export default function InstanceTable(props: InstanceTableProps) {
         return (
             <div className="crd-detail crd-detail--empty">
                 <VscTypeHierarchySub size={28} />
-                <p>Select a kind on the left to browse its instances.</p>
+                <p>{t('panels:crd.selectKind')}</p>
             </div>
         );
     }
@@ -160,15 +162,15 @@ export default function InstanceTable(props: InstanceTableProps) {
                 <Tag value={crd.scope} severity={namespaced ? 'info' : 'warning'} style={{ fontSize: '0.68rem' }} />
                 <Tag value={crd.version} style={{ fontSize: '0.68rem' }} />
                 <div className="crd-detail__header-actions">
-                    <Button label="CRD YAML" icon={<VscNote size={15} />} text size="small" severity="secondary" onClick={onEditCrd} />
+                    <Button label={t('panels:crd.crdYaml')} icon={<VscNote size={15} />} text size="small" severity="secondary" onClick={onEditCrd} />
                     <Button
-                        label="Delete CRD"
+                        label={t('panels:crd.deleteCrd')}
                         icon={<VscTrash size={15} />}
                         text
                         size="small"
                         severity="danger"
                         onClick={onDeleteCrd}
-                        tooltip="Deletes the definition and every instance of it"
+                        tooltip={t('panels:crd.deleteCrdTooltip')}
                         tooltipOptions={{ position: 'left' }}
                     />
                 </div>
@@ -178,7 +180,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                 <InputText
                     value={nameFilter}
                     onChange={(e) => setNameFilter(e.target.value)}
-                    placeholder="Filter by name"
+                    placeholder={t('panels:crd.filterByName')}
                     className="p-inputtext-sm"
                     style={{ width: '14rem' }}
                 />
@@ -187,7 +189,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                         value={namespaceFilter}
                         options={namespaceOptions}
                         onChange={(e) => setNamespaceFilter(e.value ?? [])}
-                        placeholder="All namespaces"
+                        placeholder={t('panels:crd.allNamespaces')}
                         filter
                         maxSelectedLabels={1}
                         className="p-inputtext-sm"
@@ -195,9 +197,9 @@ export default function InstanceTable(props: InstanceTableProps) {
                     />
                 )}
                 {hasWideColumns && (
-                    <label className="crd-checkbox" title="Show the extra columns kubectl only prints with -o wide">
+                    <label className="crd-checkbox" title={t('panels:crd.wideTooltip')}>
                         <Checkbox inputId="crd-wide" checked={wide} onChange={(e) => setWide(!!e.checked)} />
-                        <span>Wide</span>
+                        <span>{t('panels:crd.wide')}</span>
                     </label>
                 )}
                 <Tag
@@ -207,7 +209,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                 />
                 <div className="crd-detail__toolbar-actions">
                     <Button
-                        label="Delete Selected"
+                        label={t('action.deleteSelected')}
                         icon={<VscTrash size={15} />}
                         size="small"
                         severity="danger"
@@ -221,13 +223,13 @@ export default function InstanceTable(props: InstanceTableProps) {
                         severity="secondary"
                         loading={loading}
                         onClick={onRefresh}
-                        tooltip="Refresh"
+                        tooltip={t('panels:crd.refreshInstances')}
                         tooltipOptions={{ position: 'left' }}
                     />
                 </div>
             </div>
 
-            {error && <div className="crd-detail__error">Failed to list {crd.kind}: {error}</div>}
+            {error && <div className="crd-detail__error">{t('panels:crd.listFailed', { kind: crd.kind, error })}</div>}
 
             <div
                 ref={tableWrapRef}
@@ -251,7 +253,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                     scrollable
                     scrollHeight={scrollHeight}
                     virtualScrollerOptions={{ itemSize: ROW_HEIGHT }}
-                    emptyMessage={loading ? 'Loading…' : `No ${crd.kind} instances found`}
+                    emptyMessage={loading ? t('panels:crd.instancesLoading') : t('panels:crd.noInstances', { kind: crd.kind })}
                 >
                     <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
                     {displayColumns.map((col) => (
@@ -268,7 +270,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                                     size="small"
                                     severity="secondary"
                                     onClick={() => onDescribe(row)}
-                                    tooltip="Describe"
+                                    tooltip={t('action.describe')}
                                     tooltipOptions={{ position: 'top' }}
                                 />
                                 <Button
@@ -277,7 +279,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                                     size="small"
                                     severity="secondary"
                                     onClick={() => onOpenYaml(row)}
-                                    tooltip="Edit YAML"
+                                    tooltip={t('panels:crd.editYaml')}
                                     tooltipOptions={{ position: 'top' }}
                                 />
                                 <Button
@@ -286,7 +288,7 @@ export default function InstanceTable(props: InstanceTableProps) {
                                     size="small"
                                     severity="danger"
                                     onClick={() => onDeleteRows([row])}
-                                    tooltip="Delete"
+                                    tooltip={t('action.delete')}
                                     tooltipOptions={{ position: 'top' }}
                                 />
                             </div>

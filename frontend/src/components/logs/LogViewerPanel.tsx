@@ -4,6 +4,7 @@ import { IDockviewPanelProps } from 'dockview';
 import { LazyLog } from '@melloware/react-logviewer';
 import { Dropdown } from 'primereact/dropdown';
 import { EventsOn } from '../../../wailsjs/runtime/runtime';
+import { useT } from '../../i18n/useT';
 import {
     GetPodContainers,
     GetDeploymentPods,
@@ -40,6 +41,7 @@ async function fetchPodsForKind(clusterName: string, kind: WorkloadKind, name: s
 const ALL_CONTAINERS = '';
 
 export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewerPanelParams>) {
+    const t = useT();
     const { clusterName, resourceKind, name, namespace } = params;
     const cn = clusterName ?? '';
 
@@ -140,14 +142,14 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
         <div className="log-viewer-panel">
             <div className="log-viewer-toolbar">
                 <VscListFlat size={14} />
-                <span className="log-viewer-toolbar__label">Logs</span>
+                <span className="log-viewer-toolbar__label">{t('panels:logs.label')}</span>
 
                 {resourceKind !== 'pod' && pods.length > 0 && (
                     <Dropdown
                         value={selectedPod}
                         options={pods}
                         onChange={e => setSelectedPod(e.value)}
-                        placeholder="Select Pod"
+                        placeholder={t('panels:logs.selectPod')}
                         className="log-viewer-dropdown"
                     />
                 )}
@@ -157,7 +159,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
                         value={selectedContainer}
                         options={containerOptions}
                         onChange={e => setSelectedContainer(e.value)}
-                        placeholder="Container"
+                        placeholder={t('panels:logs.container')}
                         className="log-viewer-dropdown"
                     />
                 )}

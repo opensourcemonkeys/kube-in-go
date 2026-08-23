@@ -1,4 +1,5 @@
 import { CardComponentProps } from 'nextstepjs';
+import { useT } from '../../i18n/useT';
 
 export default function TourCard({
     step,
@@ -9,6 +10,7 @@ export default function TourCard({
     skipTour,
     arrow,
 }: CardComponentProps) {
+    const t = useT();
     const progress = ((currentStep + 1) / totalSteps) * 100;
     const isLast = currentStep === totalSteps - 1;
 
@@ -34,7 +36,7 @@ export default function TourCard({
                         onClick={prevStep}
                         disabled={currentStep === 0}
                     >
-                        Previous
+                        {t('panels:tour.previous')}
                     </button>
                 )}
 
@@ -45,14 +47,14 @@ export default function TourCard({
                         className={`tour-card__btn ${isLast ? 'tour-card__btn--finish' : 'tour-card__btn--primary'}`}
                         onClick={nextStep}
                     >
-                        {isLast ? 'Finish' : 'Next'}
+                        {t(isLast ? 'panels:tour.finish' : 'panels:tour.next')}
                     </button>
                 )}
             </div>
 
             {skipTour && !isLast && step.showSkip && (
                 <button className="tour-card__skip" onClick={skipTour}>
-                    Skip Tour
+                    {t('panels:tour.skip')}
                 </button>
             )}
 

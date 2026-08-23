@@ -1,9 +1,11 @@
 import './Info.css';
+import { useT } from '../../i18n/useT';
 
 function App() {
+    const t = useT();
     return (
         <div id="Info">
-            Info page
+            {t('panels:info.placeholder')}
         </div>
     )
 }

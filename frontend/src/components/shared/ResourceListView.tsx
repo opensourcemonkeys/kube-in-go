@@ -9,6 +9,7 @@ import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { VscInfo, VscArrowSwap } from 'react-icons/vsc';
 import { useResourceList, ResourceRow } from '../../lib/useResourceList';
+import { useT } from '../../i18n/useT';
 import { useTabContext } from '../../contexts/TabContext';
 import ErrorBanner from './ErrorBanner';
 import PortForwardDialog, { type ForwardableKind } from './PortForwardDialog';
@@ -121,6 +122,7 @@ export interface ResourceListViewProps<T extends ResourceRow> {
 }
 
 export default function ResourceListView<T extends ResourceRow>(props: ResourceListViewProps<T>) {
+    const t = useT();
     const {
         title,
         clusterName,
@@ -198,9 +200,9 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                             size="small"
                             severity="secondary"
                             style={{ padding: '0.2rem' }}
-                            tooltip="Port forward"
+                            tooltip={t('action.portForward')}
                             tooltipOptions={{ position: 'top' }}
-                            aria-label="Port forward"
+                            aria-label={t('action.portForward')}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setPfRow({ name: row.name, namespace: row.namespace ?? '' });
@@ -214,9 +216,9 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                             size="small"
                             severity="secondary"
                             style={{ padding: '0.2rem' }}
-                            tooltip="Describe"
+                            tooltip={t('action.describe')}
                             tooltipOptions={{ position: 'top' }}
-                            aria-label="Describe"
+                            aria-label={t('action.describe')}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 openDescribePanel({
@@ -285,8 +287,8 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
 
     const deleteDialogFooter = (
         <div className="flex justify-content-end gap-2">
-            <Button label="Cancel" icon={<VscClose size={16} />} text onClick={closeDeleteDialog} disabled={deleting} />
-            <Button label="Delete" icon={<VscTrash size={16} />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
+            <Button label={t('action.cancel')} icon={<VscClose size={16} />} text onClick={closeDeleteDialog} disabled={deleting} />
+            <Button label={t('action.delete')} icon={<VscTrash size={16} />} severity="danger" onClick={handleDeleteSelected} loading={deleting} />
         </div>
     );
 
@@ -303,12 +305,12 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultFilters)}
-                        tooltip="Clear filters"
+                        tooltip={t('action.clearFilters')}
                         tooltipOptions={{ position: 'left' }}
                     />
                     {deletable && (
                         <Button
-                            label="Delete Selected"
+                            label={t('action.deleteSelected')}
                             icon={<VscTrash size={16} />}
                             severity="danger"
                             onClick={openDeleteDialog}
@@ -390,14 +392,17 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
 
             {deletable && (
                 <Dialog
-                    header={`Delete ${deleteLabel.charAt(0).toUpperCase() + deleteLabel.slice(1)} Confirmation`}
+                    // `deleteLabel` is a Kubernetes kind noun ("pod", "network
+                    // policy") and stays English in every locale — see
+                    // locales/GLOSSARY.md. Only the frame around it is translated.
+                    header={t('resources:delete.header', { kind: deleteLabel.charAt(0).toUpperCase() + deleteLabel.slice(1) })}
                     visible={deleteDialogVisible}
                     style={{ width: '30rem' }}
                     modal
                     footer={deleteDialogFooter}
                     onHide={closeDeleteDialog}
                 >
-                    <p className="m-0 mb-3">Do you want to delete the selected {deleteLabel} records?</p>
+                    <p className="m-0 mb-3">{t('resources:delete.body', { label: deleteLabel })}</p>
                     <ul className="m-0 pl-3">
                         {selected.map((row) => (
                             <li key={`${row.namespace ?? ''}-${row.name}`}>{row.namespace ? `${row.namespace}/` : ''}{row.name}</li>
@@ -417,7 +422,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     onStarted={(info) =>
                         toastRef.current?.show({
                             severity: 'success',
-                            summary: 'Port forward started',
+                            summary: t('panels:portForward.startedSummary'),
                             detail: `${info.address}:${info.local_port} → ${pfRow.name}:${info.remote_port}`,
                             life: 5000,
                         })

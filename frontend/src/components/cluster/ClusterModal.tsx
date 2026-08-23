@@ -13,6 +13,7 @@ import {
 import { SaveCluster, GetClusterContent } from '../../../wailsjs/go/controller_app/App';
 import { CLUSTER_PALETTE, defaultColorId, hexForId, isCustomHex, normalizeHex } from '../../lib/clusterColors';
 import { useClusterColorStore } from '../../stores/clusterColorStore';
+import { useT } from '../../i18n/useT';
 
 interface Props {
     editingName: string | null;
@@ -77,6 +78,7 @@ function suggestName(data: ParsedConfig): string {
 }
 
 export default function ClusterModal({ editingName, onClose, onSaved, dismissible = true }: Props) {
+    const t = useT();
     const [name, setName] = useState('');
     const [content, setContent] = useState('');
     const [saving, setSaving] = useState(false);
@@ -174,24 +176,24 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
             <button
                 type="button"
                 className="cluster-modal-overlay__backdrop"
-                aria-label="Close modal"
+                aria-label={t('panels:clusterModal.closeOverlay')}
                 onClick={dismissible ? onClose : undefined}
                 disabled={!dismissible}
             />
             <Toast ref={toast} position="bottom-right" />
             <dialog
                 className="cluster-modal"
-                aria-label={editingName ? 'Edit Cluster' : 'Add Cluster'}
+                aria-label={t(editingName ? 'panels:clusterModal.editTitle' : 'panels:clusterModal.addTitle')}
                 open
                 onCancel={dismissible ? onClose : (e) => e.preventDefault()}
             >
                 <div className="cluster-modal__header">
                     <div className="cluster-modal__header-title">
                         <VscServer size={16} color={effectiveHex} />
-                        <span>{editingName ? 'Edit Cluster' : 'Add Cluster'}</span>
+                        <span>{t(editingName ? 'panels:clusterModal.editTitle' : 'panels:clusterModal.addTitle')}</span>
                     </div>
                     {dismissible && (
-                        <button className="cluster-modal__close" onClick={onClose} title="Close">
+                        <button className="cluster-modal__close" onClick={onClose} title={t('panels:clusterModal.close')}>
                             <VscClose size={14} />
                         </button>
                     )}
@@ -199,34 +201,34 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
 
                 <div className="cluster-modal__body">
                     <div className="cluster-modal__field">
-                        <label htmlFor="cluster-config-name" className="cluster-modal__label">Config Name</label>
+                        <label htmlFor="cluster-config-name" className="cluster-modal__label">{t('panels:clusterModal.configName')}</label>
                         <InputText
                             id="cluster-config-name"
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            placeholder="e.g. production, staging, local"
+                            placeholder={t('panels:clusterModal.configNamePlaceholder')}
                             disabled={!!editingName}
                             className="w-full"
                             autoFocus={!editingName}
                         />
                         {editingName ? (
                             <small style={{ color: 'var(--ink2)', fontSize: 11 }}>
-                                Config name cannot be changed
+                                {t('panels:clusterModal.configNameLocked')}
                             </small>
                         ) : suggested && sanitizeName(name) !== suggested ? (
                             <button
                                 type="button"
                                 className="cluster-modal__suggest"
                                 onClick={() => setName(suggested)}
-                                title="Use detected name"
+                                title={t('panels:clusterModal.useDetectedName')}
                             >
-                                Suggested: <span>{suggested}</span> <VscArrowRight size={11} />
+                                {t('panels:clusterModal.suggested')} <span>{suggested}</span> <VscArrowRight size={11} />
                             </button>
                         ) : null}
                     </div>
 
                     <div className="cluster-modal__field">
-                        <span className="cluster-modal__label">Color</span>
+                        <span className="cluster-modal__label">{t('panels:clusterModal.color')}</span>
                         <div className="cluster-modal__colors">
                             {CLUSTER_PALETTE.map(c => (
                                 <button
@@ -247,7 +249,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                 appended to itself so it stacks above the modal. */}
                             <span
                                 className={`cluster-modal__custom${customPicked ? ' is-on' : ''}`}
-                                title="Pick a custom color"
+                                title={t('panels:clusterModal.pickCustomColor')}
                             >
                                 <ColorPicker
                                     format="hex"
@@ -257,24 +259,24 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                         const hex = normalizeHex(typeof e.value === 'string' ? e.value : undefined);
                                         if (hex) setColorId(hex);
                                     }}
-                                    aria-label="Custom color"
+                                    aria-label={t('panels:clusterModal.customColor')}
                                 />
                                 <span className="cluster-modal__custom-label">
-                                    {customPicked ? effectiveHex.toUpperCase() : 'Custom'}
+                                    {customPicked ? effectiveHex.toUpperCase() : t('panels:clusterModal.custom')}
                                 </span>
                             </span>
 
                             <button
                                 type="button"
                                 className={`cluster-modal__auto${colorId === null ? ' is-on' : ''}`}
-                                title="Derive the color from the cluster name"
+                                title={t('panels:clusterModal.autoColorTooltip')}
                                 onClick={() => setColorId(null)}
                             >
-                                Auto
+                                {t('panels:clusterModal.autoColor')}
                             </button>
                         </div>
                         <small style={{ color: 'var(--ink2)', fontSize: 11 }}>
-                            Shown next to this cluster in the selector, the sidebar and its tabs.
+                            {t('panels:clusterModal.colorHint')}
                         </small>
                     </div>
 
@@ -289,14 +291,14 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                         >
                             <div className="cluster-modal__editor-bar">
                                 <label htmlFor="cluster-kubeconfig-content" className="cluster-modal__label">
-                                    Kubeconfig Content
+                                    {t('panels:clusterModal.kubeconfigContent')}
                                 </label>
                                 <button
                                     type="button"
                                     className="cluster-modal__file-btn"
                                     onClick={() => fileInputRef.current?.click()}
                                 >
-                                    <VscFileCode size={13} /> Browse file
+                                    <VscFileCode size={13} /> {t('panels:clusterModal.browseFile')}
                                 </button>
                                 <input
                                     ref={fileInputRef}
@@ -315,14 +317,14 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                 className="cluster-modal__textarea"
                                 value={content}
                                 onChange={e => setContent(e.target.value)}
-                                placeholder="Paste your kubeconfig YAML here, or drop a file…"
+                                placeholder={t('panels:clusterModal.kubeconfigPlaceholder')}
                                 spellCheck={false}
                                 autoFocus={!!editingName}
                             />
                             {dragging && (
                                 <div className="cluster-modal__drop-overlay">
                                     <VscCloudUpload size={34} />
-                                    <span>Drop kubeconfig to load</span>
+                                    <span>{t('panels:clusterModal.dropToLoad')}</span>
                                 </div>
                             )}
                         </div>
@@ -330,15 +332,15 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                         {/* Live preview */}
                         <div className="cluster-modal__preview">
                             <div className="cluster-modal__preview-head">
-                                <span className="cluster-modal__label">Detected Configuration</span>
+                                <span className="cluster-modal__label">{t('panels:clusterModal.detectedConfiguration')}</span>
                                 {parsed.state === 'ok' && (
                                     <span className="cluster-modal__badge cluster-modal__badge--ok">
-                                        <VscPass size={12} /> Valid
+                                        <VscPass size={12} /> {t('panels:clusterModal.valid')}
                                     </span>
                                 )}
                                 {parsed.state === 'error' && (
                                     <span className="cluster-modal__badge cluster-modal__badge--err">
-                                        <VscError size={12} /> Invalid
+                                        <VscError size={12} /> {t('panels:clusterModal.invalid')}
                                     </span>
                                 )}
                             </div>
@@ -347,7 +349,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                 {parsed.state === 'empty' && (
                                     <div className="cluster-modal__empty">
                                         <VscCloudUpload size={28} />
-                                        <p>Paste or drop a kubeconfig to preview its clusters, contexts and endpoints here.</p>
+                                        <p>{t('panels:clusterModal.previewEmpty')}</p>
                                     </div>
                                 )}
 
@@ -363,21 +365,21 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                         <div className="cluster-modal__stats">
                                             <div className="cluster-modal__stat">
                                                 <VscGlobe size={14} />
-                                                <b>{parsed.data.clusters.length}</b><span>clusters</span>
+                                                <b>{parsed.data.clusters.length}</b><span>{t('panels:clusterModal.clusters')}</span>
                                             </div>
                                             <div className="cluster-modal__stat">
                                                 <VscListTree size={14} />
-                                                <b>{parsed.data.contexts.length}</b><span>contexts</span>
+                                                <b>{parsed.data.contexts.length}</b><span>{t('panels:clusterModal.contexts')}</span>
                                             </div>
                                             <div className="cluster-modal__stat">
                                                 <VscAccount size={14} />
-                                                <b>{parsed.data.users.length}</b><span>users</span>
+                                                <b>{parsed.data.users.length}</b><span>{t('panels:clusterModal.users')}</span>
                                             </div>
                                         </div>
 
                                         {parsed.data.currentContext && (
                                             <div className="cluster-modal__current">
-                                                <span className="cluster-modal__label">Current Context</span>
+                                                <span className="cluster-modal__label">{t('panels:clusterModal.currentContext')}</span>
                                                 <code>{parsed.data.currentContext}</code>
                                             </div>
                                         )}
@@ -388,7 +390,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                                                     <VscServer size={13} color="var(--teal)" />
                                                     <div className="cluster-modal__cluster-meta">
                                                         <span className="cluster-modal__cluster-name">{c.name}</span>
-                                                        <span className="cluster-modal__cluster-server">{c.server || 'no server endpoint'}</span>
+                                                        <span className="cluster-modal__cluster-server">{c.server || t('panels:clusterModal.noServerEndpoint')}</span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -403,7 +405,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                 <div className="cluster-modal__footer">
                     {dismissible && (
                         <Button
-                            label="Cancel"
+                            label={t('action.cancel')}
                             icon={<VscClose size={16} />}
                             text
                             severity="secondary"
@@ -412,7 +414,7 @@ export default function ClusterModal({ editingName, onClose, onSaved, dismissibl
                         />
                     )}
                     <Button
-                        label="Save"
+                        label={t('panels:clusterModal.save')}
                         icon={<VscCheck size={16} />}
                         loading={saving}
                         onClick={handleSave}

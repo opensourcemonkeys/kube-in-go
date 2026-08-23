@@ -10,6 +10,7 @@ import { GetJobs, DeleteJob } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 const getStatusSeverity = (status: string): 'success' | 'warning' | 'danger' | 'info' | 'secondary' => {
     switch (status) {
@@ -34,12 +35,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function JobListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openLogPanel } = useTabContext();
     const referencePanel = `jobs:${clusterName}`;
 
     return (
         <ResourceListView<models.JobInfo>
-            title="Job List"
+            title={t('resources:job.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetJobs}
@@ -49,23 +51,23 @@ export default function JobListComponent({ clusterName, api }: { clusterName: st
             pollInterval={5000}
             describeResource="jobs"
             defaultFilters={defaultFilters}
-            emptyMessage="No jobs found"
+            emptyMessage={t('resources:job.empty')}
             onRowDoubleClick={(job) => openYamlPanel({ clusterName, resourceKind: 'job', name: job.name, namespace: job.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '9rem' }}
+                    <Column field="status" header={t('resources:column.status')} sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '9rem' }}
                         body={(row: models.JobInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Completions" sortable sortField="succeeded" style={{ minWidth: '10rem' }}
+                    <Column header={t('resources:column.completions')} sortable sortField="succeeded" style={{ minWidth: '10rem' }}
                         body={(row: models.JobInfo) => <Tag value={`${row.succeeded} / ${row.completions}`} severity={getCompletionSeverity(row.succeeded, row.completions, row.failed)} />} />
-                    <Column field="active" header="Active" sortable style={{ minWidth: '6rem' }} body={(row: models.JobInfo) => row.active} />
+                    <Column field="active" header={t('resources:column.active')} sortable style={{ minWidth: '6rem' }} body={(row: models.JobInfo) => row.active} />
                     <Column header="" style={{ width: '4rem', textAlign: 'center' }}
                         body={(row: models.JobInfo) => (
                             <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}

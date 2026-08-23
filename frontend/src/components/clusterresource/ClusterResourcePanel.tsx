@@ -18,6 +18,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { GetClusterGraph } from '../../../wailsjs/go/controller_app/App';
+import { useT } from '../../i18n/useT';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -301,6 +302,7 @@ interface ClusterResourcePanelParams {
 }
 
 export default function ClusterResourcePanel({ params }: IDockviewPanelProps<ClusterResourcePanelParams>) {
+    const t = useT();
     const cn = params?.clusterName ?? '';
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
@@ -334,7 +336,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-2">
                     <VscTypeHierarchySub style={{ fontSize: 14 }} />{' '}
-                    Cluster Resource Graph
+                    {t('panels:resourceGraph.label')}
                 </span>
                 <div className="flex align-items-center gap-2">
                     {loading && <CircularProgress size={14} style={{ color: 'var(--text-color-secondary)' }} />}
@@ -342,7 +344,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                         className="cluster-bar__edit-btn"
                         onClick={load}
                         disabled={loading}
-                        title="Refresh"
+                        title={t('panels:resourceGraph.refresh')}
                     >
                         <VscRefresh style={{ fontSize: 14 }} />
                     </button>
@@ -364,15 +366,15 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: '#64748b' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 24, height: 2, background: '#334155', display: 'inline-block' }} />{' '}
-                        owner
+                        {t('panels:resourceGraph.legendOwner')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 24, height: 2, background: '#3b82f6', display: 'inline-block', borderTop: '2px dashed #3b82f6' }} />{' '}
-                        selector
+                        {t('panels:resourceGraph.legendSelector')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 24, height: 2, background: '#f97316', display: 'inline-block' }} />{' '}
-                        ingress
+                        {t('panels:resourceGraph.legendIngress')}
                     </span>
                 </span>
             </div>
@@ -384,7 +386,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                         <VscWarning style={{ fontSize: 32 }} />
                         <span style={{ fontSize: 13 }}>{error}</span>
                         <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
-                            <VscRefresh style={{ fontSize: 14 }} /> Retry
+                            <VscRefresh style={{ fontSize: 14 }} /> {t('action.retry')}
                         </button>
                     </div>
                 ) : (

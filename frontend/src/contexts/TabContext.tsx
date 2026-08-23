@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useRef, useCallback } from 'react';
 import { DockviewApi } from 'dockview';
 import { NAV_GROUPS } from '../components/menu/menuItems';
+import { useT, type TFn } from '../i18n/useT';
 
 // A moved panel's params cannot carry its icon — it is a React element, which
 // neither structured clone nor JSON survives — so the receiving side looks it
@@ -9,37 +10,44 @@ const viewIcons: Record<string, React.ReactNode> = Object.fromEntries(
     NAV_GROUPS.flatMap(g => g.items.map(i => [i.view, i.icon])),
 );
 
-const viewLabels: Record<string, string> = {
-    pods: 'Pods',
-    deployments: 'Deployments',
-    statefulsets: 'StatefulSets',
-    replicasets: 'ReplicaSets',
-    daemonsets: 'DaemonSets',
-    jobs: 'Jobs',
-    cronjobs: 'CronJobs',
-    services: 'Services',
-    ingresses: 'Ingresses',
-    ingressclasses: 'Ingress Classes',
-    endpoints: 'Endpoints',
-    networkpolicies: 'Network Policies',
-    configmaps: 'ConfigMaps',
-    secrets: 'Secrets',
-    serviceaccounts: 'Service Accounts',
-    roles: 'Roles',
-    rolebindings: 'Role Bindings',
-    persistentvolumes: 'Persistent Volumes',
-    persistentvolumeclaims: 'Volume Claims',
-    storageclasses: 'Storage Classes',
-    nodes: 'Nodes',
-    namespaces: 'Namespaces',
-    events: 'Events',
-    resourcequotas: 'Resource Quotas',
-    limitranges: 'Limit Ranges',
-};
+/**
+ * Every panel title is stored as an i18n key plus its variables, not as text.
+ *
+ * Dockview writes a tab title once, at addPanel time, so a language switch
+ * would otherwise leave every open tab in the old language until it was closed
+ * and reopened. Keeping the key in `params` lets DockviewContainer re-render
+ * all of them on a locale change — and it means a panel transferred to another
+ * instance is titled in the *receiver's* language rather than inheriting the
+ * sender's text.
+ *
+ * `titleVars.suffix` is the ` • ` qualifier the app appends everywhere (a
+ * cluster name, or `namespace/name`); it is deliberately not part of the
+ * catalog, because it is data.
+ */
+export interface PanelTitleParams {
+    titleKey?: string;
+    titleVars?: Record<string, string | number | undefined>;
+}
+
+export function renderPanelTitle(t: TFn, params: PanelTitleParams): string {
+    const { titleKey, titleVars } = params;
+    if (!titleKey) return '';
+    const { suffix, ...vars } = titleVars ?? {};
+    // The one place the typed-key guarantee cannot hold: the key arrives in
+    // panel params, either computed from a view name or sent by another
+    // instance. defaultValue keeps an unknown key (a view added without its
+    // catalog entry, a panel from a newer build) readable instead of blank.
+    const translate = t as unknown as (key: string, options?: Record<string, unknown>) => string;
+    const base = translate(titleKey, { ...vars, defaultValue: titleKey });
+    return suffix ? `${base} • ${suffix}` : base;
+}
+
+/** nav:item.* for a view name that is only known at runtime (panel params). */
+const viewTitleKey = (view: string) => `nav:item.${view}`;
+
 
 export interface TabDef {
     view: string;
-    title: string;
     clusterName: string;
     icon?: React.ReactNode;
 }
@@ -162,6 +170,7 @@ function positionAfter(api: DockviewApi, referenceId: string) {
 const TabContext = createContext<TabContextValue | null>(null);
 
 export function TabProvider({ children }: { children: React.ReactNode }) {
+    const t = useT();
     const apiRef = useRef<DockviewApi | null>(null);
     const terminalCounterRef = useRef(0);
     const applyYamlCounterRef = useRef(0);
@@ -177,7 +186,6 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         if (!api) return;
 
         const panelId = def.clusterName ? `${def.view}:${def.clusterName}` : def.view;
-        const title = def.clusterName ? `${def.title} • ${def.clusterName}` : def.title;
 
         const existing = api.getPanel(panelId);
         if (existing) {
@@ -185,13 +193,17 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = {
+            titleKey: viewTitleKey(def.view),
+            titleVars: def.clusterName ? { suffix: def.clusterName } : undefined,
+        };
         api.addPanel({
             id: panelId,
             component: 'view',
-            title,
-            params: { view: def.view, clusterName: def.clusterName, icon: def.icon ?? null },
+            title: renderPanelTitle(t, titleParams),
+            params: { view: def.view, clusterName: def.clusterName, icon: def.icon ?? null, ...titleParams },
         });
-    }, []);
+    }, [t]);
 
     // Like the apply-yaml panel, the terminal is seeded with a cluster but stays
     // retargetable from its own toolbar — so the id is just the session id and
@@ -204,13 +216,17 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         const n = terminalCounterRef.current;
         const sessionId = `terminal-${n}-${Date.now()}`;
 
+        const titleParams = {
+            titleKey: 'panels:title.terminal',
+            titleVars: clusterName ? { n, suffix: clusterName } : { n },
+        };
         api.addPanel({
             id: sessionId,
             component: 'terminal',
-            title: clusterName ? `Terminal ${n} • ${clusterName}` : `Terminal ${n}`,
-            params: { sessionId, clusterName },
+            title: renderPanelTitle(t, titleParams),
+            params: { sessionId, clusterName, ...titleParams },
         });
-    }, []);
+    }, [t]);
 
     // The panel is seeded with a cluster but, unlike the read-only views, lets
     // the user retarget it from its own toolbar — so the id only has to stay
@@ -222,13 +238,17 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         applyYamlCounterRef.current += 1;
         const n = applyYamlCounterRef.current;
 
+        const titleParams = {
+            titleKey: 'panels:title.applyYaml',
+            titleVars: clusterName ? { suffix: clusterName } : undefined,
+        };
         api.addPanel({
             id: `applyYaml:${clusterName}:${n}`,
             component: 'applyYaml',
-            title: clusterName ? `YAML Editor • ${clusterName}` : 'YAML Editor',
-            params: { clusterName },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName, ...titleParams },
         });
-    }, []);
+    }, [t]);
 
     // A singleton, and deliberately outside the `${view}:${clusterName}` scheme:
     // the panel describes this process, not a cluster. Empty params keep it
@@ -242,13 +262,14 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             existing.api.setActive();
             return;
         }
+        const titleParams = { titleKey: 'panels:title.diagnostics' };
         api.addPanel({
             id: 'diagnostics',
             component: 'diagnostics',
-            title: 'Diagnostics',
-            params: {},
+            title: renderPanelTitle(t, titleParams),
+            params: { ...titleParams },
         });
-    }, []);
+    }, [t]);
 
     // Also a singleton outside the `${view}:${clusterName}` scheme, for the same
     // reason as Diagnostics: it describes this process rather than a cluster.
@@ -263,13 +284,14 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             existing.api.setActive();
             return;
         }
+        const titleParams = { titleKey: 'panels:title.portForwards' };
         api.addPanel({
             id: 'portforwards',
             component: 'portforwards',
-            title: 'Port Forwards',
-            params: {},
+            title: renderPanelTitle(t, titleParams),
+            params: { ...titleParams },
         });
-    }, []);
+    }, [t]);
 
     const openLogPanel = useCallback((def: LogPanelDef) => {
         const api = apiRef.current;
@@ -282,11 +304,13 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.logs', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'logViewer',
-            title: `Logs • ${def.namespace}/${def.name}`,
+            title: renderPanelTitle(t, titleParams),
             params: {
+                ...titleParams,
                 clusterName: def.clusterName,
                 resourceKind: def.resourceKind,
                 name: def.name,
@@ -298,7 +322,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openExecPanel = useCallback((def: ExecPanelDef) => {
         const api = apiRef.current;
@@ -312,11 +336,13 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         }
 
         const sessionId = `exec-${Date.now()}`;
+        const titleParams = { titleKey: 'panels:title.exec', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'podExec',
-            title: `Exec • ${def.namespace}/${def.name}`,
+            title: renderPanelTitle(t, titleParams),
             params: {
+                ...titleParams,
                 clusterName: def.clusterName,
                 sessionId,
                 name: def.name,
@@ -329,7 +355,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openPolicyViewer = useCallback((def: PolicyViewerDef) => {
         const api = apiRef.current;
@@ -342,18 +368,19 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.policy', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'policyViewer',
-            title: `Policy • ${def.namespace}/${def.name}`,
-            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace , ...titleParams },
         };
 
         const pos = positionAfter(api, def.referencePanel);
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openConfigMapEditor = useCallback((def: ConfigMapEditorDef) => {
         const api = apiRef.current;
@@ -366,18 +393,19 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.edit', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'configMapEditor',
-            title: `Edit • ${def.namespace}/${def.name}`,
-            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace , ...titleParams },
         };
 
         const pos = positionAfter(api, def.referencePanel);
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openObjectYaml = useCallback((def: ObjectYamlDef) => {
         const api = apiRef.current;
@@ -390,11 +418,13 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.edit', titleVars: { suffix: `${def.namespace ? def.namespace + '/' : ''}${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'objectYaml',
-            title: `Edit • ${def.namespace ? def.namespace + '/' : ''}${def.name}`,
+            title: renderPanelTitle(t, titleParams),
             params: {
+                ...titleParams,
                 clusterName: def.clusterName,
                 kind: def.kind,
                 group: def.group,
@@ -408,7 +438,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openSecretEditor = useCallback((def: SecretEditorDef) => {
         const api = apiRef.current;
@@ -421,18 +451,19 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.edit', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'secretEditor',
-            title: `Edit • ${def.namespace}/${def.name}`,
-            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace , ...titleParams },
         };
 
         const pos = positionAfter(api, def.referencePanel);
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openRoleEditor = useCallback((def: RoleEditorDef) => {
         const api = apiRef.current;
@@ -445,18 +476,19 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.edit', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'roleEditor',
-            title: `Edit • ${def.namespace}/${def.name}`,
-            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace , ...titleParams },
         };
 
         const pos = positionAfter(api, def.referencePanel);
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openRoleBindingEditor = useCallback((def: RoleBindingEditorDef) => {
         const api = apiRef.current;
@@ -469,18 +501,19 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.edit', titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'roleBindingEditor',
-            title: `Edit • ${def.namespace}/${def.name}`,
-            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName: def.clusterName, name: def.name, namespace: def.namespace , ...titleParams },
         };
 
         const pos = positionAfter(api, def.referencePanel);
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openClusterResourceView = useCallback((clusterName: string) => {
         const api = apiRef.current;
@@ -493,13 +526,14 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.resourceGraph', titleVars: { suffix: clusterName } };
         api.addPanel({
             id: panelId,
             component: 'clusterResource',
-            title: `Resource Graph • ${clusterName}`,
-            params: { clusterName },
+            title: renderPanelTitle(t, titleParams),
+            params: { clusterName, ...titleParams },
         });
-    }, []);
+    }, [t]);
 
     const openYamlPanel = useCallback((def: YamlPanelDef) => {
         const api = apiRef.current;
@@ -514,11 +548,13 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
 
         // referencePanel is now `${view}:${clusterName}` — extract the view key for the label
         const viewKey = def.referencePanel.split(':')[0];
+        const titleParams = { titleKey: viewTitleKey(viewKey), titleVars: { suffix: `${def.namespace}/${def.name}` } };
         const addOptions: any = {
             id: panelId,
             component: 'yamlEditor',
-            title: `${viewLabels[viewKey] ?? viewKey} • ${def.namespace}/${def.name}`,
+            title: renderPanelTitle(t, titleParams),
             params: {
+                ...titleParams,
                 clusterName: def.clusterName,
                 resourceKind: def.resourceKind,
                 name: def.name,
@@ -530,7 +566,7 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openDescribePanel = useCallback((def: DescribePanelDef) => {
         const api = apiRef.current;
@@ -543,11 +579,13 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
+        const titleParams = { titleKey: 'panels:title.describe', titleVars: { name: def.name, suffix: def.clusterName } };
         const addOptions: any = {
             id: panelId,
             component: 'describe',
-            title: `Describe ${def.name} • ${def.clusterName}`,
+            title: renderPanelTitle(t, titleParams),
             params: {
+                ...titleParams,
                 clusterName: def.clusterName,
                 resource: def.resource,
                 name: def.name,
@@ -559,21 +597,18 @@ export function TabProvider({ children }: { children: React.ReactNode }) {
         if (pos) addOptions.position = pos;
 
         api.addPanel(addOptions);
-    }, []);
+    }, [t]);
 
     const openReceivedPanel = useCallback((panel: ReceivedPanel) => {
         const p = panel.params ?? {};
         const cn: string = p.clusterName ?? '';
         switch (panel.componentType) {
             case 'view': {
-                // openTab appends ` • ${clusterName}` itself, and the incoming
-                // title already carries it — strip it or it doubles up.
-                const suffix = ` • ${cn}`;
-                const base = cn && panel.title.endsWith(suffix)
-                    ? panel.title.slice(0, -suffix.length)
-                    : panel.title;
+                // The sender's title string is deliberately ignored: openTab
+                // rebuilds it from the view key, so a panel handed over from an
+                // instance running another language arrives titled in ours.
                 const view = p.view ?? 'pods';
-                openTab({ view, title: base, clusterName: cn, icon: viewIcons[view] });
+                openTab({ view, clusterName: cn, icon: viewIcons[view] });
                 break;
             }
             case 'yamlEditor':

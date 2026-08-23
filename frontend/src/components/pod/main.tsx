@@ -14,6 +14,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import { humanAge, absTime } from '../../lib/time';
+import { useT } from '../../i18n/useT';
 
 const getStatusSeverity = (status: string) => {
     switch (status) {
@@ -79,6 +80,7 @@ const renderContainerItem = (row: models.PodInfo, name: string, options: MenuIte
 };
 
 export default function DataTableComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openLogPanel, openExecPanel } = useTabContext();
     const referencePanel = `pods:${clusterName}`;
     const execMenuRef = useRef<Menu>(null);
@@ -88,7 +90,7 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
       <>
         <Menu model={execMenuItems} popup ref={execMenuRef} className="exec-container-menu" />
         <ResourceListView<models.PodInfo>
-            title="Pod List"
+            title={t('resources:pod.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetPods}
@@ -99,37 +101,37 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
             describeResource="pods"
             portForward={{ kind: 'pod' }}
             defaultFilters={defaultFilters}
-            emptyMessage="No pods found"
+            emptyMessage={t('resources:pod.empty')}
             onRowDoubleClick={(pod) => openYamlPanel({ clusterName, resourceKind: 'pod', name: pod.name, namespace: pod.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '13rem', maxWidth: '13rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '13rem', maxWidth: '13rem' }}
                         body={(row: models.PodInfo) => <span title={row.name} style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.name}</span>} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '8rem' }}
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '8rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '7.5rem' }}
+                    <Column field="status" header={t('resources:column.status')} sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '7.5rem' }}
                         body={(row: models.PodInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="owner_kind" header="Owner" sortable filter filterField="owner_kind" showFilterMenu={false} style={{ minWidth: '7.5rem' }}
+                    <Column field="owner_kind" header={t('resources:column.owner')} sortable filter filterField="owner_kind" showFilterMenu={false} style={{ minWidth: '7.5rem' }}
                         body={(row: models.PodInfo) => <Tag value={row.owner_kind || 'Pod'} severity={getOwnerSeverity(row.owner_kind)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('owner_kind')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('owner_kind')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="cpu_millis" header="CPU" sortable style={{ minWidth: '5.5rem' }}
+                    <Column field="cpu_millis" header={t('resources:column.cpu')} sortable style={{ minWidth: '5.5rem' }}
                         body={(row: models.PodInfo) => fmtCpu(row.cpu_millis)} />
-                    <Column field="mem_mi" header="Memory" sortable style={{ minWidth: '5.5rem' }}
+                    <Column field="mem_mi" header={t('resources:column.memory')} sortable style={{ minWidth: '5.5rem' }}
                         body={(row: models.PodInfo) => fmtMem(row.mem_mi)} />
-                    <Column field="pod_ip" header="Pod IP" sortable filter filterField="pod_ip" showFilterMenu={false} style={{ minWidth: '8rem' }}
+                    <Column field="pod_ip" header={t('resources:column.podIp')} sortable filter filterField="pod_ip" showFilterMenu={false} style={{ minWidth: '8rem' }}
                         body={(row: models.PodInfo) => <span style={{  fontSize: '0.8rem' }}>{row.pod_ip || '—'}</span>} 
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('pod_ip')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('pod_ip')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )}
                         />
-                    <Column header="Containers" style={{ minWidth: '7rem' }}
+                    <Column header={t('resources:column.containers')} style={{ minWidth: '7rem' }}
                         body={(row: models.PodInfo) => {
                             const cs = row.container_statuses || [];
                             if (cs.length === 0) return <span style={{ opacity: 0.5 }}>—</span>;
@@ -137,19 +139,27 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
                                 <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
                                     {cs.map((c) => (
                                         <span key={(c.init ? 'init:' : '') + c.name}
-                                            title={`${c.init ? '[init] ' : ''}${c.name}: ${c.state || 'Unknown'}${c.reason ? ` (${c.reason})` : ''}${c.restart_count > 0 ? ` — ${c.restart_count} restart` : ''}`}
+                                            title={
+                                                // The container name, state and reason come
+                                                // straight from the cluster and stay verbatim;
+                                                // only the frame around them is translated.
+                                                `${c.init ? t('resources:pod.containerInitPrefix') : ''}` +
+                                                `${c.name}: ${c.state || t('resources:pod.containerUnknownState')}` +
+                                                `${c.reason ? ` (${c.reason})` : ''}` +
+                                                `${c.restart_count > 0 ? t('resources:pod.containerRestarts', { count: c.restart_count }) : ''}`
+                                            }
                                             style={{ width: 10, height: 10, display: 'inline-block', borderRadius: c.init ? 2 : '50%', background: containerDotColor(c) }} />
                                     ))}
                                 </div>
                             );
                         }} />
-                    <Column field="restarts" header="Restarts" sortable style={{ minWidth: '5.5rem' }}
+                    <Column field="restarts" header={t('resources:column.restarts')} sortable style={{ minWidth: '5.5rem' }}
                         body={(row: models.PodInfo) => (
                             <span style={{ color: row.restarts > 0 ? 'var(--amber, #e2a85a)' : 'inherit', fontWeight: row.restarts > 0 ? 600 : 400 }}>{row.restarts}</span>
                         )} />
-                    <Column field="created_at" header="Age" sortable style={{ minWidth: '5rem' }}
+                    <Column field="created_at" header={t('resources:column.age')} sortable style={{ minWidth: '5rem' }}
                         body={(row: models.PodInfo) => <span title={absTime(row.created_at)}>{humanAge(row.created_at)}</span>} />
-                    <Column field="last_restart_at" header="Last Restart" sortable style={{ minWidth: '7.5rem' }}
+                    <Column field="last_restart_at" header={t('resources:column.lastRestart')} sortable style={{ minWidth: '7.5rem' }}
                         body={(row: models.PodInfo) => (
                             <span title={absTime(row.last_restart_at)}
                                 style={{ color: row.last_restart_at ? 'var(--amber, #e2a85a)' : undefined, opacity: row.last_restart_at ? 1 : 0.5 }}>

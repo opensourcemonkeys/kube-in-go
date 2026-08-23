@@ -30,6 +30,7 @@ import type * as monaco from 'monaco-editor';
 import { GetNetworkPolicyDetail, GetNetworkPolicyYaml, ParseNetworkPolicyYaml, UpdateNetworkPolicyYaml } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
+import { useT, type TFn } from '../../i18n/useT';
 
 interface PolicyViewerPanelParams {
     clusterName: string;
@@ -113,7 +114,10 @@ const NODE_TYPES = { policyNode: PolicyNodeComponent };
 
 // ── Graph builder ─────────────────────────────────────────────────────────────
 
-function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges: Edge[] } {
+// `t` is a parameter, not a hook call: this is a plain graph builder, not a
+// component, so it cannot use useT() — and it must still re-run when the
+// language changes, which the caller's useMemo dependency handles.
+function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]; edges: Edge[] } {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
 
@@ -166,9 +170,9 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                 <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>
                         <VscPackage size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
-                        Affected Pods
+                        {t('panels:policy.affectedPods')}
                     </div>
-                    <div style={{ fontSize: 11 }}>{detail.pod_selector || '<all pods>'}</div>
+                    <div style={{ fontSize: 11 }}>{detail.pod_selector || t('panels:policy.allPods')}</div>
                 </div>
             ),
         },
@@ -202,9 +206,9 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
                             <VscCircleSlash size={13} color="#ef4444" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
-                            Deny All Ingress
+                            {t('panels:policy.denyAllIngress')}
                         </div>
-                        <div style={{ fontSize: 11, opacity: 0.8 }}>All incoming traffic blocked</div>
+                        <div style={{ fontSize: 11, opacity: 0.8 }}>{t('panels:policy.denyAllIngressHint')}</div>
                     </div>
                 ),
             },
@@ -236,9 +240,9 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
                             <VscCircleSlash size={13} color="#ef4444" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
-                            Deny All Egress
+                            {t('panels:policy.denyAllEgress')}
                         </div>
-                        <div style={{ fontSize: 11, opacity: 0.8 }}>All outgoing traffic blocked</div>
+                        <div style={{ fontSize: 11, opacity: 0.8 }}>{t('panels:policy.denyAllEgressHint')}</div>
                     </div>
                 ),
             },
@@ -273,18 +277,18 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
                             <VscArrowRight size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
-                            Ingress Rule {i + 1}
+                            {t('panels:policy.ingressRule', { n: i + 1 })}
                         </div>
-                        <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
+                        <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>{t('panels:policy.ports', { ports })}</div>
                         {(rule.peers ?? []).map((p, pi) => (
                             <div key={pi} style={{ marginTop: 3 }}>
-                                {p.namespace_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>NS: {p.namespace_selector}</div>}
-                                {p.pod_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>Pod: {p.pod_selector}</div>}
-                                {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
+                                {p.namespace_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.namespaceSelector', { selector: p.namespace_selector })}</div>}
+                                {p.pod_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.podSelector', { selector: p.pod_selector })}</div>}
+                                {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.ipBlock', { block: p.ip_block })}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
                                         <VscCircleSlash size={9} style={{ marginRight: 3, verticalAlign: 'middle' }} />{' '}
-                                        except: {exc}
+                                        {t('panels:policy.except', { value: exc })}
                                     </div>
                                 ))}
                             </div>
@@ -321,18 +325,18 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
                     <div>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>
                             <VscArrowLeft size={13} style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
-                            Egress Rule {i + 1}
+                            {t('panels:policy.egressRule', { n: i + 1 })}
                         </div>
-                        <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>Ports: {ports}</div>
+                        <div style={{ fontSize: 11, marginBottom: 3, opacity: 0.9 }}>{t('panels:policy.ports', { ports })}</div>
                         {(rule.peers ?? []).map((p, pi) => (
                             <div key={pi} style={{ marginTop: 3 }}>
-                                {p.namespace_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>NS: {p.namespace_selector}</div>}
-                                {p.pod_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>Pod: {p.pod_selector}</div>}
-                                {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>IP: {p.ip_block}</div>}
+                                {p.namespace_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.namespaceSelector', { selector: p.namespace_selector })}</div>}
+                                {p.pod_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.podSelector', { selector: p.pod_selector })}</div>}
+                                {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.ipBlock', { block: p.ip_block })}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
                                     <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
                                         <VscCircleSlash size={9} style={{ marginRight: 3, verticalAlign: 'middle' }} />{' '}
-                                        except: {exc}
+                                        {t('panels:policy.except', { value: exc })}
                                     </div>
                                 ))}
                             </div>
@@ -360,6 +364,7 @@ function buildGraph(detail: models.NetworkPolicyDetail): { nodes: Node[]; edges:
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function PolicyViewerPanel({ params }: IDockviewPanelProps<PolicyViewerPanelParams>) {
+    const t = useT();
     const { clusterName, name, namespace } = params;
     const cn = clusterName ?? '';
 
@@ -385,7 +390,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
         GetNetworkPolicyDetail(cn, name, namespace)
             .then((raw: any) => {
                 const detail = models.NetworkPolicyDetail.createFrom(raw);
-                const { nodes: n, edges: e } = buildGraph(detail);
+                const { nodes: n, edges: e } = buildGraph(detail, t);
                 setNodes(n);
                 setEdges(e);
             })
@@ -453,7 +458,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
             try {
                 const raw: any = await ParseNetworkPolicyYaml(val);
                 const detail = models.NetworkPolicyDetail.createFrom(raw);
-                const { nodes: n, edges: e } = buildGraph(detail);
+                const { nodes: n, edges: e } = buildGraph(detail, t);
                 setNodes(n);
                 setEdges(e);
             } catch {
@@ -485,7 +490,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
         GetNetworkPolicyDetail(cn, name, namespace)
             .then((raw: any) => {
                 const detail = models.NetworkPolicyDetail.createFrom(raw);
-                const { nodes: n, edges: e } = buildGraph(detail);
+                const { nodes: n, edges: e } = buildGraph(detail, t);
                 setNodes(n);
                 setEdges(e);
             })
@@ -507,7 +512,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                 </span>
                 <div className="flex align-items-center gap-1">
                     <Button
-                        label="Revert"
+                        label={t('panels:yaml.revert')}
                         icon={<VscDiscard size={16} />}
                         text
                         size="small"
@@ -515,7 +520,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                         onClick={handleRevert}
                     />
                     <Button
-                        label="Save"
+                        label={t('panels:yaml.save')}
                         icon={<VscCheck size={16} />}
                         size="small"
                         loading={saving}
@@ -568,7 +573,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
             {/* Divider */}
             <button
                 type="button"
-                aria-label="Resize divider"
+                aria-label={t('panels:policy.resizeDivider')}
                 onMouseDown={handleDividerMouseDown}
                 onKeyDown={handleDividerKeyDown}
                 style={{

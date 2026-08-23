@@ -7,6 +7,7 @@ import { GetServiceAccounts, DeleteServiceAccount } from '../../../wailsjs/go/co
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -14,12 +15,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function ServiceAccountListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `serviceaccounts:${clusterName}`;
 
     return (
         <ResourceListView<models.ServiceAccountInfo>
-            title="Service Account List"
+            title={t('resources:serviceaccount.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetServiceAccounts}
@@ -29,17 +31,17 @@ export default function ServiceAccountListComponent({ clusterName, api }: { clus
             deleteLabel="service account"
             describeResource="serviceaccounts"
             defaultFilters={defaultFilters}
-            emptyMessage="No service accounts found"
+            emptyMessage={t('resources:serviceaccount.empty')}
             onRowDoubleClick={(sa) => openYamlPanel({ clusterName, resourceKind: 'serviceaccount', name: sa.name, namespace: sa.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="secrets" header="Secrets" sortable style={{ minWidth: '7rem' }} />
-                    <Column field="created_at" header="Created" sortable style={{ minWidth: '12rem' }} />
+                    <Column field="secrets" header={t('resources:column.secrets')} sortable style={{ minWidth: '7rem' }} />
+                    <Column field="created_at" header={t('resources:column.created')} sortable style={{ minWidth: '12rem' }} />
                 </>
             )}
         />

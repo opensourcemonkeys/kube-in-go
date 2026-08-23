@@ -22,6 +22,7 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { useTabContext } from '../../contexts/TabContext';
 import { GetSecurityGraph } from '../../../wailsjs/go/controller_app/App';
+import { useT } from '../../i18n/useT';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -286,6 +287,7 @@ function computeDetail(graph: SecurityGraph, nodeId: string): NodeDetail | null 
 // ── Panel ───────────────────────────────────────────────────────────────────────
 
 export default function SecurityRoleMap({ clusterName }: { clusterName: string }) {
+    const t = useT();
     const cn = clusterName ?? '';
     const [graph, setGraph] = useState<SecurityGraph | null>(null);
     const [nodes, setNodes] = useState<Node[]>([]);
@@ -470,11 +472,11 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between" style={{ flexShrink: 0 }}>
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-2">
                     <VscShield style={{ fontSize: 14 }} />{' '}
-                    Security Role Map
+                    {t('panels:roleMap.label')}
                 </span>
                 <div className="flex align-items-center gap-2">
                     {loading && <CircularProgress size={14} style={{ color: 'var(--text-color-secondary)' }} />}
-                    <button className="cluster-bar__edit-btn" onClick={load} disabled={loading} title="Refresh">
+                    <button className="cluster-bar__edit-btn" onClick={load} disabled={loading} title={t('panels:roleMap.refresh')}>
                         <VscRefresh style={{ fontSize: 14 }} />
                     </button>
                 </div>
@@ -500,8 +502,8 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                 filter
                                 showClear
                                 placeholder={`All ${optionsByKind[kind].length}`}
-                                emptyMessage="none"
-                                emptyFilterMessage="no matches"
+                                emptyMessage={t('panels:roleMap.none')}
+                                emptyFilterMessage={t('panels:roleMap.noMatches')}
                                 style={{ width: '100%' }}
                                 className="p-inputtext-sm"
                             />
@@ -509,7 +511,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                     );
                 })}
                 {selectedNodeId && (
-                    <Button label="Clear focus" icon="pi pi-times" text size="small" onClick={() => setSelectedNodeId(null)} />
+                    <Button label={t('panels:roleMap.clearFocus')} icon="pi pi-times" text size="small" onClick={() => setSelectedNodeId(null)} />
                 )}
             </div>
 
@@ -526,10 +528,10 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                     </span>
                 ))}
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#64748b' }}>
-                    <span style={{ fontStyle: 'italic' }}>tip: click to highlight connections · double-click for details</span>
+                    <span style={{ fontStyle: 'italic' }}>{t('panels:roleMap.tip')}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 24, height: 2, background: '#06b6d4', display: 'inline-block' }} />{' '}
-                        grants
+                        {t('panels:roleMap.legendGrants')}
                     </span>
                 </span>
             </div>
@@ -541,7 +543,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                         <VscWarning style={{ fontSize: 32 }} />
                         <span style={{ fontSize: 13 }}>{error}</span>
                         <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
-                            <VscRefresh style={{ fontSize: 14 }} /> Retry
+                            <VscRefresh style={{ fontSize: 14 }} /> {t('action.retry')}
                         </button>
                     </div>
                 ) : (
@@ -609,7 +611,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                     {section.title}
                                 </div>
                                 {section.items.length === 0 ? (
-                                    <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>none</div>
+                                    <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>{t('panels:roleMap.none')}</div>
                                 ) : (
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                         {section.items.map((it, ii) => (
@@ -639,17 +641,17 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                             return (
                                 <div>
                                     <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--text-color-secondary)', marginBottom: 6 }}>
-                                        Accessible objects ({detail.objects.length})
+                                        {t('panels:roleMap.accessibleObjects', { count: detail.objects.length })}
                                     </div>
                                     {detail.objects.length === 0 ? (
-                                        <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>none</div>
+                                        <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>{t('panels:roleMap.none')}</div>
                                     ) : (
                                         <>
                                             <input
                                                 type="text"
                                                 value={objFilter}
                                                 onChange={e => setObjFilter(e.target.value)}
-                                                placeholder="Filter objects…"
+                                                placeholder={t('panels:roleMap.filterObjects')}
                                                 style={{
                                                     width: '100%', boxSizing: 'border-box', marginBottom: 6,
                                                     padding: '5px 9px', fontSize: 13, borderRadius: 6,
@@ -659,7 +661,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                             />
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 260, overflowY: 'auto' }}>
                                                 {filtered.length === 0 ? (
-                                                    <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>no matches</div>
+                                                    <div style={{ fontSize: 13, color: 'var(--text-color-secondary)', fontStyle: 'italic' }}>{t('panels:roleMap.noMatches')}</div>
                                                 ) : filtered.map((it, ii) => (
                                                     <div key={ii} style={{
                                                         display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12,
@@ -684,14 +686,14 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                         {detail.node.resource && (
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid var(--surface-border)', paddingTop: 12 }}>
                                 <Button
-                                    label="Describe"
+                                    label={t('panels:roleMap.describe')}
                                     icon="pi pi-info-circle"
                                     size="small"
                                     outlined
                                     onClick={() => openDescribe(detail.node)}
                                 />
                                 <Button
-                                    label="View / Edit YAML"
+                                    label={t('panels:roleMap.viewEditYaml')}
                                     icon="pi pi-file-edit"
                                     size="small"
                                     onClick={() => openYaml(detail.node)}

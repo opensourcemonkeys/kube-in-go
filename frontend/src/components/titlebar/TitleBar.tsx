@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse, VscArrowSwap } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse, VscArrowSwap, VscGlobe } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import {
@@ -13,6 +13,8 @@ import { useTabContext } from '../../contexts/TabContext';
 import { useClusterContext } from '../../contexts/ClusterContext';
 import { useAiChatStore } from '../../stores/aiChatStore';
 import { useThemeStore, THEMES } from '../../stores/themeStore';
+import { useLocaleStore, LOCALES } from '../../stores/localeStore';
+import { useT } from '../../i18n/useT';
 import { useNextStep } from 'nextstepjs';
 import AboutModal from '../cluster/AboutModal';
 import UpdateModal from './UpdateModal';
@@ -39,6 +41,9 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const aiOpen = useAiChatStore((s) => s.open);
     const theme = useThemeStore((s) => s.theme);
     const setTheme = useThemeStore((s) => s.setTheme);
+    const locale = useLocaleStore((s) => s.locale);
+    const setLocale = useLocaleStore((s) => s.setLocale);
+    const t = useT();
 
     useEffect(() => {
         const check = () => CheckForUpdate().then(setUpdate).catch(() => { /* offline: ignore */ });
@@ -64,36 +69,47 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
 
     const menuModel: MenuItem[] = [
         {
-            label: 'Open',
+            label: t('nav:menu.open'),
             items: [
-                { label: 'YAML Editor', icon: <VscCloudUpload size={13} />, command: () => openApplyYaml(activeCluster) },
-                { label: 'Terminal',    icon: <VscTerminal size={13} />,    command: () => openTerminal(activeCluster) },
-                { label: 'CLI Mode',    icon: <VscScreenFull size={13} />,  command: () => onToggleCli?.() },
-                { label: 'Port Forwards', icon: <VscArrowSwap size={13} />, command: () => openPortForwards() },
+                { label: t('nav:menu.yamlEditor'), icon: <VscCloudUpload size={13} />, command: () => openApplyYaml(activeCluster) },
+                { label: t('nav:menu.terminal'),   icon: <VscTerminal size={13} />,    command: () => openTerminal(activeCluster) },
+                { label: t('nav:menu.cliMode'),    icon: <VscScreenFull size={13} />,  command: () => onToggleCli?.() },
+                { label: t('nav:menu.portForwards'), icon: <VscArrowSwap size={13} />, command: () => openPortForwards() },
                 { separator: true },
                 {
-                    label: 'AI Assistant (experimental)',
+                    label: t('nav:menu.aiAssistant'),
                     icon: <VscHubot size={13} />,
                     className: aiOpen ? 'tb-menu-active' : undefined,
                     command: () => toggleAi(),
                 },
                 {
-                    label: 'Theme',
+                    label: t('settings:theme.label'),
                     icon: <VscSymbolColor size={13} />,
-                    items: THEMES.map((t) => ({
-                        label: t.label,
-                        icon: t.id === theme ? <VscCheck size={13} /> : undefined,
-                        command: () => setTheme(t.id),
+                    // Theme and locale names are proper nouns / endonyms — they
+                    // are the same in every catalog and stay out of i18n.
+                    items: THEMES.map((th) => ({
+                        label: th.label,
+                        icon: th.id === theme ? <VscCheck size={13} /> : undefined,
+                        command: () => setTheme(th.id),
+                    })),
+                },
+                {
+                    label: t('settings:language.label'),
+                    icon: <VscGlobe size={13} />,
+                    items: LOCALES.map((l) => ({
+                        label: l.label,
+                        icon: l.id === locale ? <VscCheck size={13} /> : undefined,
+                        command: () => setLocale(l.id),
                     })),
                 },
             ],
         },
         {
-            label: 'Help',
+            label: t('nav:menu.help'),
             items: [
-                { label: 'Tutorial',    icon: <VscQuestion size={13} />, command: () => startNextStep('main') },
-                { label: 'Diagnostics', icon: <VscPulse size={13} />,    command: () => openDiagnostics() },
-                { label: 'About',       icon: <VscInfo size={13} />,     command: () => setAboutOpen(true) },
+                { label: t('nav:menu.tutorial'),    icon: <VscQuestion size={13} />, command: () => startNextStep('main') },
+                { label: t('nav:menu.diagnostics'), icon: <VscPulse size={13} />,    command: () => openDiagnostics() },
+                { label: t('nav:menu.about'),       icon: <VscInfo size={13} />,     command: () => setAboutOpen(true) },
             ],
         },
     ];
@@ -105,7 +121,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 <button
                     className="tb-sidebar-toggle"
                     onClick={onToggleSidebar}
-                    title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+                    title={sidebarOpen ? t('nav:window.collapseSidebar') : t('nav:window.expandSidebar')}
                 >
                     <VscLayoutSidebarLeft size={14} />
                 </button>
@@ -133,7 +149,7 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 <div
                     className="tb-drag"
                     role="button"
-                    aria-label="Title bar – press Enter to toggle maximise"
+                    aria-label={t('nav:window.dragHint')}
                     tabIndex={0}
                     onDoubleClick={handleMaximise}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMaximise(); } }}
@@ -147,25 +163,25 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 {update?.available && (
                     <button
                         className="tb-update"
-                        title={`Version ${update.latestVersion} is available — click to install`}
+                        title={t('nav:window.updateTooltip', { version: update.latestVersion })}
                         onClick={() => setUpdateOpen(true)}
                     >
                         <VscCloudDownload size={12} />
-                        Update available
+                        {t('nav:window.updateAvailable')}
                     </button>
                 )}
 
                 {/* Window controls */}
                 <div className="tb-controls">
-                    <button className="tb-btn tb-btn--min" onClick={WindowMinimise} title="Minimise">
+                    <button className="tb-btn tb-btn--min" onClick={WindowMinimise} title={t('nav:window.minimise')}>
                         <VscChromeMinimize size={12} />
                     </button>
 
-                    <button className="tb-btn tb-btn--max" onClick={handleMaximise} title={maximised ? 'Restore' : 'Maximise'}>
+                    <button className="tb-btn tb-btn--max" onClick={handleMaximise} title={maximised ? t('nav:window.restore') : t('nav:window.maximise')}>
                         {maximised ? <VscChromeRestore size={12} /> : <VscChromeMaximize size={12} />}
                     </button>
 
-                    <button className="tb-btn tb-btn--close" onClick={Quit} title="Close">
+                    <button className="tb-btn tb-btn--close" onClick={Quit} title={t('nav:window.close')}>
                         <VscChromeClose size={12} />
                     </button>
                 </div>

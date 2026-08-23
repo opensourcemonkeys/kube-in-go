@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { VscWarning, VscRefresh, VscCopy, VscClose, VscCheck } from 'react-icons/vsc';
 import { copyDiagnostics } from '../../lib/diagnosticsReport';
+import { useT } from '../../i18n/useT';
 
 export interface ErrorBannerProps {
     /** The failure text. Render nothing when null — callers can pass state directly. */
@@ -32,6 +33,7 @@ export interface ErrorBannerProps {
  * hidden, which is what a user who dismissed it asked for.
  */
 export default function ErrorBanner({ message, onRetry, busy, stale, context }: ErrorBannerProps) {
+    const t = useT();
     const [dismissed, setDismissed] = useState(false);
     const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle');
 
@@ -52,25 +54,29 @@ export default function ErrorBanner({ message, onRetry, busy, stale, context }: 
         <div className="err-banner" role="alert">
             <VscWarning className="err-banner__icon" />
             <div className="err-banner__body">
-                {stale && <span className="err-banner__tag">showing last known data</span>}
+                {stale && <span className="err-banner__tag">{t('errors:banner.stale')}</span>}
                 <span className="err-banner__msg" title={message}>{message}</span>
             </div>
             <div className="err-banner__actions">
                 {onRetry && (
                     <button type="button" className="err-banner__btn" onClick={onRetry} disabled={busy}>
-                        <VscRefresh className={busy ? 'err-banner__spin' : undefined} /> Retry
+                        <VscRefresh className={busy ? 'err-banner__spin' : undefined} /> {t('errors:banner.retry')}
                     </button>
                 )}
                 <button type="button" className="err-banner__btn" onClick={copy}>
                     {copied === 'ok' ? <VscCheck /> : <VscCopy />}
-                    {copied === 'ok' ? 'Copied' : copied === 'fail' ? 'Copy failed' : 'Copy diagnostics'}
+                    {copied === 'ok'
+                        ? t('errors:banner.copied')
+                        : copied === 'fail'
+                          ? t('errors:banner.copyFailed')
+                          : t('errors:banner.copyDiagnostics')}
                 </button>
                 <button
                     type="button"
                     className="err-banner__btn err-banner__btn--icon"
                     onClick={() => setDismissed(true)}
-                    title="Dismiss"
-                    aria-label="Dismiss"
+                    title={t('errors:banner.dismiss')}
+                    aria-label={t('errors:banner.dismiss')}
                 >
                     <VscClose />
                 </button>

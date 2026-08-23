@@ -17,6 +17,7 @@ import { useDeferredMount } from '../../lib/useDeferredMount';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { useT } from '../../i18n/useT';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
 
@@ -42,6 +43,7 @@ const formatTime = (ts: string): string => {
 };
 
 export default function EventListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     // Whether this panel is the foreground tab. When backgrounded we tear down
     // the table DOM and pause polling; the latest data lives in the persisted
     // store, so returning to the foreground rebuilds instantly from it.
@@ -154,15 +156,15 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0 }}>Event List</h3>
+                <h3 style={{ margin: 0 }}>{t('panels:events.title')}</h3>
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
                     <Button
-                        label="Warnings Only"
+                        label={t('panels:events.warningsOnly')}
                         icon={<VscWarning size={16} />}
                         text
                         severity={warningOnly ? 'warning' : 'secondary'}
                         onClick={() => setWarningOnly(!warningOnly)}
-                        tooltip="Show only Warning events"
+                        tooltip={t('panels:events.warningsOnlyTooltip')}
                         tooltipOptions={{ position: 'left' }}
                     />
                     <Button
@@ -170,7 +172,7 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                         text
                         severity="secondary"
                         onClick={() => setFilters(defaultEventFilters())}
-                        tooltip="Clear filters"
+                        tooltip={t('action.clearFilters')}
                         tooltipOptions={{ position: 'left' }}
                     />
                 </div>
@@ -205,14 +207,14 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 scrollable
                 scrollHeight={scrollHeight}
                 virtualScrollerOptions={{ itemSize: 46 }}
-                emptyMessage={error ? ' ' : 'No events found'}
+                emptyMessage={error ? ' ' : t('panels:events.empty')}
                 sortField="last_timestamp"
                 sortOrder={-1}
                 onRowDoubleClick={(e: any) => setSelectedEvent(e.data as models.EventInfo)}
             >
                 <Column
                     field="type"
-                    header="Type"
+                    header={t('resources:column.type')}
                     sortable
                     filter
                     filterField="type"
@@ -222,63 +224,63 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                         <Tag value={row.type || '-'} severity={getTypeSeverity(row.type)} />
                     )}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={typeOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        <MultiSelect value={options.value} options={typeOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
                     field="namespace"
-                    header="Namespace"
+                    header={t('resources:column.namespace')}
                     sortable
                     filter
                     filterField="namespace"
                     showFilterMenu={false}
                     style={{ minWidth: '10rem' }}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        <MultiSelect value={options.value} options={namespaceOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
                     field="object_kind"
-                    header="Kind"
+                    header={t('resources:column.kind')}
                     sortable
                     filter
                     filterField="object_kind"
                     showFilterMenu={false}
                     style={{ minWidth: '9rem' }}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={objectKindOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        <MultiSelect value={options.value} options={objectKindOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
                     field="object"
-                    header="Object"
+                    header={t('resources:column.object')}
                     sortable
                     filter
                     filterField="object"
                     showFilterMenu={false}
                     style={{ minWidth: '14rem' }}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={objectOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        <MultiSelect value={options.value} options={objectOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
                     field="reason"
-                    header="Reason"
+                    header={t('resources:column.reason')}
                     sortable
                     filter
                     filterField="reason"
                     showFilterMenu={false}
                     style={{ minWidth: '11rem' }}
                     filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                        <MultiSelect value={options.value} options={reasonOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                        <MultiSelect value={options.value} options={reasonOptions} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                     )}
                 />
                 <Column
                     field="message"
-                    header="Message"
+                    header={t('resources:column.message')}
                     filter
                     filterField="message"
-                    filterPlaceholder="Search message"
+                    filterPlaceholder={t('resources:filter.searchMessage')}
                     showFilterMenu={false}
                     style={{ minWidth: '22rem' }}
                     body={(row: models.EventInfo) => {
@@ -293,7 +295,7 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 />
                 <Column
                     field="count"
-                    header="Count"
+                    header={t('resources:column.count')}
                     sortable
                     style={{ minWidth: '6rem' }}
                     body={(row: models.EventInfo) => (
@@ -304,7 +306,7 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                 />
                 <Column
                     field="last_timestamp"
-                    header="Last Seen"
+                    header={t('resources:column.lastSeen')}
                     sortable
                     style={{ minWidth: '13rem' }}
                     body={(row: models.EventInfo) => formatTime(row.last_timestamp)}
@@ -332,27 +334,27 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
                             <span>{ev.namespace}</span>
                         </div>
                         <div style={rowStyle}>
-                            <span style={labelStyle}>Object</span>
+                            <span style={labelStyle}>{t('resources:column.object')}</span>
                             <span>{ev.object_kind} / {ev.object}</span>
                         </div>
                         <div style={rowStyle}>
-                            <span style={labelStyle}>Reason</span>
+                            <span style={labelStyle}>{t('resources:column.reason')}</span>
                             <span>{ev.reason}</span>
                         </div>
                         <div style={rowStyle}>
-                            <span style={labelStyle}>Count</span>
+                            <span style={labelStyle}>{t('resources:column.count')}</span>
                             <span>{ev.count}</span>
                         </div>
                         <div style={rowStyle}>
-                            <span style={labelStyle}>First Seen</span>
+                            <span style={labelStyle}>{t('panels:events.firstSeen')}</span>
                             <span>{formatTime(ev.first_timestamp)}</span>
                         </div>
                         <div style={rowStyle}>
-                            <span style={labelStyle}>Last Seen</span>
+                            <span style={labelStyle}>{t('resources:column.lastSeen')}</span>
                             <span>{formatTime(ev.last_timestamp)}</span>
                         </div>
                         <div style={{ borderTop: '1px solid var(--surface-border)', paddingTop: '0.8rem' }}>
-                            <span style={{ ...labelStyle, display: 'block', marginBottom: '0.4rem' }}>Message</span>
+                            <span style={{ ...labelStyle, display: 'block', marginBottom: '0.4rem' }}>{t('resources:column.message')}</span>
                             <div style={{
                                 background: 'var(--surface-ground)',
                                 border: '1px solid var(--surface-border)',

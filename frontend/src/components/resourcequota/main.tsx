@@ -13,6 +13,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
+import { useT } from '../../i18n/useT';
 
 const getUsageColor = (pct: number) => {
     if (pct < 60) return '#5fc98a'; // var(--green)
@@ -80,6 +81,7 @@ function QuotaRow({ rq, onEdit, onDescribe }: {
     onEdit: (quotaName: string, ns: string) => void;
     onDescribe: (quotaName: string, ns: string) => void;
 }) {
+    const t = useT();
     return (
         <div style={{ padding: '0.6rem 0.75rem', borderBottom: '1px solid var(--line)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.5rem' }}>
@@ -93,14 +95,14 @@ function QuotaRow({ rq, onEdit, onDescribe }: {
                     icon={<VscInfo size={16} />}
                     text size="small" severity="secondary"
                     style={{ padding: '0.15rem', flexShrink: 0 }}
-                    tooltip="Describe" tooltipOptions={{ position: 'top' }}
+                    tooltip={t('action.describe')} tooltipOptions={{ position: 'top' }}
                     onClick={() => onDescribe(rq.name, rq.namespace)}
                 />
                 <Button
                     icon={<VscNote size={16} />}
                     text size="small" severity="secondary"
                     style={{ padding: '0.15rem', flexShrink: 0 }}
-                    tooltip="Edit YAML" tooltipOptions={{ position: 'top' }}
+                    tooltip={t('panels:editYaml')} tooltipOptions={{ position: 'top' }}
                     onClick={() => onEdit(rq.name, rq.namespace)}
                 />
             </div>
@@ -145,6 +147,7 @@ function NamespaceGroup({ namespace, quotas, onEdit, onDescribe }: {
 }
 
 export default function ResourceQuotaListComponent({ clusterName }: { clusterName: string }) {
+    const t = useT();
     const [quotas, setQuotas] = useState<models.NamespacedResourceQuota[]>([]);
     const [nsFilter, setNsFilter] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -210,16 +213,16 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>Resource Quotas</h3>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)' }}>{t('resources:resourcequota.title')}</h3>
                 <Tag value={`${totalQuotas} quota · ${groups.length} namespace`} severity="info" />
                 <InputText
                     value={nsFilter}
                     onChange={e => setNsFilter(e.target.value)}
-                    placeholder="Filter namespace"
+                    placeholder={t('resources:resourcequota.filterNamespace')}
                     style={{ marginLeft: 'auto', width: '14rem' }}
                 />
                 {nsFilter && (
-                    <Button icon={<VscClose size={16} />} text severity="secondary" size="small" onClick={() => setNsFilter('')} tooltip="Clear filter" />
+                    <Button icon={<VscClose size={16} />} text severity="secondary" size="small" onClick={() => setNsFilter('')} tooltip={t('resources:resourcequota.clearFilter')} />
                 )}
             </div>
 
@@ -240,7 +243,7 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
                 {groups.length === 0 ? (
                     error ? null : (
                     <div style={{ color: 'var(--ink2)', padding: '2rem', textAlign: 'center' }}>
-                        {nsFilter ? 'No matching namespaces.' : 'No Resource Quotas defined in any namespace.'}
+                        {t(nsFilter ? 'resources:resourcequota.noMatch' : 'resources:resourcequota.empty')}
                     </div>
                     )
                 ) : (

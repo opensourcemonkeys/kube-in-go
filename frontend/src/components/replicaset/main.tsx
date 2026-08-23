@@ -11,6 +11,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import WorkloadActions from '../shared/WorkloadActions';
+import { useT } from '../../i18n/useT';
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -34,12 +35,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function ReplicaSetListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openLogPanel } = useTabContext();
     const referencePanel = `replicasets:${clusterName}`;
 
     return (
         <ResourceListView<models.ReplicaSetInfo>
-            title="ReplicaSet List"
+            title={t('resources:replicaset.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetReplicaSets}
@@ -50,23 +52,23 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
             describeResource="replicasets"
             portForward={{ kind: 'replicaset' }}
             defaultFilters={defaultFilters}
-            emptyMessage="No replicasets found"
+            emptyMessage={t('resources:replicaset.empty')}
             onRowDoubleClick={(r) => openYamlPanel({ clusterName, resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel })}
             columns={({ buildInOptions, reload, toastRef }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="status" header={t('resources:column.status')} sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         body={(row: models.ReplicaSetInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Replicas" sortable sortField="replicas" style={{ minWidth: '9rem' }}
+                    <Column header={t('resources:column.replicas')} sortable sortField="replicas" style={{ minWidth: '9rem' }}
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />} />
-                    <Column header="Available" sortable sortField="available_replicas" style={{ minWidth: '8rem' }}
+                    <Column header={t('resources:column.available')} sortable sortField="available_replicas" style={{ minWidth: '8rem' }}
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />} />
                     {/* No Restart: a ReplicaSet has no rollout of its own — restarting is
                         an operation on its owning Deployment. */}

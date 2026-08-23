@@ -4,6 +4,7 @@ import { DataTableFilterMeta } from 'primereact/datatable';
 import { Toast } from 'primereact/toast';
 import { usePanelActive } from './usePanelActive';
 import { errText } from './errText';
+import { useT } from '../i18n/useT';
 
 /** Minimal shape every list row shares. Namespace is absent for cluster-scoped resources. */
 export interface ResourceRow {
@@ -70,6 +71,7 @@ export interface UseResourceListResult<T extends ResourceRow> {
 export function useResourceList<T extends ResourceRow>(
     options: UseResourceListOptions<T>,
 ): UseResourceListResult<T> {
+    const t = useT();
     const {
         clusterName,
         fetcher,
@@ -146,19 +148,23 @@ export function useResourceList<T extends ResourceRow>(
         const toDelete = [...selected];
 
         for (const row of toDelete) {
+            // The resource's own name is data, so it is interpolated rather
+            // than translated — only the sentence around it comes from the
+            // catalog.
+            const target = `${row.namespace ? `${row.namespace}/` : ''}${row.name}`;
             try {
                 await deleter(clusterName, row.name, row.namespace ?? '');
                 toastRef.current?.show({
                     severity: 'success',
-                    summary: 'Deleted successfully',
-                    detail: `${row.namespace ? `${row.namespace}/` : ''}${row.name} deleted`,
+                    summary: t('resources:delete.toast.successSummary'),
+                    detail: t('resources:delete.toast.successDetail', { target }),
                     life: 2500,
                 });
             } catch {
                 toastRef.current?.show({
                     severity: 'error',
-                    summary: 'Delete failed',
-                    detail: `${row.namespace ? `${row.namespace}/` : ''}${row.name} could not be deleted`,
+                    summary: t('resources:delete.toast.failSummary'),
+                    detail: t('resources:delete.toast.failDetail', { target }),
                     life: 3500,
                 });
             }
@@ -168,7 +174,7 @@ export function useResourceList<T extends ResourceRow>(
         setDeleteDialogVisible(false);
         setDeleting(false);
         await reload();
-    }, [deleter, selected, clusterName, reload]);
+    }, [deleter, selected, clusterName, reload, t]);
 
     // Per-field cache of the last option array handed out, keyed by the sorted
     // values themselves. `items` gets a brand new array identity on every poll

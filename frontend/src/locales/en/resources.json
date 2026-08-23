@@ -1,0 +1,216 @@
+{
+  "column": {
+    "accessModes": "Access Modes",
+    "active": "Active",
+    "activeJobs": "Active Jobs",
+    "address": "Address",
+    "addresses": "Addresses",
+    "age": "Age",
+    "apiGroups": "API Groups",
+    "available": "Available",
+    "bindingMode": "Binding Mode",
+    "capacity": "Capacity",
+    "category": "Category",
+    "check": "Check",
+    "claim": "Claim",
+    "class": "Class",
+    "cluster": "Cluster",
+    "clusterIp": "Cluster IP",
+    "completions": "Completions",
+    "containers": "Containers",
+    "controller": "Controller",
+    "count": "Count",
+    "cpu": "CPU",
+    "cpuDefaultMax": "CPU (default / max)",
+    "created": "Created",
+    "currentAvailable": "Current / Available",
+    "dataKeys": "Data Keys",
+    "default": "Default",
+    "desiredReady": "Desired / Ready",
+    "egress": "Egress",
+    "externalIp": "External IP",
+    "fixed": "Fixed",
+    "hosts": "Hosts",
+    "image": "Image",
+    "ingress": "Ingress",
+    "installed": "Installed",
+    "key": "Key",
+    "kind": "Kind",
+    "lastRestart": "Last Restart",
+    "lastSeen": "Last Seen",
+    "limit": "Limit",
+    "match": "Match",
+    "memory": "Memory",
+    "memoryDefaultMax": "Memory (default / max)",
+    "message": "Message",
+    "name": "Name",
+    "namespace": "Namespace",
+    "node": "Node",
+    "notReady": "Not Ready",
+    "object": "Object",
+    "owner": "Owner",
+    "package": "Package",
+    "paths": "Paths",
+    "pod": "Pod",
+    "podIp": "Pod IP",
+    "podSelector": "Pod Selector",
+    "pods": "Pods",
+    "policyTypes": "Policy Types",
+    "ports": "Ports",
+    "provisioner": "Provisioner",
+    "ready": "Ready",
+    "reason": "Reason",
+    "reclaimPolicy": "Reclaim Policy",
+    "replicas": "Replicas",
+    "request": "Request",
+    "resolution": "Resolution",
+    "resource": "Resource",
+    "resourceNames": "Resource Names",
+    "resources": "Resources",
+    "restarts": "Restarts",
+    "roleref": "RoleRef",
+    "rolloutRestart": "Rollout Restart",
+    "ruleId": "Rule ID",
+    "rules": "Rules",
+    "schedule": "Schedule",
+    "secrets": "Secrets",
+    "severity": "Severity",
+    "status": "Status",
+    "storageClass": "Storage Class",
+    "subjects": "Subjects",
+    "target": "Target",
+    "title": "Title",
+    "tls": "TLS",
+    "type": "Type",
+    "types": "Types",
+    "updated": "Updated",
+    "value": "Value",
+    "verbs": "Verbs",
+    "volume": "Volume",
+    "volumeMode": "Volume Mode",
+    "vulnerability": "Vulnerability"
+  },
+  "filter": {
+    "count": "Count",
+    "searchMessage": "Search message",
+    "searchName": "Search name"
+  },
+  "delete": {
+    "header": "Delete {{kind}} Confirmation",
+    "body": "Do you want to delete the selected {{label}} records?",
+    "toast": {
+      "successSummary": "Deleted successfully",
+      "successDetail": "{{target}} deleted",
+      "failSummary": "Delete failed",
+      "failDetail": "{{target}} could not be deleted"
+    }
+  },
+  "namespace": {
+    "createTitle": "Create Namespace",
+    "title": "Namespace List",
+    "empty": "No namespaces found",
+    "create": "New Namespace",
+    "createConfirm": "Create",
+    "namePlaceholder": "my-namespace",
+    "labels": "Labels",
+    "labelsHint": "(optional, comma separated key=value)",
+    "labelsPlaceholder": "team=platform, env=dev"
+  },
+  "crd": {
+    "deleteTitle": "Delete Confirmation"
+  },
+  "configmap": {
+    "title": "ConfigMap List",
+    "empty": "No configmaps found"
+  },
+  "cronjob": {
+    "title": "CronJob List",
+    "empty": "No cronjobs found"
+  },
+  "daemonset": {
+    "title": "DaemonSet List",
+    "empty": "No daemonsets found"
+  },
+  "deployment": {
+    "title": "Deployment List",
+    "empty": "No deployments found"
+  },
+  "endpoints": {
+    "title": "Endpoint List",
+    "empty": "No endpoints found"
+  },
+  "ingress": {
+    "title": "Ingress List",
+    "empty": "No ingresses found"
+  },
+  "ingressclass": {
+    "title": "Ingress Class List",
+    "empty": "No ingress classes found"
+  },
+  "job": {
+    "title": "Job List",
+    "empty": "No jobs found"
+  },
+  "limitrange": {
+    "title": "Limit Range List",
+    "empty": "No limit ranges found"
+  },
+  "networkpolicy": {
+    "title": "Network Policy List",
+    "empty": "No network policies found"
+  },
+  "persistentvolume": {
+    "title": "Persistent Volumes",
+    "empty": "No persistent volumes found"
+  },
+  "persistentvolumeclaim": {
+    "title": "Volume Claims",
+    "empty": "No volume claims found"
+  },
+  "pod": {
+    "title": "Pod List",
+    "empty": "No pods found",
+    "containerInitPrefix": "[init] ",
+    "containerUnknownState": "Unknown",
+    "containerRestarts": " — {{count}} restart"
+  },
+  "replicaset": {
+    "title": "ReplicaSet List",
+    "empty": "No replicasets found"
+  },
+  "role": {
+    "title": "Role List",
+    "empty": "No roles found"
+  },
+  "rolebinding": {
+    "title": "Role Binding List",
+    "empty": "No role bindings found"
+  },
+  "secret": {
+    "title": "Secret List",
+    "empty": "No secrets found"
+  },
+  "service": {
+    "title": "Service List",
+    "empty": "No services found"
+  },
+  "serviceaccount": {
+    "title": "Service Account List",
+    "empty": "No service accounts found"
+  },
+  "statefulset": {
+    "title": "StatefulSet List",
+    "empty": "No statefulsets found"
+  },
+  "storageclass": {
+    "title": "Storage Classes",
+    "empty": "No storage classes found"
+  },
+  "resourcequota": {
+    "title": "Resource Quotas",
+    "filterNamespace": "Filter namespace",
+    "clearFilter": "Clear filter",
+    "noMatch": "No matching namespaces.",
+    "empty": "No Resource Quotas defined in any namespace."
+  }
+}

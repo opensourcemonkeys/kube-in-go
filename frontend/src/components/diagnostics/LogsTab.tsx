@@ -6,6 +6,7 @@ import { Checkbox } from 'primereact/checkbox';
 import { models } from '../../../wailsjs/go/models';
 import { TailLogs, SetLogLevel, GetLogLevel } from '../../../wailsjs/go/controller_app/App';
 import { useDiagnosticsStore, type LevelFilter } from '../../stores/diagnosticsStore';
+import { useT } from '../../i18n/useT';
 
 const TAIL_ROWS = 500;
 const POLL_MS = 2000;
@@ -36,6 +37,7 @@ const ROLES = [
  * is confusing without a way to narrow it down.
  */
 export default function LogsTab({ active, ownPid }: { active: boolean; ownPid: number }) {
+    const t = useT();
     const {
         levelFilter, setLevelFilter,
         query, setQuery,
@@ -107,14 +109,14 @@ export default function LogsTab({ active, ownPid }: { active: boolean; ownPid: n
                 <InputText
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search the log…"
+                    placeholder={t('panels:diagnostics.searchLog')}
                     className="diag-toolbar__search"
                 />
                 <MultiSelect
                     value={roleFilter}
                     options={ROLES}
                     onChange={(e) => setRoleFilter(e.value)}
-                    placeholder="All roles"
+                    placeholder={t('panels:diagnostics.allRoles')}
                     className="diag-toolbar__roles"
                     showClear
                 />
@@ -123,19 +125,19 @@ export default function LogsTab({ active, ownPid }: { active: boolean; ownPid: n
                         checked={thisProcessOnly}
                         onChange={(e) => setThisProcessOnly(Boolean(e.checked))}
                     />
-                    <span>This process only</span>
+                    <span>{t('panels:diagnostics.thisProcessOnly')}</span>
                 </label>
                 <label className="diag-toggle">
                     <Checkbox
                         checked={autoFollow}
                         onChange={(e) => setAutoFollow(Boolean(e.checked))}
                     />
-                    <span>Follow</span>
+                    <span>{t('panels:diagnostics.follow')}</span>
                 </label>
             </div>
 
             <div className="diag-levelbar">
-                <span className="diag-levelbar__label">Backend log level</span>
+                <span className="diag-levelbar__label">{t('panels:diagnostics.backendLogLevel')}</span>
                 <Dropdown
                     value={backendLevel}
                     options={BACKEND_LEVELS}
@@ -146,19 +148,14 @@ export default function LogsTab({ active, ownPid }: { active: boolean; ownPid: n
                             .catch(() => { /* the dropdown snaps back below */ });
                     }}
                 />
-                <span className="diag-levelbar__hint">
-                    Applies to this window&apos;s backend. Other windows of this app share it;
-                    a separately launched instance does not, until it restarts.
-                </span>
+                <span className="diag-levelbar__hint">{t('panels:diagnostics.logLevelHint')}</span>
             </div>
 
             {error && <div className="diag-error">{error}</div>}
 
             <div className="diag-log">
                 {rows.length === 0 && (
-                    <div className="diag-empty">
-                        Nothing matches. The log only holds today&apos;s records.
-                    </div>
+                    <div className="diag-empty">{t('panels:diagnostics.noMatch')}</div>
                 )}
                 {rows.map((e, i) => (
                     <div className="diag-log-row" key={`${e.timestamp}-${i}`}>

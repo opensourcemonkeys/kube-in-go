@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { VscDesktopDownload, VscMultipleWindows, VscLinkExternal } from 'react-icons/vsc';
 import './InstancePickerMenu.css';
+import { useT } from '../../i18n/useT';
 
 /**
  * Where a dragged/right-clicked tab can go.
@@ -31,6 +32,7 @@ const ICONS = {
 const keyOf = (t: TabTarget) => (t.kind === 'undock' ? 'undock' : `${t.kind}:${t.id}`);
 
 export default function InstancePickerMenu({ targets, position, onSelect, onClose }: Props) {
+    const t = useT();
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -69,12 +71,12 @@ export default function InstancePickerMenu({ targets, position, onSelect, onClos
             style={{ position: 'fixed', top: position.y, left: position.x }}
         >
             {targets.some(t => t.kind === 'undock') &&
-                item({ kind: 'undock' }, 'Yeni pencerede aç')}
+                item({ kind: 'undock' }, t('panels:tabMenu.undock'))}
 
-            {windows.length > 0 && <div className="instance-picker-header">Pencereye Taşı</div>}
+            {windows.length > 0 && <div className="instance-picker-header">{t('panels:tabMenu.toWindow')}</div>}
             {windows.map(t => item(t, (t as any).label))}
 
-            {instances.length > 0 && <div className="instance-picker-header">Instance'a Taşı</div>}
+            {instances.length > 0 && <div className="instance-picker-header">{t('panels:tabMenu.toInstance')}</div>}
             {instances.map(t => item(t, (t as any).label))}
         </div>,
         document.body,

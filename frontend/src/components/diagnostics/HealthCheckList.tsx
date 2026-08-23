@@ -1,4 +1,5 @@
 import { models } from '../../../wailsjs/go/models';
+import { useT } from '../../i18n/useT';
 
 const STATUS_LABEL: Record<string, string> = {
     ok: 'OK',
@@ -19,10 +20,11 @@ export default function HealthCheckList({
     checks: models.HealthCheck[];
     running: boolean;
 }) {
+    const t = useT();
     if (!checks.length) {
         return (
             <div className="diag-empty">
-                {running ? 'Running checks…' : 'No checks have been run yet.'}
+                {t(running ? 'panels:diagnostics.checksRunning' : 'panels:diagnostics.checksNone')}
             </div>
         );
     }
@@ -39,7 +41,7 @@ export default function HealthCheckList({
                         <div className="diag-check__detail">{c.detail}</div>
                     </div>
                     {c.durationMs > 0 && (
-                        <span className="diag-check__ms">{c.durationMs} ms</span>
+                        <span className="diag-check__ms">{t('panels:diagnostics.durationMs', { ms: c.durationMs })}</span>
                     )}
                 </div>
             ))}

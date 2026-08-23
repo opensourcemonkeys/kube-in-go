@@ -8,6 +8,7 @@ import { GetNetworkPolicies, DeleteNetworkPolicy } from '../../../wailsjs/go/con
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -25,12 +26,13 @@ const policyTypesBody = (row: models.NetworkPolicyInfo) => {
 };
 
 export default function NetworkPolicyListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openPolicyViewer } = useTabContext();
     const referencePanel = `networkpolicies:${clusterName}`;
 
     return (
         <ResourceListView<models.NetworkPolicyInfo>
-            title="Network Policy List"
+            title={t('resources:networkpolicy.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetNetworkPolicies}
@@ -40,20 +42,20 @@ export default function NetworkPolicyListComponent({ clusterName, api }: { clust
             pollInterval={2000}
             describeResource="networkpolicies"
             defaultFilters={defaultFilters}
-            emptyMessage="No network policies found"
+            emptyMessage={t('resources:networkpolicy.empty')}
             onRowDoubleClick={(policy) => openPolicyViewer({ clusterName, name: policy.name, namespace: policy.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="pod_selector" header="Pod Selector" sortable style={{ minWidth: '12rem' }} />
-                    <Column header="Policy Types" style={{ minWidth: '12rem' }} body={policyTypesBody} />
-                    <Column header="Ingress" field="ingress_rule_count" sortable dataType="numeric" style={{ width: '6rem', textAlign: 'center' }}
+                    <Column field="pod_selector" header={t('resources:column.podSelector')} sortable style={{ minWidth: '12rem' }} />
+                    <Column header={t('resources:column.policyTypes')} style={{ minWidth: '12rem' }} body={policyTypesBody} />
+                    <Column header={t('resources:column.ingress')} field="ingress_rule_count" sortable dataType="numeric" style={{ width: '6rem', textAlign: 'center' }}
                         body={(row: models.NetworkPolicyInfo) => <Tag value={String(row.ingress_rule_count)} severity="info" />} />
-                    <Column header="Egress" field="egress_rule_count" sortable dataType="numeric" style={{ width: '6rem', textAlign: 'center' }}
+                    <Column header={t('resources:column.egress')} field="egress_rule_count" sortable dataType="numeric" style={{ width: '6rem', textAlign: 'center' }}
                         body={(row: models.NetworkPolicyInfo) => <Tag value={String(row.egress_rule_count)} severity="warning" />} />
                 </>
             )}

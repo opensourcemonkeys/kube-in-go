@@ -1,0 +1,15 @@
+{
+  "action": {
+    "cancel": "Cancel",
+    "clearFilters": "Clear filters",
+    "close": "Close",
+    "delete": "Delete",
+    "deleteSelected": "Delete Selected",
+    "describe": "Describe",
+    "portForward": "Port forward",
+    "retry": "Retry"
+  },
+  "filter": {
+    "all": "All"
+  }
+}

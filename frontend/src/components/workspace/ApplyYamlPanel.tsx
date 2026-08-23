@@ -3,9 +3,6 @@ import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-
-
-
 import { VscCloudUpload, VscTrash, VscOutput, VscClose } from 'react-icons/vsc';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
@@ -13,8 +10,17 @@ import { ApplyYaml } from '../../../wailsjs/go/controller_app/App';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { ensureK8sYamlIntellisense, k8sYamlSuggestOptions } from '../../lib/k8sYamlIntellisense';
 import { useClusterContext } from '../../contexts/ClusterContext';
+import { renderPanelTitle } from '../../contexts/TabContext';
+import { useT } from '../../i18n/useT';
 
-export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<{ clusterName?: string }>) {
+interface ApplyYamlPanelParams {
+    clusterName?: string;
+    titleKey?: string;
+    titleVars?: Record<string, string | number | undefined>;
+}
+
+export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<ApplyYamlPanelParams>) {
+    const t = useT();
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const toast = useRef<Toast | null>(null);
@@ -30,8 +36,11 @@ export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<{ cl
 
     const handleClusterChange = (next: string) => {
         setCluster(next);
-        api.updateParameters({ clusterName: next });
-        api.setTitle(next ? `YAML Editor • ${next}` : 'YAML Editor');
+        // See TerminalPanel: retitle from the key so the tab survives a
+        // language switch instead of freezing at the English string.
+        const titleVars = { ...(params.titleVars ?? {}), suffix: next || undefined };
+        api.updateParameters({ clusterName: next, titleVars });
+        api.setTitle(renderPanelTitle(t, { titleKey: params.titleKey, titleVars }));
     };
 
     const handleMount: OnMount = (editor) => {
@@ -124,21 +133,21 @@ export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<{ cl
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
                     <VscCloudUpload size={14} />{' '}
-                    YAML Editor
+                    {t('panels:applyYaml.label')}
                 </span>
                 <div className="flex align-items-center gap-2 flex-shrink-0">
                     <Dropdown
                         value={cluster || null}
                         options={clusters}
                         onChange={(e) => handleClusterChange(e.value ?? '')}
-                        placeholder="Select cluster"
+                        placeholder={t('panels:applyYaml.selectCluster')}
                         disabled={applying}
                         className="yaml-editor-toolbar__cluster"
                         style={{ minWidth: '11rem' }}
-                        aria-label="Target cluster"
+                        aria-label={t('panels:applyYaml.clusterAria')}
                     />
                     <Button
-                        label="Clear"
+                        label={t('panels:applyYaml.clear')}
                         icon={<VscTrash size={16} />}
                         text
                         size="small"
@@ -147,7 +156,7 @@ export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<{ cl
                         onClick={handleClear}
                     />
                     <Button
-                        label="Apply"
+                        label={t('panels:applyYaml.apply')}
                         icon={<VscOutput size={16} />}
                         size="small"
                         loading={applying}
@@ -214,7 +223,7 @@ export default function ApplyYamlPanel({ api, params }: IDockviewPanelProps<{ cl
                                 }}
                             >
                                 <span style={{ fontSize: '0.72rem', color: 'var(--text-color-secondary)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                                    Output
+                                    {t('panels:applyYaml.output')}
                                 </span>
                                 <Button
                                     icon={<VscClose size={14} />}

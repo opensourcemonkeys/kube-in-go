@@ -6,6 +6,7 @@ import { StartSelfUpdate, CancelSelfUpdate } from '../../../wailsjs/go/controlle
 import { EventsOn, EventsOff, BrowserOpenURL } from '../../../wailsjs/runtime/runtime';
 import { models } from '../../../wailsjs/go/models';
 import { relaunchApp, quitApp, supportsSelfRestart } from '../../lib/shellWindows';
+import { useT } from '../../i18n/useT';
 
 interface Props {
     visible: boolean;
@@ -37,6 +38,7 @@ const formatBytes = (n: number) => {
 };
 
 export default function UpdateModal({ visible, onHide, info }: Props) {
+    const t = useT();
     const [stage, setStage] = useState<Stage>('idle');
     const [progress, setProgress] = useState<UpdateProgress | null>(null);
     const [error, setError] = useState('');
@@ -77,7 +79,7 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
             );
         });
         EventsOn(`update:error:${id}`, (d: { message: string }) => {
-            setError(d.message || 'The update could not be installed.');
+            setError(d.message || t('panels:update.installFailed'));
             setStage('error');
         });
 
@@ -142,7 +144,7 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
                 </div>
 
                 <h2 className="update-modal__title">
-                    {stage === 'done' ? 'Update complete' : 'Update available'}
+                    {stage === 'done' ? t('panels:update.titleDone') : t('panels:update.titleAvailable')}
                 </h2>
 
                 <div className="update-modal__versions">
@@ -156,21 +158,18 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
                         <div className="update-modal__steps">
                             <div className={stepClass(1)}>
                                 <span className="update-modal__step-no">1</span>
-                                <span className="update-modal__step-label">Download</span>
+                                <span className="update-modal__step-label">{t('panels:update.stepDownload')}</span>
                             </div>
                             <div className="update-modal__step-line" />
                             <div className={stepClass(2)}>
                                 <span className="update-modal__step-no">2</span>
-                                <span className="update-modal__step-label">Install</span>
+                                <span className="update-modal__step-label">{t('panels:update.stepInstall')}</span>
                             </div>
                         </div>
 
                         <div className="update-modal__body">
                             {stage === 'idle' && (
-                                <p className="update-modal__desc">
-                                    Kube Inspector will download the new version, verify it, and install it.
-                                    The app restarts when it is done.
-                                </p>
+                                <p className="update-modal__desc">{t('panels:update.intro')}</p>
                             )}
 
                             {stage === 'downloading' && (
@@ -183,8 +182,11 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
                                     />
                                     <div className="update-modal__status">
                                         {progress && progress.total > 0
-                                            ? `${formatBytes(progress.received)} of ${formatBytes(progress.total)}`
-                                            : 'Downloading…'}
+                                            ? t('panels:update.downloadingProgress', {
+                                                  received: formatBytes(progress.received),
+                                                  total: formatBytes(progress.total),
+                                              })
+                                            : t('panels:update.downloading')}
                                     </div>
                                 </>
                             )}
@@ -193,16 +195,16 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
                                 <>
                                     <ProgressBar className="update-modal__bar" mode="indeterminate" />
                                     <div className="update-modal__status">
-                                        Installing… {info.assetKind === 'deb' || info.assetKind === 'rpm'
-                                            ? 'You may be asked for your password.'
-                                            : 'This will only take a moment.'}
+                                        {t('panels:update.installing')} {info.assetKind === 'deb' || info.assetKind === 'rpm'
+                                            ? t('panels:update.installingPassword')
+                                            : t('panels:update.installingQuick')}
                                     </div>
-                                    <div className="update-modal__hint">Please do not close the app.</div>
+                                    <div className="update-modal__hint">{t('panels:update.doNotClose')}</div>
                                 </>
                             )}
 
                             {stage === 'done' && (
-                                <div className="update-modal__status">Restarting Kube Inspector…</div>
+                                <div className="update-modal__status">{t('panels:update.restarting')}</div>
                             )}
 
                             {stage === 'error' && (
@@ -213,22 +215,22 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
                         <div className="update-modal__actions">
                             {stage === 'idle' && (
                                 <>
-                                    <button className="update-modal__btn" onClick={onHide}>Later</button>
+                                    <button className="update-modal__btn" onClick={onHide}>{t('panels:update.later')}</button>
                                     <button className="update-modal__btn update-modal__btn--primary" onClick={start}>
-                                        <VscDesktopDownload size={13} /> Update now
+                                        <VscDesktopDownload size={13} /> {t('panels:update.updateNow')}
                                     </button>
                                 </>
                             )}
                             {stage === 'downloading' && (
-                                <button className="update-modal__btn" onClick={cancel}>Cancel</button>
+                                <button className="update-modal__btn" onClick={cancel}>{t('panels:update.cancel')}</button>
                             )}
                             {stage === 'error' && (
                                 <>
                                     <button className="update-modal__btn" onClick={() => BrowserOpenURL(info.downloadUrl)}>
-                                        Open downloads page
+                                        {t('panels:update.openDownloads')}
                                     </button>
                                     <button className="update-modal__btn update-modal__btn--primary" onClick={start}>
-                                        Try again
+                                        {t('panels:update.tryAgain')}
                                     </button>
                                 </>
                             )}
@@ -238,16 +240,16 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
                     <div className="update-modal__body">
                         <p className="update-modal__desc">
                             {info.notInstallableReason
-                                ? `${info.notInstallableReason} Download the new version from the website instead.`
-                                : 'Download the new version from the website.'}
+                                ? t('panels:update.notInstallable', { reason: info.notInstallableReason })
+                                : t('panels:update.downloadFromSite')}
                         </p>
                         <div className="update-modal__actions">
-                            <button className="update-modal__btn" onClick={onHide}>Later</button>
+                            <button className="update-modal__btn" onClick={onHide}>{t('panels:update.later')}</button>
                             <button
                                 className="update-modal__btn update-modal__btn--primary"
                                 onClick={() => { BrowserOpenURL(info.downloadUrl); onHide(); }}
                             >
-                                <VscDesktopDownload size={13} /> Open downloads page
+                                <VscDesktopDownload size={13} /> {t('panels:update.openDownloads')}
                             </button>
                         </div>
                     </div>

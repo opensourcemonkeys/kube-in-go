@@ -11,6 +11,7 @@ import {
     forwardAddress,
 } from '../../stores/portForwardStore';
 import { writeClipboard } from '../../lib/clipboard';
+import { useT } from '../../i18n/useT';
 
 /**
  * Live tunnel count in the title bar.
@@ -24,6 +25,7 @@ import { writeClipboard } from '../../lib/clipboard';
  * permanent title-bar furniture that says nothing.
  */
 export default function PortForwardPill({ onOpenPanel }: { onOpenPanel: () => void }) {
+    const t = useT();
     const forwards = usePortForwardStore((s) => s.forwards);
     const startSync = usePortForwardStore((s) => s.startSync);
     const refresh = usePortForwardStore((s) => s.refresh);
@@ -51,12 +53,12 @@ export default function PortForwardPill({ onOpenPanel }: { onOpenPanel: () => vo
         <>
             <button
                 className={`tb-pf ${tone}`}
-                title="Active port forwards"
+                title={t('panels:portForward.pillTitle')}
                 onClick={(e) => overlay.current?.toggle(e)}
                 onDoubleClick={onOpenPanel}
             >
                 <VscArrowSwap size={12} />
-                {forwards.length} {forwards.length === 1 ? 'forward' : 'forwards'}
+                {t('panels:portForward.pill', { count: forwards.length })}
             </button>
 
             <OverlayPanel ref={overlay} className="pf-overlay">
@@ -76,7 +78,7 @@ export default function PortForwardPill({ onOpenPanel }: { onOpenPanel: () => vo
                                         size="small"
                                         severity="secondary"
                                         style={{ padding: '0.15rem' }}
-                                        aria-label="Open in browser"
+                                        aria-label={t('panels:portForward.openInBrowser')}
                                         onClick={() => BrowserOpenURL(forwardUrl(f))}
                                     />
                                 )}
@@ -86,7 +88,7 @@ export default function PortForwardPill({ onOpenPanel }: { onOpenPanel: () => vo
                                     size="small"
                                     severity="secondary"
                                     style={{ padding: '0.15rem' }}
-                                    aria-label="Copy address"
+                                    aria-label={t('panels:portForward.copyAddress')}
                                     onClick={() => void writeClipboard(forwardAddress(f))}
                                 />
                                 <Button
@@ -95,7 +97,7 @@ export default function PortForwardPill({ onOpenPanel }: { onOpenPanel: () => vo
                                     size="small"
                                     severity="danger"
                                     style={{ padding: '0.15rem' }}
-                                    aria-label="Stop"
+                                    aria-label={t('panels:portForward.stop')}
                                     onClick={() => void stop(f.id)}
                                 />
                             </span>
@@ -109,7 +111,7 @@ export default function PortForwardPill({ onOpenPanel }: { onOpenPanel: () => vo
                         onOpenPanel();
                     }}
                 >
-                    Open Port Forwards panel
+                    {t('panels:portForward.openPanel')}
                 </button>
             </OverlayPanel>
         </>

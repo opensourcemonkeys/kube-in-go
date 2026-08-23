@@ -9,6 +9,7 @@ import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { ensureK8sYamlIntellisense, k8sYamlSuggestOptions } from '../../lib/k8sYamlIntellisense';
+import { useT } from '../../i18n/useT';
 import {
     GetPodYaml,
     GetDeploymentYaml, UpdateDeploymentYaml,
@@ -53,6 +54,7 @@ const editable = (kind: string) => [
 ].includes(kind);
 
 export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEditorPanelParams>) {
+    const t = useT();
     const { clusterName, resourceKind, name, namespace } = params;
     const [yaml, setYaml] = useState('Loading...');
     const [originalYaml, setOriginalYaml] = useState('');
@@ -218,7 +220,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                     {editable(resourceKind) && (
                         <>
                             <Button
-                                label="Revert"
+                                label={t('panels:yaml.revert')}
                                 icon={<VscDiscard size={16} />}
                                 text
                                 size="small"
@@ -226,7 +228,7 @@ export default function YamlEditorPanel({ params }: IDockviewPanelProps<YamlEdit
                                 onClick={handleRevert}
                             />
                             <Button
-                                label="Save"
+                                label={t('panels:yaml.save')}
                                 icon={<VscCheck size={16} />}
                                 size="small"
                                 loading={saving}

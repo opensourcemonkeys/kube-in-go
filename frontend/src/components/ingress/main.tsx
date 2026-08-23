@@ -9,6 +9,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import { ARRAY_IN } from '../../lib/tableFilters';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -58,12 +59,13 @@ const createFrom = (raw: any): IngressRow => {
 };
 
 export default function IngressListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `ingresses:${clusterName}`;
 
     return (
         <ResourceListView<IngressRow>
-            title="Ingress List"
+            title={t('resources:ingress.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetIngresses}
@@ -73,36 +75,36 @@ export default function IngressListComponent({ clusterName, api }: { clusterName
             pollInterval={2000}
             describeResource="ingresses"
             defaultFilters={defaultFilters}
-            emptyMessage="No ingresses found"
+            emptyMessage={t('resources:ingress.empty')}
             onRowDoubleClick={(ing) => openYamlPanel({ clusterName, resourceKind: 'ingress', name: ing.name, namespace: ing.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="class_name" header="Class" sortable filter filterField="class_name" showFilterMenu={false} style={{ minWidth: '9rem' }}
+                    <Column field="class_name" header={t('resources:column.class')} sortable filter filterField="class_name" showFilterMenu={false} style={{ minWidth: '9rem' }}
                         body={(row: IngressRow) => row.class_name || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('class_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('class_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Hosts" filter filterField="_hosts" showFilterMenu={false} style={{ minWidth: '16rem' }}
+                    <Column header={t('resources:column.hosts')} filter filterField="_hosts" showFilterMenu={false} style={{ minWidth: '16rem' }}
                         body={(row: IngressRow) => hostsOf(row.rules).join(', ')}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('_hosts')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('_hosts')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column header="Paths" filter filterField="_paths" showFilterMenu={false} style={{ minWidth: '18rem' }}
+                    <Column header={t('resources:column.paths')} filter filterField="_paths" showFilterMenu={false} style={{ minWidth: '18rem' }}
                         body={(row: IngressRow) => pathLabelsOf(row.rules).join(', ') || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('_paths')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('_paths')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="address" header="Address" sortable filter filterField="address" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                    <Column field="address" header={t('resources:column.address')} sortable filter filterField="address" showFilterMenu={false} style={{ minWidth: '12rem' }}
                         body={(row: IngressRow) => row.address || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('address')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('address')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="tls" header="TLS" sortable style={{ minWidth: '6rem' }}
+                    <Column field="tls" header={t('resources:column.tls')} sortable style={{ minWidth: '6rem' }}
                         body={(row: IngressRow) => <Tag value={row.tls ? 'Yes' : 'No'} severity={row.tls ? 'success' : 'secondary'} />} />
                 </>
             )}

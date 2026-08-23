@@ -10,6 +10,7 @@ import { GetSecrets, DeleteSecret } from '../../../wailsjs/go/controller_app/App
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -19,12 +20,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function SecretListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel, openSecretEditor } = useTabContext();
     const referencePanel = `secrets:${clusterName}`;
 
     return (
         <ResourceListView<models.SecretInfo>
-            title="Secret List"
+            title={t('resources:secret.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetSecrets}
@@ -34,20 +36,20 @@ export default function SecretListComponent({ clusterName, api }: { clusterName:
             pollInterval={2000}
             describeResource="secrets"
             defaultFilters={defaultFilters}
-            emptyMessage="No secrets found"
+            emptyMessage={t('resources:secret.empty')}
             onRowDoubleClick={(s) => openYamlPanel({ clusterName, resourceKind: 'secret', name: s.name, namespace: s.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="type" header="Type" sortable filter filterField="type" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                    <Column field="type" header={t('resources:column.type')} sortable filter filterField="type" showFilterMenu={false} style={{ minWidth: '12rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('type')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('type')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="data_count" header="Data Keys" sortable filter filterField="data_count" filterPlaceholder="Count" showFilterMenu={false} dataType="numeric" style={{ minWidth: '8rem' }}
+                    <Column field="data_count" header={t('resources:column.dataKeys')} sortable filter filterField="data_count" filterPlaceholder={t('resources:column.count')} showFilterMenu={false} dataType="numeric" style={{ minWidth: '8rem' }}
                         body={(row: models.SecretInfo) => <Tag value={row.data_count} severity={row.data_count > 0 ? 'info' : 'secondary'} />} />
                     <Column header="" style={{ width: '4rem', textAlign: 'center' }}
                         body={(row: models.SecretInfo) => (

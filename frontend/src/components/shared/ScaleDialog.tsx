@@ -7,6 +7,7 @@ import { VscClose, VscCheck } from 'react-icons/vsc';
 import { ScaleWorkload, GetWorkloadAutoscaler } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { errText } from '../../lib/errText';
+import { useT } from '../../i18n/useT';
 
 /**
  * Replica-count dialog for Deployments, StatefulSets and ReplicaSets.
@@ -34,6 +35,7 @@ export default function ScaleDialog({
     onHide: () => void;
     onDone: (replicas: number) => void;
 }) {
+    const t = useT();
     const [replicas, setReplicas] = useState<number>(currentReplicas);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -107,16 +109,16 @@ export default function ScaleDialog({
 
     return (
         <Dialog
-            header={`Scale ${kind}`}
+            header={t('panels:scale.title', { kind })}
             visible={visible}
             style={{ width: '28rem' }}
             modal
             onHide={close}
             footer={
                 <div className="flex justify-content-end gap-2">
-                    <Button label="Cancel" icon={<VscClose size={16} />} text onClick={close} disabled={busy} />
+                    <Button label={t('action.cancel')} icon={<VscClose size={16} />} text onClick={close} disabled={busy} />
                     <Button
-                        label="Scale"
+                        label={t('panels:scale.confirm')}
                         icon={<VscCheck size={16} />}
                         onClick={submit}
                         loading={busy}
@@ -134,7 +136,8 @@ export default function ScaleDialog({
                     input for exact or large values the slider cannot reach. */}
                 <div className="flex flex-column gap-2">
                     <label htmlFor="scale-replicas" style={{ fontSize: '0.8rem', color: 'var(--ink2)' }}>
-                        Replicas <span style={{ opacity: 0.7 }}>(currently {currentReplicas})</span>
+                        {t('panels:scale.replicas')}{' '}
+                        <span style={{ opacity: 0.7 }}>{t('panels:scale.currently', { count: currentReplicas })}</span>
                     </label>
                     <div className="flex align-items-center gap-3">
                         <Slider
@@ -143,7 +146,7 @@ export default function ScaleDialog({
                             max={sliderMax}
                             onChange={(e) => setReplicaCount(typeof e.value === 'number' ? e.value : e.value[0])}
                             style={{ flex: 1 }}
-                            aria-label="Replicas"
+                            aria-label={t('panels:scale.replicas')}
                         />
                         <InputNumber
                             inputId="scale-replicas"
@@ -165,14 +168,17 @@ export default function ScaleDialog({
 
                 {hpa && (
                     <span style={{ color: 'var(--amber)', fontSize: '0.8rem' }}>
-                        Managed by HorizontalPodAutoscaler &quot;{hpa.name}&quot; (min {hpa.min_replicas}, max{' '}
-                        {hpa.max_replicas}) — a manual change will be reverted within seconds.
+                        {t('panels:scale.hpaWarning', {
+                            name: hpa.name,
+                            min: hpa.min_replicas,
+                            max: hpa.max_replicas,
+                        })}
                     </span>
                 )}
 
                 {replicas === 0 && (
                     <span style={{ color: 'var(--amber)', fontSize: '0.8rem' }}>
-                        0 replicas stops all pods for this workload.
+                        {t('panels:scale.zeroWarning')}
                     </span>
                 )}
 

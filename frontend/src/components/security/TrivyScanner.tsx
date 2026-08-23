@@ -25,6 +25,7 @@ import {
     SaveReport,
 } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+import { useT } from '../../i18n/useT';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -202,6 +203,7 @@ function DetailRow({ label, value, mono }: { label: string; value: string; mono?
 }
 
 function FindingDetailDialog({ finding, onHide }: { finding: DetailFinding | null; onHide: () => void }) {
+    const t = useT();
     if (!finding) return null;
     const res = finding.resource;
     const resourceLine = [res.kind, res.namespace ? `${res.namespace}/${res.name}` : res.name]
@@ -222,25 +224,25 @@ function FindingDetailDialog({ finding, onHide }: { finding: DetailFinding | nul
             }
         >
             <div className="flex flex-column gap-3">
-                <DetailRow label="Resource" value={resourceLine} />
-                <DetailRow label="Description" value={finding.description} />
-                <DetailRow label="Details" value={finding.details} mono={finding.kind === 'secret'} />
+                <DetailRow label={t('panels:trivy.detailResource')} value={resourceLine} />
+                <DetailRow label={t('panels:trivy.detailDescription')} value={finding.description} />
+                <DetailRow label={t('panels:trivy.detailDetails')} value={finding.details} mono={finding.kind === 'secret'} />
 
                 <div
                     className="flex flex-column gap-1 p-3 border-round"
                     style={{ background: 'rgba(74, 123, 181, 0.12)', border: '1px solid rgba(74, 123, 181, 0.4)' }}
                 >
                     <span className="text-xs uppercase font-semibold" style={{ color: SEVERITY_HEX.LOW }}>
-                        Recommendation
+                        {t('panels:trivy.recommendation')}
                     </span>
                     <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                        {finding.recommendation || 'No specific remediation available.'}
+                        {finding.recommendation || t('panels:trivy.noRemediation')}
                     </span>
                 </div>
 
                 {finding.references.length > 0 && (
                     <div className="flex flex-column gap-1">
-                        <span className="text-color-secondary text-xs uppercase font-semibold">References</span>
+                        <span className="text-color-secondary text-xs uppercase font-semibold">{t('panels:trivy.references')}</span>
                         <ul className="m-0 pl-3 flex flex-column gap-1">
                             {finding.references.map((url) => (
                                 <li key={url}>
@@ -256,7 +258,7 @@ function FindingDetailDialog({ finding, onHide }: { finding: DetailFinding | nul
                 {finding.externalUrl && (
                     <div>
                         <Button
-                            label="Open advisory"
+                            label={t('panels:trivy.openAdvisory')}
                             icon={<VscLinkExternal className="mr-2" />}
                             size="small"
                             outlined
@@ -392,15 +394,24 @@ function SummaryGrid({ categories }: { categories: SummaryCategory[] }) {
 
 // ─── Shared filter templates ──────────────────────────────────────────────────
 
-const severityFilterTemplate = (options: any) => (
-    <MultiSelect
-        value={options.value}
-        options={SEVERITIES.map((s) => ({ label: s, value: s }))}
-        onChange={(e) => options.filterApplyCallback(e.value)}
-        placeholder="Severity"
-        className="p-column-filter"
-    />
-);
+// A component rather than a plain template function: it needs `t`, and PrimeReact
+// invokes a filterElement template inline during the table's own render — a hook
+// called there would join the *table's* hook sequence conditionally. As an element
+// it gets its own.
+function SeverityFilter({ options }: { options: any }) {
+    const t = useT();
+    return (
+        <MultiSelect
+            value={options.value}
+            options={SEVERITIES.map((s) => ({ label: s, value: s }))}
+            onChange={(e) => options.filterApplyCallback(e.value)}
+            placeholder={t('panels:trivy.severity')}
+            className="p-column-filter"
+        />
+    );
+}
+
+const severityFilterTemplate = (options: any) => <SeverityFilter options={options} />;
 
 // ─── MisconfigTable ───────────────────────────────────────────────────────────
 
@@ -413,6 +424,7 @@ const defaultMisconfigFilters: DataTableFilterMeta = {
 };
 
 function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: boolean }) {
+    const t = useT();
     const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultMisconfigFilters);
     const [selected, setSelected] = useState<DetailFinding | null>(null);
@@ -439,20 +451,20 @@ function MisconfigTable({ rows, scanning }: { rows: MisconfigRow[]; scanning: bo
             filterDisplay="menu"
             onRowDoubleClick={(e) => setSelected(misconfigToFinding(e.data as MisconfigRow))}
             rowClassName={() => 'cursor-pointer'}
-            emptyMessage={scanning ? 'Scanning…' : 'No misconfigurations found. Run a scan.'}
+            emptyMessage={t(scanning ? 'panels:trivy.scanning' : 'panels:trivy.noMisconfigs')}
             header={
                 <div className="flex justify-content-end">
-                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
+                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder={t('panels:trivy.search')} />
                 </div>
             }
         >
-            <Column field="severity" header="Severity" body={(r: MisconfigRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
-            <Column field="checkID" header="Check" sortable filter style={{ width: 100 }} />
-            <Column field="resourceKind" header="Kind" sortable filter style={{ width: 120 }} />
-            <Column field="resourceName" header="Resource" sortable filter />
-            <Column field="namespace" header="Namespace" sortable filter style={{ width: 130 }} />
-            <Column field="title" header="Title" />
-            <Column field="resolution" header="Resolution" style={{ maxWidth: 300 }} />
+            <Column field="severity" header={t('resources:column.severity')} body={(r: MisconfigRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
+            <Column field="checkID" header={t('resources:column.check')} sortable filter style={{ width: 100 }} />
+            <Column field="resourceKind" header={t('resources:column.kind')} sortable filter style={{ width: 120 }} />
+            <Column field="resourceName" header={t('resources:column.resource')} sortable filter />
+            <Column field="namespace" header={t('resources:column.namespace')} sortable filter style={{ width: 130 }} />
+            <Column field="title" header={t('resources:column.title')} />
+            <Column field="resolution" header={t('resources:column.resolution')} style={{ maxWidth: 300 }} />
         </DataTable>
         <FindingDetailDialog finding={selected} onHide={() => setSelected(null)} />
         </>
@@ -469,6 +481,7 @@ const defaultSecretFilters: DataTableFilterMeta = {
 };
 
 function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean }) {
+    const t = useT();
     const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultSecretFilters);
     const [selected, setSelected] = useState<DetailFinding | null>(null);
@@ -495,21 +508,21 @@ function SecretTable({ rows, scanning }: { rows: SecretRow[]; scanning: boolean 
             filterDisplay="menu"
             onRowDoubleClick={(e) => setSelected(secretToFinding(e.data as SecretRow))}
             rowClassName={() => 'cursor-pointer'}
-            emptyMessage={scanning ? 'Scanning…' : 'No secrets found. Run a scan.'}
+            emptyMessage={t(scanning ? 'panels:trivy.scanning' : 'panels:trivy.noSecrets')}
             header={
                 <div className="flex justify-content-end">
-                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
+                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder={t('panels:trivy.search')} />
                 </div>
             }
         >
-            <Column field="severity" header="Severity" body={(r: SecretRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
-            <Column field="ruleID" header="Rule ID" sortable filter style={{ width: 160 }} />
-            <Column field="category" header="Category" sortable style={{ width: 160 }} />
-            <Column field="resourceKind" header="Kind" sortable filter style={{ width: 120 }} />
-            <Column field="resourceName" header="Resource" sortable filter />
-            <Column field="namespace" header="Namespace" sortable style={{ width: 130 }} />
-            <Column field="title" header="Title" />
-            <Column field="match" header="Match" style={{ maxWidth: 220, fontFamily: 'monospace', fontSize: '0.8em' }} />
+            <Column field="severity" header={t('resources:column.severity')} body={(r: SecretRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
+            <Column field="ruleID" header={t('resources:column.ruleId')} sortable filter style={{ width: 160 }} />
+            <Column field="category" header={t('resources:column.category')} sortable style={{ width: 160 }} />
+            <Column field="resourceKind" header={t('resources:column.kind')} sortable filter style={{ width: 120 }} />
+            <Column field="resourceName" header={t('resources:column.resource')} sortable filter />
+            <Column field="namespace" header={t('resources:column.namespace')} sortable style={{ width: 130 }} />
+            <Column field="title" header={t('resources:column.title')} />
+            <Column field="match" header={t('resources:column.match')} style={{ maxWidth: 220, fontFamily: 'monospace', fontSize: '0.8em' }} />
         </DataTable>
         <FindingDetailDialog finding={selected} onHide={() => setSelected(null)} />
         </>
@@ -539,6 +552,7 @@ const fixedBody = (r: VulnRow) =>
     r.fixedVersion ? <span>{r.fixedVersion}</span> : <span className="text-color-secondary">—</span>;
 
 function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scanning: boolean; showImageColumn: boolean }) {
+    const t = useT();
     const [globalFilter, setGlobalFilter] = useState('');
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultVulnFilters);
     const [selected, setSelected] = useState<DetailFinding | null>(null);
@@ -565,22 +579,22 @@ function VulnTable({ rows, scanning, showImageColumn }: { rows: VulnRow[]; scann
             filterDisplay="menu"
             onRowDoubleClick={(e) => setSelected(vulnToFinding(e.data as VulnRow))}
             rowClassName={() => 'cursor-pointer'}
-            emptyMessage={scanning ? 'Scanning images…' : 'No vulnerabilities found. Run a scan.'}
+            emptyMessage={t(scanning ? 'panels:trivy.scanningImages' : 'panels:trivy.noVulnerabilities')}
             header={
                 <div className="flex justify-content-end">
-                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Search…" />
+                    <InputText value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder={t('panels:trivy.search')} />
                 </div>
             }
         >
-            <Column field="severity" header="Severity" body={(r: VulnRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
-            <Column field="vulnerabilityID" header="Vulnerability" body={cveBody} sortable filter style={{ width: 170 }} />
-            <Column field="pkgName" header="Package" sortable filter />
-            <Column field="installedVersion" header="Installed" style={{ width: 110 }} />
-            <Column field="fixedVersion" header="Fixed" body={fixedBody} style={{ width: 110 }} />
-            {showImageColumn && <Column field="image" header="Image" sortable filter style={{ maxWidth: 280 }} />}
-            <Column field="resourceKind" header="Kind" sortable filter style={{ width: 110 }} />
-            <Column field="resourceName" header="Resource" sortable filter />
-            <Column field="title" header="Title" />
+            <Column field="severity" header={t('resources:column.severity')} body={(r: VulnRow) => <SeverityTag sev={r.severity} />} sortable filter filterElement={severityFilterTemplate} showFilterMatchModes={false} style={{ width: 110 }} />
+            <Column field="vulnerabilityID" header={t('resources:column.vulnerability')} body={cveBody} sortable filter style={{ width: 170 }} />
+            <Column field="pkgName" header={t('resources:column.package')} sortable filter />
+            <Column field="installedVersion" header={t('resources:column.installed')} style={{ width: 110 }} />
+            <Column field="fixedVersion" header={t('resources:column.fixed')} body={fixedBody} style={{ width: 110 }} />
+            {showImageColumn && <Column field="image" header={t('resources:column.image')} sortable filter style={{ maxWidth: 280 }} />}
+            <Column field="resourceKind" header={t('resources:column.kind')} sortable filter style={{ width: 110 }} />
+            <Column field="resourceName" header={t('resources:column.resource')} sortable filter />
+            <Column field="title" header={t('resources:column.title')} />
         </DataTable>
         <FindingDetailDialog finding={selected} onHide={() => setSelected(null)} />
         </>
@@ -779,6 +793,7 @@ function K8sSecurityTab({
 }: {
     scan: ReturnType<typeof useK8sScan>;
 }) {
+    const t = useT();
     const {
         misconfigRows, secretRows, vulnRows,
         misconfigSummary, secretSummary, vulnSummary,
@@ -793,12 +808,12 @@ function K8sSecurityTab({
             {/* Controls — always scans the whole cluster (all namespaces) */}
             <div className="flex flex-wrap align-items-center gap-2">
                 {!scanning ? (
-                    <Button label="Scan cluster" icon={<VscPlay />} onClick={() => startScan('')} />
+                    <Button label={t('panels:trivy.scanCluster')} icon={<VscPlay />} onClick={() => startScan('')} />
                 ) : (
-                    <Button label="Stop" icon={<VscStopCircle />} severity="danger" outlined onClick={stopScan} />
+                    <Button label={t('panels:trivy.stop')} icon={<VscStopCircle />} severity="danger" outlined onClick={stopScan} />
                 )}
                 <span className="text-color-secondary text-sm">
-                    Scans all namespaces for misconfigurations, hardcoded secrets and image vulnerabilities.
+                    {t('panels:trivy.clusterHint')}
                 </span>
             </div>
 
@@ -822,8 +837,8 @@ function K8sSecurityTab({
             {totalFindings > 0 && (
                 <SummaryGrid
                     categories={[
-                        { label: 'Misconfigs', counts: misconfigSummary },
-                        { label: 'Vulnerabilities', counts: vulnSummary },
+                        { label: t('panels:trivy.tabMisconfigs'), counts: misconfigSummary },
+                        { label: t('panels:trivy.tabVulnerabilities'), counts: vulnSummary },
                         { label: 'Secrets', counts: secretSummary },
                     ]}
                 />
@@ -860,6 +875,7 @@ function ImageScanTab({
     setImageInput: (v: string) => void;
     pushToast: PushToast;
 }) {
+    const t = useT();
     const run = () => {
         const ref = imageInput.trim();
         if (!ref) { pushToast('warn', 'Enter an image', 'e.g. nginx:1.25 or registry/repo:tag'); return; }
@@ -888,7 +904,7 @@ function ImageScanTab({
 
     return (
         <div className="flex flex-column gap-3">
-            <Message severity="info" text="The first scan downloads the Trivy vulnerability database and may take a few minutes." />
+            <Message severity="info" text={t('panels:trivy.dbHint')} />
             {scanner.error && <Message severity="error" text={scanner.error} />}
 
             <div className="flex flex-wrap align-items-center gap-2">
@@ -896,11 +912,11 @@ function ImageScanTab({
                     value={imageInput}
                     onChange={(e) => setImageInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && run()}
-                    placeholder="nginx:1.25"
+                    placeholder={t('panels:trivy.imagePlaceholder')}
                     disabled={scanner.scanning}
                     style={{ minWidth: 280 }}
                 />
-                <Button label="Scan image" icon={<VscPlay />} onClick={run} loading={scanner.scanning} />
+                <Button label={t('panels:trivy.scanImage')} icon={<VscPlay />} onClick={run} loading={scanner.scanning} />
             </div>
 
             {scanner.scanning && scanner.progress && (
@@ -923,7 +939,7 @@ function ImageScanTab({
 
             <div className="flex justify-content-end">
                 <Button
-                    label="Export HTML"
+                    label={t('panels:trivy.exportHtml')}
                     icon={<VscExport />}
                     outlined
                     size="small"
@@ -940,6 +956,7 @@ function ImageScanTab({
 // ─── Root component ───────────────────────────────────────────────────────────
 
 export default function TrivyScanner({ clusterName }: { clusterName: string }) {
+    const t = useT();
     const toast = useRef<Toast | null>(null);
     const pushToast: PushToast = (severity, summary, detail) =>
         toast.current?.show({ severity, summary, detail, life: 4000 });
@@ -957,15 +974,15 @@ export default function TrivyScanner({ clusterName }: { clusterName: string }) {
 
             <div className="flex align-items-center gap-2">
                 <VscShield size={18} />
-                <span className="font-semibold">Security Scan</span>
+                <span className="font-semibold">{t('panels:trivy.title')}</span>
                 <span className="text-color-secondary text-sm">• {clusterName}</span>
             </div>
 
             <TabView>
-                <TabPanel header="K8s Security">
+                <TabPanel header={t('panels:trivy.tab.cluster')}>
                     <K8sSecurityTab scan={k8sScan} />
                 </TabPanel>
-                <TabPanel header="Image Scan">
+                <TabPanel header={t('panels:trivy.tab.image')}>
                     <ImageScanTab
                         clusterName={clusterName}
                         scanner={imageScanner}

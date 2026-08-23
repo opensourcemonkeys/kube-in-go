@@ -14,6 +14,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -39,6 +40,7 @@ const defaultFilters: DataTableFilterMeta = {
  * shown verbatim, which stays correct as those rules change.
  */
 function NewNamespaceButton({ clusterName, reload }: { clusterName: string; reload: () => Promise<void> }) {
+    const t = useT();
     const [visible, setVisible] = useState(false);
     const [name, setName] = useState('');
     const [labelText, setLabelText] = useState('');
@@ -80,22 +82,22 @@ function NewNamespaceButton({ clusterName, reload }: { clusterName: string; relo
     return (
         <>
             <Button
-                label="New Namespace"
+                label={t('resources:namespace.create')}
                 icon={<VscAdd size={16} />}
                 size="small"
                 onClick={() => setVisible(true)}
             />
             <Dialog
-                header="Create Namespace"
+                header={t('resources:namespace.createTitle')}
                 visible={visible}
                 style={{ width: '28rem' }}
                 modal
                 onHide={close}
                 footer={
                     <div className="flex justify-content-end gap-2">
-                        <Button label="Cancel" icon={<VscClose size={16} />} text onClick={close} disabled={busy} />
+                        <Button label={t('action.cancel')} icon={<VscClose size={16} />} text onClick={close} disabled={busy} />
                         <Button
-                            label="Create"
+                            label={t('resources:namespace.createConfirm')}
                             icon={<VscCheck size={16} />}
                             onClick={create}
                             loading={busy}
@@ -106,25 +108,26 @@ function NewNamespaceButton({ clusterName, reload }: { clusterName: string; relo
             >
                 <div className="flex flex-column gap-3">
                     <div className="flex flex-column gap-1">
-                        <label htmlFor="ns-name" style={{ fontSize: '0.8rem', color: 'var(--ink2)' }}>Name</label>
+                        <label htmlFor="ns-name" style={{ fontSize: '0.8rem', color: 'var(--ink2)' }}>{t('resources:column.name')}</label>
                         <InputText
                             id="ns-name"
                             value={name}
                             autoFocus
                             onChange={(e) => setName(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter' && name.trim() && !busy) create(); }}
-                            placeholder="my-namespace"
+                            placeholder={t('resources:namespace.namePlaceholder')}
                         />
                     </div>
                     <div className="flex flex-column gap-1">
                         <label htmlFor="ns-labels" style={{ fontSize: '0.8rem', color: 'var(--ink2)' }}>
-                            Labels <span style={{ opacity: 0.7 }}>(optional, comma separated key=value)</span>
+                            {t('resources:namespace.labels')}{' '}
+                            <span style={{ opacity: 0.7 }}>{t('resources:namespace.labelsHint')}</span>
                         </label>
                         <InputText
                             id="ns-labels"
                             value={labelText}
                             onChange={(e) => setLabelText(e.target.value)}
-                            placeholder="team=platform, env=dev"
+                            placeholder={t('resources:namespace.labelsPlaceholder')}
                         />
                     </div>
                     {error && (
@@ -137,12 +140,13 @@ function NewNamespaceButton({ clusterName, reload }: { clusterName: string; relo
 }
 
 export default function NamespaceListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `namespaces:${clusterName}`;
 
     return (
         <ResourceListView<models.NamespaceInfo>
-            title="Namespace List"
+            title={t('resources:namespace.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetNamespaces}
@@ -152,16 +156,16 @@ export default function NamespaceListComponent({ clusterName, api }: { clusterNa
             pollInterval={10000}
             describeResource="namespaces"
             defaultFilters={defaultFilters}
-            emptyMessage="No namespaces found"
+            emptyMessage={t('resources:namespace.empty')}
             toolbarExtra={({ reload }) => <NewNamespaceButton clusterName={clusterName} reload={reload} />}
             onRowDoubleClick={(ns) => openYamlPanel({ clusterName, resourceKind: 'namespace', name: ns.name, namespace: '', referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '9rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="status" header={t('resources:column.status')} sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '9rem' }}
                         body={(row: models.NamespaceInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
                 </>
             )}

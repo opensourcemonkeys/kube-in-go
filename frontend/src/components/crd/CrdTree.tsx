@@ -1,6 +1,7 @@
 import { VscChevronDown, VscChevronRight, VscSymbolNamespace } from 'react-icons/vsc';
 import { models } from '../../../wailsjs/go/models';
 import { COUNT_UNKNOWN, CrdGroup } from './useCrdExplorer';
+import { useT } from '../../i18n/useT';
 
 interface CrdTreeProps {
     groups: CrdGroup[];
@@ -23,13 +24,14 @@ const groupLabel = (group: string) => group || 'core';
  * avoids pulling a whole new `.p-tree*` surface into theme-monolith.css.
  */
 export default function CrdTree(props: CrdTreeProps) {
+    const t = useT();
     const { groups, counts, countsLoading, catalogLoading, selectedName, onSelect, isExpanded, onToggleGroup } = props;
 
     if (catalogLoading && groups.length === 0) {
-        return <div className="crd-tree__empty">Loading CRDs…</div>;
+        return <div className="crd-tree__empty">{t('panels:crd.loading')}</div>;
     }
     if (groups.length === 0) {
-        return <div className="crd-tree__empty">No CRDs match the filter</div>;
+        return <div className="crd-tree__empty">{t('panels:crd.noMatch')}</div>;
     }
 
     return (
@@ -51,7 +53,7 @@ export default function CrdTree(props: CrdTreeProps) {
                                 is where instance counts live, and a kind count
                                 sitting in the same column reads as one. */}
                             <span className="crd-tree__group-count">
-                                ({crds.length} {crds.length === 1 ? 'kind' : 'kinds'})
+                                ({crds.length} {t('panels:crd.kind', { count: crds.length })})
                             </span>
                         </button>
 
@@ -68,8 +70,8 @@ export default function CrdTree(props: CrdTreeProps) {
                                 >
                                     <span className="crd-tree__kind-name">{crd.kind}</span>
                                     <span className="crd-tree__kind-plural">{crd.plural}</span>
-                                    <span className={`crd-tree__scope crd-tree__scope--${crd.scope === 'Namespaced' ? 'ns' : 'cl'}`}>
-                                        {crd.scope === 'Namespaced' ? 'ns' : 'cl'}
+                                    <span className={`crd-tree__scope crd-tree__scope--${t(crd.scope === 'Namespaced' ? 'panels:crd.scopeNamespaced' : 'panels:crd.scopeCluster')}`}>
+                                        {t(crd.scope === 'Namespaced' ? 'panels:crd.scopeNamespaced' : 'panels:crd.scopeCluster')}
                                     </span>
                                     <span className={`crd-tree__badge${known && count > 0 ? ' is-live' : ''}`}>
                                         {known ? count : countsLoading ? '·' : '—'}

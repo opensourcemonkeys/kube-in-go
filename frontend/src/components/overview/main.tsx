@@ -12,6 +12,7 @@ import { usePanelActive } from '../../lib/usePanelActive';
 import { fmtCpu, fmtMem, pct, getUsageColor, CssBar } from '../../lib/usage';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
+import { useT } from '../../i18n/useT';
 
 const POLL_MS = 5000;
 
@@ -29,6 +30,7 @@ const TILES: TileDef[] = [
 type Counts = { pods: number; deployments: number; services: number; nodes: number; namespaces: number };
 
 export default function OverviewDashboard({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openTab } = useTabContext();
     const active = usePanelActive(api);
 
@@ -76,7 +78,7 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
     }, [active, tick]);
 
     const openView = (t: TileDef) =>
-        openTab({ view: t.view, title: t.title, clusterName, icon: t.icon });
+        openTab({ view: t.view, clusterName, icon: t.icon });
 
     const c = snap?.cluster;
     const cpuPct = c ? pct(c.cpuMillis, c.cpuCapMillis) : 0;
@@ -85,7 +87,7 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
     return (
         <div className="mon-root">
             <div className="mon-header">
-                <VscDashboard /> <span>Overview</span><span className="mon-cluster">• {clusterName}</span>
+                <VscDashboard /> <span>{t('panels:overview.label')}</span><span className="mon-cluster">• {clusterName}</span>
             </div>
 
             <ErrorBanner
@@ -108,18 +110,18 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
             </div>
 
             {/* Cluster CPU / Memory */}
-            <div className="mon-section-title">Cluster capacity</div>
+            <div className="mon-section-title">{t('panels:overview.clusterCapacity')}</div>
             {snap && !snap.metricsAvailable ? (
-                <Message severity="warn" text="metrics-server is not available on this cluster — resource usage cannot be shown. Install metrics-server to enable it." />
+                <Message severity="warn" text={t('panels:overview.noMetricsServer')} />
             ) : (
                 <div className="mon-grid">
                     <div className="mon-card">
-                        <div className="mon-card__head"><span>Cluster CPU</span><b>{c ? `${fmtCpu(c.cpuMillis)} / ${fmtCpu(c.cpuCapMillis)}` : '—'}</b></div>
+                        <div className="mon-card__head"><span>{t('panels:overview.clusterCpu')}</span><b>{c ? `${fmtCpu(c.cpuMillis)} / ${fmtCpu(c.cpuCapMillis)}` : '—'}</b></div>
                         <div className="mon-card__pct" style={{ color: getUsageColor(cpuPct) }}>{cpuPct.toFixed(0)}%</div>
                         <CssBar p={cpuPct} />
                     </div>
                     <div className="mon-card">
-                        <div className="mon-card__head"><span>Cluster Memory</span><b>{c ? `${fmtMem(c.memMi)} / ${fmtMem(c.memCapMi)}` : '—'}</b></div>
+                        <div className="mon-card__head"><span>{t('panels:overview.clusterMemory')}</span><b>{c ? `${fmtMem(c.memMi)} / ${fmtMem(c.memCapMi)}` : '—'}</b></div>
                         <div className="mon-card__pct" style={{ color: getUsageColor(memPct) }}>{memPct.toFixed(0)}%</div>
                         <CssBar p={memPct} />
                     </div>
@@ -138,7 +140,7 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
                             <div className="ov-node__head">
                                 <span className="mon-node__name" title={n.name}>{n.name}</span>
                                 <span className={`ov-badge ${ready ? 'ov-badge--ok' : 'ov-badge--err'}`}>{n.status}</span>
-                                {n.unschedulable && <span className="ov-badge ov-badge--warn">Cordoned</span>}
+                                {n.unschedulable && <span className="ov-badge ov-badge--warn">{t('panels:overview.cordoned')}</span>}
                             </div>
                             <div className="ov-node__meta">{n.kubelet_version}</div>
                             {n.metrics_available ? (
@@ -147,12 +149,12 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
                                     <div className="mon-node__row"><span>MEM</span><CssBar p={mp} /><span>{mp.toFixed(0)}%</span></div>
                                 </>
                             ) : (
-                                <div className="ov-node__meta">metrics unavailable</div>
+                                <div className="ov-node__meta">{t('panels:overview.metricsUnavailable')}</div>
                             )}
                         </div>
                     );
                 })}
-                {nodes && nodes.length === 0 && <div className="mon-empty">No nodes.</div>}
+                {nodes && nodes.length === 0 && <div className="mon-empty">{t('panels:overview.noNodes')}</div>}
             </div>
         </div>
     );

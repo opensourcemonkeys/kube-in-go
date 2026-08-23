@@ -9,6 +9,7 @@ import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
 import { ARRAY_IN } from '../../lib/tableFilters';
+import { useT } from '../../i18n/useT';
 
 type TagSeverity = 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast';
 
@@ -32,12 +33,13 @@ const defaultFilters: DataTableFilterMeta = {
 };
 
 export default function PersistentVolumeClaimListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `persistentvolumeclaims:${clusterName}`;
 
     return (
         <ResourceListView<models.PersistentVolumeClaimInfo>
-            title="Volume Claims"
+            title={t('resources:persistentvolumeclaim.title')}
             clusterName={clusterName}
             api={api}
             fetcher={GetPersistentVolumeClaims}
@@ -47,34 +49,34 @@ export default function PersistentVolumeClaimListComponent({ clusterName, api }:
             pollInterval={5000}
             describeResource="persistentvolumeclaims"
             defaultFilters={defaultFilters}
-            emptyMessage="No volume claims found"
+            emptyMessage={t('resources:persistentvolumeclaim.empty')}
             onRowDoubleClick={(pvc) => openYamlPanel({ clusterName, resourceKind: 'persistentvolumeclaim', name: pvc.name, namespace: pvc.namespace, referencePanel })}
             columns={({ buildInOptions }) => (
                 <>
-                    <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                    <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                    <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="status" header="Status" sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '8rem' }}
+                    <Column field="status" header={t('resources:column.status')} sortable filter filterField="status" showFilterMenu={false} style={{ minWidth: '8rem' }}
                         body={(row: models.PersistentVolumeClaimInfo) => <Tag value={row.status} severity={getStatusSeverity(row.status)} />}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('status')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="request" header="Request" sortable style={{ minWidth: '8rem' }} />
-                    <Column field="limit" header="Limit" sortable style={{ minWidth: '8rem' }} />
-                    <Column header="Access Modes" filter filterField="access_modes" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                    <Column field="request" header={t('resources:column.request')} sortable style={{ minWidth: '8rem' }} />
+                    <Column field="limit" header={t('resources:column.limit')} sortable style={{ minWidth: '8rem' }} />
+                    <Column header={t('resources:column.accessModes')} filter filterField="access_modes" showFilterMenu={false} style={{ minWidth: '10rem' }}
                         body={(row: models.PersistentVolumeClaimInfo) => (row.access_modes ?? []).join(', ') || '-'}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('access_modes')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('access_modes')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="storage_class_name" header="Storage Class" sortable filter filterField="storage_class_name" showFilterMenu={false} style={{ minWidth: '12rem' }}
+                    <Column field="storage_class_name" header={t('resources:column.storageClass')} sortable filter filterField="storage_class_name" showFilterMenu={false} style={{ minWidth: '12rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('storage_class_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('storage_class_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
-                    <Column field="volume_name" header="Volume" filter filterField="volume_name" showFilterMenu={false} style={{ minWidth: '14rem' }}
+                    <Column field="volume_name" header={t('resources:column.volume')} filter filterField="volume_name" showFilterMenu={false} style={{ minWidth: '14rem' }}
                         filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                            <MultiSelect value={options.value} options={buildInOptions('volume_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                            <MultiSelect value={options.value} options={buildInOptions('volume_name')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                         )} />
                 </>
             )}

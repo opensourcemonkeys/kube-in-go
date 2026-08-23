@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { NextStepProvider, NextStepReact } from 'nextstepjs';
 import SideMenu from '../../components/menu/menu';
 import TitleBar from '../../components/titlebar/TitleBar';
@@ -10,7 +10,8 @@ import CliModeOverlay from '../../components/climode/CliModeOverlay';
 import { TabProvider } from '../../contexts/TabContext';
 import { ClusterProvider } from '../../contexts/ClusterContext';
 import { InstanceProvider } from '../../contexts/InstanceContext';
-import { appTour } from '../../lib/tourSteps';
+import { buildAppTour } from '../../lib/tourSteps';
+import { useT } from '../../i18n/useT';
 import TourCard from '../../components/tour/TourCard';
 import { isPrimaryWindow } from '../../lib/shellWindows';
 import PanelErrorBoundary from '../../components/shared/PanelErrorBoundary';
@@ -18,6 +19,11 @@ import PanelErrorBoundary from '../../components/shared/PanelErrorBoundary';
 const SIDEBAR_OPEN_KEY = 'kube-sidebar-open';
 
 function Appmain() {
+    const t = useT();
+    // nextstepjs snapshots the step text when a tour starts, so rebuild it
+    // whenever the language changes.
+    const tour = useMemo(() => buildAppTour(t), [t]);
+
     // Windows opened by undocking/dragging out a tab start with the menu
     // collapsed — they exist to show that one panel, not to browse. Only the
     // primary window restores (and persists) the saved preference; a secondary
@@ -51,10 +57,12 @@ function Appmain() {
         // covers everything around it (providers, title bar, sidebar). A crash
         // here still leaves a window that can be reloaded and a report that can
         // be copied, instead of a blank one.
+        // `label` is the crash's diagnostics id, not display text.
+        // eslint-disable-next-line i18next/no-literal-string
         <PanelErrorBoundary label="app" root>
         <NextStepProvider>
             <NextStepReact
-                steps={appTour}
+                steps={tour}
                 shadowRgb="0, 0, 0"
                 shadowOpacity="0.55"
                 cardTransition={{

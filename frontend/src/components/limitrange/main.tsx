@@ -12,6 +12,7 @@ import { GetLimitRanges, DeleteLimitRange } from '../../../wailsjs/go/controller
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import { useT } from '../../i18n/useT';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -30,6 +31,7 @@ const thStyle: React.CSSProperties = { padding: '0.4rem 0.6rem', textAlign: 'lef
 const tdStyle: React.CSSProperties = { padding: '0.4rem 0.6rem', color: 'var(--ink)' };
 
 export default function LimitRangeListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
+    const t = useT();
     const { openYamlPanel } = useTabContext();
     const referencePanel = `limitranges:${clusterName}`;
     const [selectedLimitRange, setSelectedLimitRange] = useState<models.LimitRangeInfo | null>(null);
@@ -38,7 +40,7 @@ export default function LimitRangeListComponent({ clusterName, api }: { clusterN
     return (
         <>
             <ResourceListView<models.LimitRangeInfo>
-                title="Limit Range List"
+                title={t('resources:limitrange.title')}
                 clusterName={clusterName}
                 api={api}
                 fetcher={GetLimitRanges}
@@ -48,33 +50,33 @@ export default function LimitRangeListComponent({ clusterName, api }: { clusterN
                 deleteLabel="limit range"
                 describeResource="limitranges"
                 defaultFilters={defaultFilters}
-                emptyMessage="No limit ranges found"
+                emptyMessage={t('resources:limitrange.empty')}
                 onRowDoubleClick={(row) => openYamlPanel({ clusterName, resourceKind: 'limitrange', name: row.name, namespace: row.namespace, referencePanel })}
                 columns={({ buildInOptions }) => (
                     <>
-                        <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
-                        <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
+                        <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
+                        <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
                             filterElement={(options: ColumnFilterElementTemplateOptions) => (
-                                <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder="All" filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
+                                <MultiSelect value={options.value} options={buildInOptions('namespace')} onChange={(e) => options.filterApplyCallback(e.value)} placeholder={t('filter.all')} filter maxSelectedLabels={1} style={{ minWidth: '8rem', maxWidth: '100%' }} />
                             )} />
-                        <Column header="Types" style={{ minWidth: '14rem' }}
+                        <Column header={t('resources:column.types')} style={{ minWidth: '14rem' }}
                             body={(row: models.LimitRangeInfo) => {
                                 if (!row.limits || row.limits.length === 0) return '-';
                                 return <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>{row.limits.map((l, i) => <Tag key={i} value={l.type} severity="info" />)}</div>;
                             }} />
-                        <Column header="CPU (default / max)" style={{ minWidth: '14rem' }}
+                        <Column header={t('resources:column.cpuDefaultMax')} style={{ minWidth: '14rem' }}
                             body={(row: models.LimitRangeInfo) => {
                                 if (!row.limits || row.limits.length === 0) return '-';
                                 return row.limits.map((l, i) => <div key={i} style={{ fontSize: '12px' }}>{l.type}: {l.default?.cpu ?? '-'} / {l.max?.cpu ?? '-'}</div>);
                             }} />
-                        <Column header="Memory (default / max)" style={{ minWidth: '16rem' }}
+                        <Column header={t('resources:column.memoryDefaultMax')} style={{ minWidth: '16rem' }}
                             body={(row: models.LimitRangeInfo) => {
                                 if (!row.limits || row.limits.length === 0) return '-';
                                 return row.limits.map((l, i) => <div key={i} style={{ fontSize: '12px' }}>{l.type}: {l.default?.memory ?? '-'} / {l.max?.memory ?? '-'}</div>);
                             }} />
                         <Column header="" style={{ minWidth: '5rem', maxWidth: '5rem' }}
                             body={(row: models.LimitRangeInfo) => (
-                                <Button icon={<VscListOrdered size={16} />} text size="small" tooltip="View limits" tooltipOptions={{ position: 'left' }}
+                                <Button icon={<VscListOrdered size={16} />} text size="small" tooltip={t('panels:limitRange.viewLimits')} tooltipOptions={{ position: 'left' }}
                                     onClick={() => setSelectedLimitRange(row)} />
                             )} />
                     </>
@@ -96,11 +98,11 @@ export default function LimitRangeListComponent({ clusterName, api }: { clusterN
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid var(--surface-border)' }}>
-                                    <th style={thStyle}>Resource</th>
-                                    <th style={thStyle}>Min</th>
-                                    <th style={thStyle}>Max</th>
-                                    <th style={thStyle}>Default Request</th>
-                                    <th style={thStyle}>Default Limit</th>
+                                    <th style={thStyle}>{t('resources:column.resource')}</th>
+                                    <th style={thStyle}>{t('panels:limitRange.min')}</th>
+                                    <th style={thStyle}>{t('panels:limitRange.max')}</th>
+                                    <th style={thStyle}>{t('panels:limitRange.defaultRequest')}</th>
+                                    <th style={thStyle}>{t('panels:limitRange.defaultLimit')}</th>
                                 </tr>
                             </thead>
                             <tbody>

@@ -4,6 +4,7 @@ import { models } from '../../../wailsjs/go/models';
 import { GetDiagnostics, RunHealthChecks } from '../../../wailsjs/go/controller_app/App';
 import { useAiChatStore } from '../../stores/aiChatStore';
 import HealthCheckList from './HealthCheckList';
+import { useT } from '../../i18n/useT';
 
 function Row({ label, value }: { label: string; value: string | number | undefined }) {
     if (value === undefined || value === '' || value === null) return null;
@@ -29,6 +30,7 @@ export default function OverviewTab({
     report: models.DiagnosticsReport | null;
     onReport: (r: models.DiagnosticsReport) => void;
 }) {
+    const t = useT();
     const [checks, setChecks] = useState<models.HealthCheck[]>([]);
     const [running, setRunning] = useState(false);
     const ollamaHost = useAiChatStore((s) => s.host);
@@ -55,35 +57,35 @@ export default function OverviewTab({
     return (
         <div className="diag-tab">
             <section className="diag-section">
-                <h3 className="diag-section__title">Environment</h3>
-                <Row label="Version" value={report?.appVersion} />
-                <Row label="Commit" value={report?.commit} />
-                <Row label="Built" value={report?.buildDate} />
+                <h3 className="diag-section__title">{t('panels:diagnostics.environment')}</h3>
+                <Row label={t('panels:diagnostics.version')} value={report?.appVersion} />
+                <Row label={t('panels:diagnostics.commit')} value={report?.commit} />
+                <Row label={t('panels:diagnostics.built')} value={report?.buildDate} />
                 <Row label="Go" value={report?.goVersion} />
                 <Row
-                    label="Platform"
+                    label={t('panels:diagnostics.platform')}
                     value={report ? `${report.goos}/${report.goarch}` : undefined}
                 />
                 <Row label="OS" value={report?.osRelease} />
-                <Row label="Shell" value={report?.shell} />
-                <Row label="Instance hub" value={report?.hub?.role} />
-                <Row label="This instance" value={report?.hub?.instanceName} />
-                <Row label="Instances" value={report?.hub?.instanceCount} />
+                <Row label={t('panels:diagnostics.shell')} value={report?.shell} />
+                <Row label={t('panels:diagnostics.instanceHub')} value={report?.hub?.role} />
+                <Row label={t('panels:diagnostics.thisInstance')} value={report?.hub?.instanceName} />
+                <Row label={t('panels:diagnostics.instances')} value={report?.hub?.instanceCount} />
             </section>
 
             <section className="diag-section">
-                <h3 className="diag-section__title">Configuration</h3>
-                <Row label="Clusters" value={`${report?.clusterCount ?? 0} (names redacted)`} />
-                <Row label="Active cluster" value={report?.activeCluster || '—'} />
-                <Row label="Log directory" value={report?.logDir} />
-                <Row label="Log level" value={report?.logLevel} />
+                <h3 className="diag-section__title">{t('panels:diagnostics.configuration')}</h3>
+                <Row label={t('panels:diagnostics.clusters')} value={`${report?.clusterCount ?? 0} (names redacted)`} />
+                <Row label={t('panels:diagnostics.activeCluster')} value={report?.activeCluster || '—'} />
+                <Row label={t('panels:diagnostics.logDirectory')} value={report?.logDir} />
+                <Row label={t('panels:diagnostics.logLevel')} value={report?.logLevel} />
             </section>
 
             <section className="diag-section">
                 <div className="diag-section__head">
-                    <h3 className="diag-section__title">Health checks</h3>
+                    <h3 className="diag-section__title">{t('panels:diagnostics.healthChecks')}</h3>
                     <Button
-                        label={running ? 'Running…' : 'Re-run checks'}
+                        label={t(running ? 'panels:diagnostics.rerunning' : 'panels:diagnostics.rerun')}
                         icon="pi pi-refresh"
                         size="small"
                         outlined

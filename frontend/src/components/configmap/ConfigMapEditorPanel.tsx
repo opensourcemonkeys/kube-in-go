@@ -12,6 +12,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Toast } from 'primereact/toast';
 import { GetConfigMapData, UpdateConfigMapData } from '../../../wailsjs/go/controller_app/App';
+import { useT } from '../../i18n/useT';
 
 interface ConfigMapEditorPanelParams {
     clusterName: string;
@@ -39,6 +40,7 @@ const rowsEqual = (a: KeyValueRow[], b: KeyValueRow[]) => {
 };
 
 export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<ConfigMapEditorPanelParams>) {
+    const t = useT();
     const { clusterName, name, namespace } = params;
     const cn = clusterName ?? '';
     const [rows, setRows] = useState<KeyValueRow[]>([]);
@@ -163,9 +165,9 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
                 {namespace}/{name}
             </span>
             <div className="flex align-items-center gap-1">
-                <Button label="Add Key" icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
-                <Button label="Revert" icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
-                <Button label="Save" icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
+                <Button label={t('panels:configMapEditor.addKey')} icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
+                <Button label={t('panels:yaml.revert')} icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
+                <Button label={t('panels:yaml.save')} icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
             </div>
         </div>
     );
@@ -183,19 +185,19 @@ export default function ConfigMapEditorPanel({ params }: IDockviewPanelProps<Con
                 scrollHeight="flex"
                 showGridlines
                 stripedRows
-                emptyMessage="No data entries. Click 'Add Key' to add one."
+                emptyMessage={t('panels:configMapEditor.empty')}
                 style={{ flex: 1 }}
             >
                 <Column
                     field="key"
-                    header="Key"
+                    header={t('resources:column.key')}
                     editor={keyEditor}
                     onCellEditComplete={onCellEditComplete}
                     style={{ width: '30%', minWidth: '10rem', fontFamily: 'monospace', fontSize: '0.85rem' }}
                 />
                 <Column
                     field="value"
-                    header="Value"
+                    header={t('resources:column.value')}
                     editor={valueEditor}
                     onCellEditComplete={onCellEditComplete}
                     body={valueBody}

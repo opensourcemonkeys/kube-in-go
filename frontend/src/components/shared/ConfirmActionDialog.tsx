@@ -3,6 +3,7 @@ import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { VscClose, VscCheck } from 'react-icons/vsc';
 import { errText } from '../../lib/errText';
+import { useT } from '../../i18n/useT';
 
 /**
  * Confirmation dialog for a single mutating row action.
@@ -38,6 +39,7 @@ export default function ConfirmActionDialog({
     /** Performs the action. Throwing keeps the dialog open with the message shown. */
     onConfirm: () => Promise<void>;
 }) {
+    const t = useT();
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +71,7 @@ export default function ConfirmActionDialog({
             onHide={close}
             footer={
                 <div className="flex justify-content-end gap-2">
-                    <Button label="Cancel" icon={<VscClose size={16} />} text onClick={close} disabled={busy} />
+                    <Button label={t('action.cancel')} icon={<VscClose size={16} />} text onClick={close} disabled={busy} />
                     <Button
                         label={confirmLabel}
                         icon={<VscCheck size={16} />}

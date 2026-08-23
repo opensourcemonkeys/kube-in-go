@@ -13,6 +13,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { GetRoleBindings, UpdateRoleBinding } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
+import { useT } from '../../i18n/useT';
 
 interface RoleBindingEditorPanelParams {
     clusterName: string;
@@ -55,6 +56,7 @@ const rowsEqual = (a: SubjectRow[], b: SubjectRow[]) => {
 };
 
 export default function RoleBindingEditorPanel({ params }: IDockviewPanelProps<RoleBindingEditorPanelParams>) {
+    const t = useT();
     const { clusterName, name, namespace } = params;
     const cn = clusterName ?? '';
     const [rows, setRows] = useState<SubjectRow[]>([]);
@@ -164,9 +166,9 @@ export default function RoleBindingEditorPanel({ params }: IDockviewPanelProps<R
                 {namespace}/{name}
             </span>
             <div className="flex align-items-center gap-1">
-                <Button label="Add Subject" icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
-                <Button label="Revert" icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
-                <Button label="Save" icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
+                <Button label={t('panels:roleBindingEditor.addSubject')} icon={<VscAdd size={16} />} text size="small" onClick={addRow} disabled={saving} />
+                <Button label={t('panels:yaml.revert')} icon={<VscDiscard size={16} />} text size="small" disabled={!dirty || saving} onClick={handleRevert} />
+                <Button label={t('panels:yaml.save')} icon={<VscCheck size={16} />} size="small" loading={saving} disabled={!dirty} onClick={handleSave} />
             </div>
         </div>
     );
@@ -183,12 +185,12 @@ export default function RoleBindingEditorPanel({ params }: IDockviewPanelProps<R
                 scrollHeight="flex"
                 showGridlines
                 stripedRows
-                emptyMessage="No subjects. Click 'Add Subject' to add one."
+                emptyMessage={t('panels:roleBindingEditor.empty')}
                 style={{ flex: 1 }}
             >
-                <Column field="kind" header="Kind" editor={kindEditor} onCellEditComplete={onCellEditComplete} style={{ width: '12rem', minWidth: '10rem' }} />
-                <Column field="name" header="Name" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '12rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
-                <Column field="namespace" header="Namespace" editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '12rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="kind" header={t('resources:column.kind')} editor={kindEditor} onCellEditComplete={onCellEditComplete} style={{ width: '12rem', minWidth: '10rem' }} />
+                <Column field="name" header={t('resources:column.name')} editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '12rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
+                <Column field="namespace" header={t('resources:column.namespace')} editor={textEditor} onCellEditComplete={onCellEditComplete} style={{ minWidth: '12rem', fontFamily: 'monospace', fontSize: '0.85rem' }} />
                 <Column header="" body={actionsBody} style={{ width: '3.5rem', textAlign: 'center' }} />
             </DataTable>
         </div>
