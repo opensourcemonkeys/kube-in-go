@@ -6,6 +6,7 @@ import {
     WindowMinimise,
     WindowToggleMaximise,
     Quit,
+    BrowserOpenURL,
 } from '../../../wailsjs/runtime/runtime';
 import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
@@ -22,6 +23,9 @@ import PortForwardPill from './PortForwardPill';
 
 // Re-check for a newer release every 6 hours while the app stays open.
 const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+// Where a wrong translation gets reported (docs page carries the issue template link).
+const TRANSLATIONS_URL = 'https://kubeinspector.com/contributing/translations/';
 
 interface TitleBarProps {
     onToggleSidebar?: () => void;
@@ -96,11 +100,23 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                 {
                     label: t('settings:language.label'),
                     icon: <VscGlobe size={13} />,
-                    items: LOCALES.map((l) => ({
-                        label: l.label,
-                        icon: l.id === locale ? <VscCheck size={13} /> : undefined,
-                        command: () => setLocale(l.id),
-                    })),
+                    items: [
+                        ...LOCALES.map((l) => ({
+                            label: l.label,
+                            icon: l.id === locale ? <VscCheck size={13} /> : undefined,
+                            command: () => setLocale(l.id),
+                        })),
+                        { separator: true },
+                        // Honesty note: only `tr` was reviewed by a native speaker;
+                        // the other four are machine translations. Saying so here —
+                        // where the language is chosen — is what makes the README's
+                        // status table reach the person who can act on it.
+                        {
+                            label: t('settings:language.mtNote'),
+                            className: 'tb-menu-note',
+                            command: () => BrowserOpenURL(TRANSLATIONS_URL),
+                        },
+                    ],
                 },
             ],
         },

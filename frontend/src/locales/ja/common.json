@@ -1,0 +1,15 @@
+{
+  "action": {
+    "cancel": "キャンセル",
+    "clearFilters": "フィルターをクリア",
+    "close": "閉じる",
+    "delete": "削除",
+    "deleteSelected": "選択項目を削除",
+    "describe": "Describe",
+    "portForward": "ポートフォワード",
+    "retry": "再試行"
+  },
+  "filter": {
+    "all": "すべて"
+  }
+}

@@ -80,6 +80,7 @@ export default function SideMenu() {
                                     key={item.view}
                                     className={`sidebar-item${activeView === item.view ? ' sidebar-item--active' : ''}`}
                                     onClick={() => navigate(item)}
+                                    title={t(item.labelKey)}
                                 >
                                     <span className="sidebar-item__icon">{item.icon}</span>
                                     <span className="sidebar-item__label">{t(item.labelKey)}</span>

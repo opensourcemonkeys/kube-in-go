@@ -296,9 +296,12 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toastRef} position="bottom-right" />
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
-                <h3 style={{ margin: 0 }}>{title}</h3>
-                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div className="rlv-toolbar" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
+                {/* `title` so the ellipsis (theme-monolith.css) never hides the
+                    panel's identity: German and Russian list titles run 20-35%
+                    longer than the English these widths were chosen for. */}
+                <h3 className="rlv-toolbar__title" style={{ margin: 0 }} title={title}>{title}</h3>
+                <div className="rlv-toolbar__actions" style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     {toolbarExtra?.({ reload })}
                     <Button
                         icon={<VscClearAll size={16} />}

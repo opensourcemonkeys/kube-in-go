@@ -256,6 +256,9 @@ export default function FloatableTab({ api, containerApi, params }: IDockviewPan
             }}
         >
             <span
+                // Clipped at 180px since long before i18n; the tooltip is what
+                // makes that survivable once the label is German or Russian.
+                title={api.title}
                 style={{
                     fontSize: 12,
                     color: 'var(--dv-tab-color, inherit)',

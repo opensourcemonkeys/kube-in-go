@@ -1,0 +1,15 @@
+{
+  "action": {
+    "cancel": "Abbrechen",
+    "clearFilters": "Filter zurücksetzen",
+    "close": "Schließen",
+    "delete": "Löschen",
+    "deleteSelected": "Auswahl löschen",
+    "describe": "Describe",
+    "portForward": "Port-Weiterleitung",
+    "retry": "Erneut versuchen"
+  },
+  "filter": {
+    "all": "Alle"
+  }
+}

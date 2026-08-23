@@ -1,0 +1,9 @@
+{
+  "theme": {
+    "label": "Tema"
+  },
+  "language": {
+    "label": "Dil",
+    "mtNote": "Makine çevirisi — hatalı bir metni bildirin"
+  }
+}

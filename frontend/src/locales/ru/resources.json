@@ -1,0 +1,216 @@
+{
+  "column": {
+    "accessModes": "Режимы доступа",
+    "active": "Активно",
+    "activeJobs": "Активные Jobs",
+    "address": "Адрес",
+    "addresses": "Адреса",
+    "age": "Возраст",
+    "apiGroups": "Группы API",
+    "available": "Доступно",
+    "bindingMode": "Режим привязки",
+    "capacity": "Ёмкость",
+    "category": "Категория",
+    "check": "Проверка",
+    "claim": "Запрос",
+    "class": "Класс",
+    "cluster": "Кластер",
+    "clusterIp": "IP кластера",
+    "completions": "Завершения",
+    "containers": "Контейнеры",
+    "controller": "Контроллер",
+    "count": "Количество",
+    "cpu": "CPU",
+    "cpuDefaultMax": "CPU (по умолч. / макс.)",
+    "created": "Создано",
+    "currentAvailable": "Текущие / Доступные",
+    "dataKeys": "Ключи данных",
+    "default": "По умолчанию",
+    "desiredReady": "Требуется / Готово",
+    "egress": "Egress",
+    "externalIp": "Внешний IP",
+    "fixed": "Исправлено в",
+    "hosts": "Хосты",
+    "image": "Образ",
+    "ingress": "Ingress",
+    "installed": "Установлено",
+    "key": "Ключ",
+    "kind": "Kind",
+    "lastRestart": "Последний перезапуск",
+    "lastSeen": "Последнее событие",
+    "limit": "Лимит",
+    "match": "Совпадение",
+    "memory": "Память",
+    "memoryDefaultMax": "Память (по умолч. / макс.)",
+    "message": "Сообщение",
+    "name": "Имя",
+    "namespace": "Namespace",
+    "node": "Node",
+    "notReady": "Не готово",
+    "object": "Объект",
+    "owner": "Владелец",
+    "package": "Пакет",
+    "paths": "Пути",
+    "pod": "Pod",
+    "podIp": "IP пода",
+    "podSelector": "Селектор подов",
+    "pods": "Pods",
+    "policyTypes": "Типы политик",
+    "ports": "Порты",
+    "provisioner": "Provisioner",
+    "ready": "Готово",
+    "reason": "Причина",
+    "reclaimPolicy": "Политика освобождения",
+    "replicas": "Реплики",
+    "request": "Запрос",
+    "resolution": "Решение",
+    "resource": "Ресурс",
+    "resourceNames": "Имена ресурсов",
+    "resources": "Ресурсы",
+    "restarts": "Перезапуски",
+    "roleref": "RoleRef",
+    "rolloutRestart": "Перезапуск rollout",
+    "ruleId": "ID правила",
+    "rules": "Правила",
+    "schedule": "Расписание",
+    "secrets": "Secrets",
+    "severity": "Уровень",
+    "status": "Статус",
+    "storageClass": "StorageClass",
+    "subjects": "Субъекты",
+    "target": "Цель",
+    "title": "Заголовок",
+    "tls": "TLS",
+    "type": "Тип",
+    "types": "Типы",
+    "updated": "Обновлено",
+    "value": "Значение",
+    "verbs": "Действия",
+    "volume": "Том",
+    "volumeMode": "Режим тома",
+    "vulnerability": "Уязвимость"
+  },
+  "filter": {
+    "count": "Количество",
+    "searchMessage": "Поиск по сообщению",
+    "searchName": "Поиск по имени"
+  },
+  "delete": {
+    "header": "Подтверждение удаления: {{kind}}",
+    "body": "Удалить выбранные записи ({{label}})?",
+    "toast": {
+      "successSummary": "Успешно удалено",
+      "successDetail": "{{target}} удалён",
+      "failSummary": "Не удалось удалить",
+      "failDetail": "Не удалось удалить {{target}}"
+    }
+  },
+  "namespace": {
+    "createTitle": "Создать Namespace",
+    "title": "Список Namespaces",
+    "empty": "Namespaces не найдены",
+    "create": "Новый Namespace",
+    "createConfirm": "Создать",
+    "namePlaceholder": "my-namespace",
+    "labels": "Метки",
+    "labelsHint": "(необязательно, через запятую key=value)",
+    "labelsPlaceholder": "team=platform, env=dev"
+  },
+  "crd": {
+    "deleteTitle": "Подтверждение удаления"
+  },
+  "configmap": {
+    "title": "Список ConfigMaps",
+    "empty": "ConfigMaps не найдены"
+  },
+  "cronjob": {
+    "title": "Список CronJobs",
+    "empty": "CronJobs не найдены"
+  },
+  "daemonset": {
+    "title": "Список DaemonSets",
+    "empty": "DaemonSets не найдены"
+  },
+  "deployment": {
+    "title": "Список Deployments",
+    "empty": "Deployments не найдены"
+  },
+  "endpoints": {
+    "title": "Список Endpoints",
+    "empty": "Endpoints не найдены"
+  },
+  "ingress": {
+    "title": "Список Ingresses",
+    "empty": "Ingresses не найдены"
+  },
+  "ingressclass": {
+    "title": "Список классов Ingress",
+    "empty": "Классы Ingress не найдены"
+  },
+  "job": {
+    "title": "Список Jobs",
+    "empty": "Jobs не найдены"
+  },
+  "limitrange": {
+    "title": "Список диапазонов лимитов",
+    "empty": "Диапазоны лимитов не найдены"
+  },
+  "networkpolicy": {
+    "title": "Список сетевых политик",
+    "empty": "Сетевые политики не найдены"
+  },
+  "persistentvolume": {
+    "title": "Постоянные тома",
+    "empty": "Постоянные тома не найдены"
+  },
+  "persistentvolumeclaim": {
+    "title": "Запросы томов",
+    "empty": "Запросы томов не найдены"
+  },
+  "pod": {
+    "title": "Список Pods",
+    "empty": "Pods не найдены",
+    "containerInitPrefix": "[init] ",
+    "containerUnknownState": "Неизвестно",
+    "containerRestarts": " — перезапусков: {{count}}"
+  },
+  "replicaset": {
+    "title": "Список ReplicaSets",
+    "empty": "ReplicaSets не найдены"
+  },
+  "role": {
+    "title": "Список Roles",
+    "empty": "Roles не найдены"
+  },
+  "rolebinding": {
+    "title": "Список привязок ролей",
+    "empty": "Привязки ролей не найдены"
+  },
+  "secret": {
+    "title": "Список Secrets",
+    "empty": "Secrets не найдены"
+  },
+  "service": {
+    "title": "Список Services",
+    "empty": "Services не найдены"
+  },
+  "serviceaccount": {
+    "title": "Список сервисных аккаунтов",
+    "empty": "Сервисные аккаунты не найдены"
+  },
+  "statefulset": {
+    "title": "Список StatefulSets",
+    "empty": "StatefulSets не найдены"
+  },
+  "storageclass": {
+    "title": "Классы хранилища",
+    "empty": "Классы хранилища не найдены"
+  },
+  "resourcequota": {
+    "title": "Квоты ресурсов",
+    "filterNamespace": "Фильтр по namespace",
+    "clearFilter": "Сбросить фильтр",
+    "noMatch": "Подходящих namespaces нет.",
+    "empty": "Ни в одном namespace не заданы квоты ресурсов."
+  }
+}

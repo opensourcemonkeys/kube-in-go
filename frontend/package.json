@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "i18n:check": "node scripts/i18n-check.mjs",
     "test": "vitest run"
   },
   "dependencies": {

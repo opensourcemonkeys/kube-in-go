@@ -1459,3 +1459,57 @@ body.dv-dragging, body.dv-dragging * { user-select: none !important; -webkit-use
 .about-modal__actions { display: flex; gap: 8px; justify-content: center; }
 .about-modal__close-btn--ghost { background: transparent; border-color: var(--line2); color: var(--ink2); }
 .about-modal__close-btn--ghost:hover { background: var(--hover); border-color: var(--line2); }
+
+/* ════════════════════════════════════════════════════════════
+   LONG-STRING DEFENCE (i18n)
+
+   Every width in this file was chosen against English. German and Russian
+   run 20-35% longer for the same sentence, so a label that fits "Restarts"
+   has to survive "Neustarts" and "Перезапуски" without pushing its
+   neighbours off the panel. The rule is clip, never reflow — and wherever a
+   string is clipped, its element carries a `title` so the full text is one
+   hover away (menu.tsx's sidebar items, ResourceListView's panel title).
+   ════════════════════════════════════════════════════════════ */
+
+/* Sidebar is a fixed 240px; "Security Role Map" becomes
+   "Sicherheits-Rollenübersicht". Without min-width:0 a flex child refuses to
+   shrink below its content and the label pushes past the panel edge instead
+   of clipping. */
+.sidebar-item { min-width: 0; }
+.sidebar-item__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Resource-list toolbar: the title yields to the buttons, not the reverse —
+   a "Delete Selected" the user cannot reach is worse than a clipped heading. */
+.rlv-toolbar__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rlv-toolbar__actions { flex: 0 0 auto; }
+
+/* Button labels keep their nowrap (a wrapped label doubles the button's
+   height and breaks every toolbar row); they clip instead. */
+.p-button .p-button-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Column headers stay on one line and clip. The header row's height is what
+   ktable-fill measures to size the body, so a header that wraps to two lines
+   silently shortens the table. Columns are resizable, so a clipped header is
+   recoverable. */
+.p-datatable .p-column-header-content { min-width: 0; }
+.p-datatable .p-column-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Dockview tab text (`${label} • ${cluster}`) needs no rule here: FloatableTab
+   is the defaultTabComponent for every panel and already clips inline at
+   maxWidth 180. It gained a `title` in this step so the clipped half is
+   readable. */
+
+/* ── Language submenu: the machine-translation note ──────────
+   Only `tr` was reviewed by a native speaker (see locales/README.md). Saying
+   so at the point the language is chosen is what turns a wrong string into a
+   report instead of a silent bad impression. It wraps — it is a sentence, not
+   a menu label — so the width is pinned rather than left to the item. */
+.tb-actions .p-menubar .p-submenu-list .p-menuitem-separator { border-top: 1px solid var(--line); margin: 4px 0; }
+.tb-actions .p-menubar .p-submenu-list .p-menuitem.tb-menu-note .p-menuitem-link { padding: 2px 12px 7px; }
+.tb-actions .p-menubar .p-submenu-list .p-menuitem.tb-menu-note .p-menuitem-text {
+  font-size: 11px; line-height: 1.35; color: var(--ink3);
+  white-space: normal; max-width: 190px;
+  text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 2px;
+}
+.tb-actions .p-menubar .p-submenu-list .p-menuitem.tb-menu-note .p-menuitem-link:hover .p-menuitem-text,
+.tb-actions .p-menubar .p-submenu-list .p-menuitem.tb-menu-note.p-focus > .p-menuitem-content > .p-menuitem-link .p-menuitem-text { color: var(--teal); text-decoration-color: var(--teal); }

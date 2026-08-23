@@ -112,6 +112,12 @@ jobs:
       - name: Lint
         run: cd frontend && npm run lint
 
+      # The five translated locale catalogs are plain JSON — neither tsc nor
+      # ESLint can see a key that drifted away from `en`, a dropped {{count}}
+      # or a Russian plural form that was never written.
+      - name: i18n catalog parity
+        run: cd frontend && npm run i18n:check
+
       - name: Test
         run: cd frontend && npm run test
 

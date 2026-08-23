@@ -1,0 +1,15 @@
+{
+  "action": {
+    "cancel": "Отмена",
+    "clearFilters": "Сбросить фильтры",
+    "close": "Закрыть",
+    "delete": "Удалить",
+    "deleteSelected": "Удалить выбранные",
+    "describe": "Describe",
+    "portForward": "Проброс порта",
+    "retry": "Повторить"
+  },
+  "filter": {
+    "all": "Все"
+  }
+}

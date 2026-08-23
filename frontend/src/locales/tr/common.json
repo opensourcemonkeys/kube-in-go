@@ -1,0 +1,15 @@
+{
+  "action": {
+    "cancel": "İptal",
+    "clearFilters": "Filtreleri temizle",
+    "close": "Kapat",
+    "delete": "Sil",
+    "deleteSelected": "Seçilenleri Sil",
+    "describe": "Describe",
+    "portForward": "Port yönlendir",
+    "retry": "Yeniden dene"
+  },
+  "filter": {
+    "all": "Tümü"
+  }
+}

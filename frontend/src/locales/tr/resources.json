@@ -1,0 +1,216 @@
+{
+  "column": {
+    "accessModes": "Erişim Modları",
+    "active": "Etkin",
+    "activeJobs": "Etkin Job'lar",
+    "address": "Adres",
+    "addresses": "Adresler",
+    "age": "Yaş",
+    "apiGroups": "API Grupları",
+    "available": "Kullanılabilir",
+    "bindingMode": "Bağlama Modu",
+    "capacity": "Kapasite",
+    "category": "Kategori",
+    "check": "Kontrol",
+    "claim": "Talep",
+    "class": "Sınıf",
+    "cluster": "Küme",
+    "clusterIp": "Küme IP",
+    "completions": "Tamamlanma",
+    "containers": "Container'lar",
+    "controller": "Controller",
+    "count": "Adet",
+    "cpu": "CPU",
+    "cpuDefaultMax": "CPU (varsayılan / azami)",
+    "created": "Oluşturulma",
+    "currentAvailable": "Mevcut / Kullanılabilir",
+    "dataKeys": "Veri Anahtarları",
+    "default": "Varsayılan",
+    "desiredReady": "İstenen / Hazır",
+    "egress": "Egress",
+    "externalIp": "Harici IP",
+    "fixed": "Düzeltilen",
+    "hosts": "Host'lar",
+    "image": "İmaj",
+    "ingress": "Ingress",
+    "installed": "Kurulu",
+    "key": "Anahtar",
+    "kind": "Kind",
+    "lastRestart": "Son Yeniden Başlatma",
+    "lastSeen": "Son Görülme",
+    "limit": "Limit",
+    "match": "Eşleşme",
+    "memory": "Bellek",
+    "memoryDefaultMax": "Bellek (varsayılan / azami)",
+    "message": "Mesaj",
+    "name": "Ad",
+    "namespace": "Namespace",
+    "node": "Node",
+    "notReady": "Hazır Değil",
+    "object": "Nesne",
+    "owner": "Sahip",
+    "package": "Paket",
+    "paths": "Yollar",
+    "pod": "Pod",
+    "podIp": "Pod IP",
+    "podSelector": "Pod Seçici",
+    "pods": "Pods",
+    "policyTypes": "Politika Türleri",
+    "ports": "Portlar",
+    "provisioner": "Provisioner",
+    "ready": "Hazır",
+    "reason": "Sebep",
+    "reclaimPolicy": "Geri Kazanım Politikası",
+    "replicas": "Replika",
+    "request": "İstek",
+    "resolution": "Çözüm",
+    "resource": "Kaynak",
+    "resourceNames": "Kaynak Adları",
+    "resources": "Kaynaklar",
+    "restarts": "Yeniden Başlatma",
+    "roleref": "RoleRef",
+    "rolloutRestart": "Rollout Yeniden Başlatma",
+    "ruleId": "Kural ID",
+    "rules": "Kurallar",
+    "schedule": "Zamanlama",
+    "secrets": "Secrets",
+    "severity": "Önem",
+    "status": "Durum",
+    "storageClass": "StorageClass",
+    "subjects": "Özneler",
+    "target": "Hedef",
+    "title": "Başlık",
+    "tls": "TLS",
+    "type": "Tür",
+    "types": "Türler",
+    "updated": "Güncellendi",
+    "value": "Değer",
+    "verbs": "Fiiller",
+    "volume": "Volume",
+    "volumeMode": "Volume Modu",
+    "vulnerability": "Güvenlik Açığı"
+  },
+  "filter": {
+    "count": "Adet",
+    "searchMessage": "Mesaj ara",
+    "searchName": "Ad ara"
+  },
+  "delete": {
+    "header": "{{kind}} Silme Onayı",
+    "body": "Seçilen {{label}} kayıtlarını silmek istiyor musunuz?",
+    "toast": {
+      "successSummary": "Başarıyla silindi",
+      "successDetail": "{{target}} silindi",
+      "failSummary": "Silme başarısız",
+      "failDetail": "{{target}} silinemedi"
+    }
+  },
+  "namespace": {
+    "createTitle": "Namespace Oluştur",
+    "title": "Namespace Listesi",
+    "empty": "Namespace bulunamadı",
+    "create": "Yeni Namespace",
+    "createConfirm": "Oluştur",
+    "namePlaceholder": "my-namespace",
+    "labels": "Etiketler",
+    "labelsHint": "(isteğe bağlı, virgülle ayrılmış key=value)",
+    "labelsPlaceholder": "team=platform, env=dev"
+  },
+  "crd": {
+    "deleteTitle": "Silme Onayı"
+  },
+  "configmap": {
+    "title": "ConfigMap Listesi",
+    "empty": "ConfigMap bulunamadı"
+  },
+  "cronjob": {
+    "title": "CronJob Listesi",
+    "empty": "CronJob bulunamadı"
+  },
+  "daemonset": {
+    "title": "DaemonSet Listesi",
+    "empty": "DaemonSet bulunamadı"
+  },
+  "deployment": {
+    "title": "Deployment Listesi",
+    "empty": "Deployment bulunamadı"
+  },
+  "endpoints": {
+    "title": "Endpoint Listesi",
+    "empty": "Endpoint bulunamadı"
+  },
+  "ingress": {
+    "title": "Ingress Listesi",
+    "empty": "Ingress bulunamadı"
+  },
+  "ingressclass": {
+    "title": "Ingress Sınıfı Listesi",
+    "empty": "Ingress sınıfı bulunamadı"
+  },
+  "job": {
+    "title": "Job Listesi",
+    "empty": "Job bulunamadı"
+  },
+  "limitrange": {
+    "title": "Limit Aralığı Listesi",
+    "empty": "Limit aralığı bulunamadı"
+  },
+  "networkpolicy": {
+    "title": "Ağ Politikası Listesi",
+    "empty": "Ağ politikası bulunamadı"
+  },
+  "persistentvolume": {
+    "title": "Kalıcı Volume'lar",
+    "empty": "Kalıcı volume bulunamadı"
+  },
+  "persistentvolumeclaim": {
+    "title": "Volume Talepleri",
+    "empty": "Volume talebi bulunamadı"
+  },
+  "pod": {
+    "title": "Pod Listesi",
+    "empty": "Pod bulunamadı",
+    "containerInitPrefix": "[init] ",
+    "containerUnknownState": "Bilinmiyor",
+    "containerRestarts": " — {{count}} yeniden başlatma"
+  },
+  "replicaset": {
+    "title": "ReplicaSet Listesi",
+    "empty": "ReplicaSet bulunamadı"
+  },
+  "role": {
+    "title": "Role Listesi",
+    "empty": "Role bulunamadı"
+  },
+  "rolebinding": {
+    "title": "RoleBinding Listesi",
+    "empty": "RoleBinding bulunamadı"
+  },
+  "secret": {
+    "title": "Secret Listesi",
+    "empty": "Secret bulunamadı"
+  },
+  "service": {
+    "title": "Service Listesi",
+    "empty": "Service bulunamadı"
+  },
+  "serviceaccount": {
+    "title": "ServiceAccount Listesi",
+    "empty": "ServiceAccount bulunamadı"
+  },
+  "statefulset": {
+    "title": "StatefulSet Listesi",
+    "empty": "StatefulSet bulunamadı"
+  },
+  "storageclass": {
+    "title": "Depolama Sınıfları",
+    "empty": "Depolama sınıfı bulunamadı"
+  },
+  "resourcequota": {
+    "title": "Kaynak Kotaları",
+    "filterNamespace": "Namespace filtrele",
+    "clearFilter": "Filtreyi temizle",
+    "noMatch": "Eşleşen namespace yok.",
+    "empty": "Hiçbir namespace'te tanımlı kaynak kotası yok."
+  }
+}

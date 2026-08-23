@@ -3,6 +3,7 @@
     "label": "Theme"
   },
   "language": {
-    "label": "Language"
+    "label": "Language",
+    "mtNote": "Machine-translated — report a bad string"
   }
 }

@@ -203,8 +203,12 @@ lint-go: vet
 
 # tsc --noEmit rather than `npm run build`: type errors are what we are gating
 # on, and a full vite build here would double every check's runtime.
+#
+# i18n:check is the third anti-rot barrier for the locale catalogs: tsc catches
+# a typo'd key and ESLint catches a hardcoded string, but only this sees the
+# five translated catalogs drifting away from `en`.
 check-frontend: bindings
-	cd frontend && npm run typecheck && npm run lint && npm run test
+	cd frontend && npm run typecheck && npm run lint && npm run i18n:check && npm run test
 
 # Single source of truth for the release version. CI derives artifact names from
 # this rather than from GITHUB_REF_NAME, so the two can never disagree.

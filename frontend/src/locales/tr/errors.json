@@ -1,0 +1,19 @@
+{
+  "banner": {
+    "stale": "en son bilinen veriler gösteriliyor",
+    "retry": "Yeniden dene",
+    "copyDiagnostics": "Tanılamayı kopyala",
+    "copied": "Kopyalandı",
+    "copyFailed": "Kopyalanamadı",
+    "dismiss": "Kapat"
+  },
+  "boundary": {
+    "appTitle": "Kube Inspector bir hatayla karşılaştı",
+    "panelTitle": "Bu panel bir hatayla karşılaştı",
+    "reloadWindow": "Pencereyi yeniden yükle",
+    "reloadPanel": "Paneli yeniden yükle",
+    "copied": "Kopyalandı",
+    "copyDiagnostics": "Tanılamayı kopyala",
+    "hint": "Uygulamanın geri kalanı çalışmaya devam ediyor. Yığın izi tanılama raporunda."
+  }
+}

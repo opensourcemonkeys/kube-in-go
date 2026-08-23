@@ -1,0 +1,19 @@
+{
+  "banner": {
+    "stale": "zeigt die zuletzt bekannten Daten",
+    "retry": "Erneut versuchen",
+    "copyDiagnostics": "Diagnose kopieren",
+    "copied": "Kopiert",
+    "copyFailed": "Kopieren fehlgeschlagen",
+    "dismiss": "Ausblenden"
+  },
+  "boundary": {
+    "appTitle": "In Kube Inspector ist ein Fehler aufgetreten",
+    "panelTitle": "In diesem Panel ist ein Fehler aufgetreten",
+    "reloadWindow": "Fenster neu laden",
+    "reloadPanel": "Panel neu laden",
+    "copied": "Kopiert",
+    "copyDiagnostics": "Diagnose kopieren",
+    "hint": "Der Rest der Anwendung läuft weiter. Der Stacktrace steht im Diagnosebericht."
+  }
+}

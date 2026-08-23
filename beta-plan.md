@@ -20,7 +20,8 @@
 - [x] **S11** — Port forwarding: process-ömürlü tünel modeli ✅
 - [x] **S12a** — i18n altyapısı + koruma bariyerleri + yüksek kaldıraçlı yüzeyler ✅
 - [x] **S12b** — kalan 21 list view + panellerin İngilizce çıkarımı ✅
-- [ ] **S13** — tr / de / ru / zh / ja çevirileri + çürüme koruması
+- [x] **S13a** — parite denetleyicisi + CI/Makefile wiring ✅
+- [x] **S13b** — tr / de / ru / zh / ja çevirileri + dürüstlük işaretleri ✅
 - [ ] **S14** — Performans ve render hijyeni
 - [ ] **S15** — Release altyapısı: CI, kanallar, updater, paketleme
 - [ ] **S16** — Beta dokümantasyonu
@@ -1430,6 +1431,189 @@ alacak; lint kuralı 13c'de zaten `error` durumda.
 cd frontend && npm run i18n:check && npm run lint && npm run build
 ```
 Manuel: 6 dilin her biri için Pods, Deployments, Nodes, Monitoring ve CRD panelleri + delete dialog + About modal'ı aç. Kontrol: hiçbir yerde ham anahtar (`resources.pods.title`) görünmemeli, `de`/`ru`'da kırpılmış buton olmamalı, Kubernetes isimleri İngilizce kalmalı, hata banner'ının çerçevesi çevrilmiş ama Kubernetes hata metni İngilizce olmalı.
+
+### Adım ikiye bölündü (planlama oturumu kararı)
+
+628 anahtar × 5 dil ≈ 4000 satır JSON. **S13a** çürüme korumasını (denetleyici +
+wiring) tek başına merge edilebilir hâlde bitirir; **S13b** çevirileri getirir.
+Bariyerin çevirilerden önce yürürlüğe girmesi kasıtlı: S13b'nin her locale'i
+teslim edildiği anda makine tarafından denetlenir.
+
+**13c'de yapılacak iş yok.** "Lint kuralını `warn` → `error` çevir" maddesi
+**S12b'de zaten yapılmıştı** (`frontend/eslint.config.js:65`).
+
+### Uygulandı — S13a sonuç ✅
+
+**Yeni `frontend/scripts/i18n-check.mjs`** — bağımlılıksız (`node:fs/path/url` +
+yerleşik `Intl.PluralRules`), `npm run i18n:check`.
+
+**Çoğul kuralı plandan saptı — ve sapmak zorundaydı.** Plan "parite
+denetleyicisi fazladan çoğul son eklere izin vermeli" diyordu; bu, hem `zh`/`ja`
+hem `ru` için yanlış. CLDR kategorileri:
+
+| | borçlu olduğu formlar |
+|---|---|
+| `en`, `tr`, `de` | `_one`, `_other` |
+| `ru`             | `_one`, `_few`, `_many`, `_other` |
+| `zh`, `ja`       | **yalnız** `_other` |
+
+Naif "en'de var, locale'de yok → fail" kuralı zh/ja'yı Çince'de var olmayan bir
+`_one` yüzünden düşürürdü; naif allowlist ise ru'nun eksik `_few`/`_many`'sini
+sessizce geçirirdi. Denetleyici bunu `Intl.PluralRules(locale)`'den türetiyor,
+yani her iki hata da fail. `en`'in üç çoğul grubu var:
+`panels:portForward.pill`, `panels:crd.kind`, `panels:crd.deleteBody`.
+
+**Sekiz FAIL kuralı:** (1) namespace dosya kümesi `en` ile farklı, (2) `LOCALES`'te
+kayıtlı olmayan katalog dizini (asla yüklenemez), (3) `en`'de olup locale'de
+olmayan anahtar, (4) tersi, (5) yukarıdaki çoğul kuralı, (6) `{{placeholder}}`
+kümesi farklı, (7) `<Trans>` etiket indeksi düşmüş/yeniden numaralanmış,
+(8) JSON parse hatası / string olmayan leaf. Ayrıca `en`'in namespace dosyaları
+`i18n/index.ts`'teki `NAMESPACES` ile karşılaştırılıyor — kayıtsız katalog
+dosyası hiç fetch edilmez ve eksik çeviriden ayırt edilemez.
+
+**`<Trans>` etiketleri küme olarak karşılaştırılıyor, dizi olarak değil** —
+Almanca ve Japonca etiketlerin etrafındaki cümle öğelerini meşru şekilde yeniden
+sıralıyor; yakalanması gereken hata düşme/yeniden numaralama.
+
+**Tek WARN:** bir dosyanın çevrilebilir değerlerinin >%20'si `en` ile birebir
+aynıysa (kopyalanmış-ama-çevrilmemiş dosya imzası). Muafiyet zorunlu oldu:
+`{{...}}` ve `<N>` temizlendikten sonra kalan her token'ı GLOSSARY terimi ya da
+sayı olan değerler sayılmıyor — yoksa `nav.json` (`Pods`, `Nodes`,
+`ConfigMaps` …) **doğru olduğu için** her locale'de uyarı verirdi. Sözlük
+`GLOSSARY.md`'nin fenced bloğundan okunuyor (2+ boşlukta bölünüyor, böylece
+`Kube Inspector` tek terim kalıyor); dosyaya bu bloğun makine tarafından
+okunduğunu söyleyen bir not eklendi.
+
+**Kayıtlı ama dizini hiç olmayan locale = WARN, fail değil.** S12→S13b arası
+belgelenmiş ara durum; S13a bu sayede tek başına yeşil.
+
+**`i18n.test.ts` sessizce anlamsızlaşmaktan kurtarıldı.** İlk test
+`changeLocale('de')` ile "kataloğu yok, en'e düşmeli" diyordu. S13b `de/`
+getirdiğinde assert **yanlış sebeple** geçmeye devam edecekti — kontrol ettiği
+`nav:item.pods` her dilde "Pods". `'de'` → **`'xx'`** (hiç var olmayacak id) ve
+ikinci bir assert (`common:action.delete`) eklendi.
+
+**Wiring:** `package.json` scripts, `make check-frontend` (typecheck → lint →
+**i18n:check** → test), `ci.yml` frontend job'ında Lint'ten sonra yeni adım.
+`locales/README.md` denetleyicinin 8 fail + 1 warn sözleşmesini ve CLDR çoğul
+tablosunu belgeliyor.
+
+**Denetleyici gerçekten yakalıyor mu — kanıtlandı.** Sekiz kuralın her biri
+kasıtlı bozuk fixture'larla tetiklendi (kısmi `de/` dizini, kayıtsız `xx/`,
+`ru`'dan silinmiş `action.retry`, uydurma `portForward.bogus`, `en`'in
+`_one/_other`'ını kopyalayan `zh`, `_few`/`_many`'si eksik `ru`, `{{count}}`
+düşürülmüş `crd.deleteBody_other`, `<1>` → `<2>` yapılmış `ai.ollamaMissing`) —
+hepsi fail verdi, fixture'lar silindi.
+
+**Doğrulama**
+```
+npm run i18n:check   -> ✓ 1/6 locale çevrili, 628 anahtar, 6 ns, 5 warning
+npx tsc --noEmit     -> temiz
+npx eslint .         -> 0 error, 132 warning (S12b ile aynı; script de lint'leniyor)
+npm test             -> 7 dosya / 33 test geçti
+npm run build        -> başarılı
+GOEXPERIMENT=jsonv2 go build/vet/test -> temiz (Go'ya dokunulmadı)
+```
+`npm run build` **`frontend/dist/.gitkeep`'i siliyor** (Vite dizini boşaltıyor;
+CLAUDE.md'de yazılı). `git checkout -- frontend/dist/.gitkeep` ile geri alındı.
+
+**Bindings regen edilmedi** — exported App metodu / `models` struct'ı değişmedi.
+
+**S13 kapsamı dışında bulunan gerçek hata (S15'e):** `internal/logging` testleri
+**flaky** — 6 koşudan 4'ü `TempDir RemoveAll cleanup: directory not empty` ile
+düşüyor ve düşen testin adı değişiyor. Sebep `retention.go:37 sweepAsync`: hiçbir
+şeyin beklemediği detached goroutine, `t.TempDir()`'in `RemoveAll`'ı ile yarışıp
+`.retention`/`.retention.lock`'u dizin silindikten sonra yeniden yaratıyor.
+Temiz checkout'ta (`git stash`) da üretildi — S13 ile ilgisi yok, ama `make check`
+ve CI'ın `go` job'ı bu yüzden aralıklı kırmızı olacak.
+
+### Uygulandı — S13b sonuç ✅
+
+**30 katalog dosyası** yazıldı; `npm run i18n:check` → **6/6 locale, 629 anahtar,
+0 uyarı**. 629 = S12'nin 628'i + yeni `settings:language.mtNote` (altı locale'e
+aynı anda eklendi, plandaki gibi).
+
+**Ne çevrilir, ne çevrilmez — plandaki sınır keskinleştirildi.** `GLOSSARY.md`
+"Kubernetes özel adları çevrilmez" diyordu ama sınırı çizmiyordu; nav'daki
+`Network Policies` / `Persistent Volumes` / `Service Accounts` gibi 12 etiket
+tam bu boşluğa düşüyordu. Uygulanan kural, GLOSSARY'ye yeni bir bölüm olarak
+yazıldı: **API'nin yazdığı hâliyle CamelCase olan ad (ve çıplak çoğulu) kalır**
+(`Pods`, `Endpoints`, `Events`, `ConfigMaps`) — çünkü kullanıcının `kubectl`'e
+yazacağı ve Kubernetes dokümanında arayacağı string odur; **boşluklu düzyazı
+karşılığı çevrilir** (`Network Policies` → `Ağ Politikaları`), çünkü o, kind'ın
+*adı* değil, hakkındaki *cümle*. Aynı kural cümle içinde de geçerli:
+`Pod List` → `Pod Listesi`.
+
+Bu keyfi bir tercih değil, ölçülebilir bir eşik meselesiydi: 12 etiketin hepsi
+İngilizce bırakılsa `nav.json`'un çevrilebilir değerlerinin **%29'u** `en` ile
+birebir aynı kalır ve denetleyici beş locale'in her birinde
+"kopyalanmış-ama-çevrilmemiş" uyarısı verirdi — yani uyarı, doğru olduğu için
+tetiklenip işe yaramaz hâle gelirdi. Alternatif (glossary'ye `Network Policy`
+gibi boşluklu terimleri eklemek) çalışmıyor: denetleyici token bazlı eşleştirdiği
+ve `policies` → `policie` tekilleştirmesi tutmadığı için hem yanlış hem de
+denetleyiciyi gereksiz yere gevşetiyordu. Sınırı çevirinin kendisinde çizmek,
+`identical` oranını **%7'ye** indirdi (`Ingresses`, `Endpoints`, `Events`).
+
+**Rusça'nın `_one`'ı `{{count}}` alamıyor — plan bunu göremezdi.** Denetleyici
+kuralı (6): bir anahtarın placeholder kümesi `en`'deki *aynı anahtarla*
+eşleşmeli. `crd.deleteBody_one` `en`'de yalnız `{{label}}` taşıyor, `{{count}}`
+taşımıyor. Rusça'da `one` kategorisi 1'i olduğu kadar 21, 31, 101'i de kapsar —
+yani dilbilgisel olarak orada bir sayı isteniyor, ama koymak denetleyiciyi
+kırıyor. `_one` sayısız bir cümleyle yazıldı
+("Удалить следующий объект ({{label}})?"), `_few`/`_many`/`_other` sayıyı
+taşıyor. `_few` ve `_many` `en`'de hiç yok, dolayısıyla placeholder kuralına
+girmiyorlar — kontrol yalnızca `en`'in anahtarları üzerinde dönüyor.
+
+**Denetleyicinin göremediği şey test edildi.** Parite denetleyicisi bir çoğul
+formun *var olduğunu* kanıtlar; **doğru formun seçildiğini** yalnız i18next
+kanıtlayabilir. `i18n.test.ts`'e dört test eklendi: code-split bir kataloğun
+gerçekten yüklenmesi (`de` → "Löschen", ama `nav:item.pods` hâlâ "Pods"),
+Rusça'nın dört kategorisi (`1 проброс` / `3 проброса` / `5 пробросов` /
+**`21 проброс`** — İngilizce'nin gizlediği tuzak), `_one`'ı olmayan Çince'de
+`count:1`'in `_other`'a düşmesi, ve çeviri sonrası interpolasyonun sağlam
+kalması. 33 → **37 test**.
+
+**Dürüstlük işareti üç yerde birden.** `locales/README.md`'ye köken tablosu
+(`en`=kaynak, `tr`=reviewed, diğer dördü=machine-translated) ve
+"machine-translated tam olarak ne demek" paragrafı; TitleBar'ın dil alt
+menüsünde ayraçtan sonra `settings:language.mtNote` — tıklanabilir, `.tb-menu-note`
+ile küçük/soluk/sarmalanan bir cümle olarak biçimlendirildi.
+
+**Savunmacı ellipsis, `title` olmadan yarım kalıyordu.** de/ru %20-35 daha uzun,
+ama kırpma ancak metnin tamamı bir yerden okunabiliyorsa kabul edilebilir. CSS
+(`theme-monolith.css`, yeni "LONG-STRING DEFENCE" bölümü) sidebar etiketini,
+`ResourceListView` başlığını, buton etiketlerini ve kolon başlıklarını tek satıra
+kırpıyor; buna eşlik eden üç `title` attribute'u eklendi: `menu.tsx` sidebar
+düğmesi, `ResourceListView`'ın yeni `.rlv-toolbar__title` `h3`'ü ve
+`FloatableTab`'ın sekme metni (bu zaten 180px'te kırpıyordu, tooltip'i yoktu).
+Kolon başlıkları bilerek sarmalamak yerine kırpılıyor: başlık satırının
+yüksekliği `ktable-fill`'in gövdeyi boyutlandırmak için ölçtüğü şey, ve kolonlar
+zaten yeniden boyutlandırılabilir.
+
+**Doğrulama**
+```
+npm run i18n:check   -> ✓ 6/6 locale, 629 anahtar, 6 ns, 0 warning
+npx tsc --noEmit     -> temiz
+npx eslint .         -> 0 error, 132 warning (S13a ile aynı)
+npm test             -> 7 dosya / 37 test geçti
+npm run build        -> başarılı; her ns için 5 ayrı chunk (code-split çalışıyor)
+GOEXPERIMENT=jsonv2 go build/vet -> temiz (Go'ya dokunulmadı)
+```
+`npm run build` yine `frontend/dist/.gitkeep`'i sildi; geri alındı.
+
+**Yapılmayan iki şey (bilerek):**
+1. **de/ru'da elle UI-fit turu atılmadı** — bu oturum başsız çalışıyor, GUI
+   açılamadı. CSS savunması yerinde ama *hangi* butonun taştığı gözle
+   doğrulanmadı; `make dev` ile `de` ve `ru`'da Pods / Monitoring / CRD
+   panelleri ve delete dialog'u bir kez gezilmeli.
+2. **`settings:language.mtNote`'un linki henüz 404.**
+   `docs/contributing/translations.md` yok (`docs/` altında `contributing/`
+   dizini hiç yok). Plan bunu zaten **S16 borcu** olarak kaydetmişti; S16'ya
+   kadar link boş sayfaya gidiyor.
+
+S16 borcu (değişmedi): `docs/contributing/translations.md` sayfası +
+Known Limitations'a "`{{label}}`/`{{kind}}` İngilizce kind ismi enterpole
+ediyor" maddesi.
 
 ---
 

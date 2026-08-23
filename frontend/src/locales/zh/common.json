@@ -1,0 +1,15 @@
+{
+  "action": {
+    "cancel": "取消",
+    "clearFilters": "清除筛选",
+    "close": "关闭",
+    "delete": "删除",
+    "deleteSelected": "删除所选",
+    "describe": "Describe",
+    "portForward": "端口转发",
+    "retry": "重试"
+  },
+  "filter": {
+    "all": "全部"
+  }
+}

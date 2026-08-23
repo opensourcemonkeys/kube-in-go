@@ -1,0 +1,19 @@
+{
+  "banner": {
+    "stale": "最後に取得したデータを表示しています",
+    "retry": "再試行",
+    "copyDiagnostics": "診断情報をコピー",
+    "copied": "コピーしました",
+    "copyFailed": "コピーできませんでした",
+    "dismiss": "閉じる"
+  },
+  "boundary": {
+    "appTitle": "Kube Inspector でエラーが発生しました",
+    "panelTitle": "このパネルでエラーが発生しました",
+    "reloadWindow": "ウィンドウを再読み込み",
+    "reloadPanel": "パネルを再読み込み",
+    "copied": "コピーしました",
+    "copyDiagnostics": "診断情報をコピー",
+    "hint": "アプリの他の部分は動作を続けています。スタックトレースは診断レポートにあります。"
+  }
+}
