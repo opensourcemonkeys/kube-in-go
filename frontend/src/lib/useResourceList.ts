@@ -3,6 +3,7 @@ import type { DockviewPanelApi } from 'dockview';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { Toast } from 'primereact/toast';
 import { usePanelActive } from './usePanelActive';
+import { useDocumentVisible } from './useDocumentVisible';
 import { errText } from './errText';
 import { useT } from '../i18n/useT';
 
@@ -33,7 +34,11 @@ export interface UseResourceListOptions<T extends ResourceRow> {
     defaultFilters: DataTableFilterMeta;
     /** Poll interval in ms (default 2000). */
     pollInterval?: number;
-    /** Dockview panel api; when supplied, polling pauses while the tab is backgrounded. */
+    /**
+     * Dockview panel api; when supplied, polling pauses while the tab is
+     * backgrounded. Polling also pauses whenever the window itself is hidden
+     * or minimised, with or without an api (`useDocumentVisible`).
+     */
     api?: DockviewPanelApi;
 }
 
@@ -92,7 +97,7 @@ export function useResourceList<T extends ResourceRow>(
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toastRef = useRef<Toast>(null);
-    const active = usePanelActive(api);
+    const active = usePanelActive(api) && useDocumentVisible();
 
     const reload = useCallback(async () => {
         setRefreshing(true);

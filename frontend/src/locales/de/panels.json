@@ -269,7 +269,8 @@
   "logs": {
     "label": "Logs",
     "selectPod": "Pod auswählen",
-    "container": "Container"
+    "container": "Container",
+    "truncated": "Zeigt die letzten {{lines}} Zeilen"
   },
   "terminal": {
     "label": "Terminal",

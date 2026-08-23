@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { DockviewPanelApi } from 'dockview';
 import { Chart } from 'primereact/chart';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -16,6 +17,8 @@ import { fmtCpu, fmtMem, pct, getUsageColor, UsageBarChart, CssBar } from '../..
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
+import { usePanelActive } from '../../lib/usePanelActive';
+import { useDocumentVisible } from '../../lib/useDocumentVisible';
 
 const POLL_MS = 4000;
 
@@ -106,8 +109,11 @@ const podSel = (r: models.ResourceUsage): Selected => ({
     cat: 'pod', kind: 'pod', name: r.name, namespace: r.namespace, id: `pod/${r.namespace}/${r.name}`, label: `${r.namespace}/${r.name}`,
 });
 
-export default function MonitoringDashboard({ clusterName }: { clusterName: string }) {
+export default function MonitoringDashboard({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
+    // The most expensive poll in the app (a metrics-server fan-out every 4s):
+    // it must stop for a backgrounded tab and for a hidden window alike.
+    const active = usePanelActive(api) && useDocumentVisible();
     const storeKey = `metrics:${clusterName}`;
     const [snap, setSnap] = useState<models.MetricsSnapshot | null>(null);
     const [mode, setMode] = useState<'pods' | 'workloads'>('pods');
@@ -192,10 +198,11 @@ export default function MonitoringDashboard({ clusterName }: { clusterName: stri
     }, [clusterName, storeKey, record]);
 
     useEffect(() => {
+        if (!active) return;
         tick();
         const id = window.setInterval(tick, POLL_MS);
         return () => window.clearInterval(id);
-    }, [tick]);
+    }, [active, tick]);
 
     const select = (s: Selected) => setSelected((cur) => (cur?.id === s.id ? null : s));
 

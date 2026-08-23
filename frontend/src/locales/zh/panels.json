@@ -268,7 +268,8 @@
   "logs": {
     "label": "日志",
     "selectPod": "选择 Pod",
-    "container": "容器"
+    "container": "容器",
+    "truncated": "仅显示最后 {{lines}} 行"
   },
   "terminal": {
     "label": "终端",

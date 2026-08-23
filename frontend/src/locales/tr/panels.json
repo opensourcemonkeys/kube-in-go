@@ -269,7 +269,8 @@
   "logs": {
     "label": "Loglar",
     "selectPod": "Pod Seç",
-    "container": "Container"
+    "container": "Container",
+    "truncated": "Son {{lines}} satır gösteriliyor"
   },
   "terminal": {
     "label": "Terminal",

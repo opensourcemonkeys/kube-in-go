@@ -55,10 +55,10 @@ export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanel
     if (view === 'networkpolicies') return <NetworkPolicyListComponent clusterName={cn} api={api} />;
     if (view === 'configmaps') return <ConfigMapListComponent clusterName={cn} api={api} />;
     if (view === 'secrets') return <SecretListComponent clusterName={cn} api={api} />;
-    if (view === 'nodes') return <NodeListComponent clusterName={cn} />;
+    if (view === 'nodes') return <NodeListComponent clusterName={cn} api={api} />;
     if (view === 'namespaces') return <NamespaceListComponent clusterName={cn} api={api} />;
     if (view === 'events') return <EventListComponent clusterName={cn} api={api} />;
-    if (view === 'resourcequotas') return <ResourceQuotaListComponent clusterName={cn} />;
+    if (view === 'resourcequotas') return <ResourceQuotaListComponent clusterName={cn} api={api} />;
     if (view === 'limitranges') return <LimitRangeListComponent clusterName={cn} api={api} />;
     if (view === 'persistentvolumes') return <PersistentVolumeListComponent clusterName={cn} api={api} />;
     if (view === 'persistentvolumeclaims') return <PersistentVolumeClaimListComponent clusterName={cn} api={api} />;
@@ -68,7 +68,7 @@ export default function ViewPanel({ params, api }: IDockviewPanelProps<ViewPanel
     if (view === 'rolebindings') return <RoleBindingListComponent clusterName={cn} api={api} />;
     if (view === 'securityrolemap') return <SecurityRoleMap clusterName={cn} />;
     if (view === 'trivy') return <TrivyScanner clusterName={cn} />;
-    if (view === 'monitoring') return <MonitoringDashboard clusterName={cn} />;
+    if (view === 'monitoring') return <MonitoringDashboard clusterName={cn} api={api} />;
     if (view === 'overview') return <OverviewDashboard clusterName={cn} api={api} />;
     if (view === 'crds') return <CrdListComponent clusterName={cn} api={api} />;
 

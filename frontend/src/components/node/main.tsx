@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
+import type { DockviewPanelApi } from 'dockview';
 import { Trans } from 'react-i18next';
 import { Chart } from 'primereact/chart';
 import { VscServer, VscPass, VscCircleSlash, VscOutput, VscNote, VscClose, VscInfo, VscLocation, VscTag, VscDesktopDownload, VscChip, VscDatabase } from 'react-icons/vsc';
@@ -14,6 +15,8 @@ import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
+import { usePanelActive } from '../../lib/usePanelActive';
+import { useDocumentVisible } from '../../lib/useDocumentVisible';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -224,8 +227,9 @@ function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string
     );
 }
 
-export default function NodeListComponent({ clusterName }: { clusterName: string }) {
+export default function NodeListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
+    const active = usePanelActive(api) && useDocumentVisible();
     const [nodes, setNodes] = useState<models.NodeInfo[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
@@ -236,7 +240,7 @@ export default function NodeListComponent({ clusterName }: { clusterName: string
     // Mirrors lib/useResourceList: keep the last good cards on a failed poll and
     // let the banner say the data is stale, rather than blanking to a message
     // that reads like "this cluster has no nodes".
-    const loadNodes = async () => {
+    const loadNodes = useCallback(async () => {
         setRefreshing(true);
         try {
             const items = await GetNodes(clusterName);
@@ -249,13 +253,14 @@ export default function NodeListComponent({ clusterName }: { clusterName: string
             setLoaded(true);
             setRefreshing(false);
         }
-    };
+    }, [clusterName]);
 
     useEffect(() => {
+        if (!active) return;
         loadNodes();
         const id = window.setInterval(loadNodes, 3000);
         return () => window.clearInterval(id);
-    }, []);
+    }, [active, loadNodes]);
 
     const handleEditYaml = (name: string) => {
         openYamlPanel({ clusterName,

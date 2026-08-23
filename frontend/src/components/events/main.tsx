@@ -13,6 +13,7 @@ import { GetEvents } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useEventsStore, defaultEventFilters } from '../../stores/eventsStore';
 import { usePanelActive } from '../../lib/usePanelActive';
+import { useDocumentVisible } from '../../lib/useDocumentVisible';
 import { useDeferredMount } from '../../lib/useDeferredMount';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
@@ -47,7 +48,7 @@ export default function EventListComponent({ clusterName, api }: { clusterName: 
     // Whether this panel is the foreground tab. When backgrounded we tear down
     // the table DOM and pause polling; the latest data lives in the persisted
     // store, so returning to the foreground rebuilds instantly from it.
-    const active = usePanelActive(api);
+    const active = usePanelActive(api) && useDocumentVisible();
     // Lazily mount the heavy DataTable a couple of frames after the tab paints,
     // so switching to this tab feels instant instead of janking on a big render.
     const showTable = useDeferredMount(active);

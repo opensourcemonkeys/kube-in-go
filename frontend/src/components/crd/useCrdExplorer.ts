@@ -3,6 +3,7 @@ import type { DockviewPanelApi } from 'dockview';
 import { GetCRDs, GetCRDInstanceCounts, GetResourceTable } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { usePanelActive } from '../../lib/usePanelActive';
+import { useDocumentVisible } from '../../lib/useDocumentVisible';
 import { errText } from '../../lib/errText';
 
 // The catalog sweep costs one API round-trip per CRD (see
@@ -58,11 +59,11 @@ export interface CrdExplorer {
  * counts), the search/scope filters that narrow the tree, and the
  * server-rendered table for whichever kind is selected.
  *
- * All polling is gated on `usePanelActive` so a backgrounded Dockview tab goes
- * quiet.
+ * All polling is gated on `usePanelActive` + `useDocumentVisible`, so a
+ * backgrounded Dockview tab and a minimised window both go quiet.
  */
 export function useCrdExplorer(clusterName: string, api?: DockviewPanelApi): CrdExplorer {
-    const active = usePanelActive(api);
+    const active = usePanelActive(api) && useDocumentVisible();
 
     const [crds, setCrds] = useState<models.CRDInfo[]>([]);
     const [counts, setCounts] = useState<Record<string, number>>({});

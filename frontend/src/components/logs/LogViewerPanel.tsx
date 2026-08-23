@@ -40,6 +40,17 @@ async function fetchPodsForKind(clusterName: string, kind: WorkloadKind, name: s
 
 const ALL_CONTAINERS = '';
 
+/**
+ * How many log lines the viewer keeps. A chatty pod emits megabytes a minute,
+ * and the panel used to hold every byte of it in one ever-growing string —
+ * a renderer OOM given enough time. Same shape as `stores/metricsStore`'s
+ * MAX_POINTS: keep the newest N, say so on screen, drop the rest.
+ */
+const MAX_LOG_LINES = 5000;
+
+/** Flush interval for accumulated stream output, in ms. */
+const FLUSH_MS = 120;
+
 export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewerPanelParams>) {
     const t = useT();
     const { clusterName, resourceKind, name, namespace } = params;
@@ -50,19 +61,45 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
     const [containers, setContainers] = useState<string[]>([]);
     const [selectedContainer, setSelectedContainer] = useState(ALL_CONTAINERS);
     const [logText, setLogText] = useState(' ');
+    const [truncated, setTruncated] = useState(false);
 
     const pendingRef = useRef('');
     const sessionIdsRef = useRef<string[]>([]);
     const offHandlersRef = useRef<Array<() => void>>([]);
+    // The ring buffer: complete lines, newest last. `tailRef` holds the partial
+    // last line, because a stream chunk boundary is not a line boundary —
+    // appending it to the buffer would split one log line into two.
+    const linesRef = useRef<string[]>([]);
+    const tailRef = useRef('');
 
-    // Flush accumulated log data to state every 120ms
+    const resetBuffer = useCallback(() => {
+        pendingRef.current = '';
+        linesRef.current = [];
+        tailRef.current = '';
+        setTruncated(false);
+        setLogText(' ');
+    }, []);
+
+    // Batch the stream into one state update per tick: an event per line would
+    // re-render (and re-layout LazyLog) hundreds of times a second.
     useEffect(() => {
         const timer = setInterval(() => {
-            if (pendingRef.current) {
-                setLogText(prev => prev === ' ' ? pendingRef.current : prev + pendingRef.current);
-                pendingRef.current = '';
+            if (!pendingRef.current) return;
+            const chunk = tailRef.current + pendingRef.current;
+            pendingRef.current = '';
+            const parts = chunk.split('\n');
+            tailRef.current = parts.pop() ?? '';
+            const lines = linesRef.current;
+            for (const part of parts) lines.push(part);
+            if (lines.length > MAX_LOG_LINES) {
+                lines.splice(0, lines.length - MAX_LOG_LINES);
+                setTruncated(true);
             }
-        }, 120);
+            const text = tailRef.current ? [...lines, tailRef.current].join('\n') : lines.join('\n');
+            // LazyLog treats '' as "no content at all"; a single space is what
+            // this panel has always used for the empty state.
+            setLogText(text || ' ');
+        }, FLUSH_MS);
         return () => clearInterval(timer);
     }, []);
 
@@ -104,8 +141,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
         if (!selectedPod || containers.length === 0) return;
 
         stopStreams();
-        pendingRef.current = '';
-        setLogText(' ');
+        resetBuffer();
 
         const containersToStream = selectedContainer ? [selectedContainer] : containers;
         const newSessionIds: string[] = [];
@@ -131,7 +167,7 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
         offHandlersRef.current = newOffHandlers;
 
         return stopStreams;
-    }, [selectedPod, selectedContainer, containers, namespace, stopStreams]);
+    }, [selectedPod, selectedContainer, containers, namespace, stopStreams, resetBuffer]);
 
     const containerOptions = [
         { label: 'All containers', value: ALL_CONTAINERS },
@@ -162,6 +198,12 @@ export default function LogViewerPanel({ params }: IDockviewPanelProps<LogViewer
                         placeholder={t('panels:logs.container')}
                         className="log-viewer-dropdown"
                     />
+                )}
+
+                {truncated && (
+                    <span className="log-viewer-toolbar__note">
+                        {t('panels:logs.truncated', { lines: MAX_LOG_LINES })}
+                    </span>
                 )}
             </div>
 

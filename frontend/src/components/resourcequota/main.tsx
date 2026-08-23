@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { DockviewPanelApi } from 'dockview';
 import { Chart } from 'primereact/chart';
 
 
@@ -14,6 +15,8 @@ import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
+import { usePanelActive } from '../../lib/usePanelActive';
+import { useDocumentVisible } from '../../lib/useDocumentVisible';
 
 const getUsageColor = (pct: number) => {
     if (pct < 60) return '#5fc98a'; // var(--green)
@@ -146,8 +149,9 @@ function NamespaceGroup({ namespace, quotas, onEdit, onDescribe }: {
     );
 }
 
-export default function ResourceQuotaListComponent({ clusterName }: { clusterName: string }) {
+export default function ResourceQuotaListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
+    const active = usePanelActive(api) && useDocumentVisible();
     const [quotas, setQuotas] = useState<models.NamespacedResourceQuota[]>([]);
     const [nsFilter, setNsFilter] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -174,10 +178,11 @@ export default function ResourceQuotaListComponent({ clusterName }: { clusterNam
     }, [clusterName]);
 
     useEffect(() => {
+        if (!active) return;
         loadData();
         const id = window.setInterval(loadData, 10000);
         return () => window.clearInterval(id);
-    }, [loadData]);
+    }, [active, loadData]);
 
     const referencePanel = `resourcequotas:${clusterName}`;
 

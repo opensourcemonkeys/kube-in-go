@@ -268,7 +268,8 @@
   "logs": {
     "label": "ログ",
     "selectPod": "Pod を選択",
-    "container": "コンテナ"
+    "container": "コンテナ",
+    "truncated": "最新の {{lines}} 行のみ表示しています"
   },
   "terminal": {
     "label": "ターミナル",

@@ -4,17 +4,20 @@ import { Message } from 'primereact/message';
 import { VscCircleLarge, VscCopy, VscSync, VscServer, VscTypeHierarchySub, VscDashboard } from 'react-icons/vsc';
 
 import {
-    GetMetricsSnapshot, GetNodes, GetPods, GetDeployments, GetServices, GetNamespaces,
+    GetMetricsSnapshot, GetNodes, GetClusterCounts,
 } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { usePanelActive } from '../../lib/usePanelActive';
+import { useDocumentVisible } from '../../lib/useDocumentVisible';
 import { fmtCpu, fmtMem, pct, getUsageColor, CssBar } from '../../lib/usage';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
 
-const POLL_MS = 5000;
+// A count tile does not need 5s granularity, and this tick is three cluster
+// round trips wide.
+const POLL_MS = 15000;
 
 // Clickable count tiles — each opens the matching resource view. `view`/`title`/`icon`
 // mirror the entries in menu/menuItems.tsx so tiles and the sidebar stay in sync.
@@ -27,12 +30,12 @@ const TILES: TileDef[] = [
     { key: 'namespaces',  view: 'namespaces',  title: 'Namespaces',  icon: <VscTypeHierarchySub /> },
 ];
 
-type Counts = { pods: number; deployments: number; services: number; nodes: number; namespaces: number };
+type Counts = models.ClusterCounts;
 
 export default function OverviewDashboard({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
     const { openTab } = useTabContext();
-    const active = usePanelActive(api);
+    const active = usePanelActive(api) && useDocumentVisible();
 
     const [snap, setSnap] = useState<models.MetricsSnapshot | null>(null);
     const [nodes, setNodes] = useState<models.NodeInfo[] | null>(null);
@@ -44,23 +47,21 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
     // reports the whole tick as failed — which is the honest outcome here: the
     // dashboard's numbers would be a mix of fresh and stale otherwise. Last good
     // values stay on screen and the banner says so.
+    //
+    // The tile numbers come from GetClusterCounts, not from six listings this
+    // used to fetch in full and then call `.length` on. GetNodes stays because
+    // the node cards below render the objects themselves.
     const tick = useCallback(async () => {
         setRefreshing(true);
         try {
-            const [s, n, pods, deps, svcs, ns] = await Promise.all([
+            const [s, n, cnt] = await Promise.all([
                 GetMetricsSnapshot(clusterName),
                 GetNodes(clusterName),
-                GetPods(clusterName),
-                GetDeployments(clusterName),
-                GetServices(clusterName),
-                GetNamespaces(clusterName),
+                GetClusterCounts(clusterName),
             ]);
             setSnap(s);
             setNodes(n);
-            setCounts({
-                pods: pods.length, deployments: deps.length, services: svcs.length,
-                nodes: n.length, namespaces: ns.length,
-            });
+            setCounts(cnt);
             setError(null);
         } catch (e) {
             console.error('Failed to load the overview:', e);
@@ -71,7 +72,7 @@ export default function OverviewDashboard({ clusterName, api }: { clusterName: s
     }, [clusterName]);
 
     useEffect(() => {
-        if (!active) return; // pause polling while the tab is backgrounded
+        if (!active) return; // pause polling for a backgrounded tab or a hidden window
         tick();
         const id = window.setInterval(tick, POLL_MS);
         return () => window.clearInterval(id);

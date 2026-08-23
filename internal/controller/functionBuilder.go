@@ -119,6 +119,12 @@ func (a *App) GetNodes(clusterName string) ([]models.NodeInfo, error) {
 	return bussiness.GetNodes(clusterName)
 }
 
+// GetClusterCounts backs the Overview dashboard's tile row. It exists so the
+// dashboard needs one small call instead of six full listings it only counts.
+func (a *App) GetClusterCounts(clusterName string) (models.ClusterCounts, error) {
+	return bussiness.GetClusterCounts(clusterName)
+}
+
 func (a *App) GetMetricsSnapshot(clusterName string) (models.MetricsSnapshot, error) {
 	return bussiness.GetMetricsSnapshot(clusterName)
 }

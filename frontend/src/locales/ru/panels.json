@@ -271,7 +271,8 @@
   "logs": {
     "label": "Логи",
     "selectPod": "Выберите Pod",
-    "container": "Контейнер"
+    "container": "Контейнер",
+    "truncated": "Показаны последние {{lines}} строк"
   },
   "terminal": {
     "label": "Терминал",
