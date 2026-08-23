@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import { Terminal } from '@xterm/xterm';
+import { useXtermTheme, xtermTheme } from '../../lib/xtermTheme';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { Dropdown } from 'primereact/dropdown';
@@ -28,6 +29,9 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
     const t = useT();
     const { sessionId } = params;
     const containerRef = useRef<HTMLDivElement>(null);
+    // Held so a theme switch can repaint the live terminal — see useXtermTheme.
+    const termRef = useRef<Terminal | null>(null);
+    useXtermTheme(termRef);
 
     const { clusters, activeCluster } = useClusterContext();
     // Same contract as the apply-yaml panel: the seeded cluster is only a
@@ -60,32 +64,12 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
             fontFamily: '"JetBrains Mono", "Cascadia Code", monospace',
             fontSize: 13,
             lineHeight: 1.4,
-            theme: {
-                background:    '#10141a',
-                foreground:    '#dfe2eb',
-                cursor:        '#a2c9ff',
-                cursorAccent:  '#10141a',
-                black:         '#181c22',
-                red:           '#ffb4ab',
-                green:         '#69e6a0',
-                yellow:        '#ffba42',
-                blue:          '#a2c9ff',
-                magenta:       '#d4b5ff',
-                cyan:          '#58a6ff',
-                white:         '#c0c7d4',
-                brightBlack:   '#414752',
-                brightRed:     '#ffb4ab',
-                brightGreen:   '#69e6a0',
-                brightYellow:  '#ffba42',
-                brightBlue:    '#a2c9ff',
-                brightMagenta: '#d4b5ff',
-                brightCyan:    '#58a6ff',
-                brightWhite:   '#dfe2eb',
-            },
+            theme: xtermTheme(),
         });
 
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
+        termRef.current = term;
         term.open(containerRef.current);
 
         // small delay so the DOM has settled before fitting
@@ -130,12 +114,13 @@ export default function TerminalPanel({ api, params }: IDockviewPanelProps<Termi
             onData.dispose();
             observer.disconnect();
             CloseTerminalSession(sessionId).catch(() => {});
+            if (termRef.current === term) termRef.current = null;
             term.dispose();
         };
     }, [sessionId]);
 
     return (
-        <div className="flex flex-column h-full" style={{ background: '#10141a' }}>
+        <div className="flex flex-column h-full" style={{ background: 'var(--panel2)' }}>
             <div className="yaml-editor-toolbar flex align-items-center justify-content-between">
                 <span className="yaml-editor-toolbar__label flex align-items-center gap-1">
                     <VscTerminal size={14} /> {t('panels:terminal.label')}

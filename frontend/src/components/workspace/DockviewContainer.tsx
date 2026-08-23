@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { lazy, useEffect, useRef } from 'react';
 import { VscDashboard } from 'react-icons/vsc';
 import { DockviewReact, DockviewReadyEvent, DockviewApi } from 'dockview';
 import 'dockview/dist/styles/dockview.css';
@@ -15,40 +15,40 @@ import {
 } from '../../lib/crossWindowDrop';
 import FloatableTab from './FloatableTab';
 import ViewPanel from './ViewPanel';
-import YamlEditorPanel from './YamlEditorPanel';
-import TerminalPanel from '../terminal/TerminalPanel';
-import ApplyYamlPanel from './ApplyYamlPanel';
-import LogViewerPanel from '../logs/LogViewerPanel';
-import PolicyViewerPanel from '../networkpolicy/PolicyViewerPanel';
-import ClusterResourcePanel from '../clusterresource/ClusterResourcePanel';
-import ConfigMapEditorPanel from '../configmap/ConfigMapEditorPanel';
-import SecretEditorPanel from '../secret/SecretEditorPanel';
-import PodExecPanel from '../pod/PodExecPanel';
-import RoleEditorPanel from '../role/RoleEditorPanel';
-import RoleBindingEditorPanel from '../rolebinding/RoleBindingEditorPanel';
-import ObjectYamlPanel from './ObjectYamlPanel';
-import DescribePanel from './DescribePanel';
-import DiagnosticsPanel from '../diagnostics/DiagnosticsPanel';
-import PortForwardsPanel from '../portforward/PortForwardsPanel';
 import { withBoundary } from '../shared/PanelErrorBoundary';
 
+/**
+ * Panel components, keyed by the `component` string TabContext opens them with.
+ *
+ * Everything except `view` is `React.lazy`: a panel type nobody opens should
+ * not be in the chunk the window waits for before it can paint. The libraries
+ * behind these are the whole reason the entry bundle was ~6MB — Monaco (the
+ * four YAML editors), reactflow (clusterResource), xterm (terminal, podExec) —
+ * and each now arrives with the first tab that needs it.
+ *
+ * `view` stays eager because one is always open: the app boots with the
+ * Overview tab. Its own heavy sub-views are lazy inside ViewPanel instead.
+ *
+ * `withBoundary` (below) supplies the Suspense fallback, so no entry here needs
+ * to think about loading state.
+ */
 const rawComponents = {
     view: ViewPanel,
-    yamlEditor: YamlEditorPanel,
-    terminal: TerminalPanel,
-    applyYaml: ApplyYamlPanel,
-    logViewer: LogViewerPanel,
-    policyViewer: PolicyViewerPanel,
-    clusterResource: ClusterResourcePanel,
-    configMapEditor: ConfigMapEditorPanel,
-    secretEditor: SecretEditorPanel,
-    podExec: PodExecPanel,
-    roleEditor: RoleEditorPanel,
-    roleBindingEditor: RoleBindingEditorPanel,
-    objectYaml: ObjectYamlPanel,
-    describe: DescribePanel,
-    diagnostics: DiagnosticsPanel,
-    portforwards: PortForwardsPanel,
+    yamlEditor: lazy(() => import('./YamlEditorPanel')),
+    terminal: lazy(() => import('../terminal/TerminalPanel')),
+    applyYaml: lazy(() => import('./ApplyYamlPanel')),
+    logViewer: lazy(() => import('../logs/LogViewerPanel')),
+    policyViewer: lazy(() => import('../networkpolicy/PolicyViewerPanel')),
+    clusterResource: lazy(() => import('../clusterresource/ClusterResourcePanel')),
+    configMapEditor: lazy(() => import('../configmap/ConfigMapEditorPanel')),
+    secretEditor: lazy(() => import('../secret/SecretEditorPanel')),
+    podExec: lazy(() => import('../pod/PodExecPanel')),
+    roleEditor: lazy(() => import('../role/RoleEditorPanel')),
+    roleBindingEditor: lazy(() => import('../rolebinding/RoleBindingEditorPanel')),
+    objectYaml: lazy(() => import('./ObjectYamlPanel')),
+    describe: lazy(() => import('./DescribePanel')),
+    diagnostics: lazy(() => import('../diagnostics/DiagnosticsPanel')),
+    portforwards: lazy(() => import('../portforward/PortForwardsPanel')),
 };
 
 // Every panel type gets an error boundary, applied here in one place so a new

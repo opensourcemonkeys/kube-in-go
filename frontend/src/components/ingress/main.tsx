@@ -16,8 +16,8 @@ const defaultFilters: DataTableFilterMeta = {
     namespace:  { value: null, matchMode: FilterMatchMode.IN },
     class_name: { value: null, matchMode: FilterMatchMode.IN },
     address:    { value: null, matchMode: FilterMatchMode.IN },
-    // Hosts/Paths satırda düz bir alan değil, `rules` içinden türetiliyor —
-    // filtre satırdaki sentetik dizilere bakar (bkz. createFrom).
+    // Hosts/Paths are not plain row fields; they are derived from `rules`, so
+    // the filter reads the synthetic arrays on the row (see createFrom).
     _hosts:     { value: null, matchMode: ARRAY_IN },
     _paths:     { value: null, matchMode: ARRAY_IN },
 };
@@ -27,7 +27,7 @@ const hostsOf = (rules: models.IngressRuleInfo[]): string[] => {
     return rules.map(r => r.host || '*');
 };
 
-/** Hücrede gösterilen, host önekli path etiketleri (`example.com/api`). */
+/** Host-prefixed path labels as shown in the cell (`example.com/api`). */
 const pathLabelsOf = (rules: models.IngressRuleInfo[]): string[] => {
     const labels: string[] = [];
     for (const r of rules ?? []) {
@@ -37,9 +37,9 @@ const pathLabelsOf = (rules: models.IngressRuleInfo[]): string[] => {
 };
 
 /**
- * Filtre seçenekleri host öneki olmadan ham path (`/api`) — açılır liste
- * böylece kısa ve gerçekten gruplanabilir kalır, host'a göre süzmek için
- * zaten ayrı bir Hosts filtresi var.
+ * Filter options are the raw paths (`/api`), without the host prefix: that
+ * keeps the dropdown short and actually groupable, and filtering by host
+ * already has its own Hosts filter.
  */
 const pathsOf = (rules: models.IngressRuleInfo[]): string[] => {
     const paths: string[] = [];

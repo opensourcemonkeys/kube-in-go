@@ -3,7 +3,7 @@ import type { DockviewPanelApi } from 'dockview';
 import { DataTableFilterMeta } from 'primereact/datatable';
 import { Toast } from 'primereact/toast';
 import { usePanelActive } from './usePanelActive';
-import { useDocumentVisible } from './useDocumentVisible';
+import { usePayloadSignature } from './usePayloadSignature';
 import { errText } from './errText';
 import { useT } from '../i18n/useT';
 
@@ -37,7 +37,7 @@ export interface UseResourceListOptions<T extends ResourceRow> {
     /**
      * Dockview panel api; when supplied, polling pauses while the tab is
      * backgrounded. Polling also pauses whenever the window itself is hidden
-     * or minimised, with or without an api (`useDocumentVisible`).
+     * or minimised, with or without an api — see `usePanelActive`.
      */
     api?: DockviewPanelApi;
 }
@@ -97,12 +97,20 @@ export function useResourceList<T extends ResourceRow>(
     const [deleting, setDeleting] = useState(false);
     const [filters, setFilters] = useState<DataTableFilterMeta>(defaultFilters);
     const toastRef = useRef<Toast>(null);
-    const active = usePanelActive(api) && useDocumentVisible();
+    const active = usePanelActive(api);
+    // An unchanged poll must not re-render the table — see usePayloadSignature.
+    const payload = usePayloadSignature();
 
     const reload = useCallback(async () => {
         setRefreshing(true);
         try {
             const data = await fetcher(clusterName);
+            if (!payload.changed(data)) {
+                // Same rows as last tick: leave `items` (and every identity
+                // derived from it) exactly as it is.
+                setError(null);
+                return;
+            }
             const rows = data.map(createFrom);
             // Stamped in place, not mapped into a new object literal: `createFrom`
             // returns model class instances (models.PodInfo …) that spreading
@@ -126,7 +134,13 @@ export function useResourceList<T extends ResourceRow>(
             setLoaded(true);
             setRefreshing(false);
         }
-    }, [clusterName, fetcher, createFrom, deleteLabel]);
+    }, [clusterName, fetcher, createFrom, deleteLabel, payload]);
+
+    // A cluster switch invalidates the signature: the next payload must be
+    // applied even if the new cluster happens to serialize identically.
+    useEffect(() => {
+        payload.reset();
+    }, [clusterName, fetcher, payload]);
 
     useEffect(() => {
         if (!active) return;

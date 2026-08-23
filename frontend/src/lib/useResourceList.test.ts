@@ -103,6 +103,43 @@ describe('useResourceList', () => {
         expect(result.current.error).toBe('boom');
     });
 
+    it('keeps the same rows array when a poll returns an unchanged payload', async () => {
+        // A new array of new objects each call, exactly as a poll produces.
+        const fetcher = vi.fn<(clusterName: string) => Promise<any[]>>(async () => [
+            { name: 'pod-a', namespace: 'default' },
+        ]);
+
+        const { result } = setup(fetcher);
+        await waitFor(() => expect(result.current.items).toHaveLength(1));
+        const before = result.current.items;
+
+        await act(async () => {
+            await result.current.reload();
+        });
+
+        // Same identity, so nothing below it re-renders.
+        expect(result.current.items).toBe(before);
+    });
+
+    it('applies the rows again once the payload actually changes', async () => {
+        const fetcher = vi
+            .fn<(clusterName: string) => Promise<any[]>>()
+            .mockResolvedValueOnce([{ name: 'pod-a', namespace: 'default' }])
+            .mockResolvedValueOnce([
+                { name: 'pod-a', namespace: 'default' },
+                { name: 'pod-b', namespace: 'default' },
+            ]);
+
+        const { result } = setup(fetcher);
+        await waitFor(() => expect(result.current.items).toHaveLength(1));
+
+        await act(async () => {
+            await result.current.reload();
+        });
+
+        expect(result.current.items.map((r) => r.name)).toEqual(['pod-a', 'pod-b']);
+    });
+
     it('hands back the identical options array while the values are unchanged', async () => {
         const rows = [
             { name: 'pod-a', namespace: 'default' },

@@ -14,11 +14,11 @@ import { GetMetricsSnapshot, SaveSnapshot } from '../../../wailsjs/go/controller
 import { models } from '../../../wailsjs/go/models';
 import { useMetricsStore, ClusterPoint, EntityPoint } from '../../stores/metricsStore';
 import { fmtCpu, fmtMem, pct, getUsageColor, UsageBarChart, CssBar } from '../../lib/usage';
+import { themeAlpha, themeColor, useThemeVersion } from '../../lib/themeColors';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
 import { usePanelActive } from '../../lib/usePanelActive';
-import { useDocumentVisible } from '../../lib/useDocumentVisible';
 
 const POLL_MS = 4000;
 
@@ -54,7 +54,7 @@ const lineOptions = (suggestedMax?: number, xMin?: number, xMax?: number) => ({
     // exactly on a point), showing every dataset's value at that time.
     interaction: { mode: 'index' as const, intersect: false, axis: 'x' as const },
     plugins: {
-        legend: { display: true, labels: { color: '#98a1b3', boxWidth: 10, boxHeight: 10, font: { size: 10 } } },
+        legend: { display: true, labels: { color: themeColor('--ink2'), boxWidth: 10, boxHeight: 10, font: { size: 10 } } },
         tooltip: { enabled: true, mode: 'index' as const, intersect: false, callbacks: { title: (items: any[]) => (items.length ? fmtTime(items[0].parsed.x) : '') } },
     },
     scales: {
@@ -62,14 +62,14 @@ const lineOptions = (suggestedMax?: number, xMin?: number, xMax?: number) => ({
             type: 'linear' as const,
             min: xMin,
             max: xMax,
-            ticks: { color: '#5c6779', font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6, callback: (v: any) => fmtTime(Number(v)) },
+            ticks: { color: themeColor('--ink3'), font: { size: 9 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 6, callback: (v: any) => fmtTime(Number(v)) },
             grid: { display: false },
         },
         y: {
             beginAtZero: true,
             ...(suggestedMax ? { suggestedMax } : {}),
-            ticks: { color: '#5c6779', font: { size: 10 }, maxTicksLimit: 4 },
-            grid: { color: 'rgba(26,33,46,.6)' },
+            ticks: { color: themeColor('--ink3'), font: { size: 10 }, maxTicksLimit: 4 },
+            grid: { color: themeAlpha('--line', 0.6) },
         },
     },
     elements: { point: { radius: 0, hoverRadius: 4, hitRadius: 10 }, line: { tension: 0.3, borderWidth: 1.5 } },
@@ -111,9 +111,12 @@ const podSel = (r: models.ResourceUsage): Selected => ({
 
 export default function MonitoringDashboard({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
+    // Ditto: chart.js paints into a canvas, so `var(--teal)` cannot reach it and
+    // the colors are read from the palette on each render instead.
+    useThemeVersion();
     // The most expensive poll in the app (a metrics-server fan-out every 4s):
     // it must stop for a backgrounded tab and for a hidden window alike.
-    const active = usePanelActive(api) && useDocumentVisible();
+    const active = usePanelActive(api);
     const storeKey = `metrics:${clusterName}`;
     const [snap, setSnap] = useState<models.MetricsSnapshot | null>(null);
     const [mode, setMode] = useState<'pods' | 'workloads'>('pods');
@@ -157,7 +160,7 @@ export default function MonitoringDashboard({ clusterName, api }: { clusterName:
                 canvas.parentElement?.insertBefore(img, canvas);
                 swaps.push({ canvas, img });
             });
-            const dataUrl = await toPng(root, { backgroundColor: '#080b11', pixelRatio: 2, cacheBust: true });
+            const dataUrl = await toPng(root, { backgroundColor: themeColor('--app'), pixelRatio: 2, cacheBust: true });
             const name = `monitoring-${clusterName}-${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
             await SaveSnapshot(name, dataUrl);
         } catch (e) {
@@ -250,12 +253,12 @@ export default function MonitoringDashboard({ clusterName, api }: { clusterName:
     // two cards were pixel-identical.
     const cpuTrend = {
         datasets: [
-            { label: 'CPU %', data: clusterPts.map((p) => ({ x: p.t, y: +pct(p.cpu, p.cpuCap).toFixed(1) })), borderColor: '#3fc8b4', backgroundColor: 'rgba(63,200,180,.15)', fill: true },
+            { label: 'CPU %', data: clusterPts.map((p) => ({ x: p.t, y: +pct(p.cpu, p.cpuCap).toFixed(1) })), borderColor: themeColor('--teal'), backgroundColor: themeAlpha('--teal', 0.15), fill: true },
         ],
     };
     const memTrend = {
         datasets: [
-            { label: 'Mem %', data: clusterPts.map((p) => ({ x: p.t, y: +pct(p.mem, p.memCap).toFixed(1) })), borderColor: '#6ea8e6', backgroundColor: 'rgba(110,168,230,.12)', fill: true },
+            { label: 'Mem %', data: clusterPts.map((p) => ({ x: p.t, y: +pct(p.mem, p.memCap).toFixed(1) })), borderColor: themeColor('--blue'), backgroundColor: themeAlpha('--blue', 0.12), fill: true },
         ],
     };
 
@@ -366,14 +369,17 @@ function DetailDrawer({ snap, selected, series, cpuCap, memCap, windowMin, onSel
     onClose: () => void;
 }) {
     const t = useT();
+    // Chart colors are resolved from the palette at render time, so this
+    // subscription is what makes a theme switch repaint the canvases.
+    useThemeVersion();
     const cur = findUsage(snap, selected);
     const curCpu = cur?.cpuMillis ?? 0;
     const curMem = cur?.memMi ?? 0;
 
     const xMax = Date.now();
     const xMin = xMax - windowMin * 60_000;
-    const cpuTrend = { datasets: [{ label: 'CPU (m)', data: series.map((p) => ({ x: p.t, y: p.cpu })), borderColor: '#3fc8b4', backgroundColor: 'rgba(63,200,180,.15)', fill: true }] };
-    const memTrend = { datasets: [{ label: 'Mem (MiB)', data: series.map((p) => ({ x: p.t, y: p.mem })), borderColor: '#6ea8e6', backgroundColor: 'rgba(110,168,230,.12)', fill: true }] };
+    const cpuTrend = { datasets: [{ label: 'CPU (m)', data: series.map((p) => ({ x: p.t, y: p.cpu })), borderColor: themeColor('--teal'), backgroundColor: themeAlpha('--teal', 0.15), fill: true }] };
+    const memTrend = { datasets: [{ label: 'Mem (MiB)', data: series.map((p) => ({ x: p.t, y: p.mem })), borderColor: themeColor('--blue'), backgroundColor: themeAlpha('--blue', 0.12), fill: true }] };
 
     let breakdown: JSX.Element | null = null;
     if (selected.cat === 'pod') {

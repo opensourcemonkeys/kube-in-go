@@ -1,4 +1,5 @@
 import { Chart } from 'primereact/chart';
+import { themeColor } from './themeColors';
 
 // Shared resource-usage formatting + tiny bar widgets, used by the Monitoring
 // dashboard (components/monitoring/main.tsx) and the Overview dashboard
@@ -8,7 +9,16 @@ import { Chart } from 'primereact/chart';
 export const fmtCpu = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(2)} cores` : `${m} m`);
 export const fmtMem = (mi: number) => (mi >= 1024 ? `${(mi / 1024).toFixed(1)} GiB` : `${mi} MiB`);
 export const pct = (used: number, cap: number) => (cap > 0 ? Math.min((used / cap) * 100, 100) : 0);
-export const getUsageColor = (p: number) => (p < 60 ? '#5fc98a' : p < 80 ? '#e2a85a' : '#e07d6e');
+/**
+ * The canonical usage-severity color. Resolved from the palette rather than
+ * hardcoded so alternate themes re-skin it — and resolved at call time, not at
+ * module load, because a module-level constant would capture whichever theme
+ * happened to be active when the chunk was first evaluated.
+ */
+export const getUsageColor = (p: number) =>
+    p < 60 ? themeColor('--green')
+    : p < 80 ? themeColor('--amber')
+    : themeColor('--red');
 
 // ── chart options ───────────────────────────────────────────────────
 export const barOptions = {
@@ -28,7 +38,7 @@ export function UsageBarChart({ p }: { p: number }) {
         labels: [''],
         datasets: [
             { data: [p], backgroundColor: [color], borderRadius: 3, borderSkipped: false as const },
-            { data: [100 - p], backgroundColor: ['#252e3f'], borderRadius: 0, borderSkipped: false as const },
+            { data: [100 - p], backgroundColor: [themeColor('--line2')], borderRadius: 0, borderSkipped: false as const },
         ],
     };
     return <div style={{ flex: 1, height: 14, minWidth: 60 }}><Chart type="bar" data={data} options={barOptions} style={{ height: 14 }} /></div>;

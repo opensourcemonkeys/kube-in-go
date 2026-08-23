@@ -23,6 +23,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { useTabContext } from '../../contexts/TabContext';
 import { GetSecurityGraph } from '../../../wailsjs/go/controller_app/App';
 import { useT } from '../../i18n/useT';
+import { themeAlpha, themeColor, useThemeVersion } from '../../lib/themeColors';
+import type { ThemeVar } from '../../lib/themeColors';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -43,13 +45,16 @@ interface SecurityGraph {
 
 // ── Kind config (column = left→right position) ──────────────────────────────────
 
-const KIND_CONFIG: Record<string, { color: string; Icon: React.ComponentType<{ style?: React.CSSProperties }> }> = {
-    ServiceAccount: { color: '#3b82f6', Icon: VscAccount },
-    RoleBinding:    { color: '#f59e0b', Icon: VscLink },
-    Role:           { color: '#10b981', Icon: VscLock },
-    ClusterRole:    { color: '#8b5cf6', Icon: VscShield },
-    Resource:       { color: '#06b6d4', Icon: VscDatabase },
-    Object:         { color: '#94a3b8', Icon: VscFile },
+const KIND_CONFIG: Record<string, { color: ThemeVar; Icon: React.ComponentType<{ style?: React.CSSProperties }> }> = {
+    // Palette variables, not colors: the minimap and the edge markers put these
+    // in SVG attributes, where `var(--x)` never resolves — they are passed
+    // through `themeColor` at the point of use.
+    ServiceAccount: { color: '--blue',   Icon: VscAccount },
+    RoleBinding:    { color: '--amber',  Icon: VscLink },
+    Role:           { color: '--green',  Icon: VscLock },
+    ClusterRole:    { color: '--violet', Icon: VscShield },
+    Resource:       { color: '--teal',   Icon: VscDatabase },
+    Object:         { color: '--ink2',   Icon: VscFile },
 };
 
 const NODE_W = 210;
@@ -57,23 +62,26 @@ const NODE_H = 64;
 
 // ── Edge styling per relationship kind ─────────────────────────────────────────
 
-const EDGE_STYLE: Record<string, { stroke: string; dashed: boolean }> = {
-    subject:  { stroke: '#3b82f6', dashed: false },
-    roleref:  { stroke: '#f59e0b', dashed: false },
-    grants:   { stroke: '#06b6d4', dashed: false },
-    instance: { stroke: '#64748b', dashed: false },
+const UNKNOWN_KIND = { color: '--ink3' as ThemeVar, Icon: VscTypeHierarchySub };
+
+const EDGE_STYLE: Record<string, { stroke: ThemeVar; dashed: boolean }> = {
+    subject:  { stroke: '--blue',  dashed: false },
+    roleref:  { stroke: '--amber', dashed: false },
+    grants:   { stroke: '--teal',  dashed: false },
+    instance: { stroke: '--ink3',  dashed: false },
 };
 
 // ── Custom node ─────────────────────────────────────────────────────────────────
 
 function SecNode({ data }: NodeProps<SecurityNodeData>) {
-    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', Icon: VscTypeHierarchySub };
+    const cfg = KIND_CONFIG[data.kind] ?? UNKNOWN_KIND;
+    const kindColor = themeColor(cfg.color);
 
     return (
         <div style={{
-            border: `2px solid ${cfg.color}`,
+            border: `2px solid ${kindColor}`,
             borderRadius: 8,
-            background: '#131c2e',
+            background: 'var(--panel2)',
             padding: '6px 11px',
             width: '100%',
             // Fill the wrapper's pinned height so the box's vertical centre — where
@@ -88,19 +96,19 @@ function SecNode({ data }: NodeProps<SecurityNodeData>) {
             overflow: 'hidden',
         }}>
             <Handle type="target" position={Position.Left}
-                style={{ background: cfg.color, width: 8, height: 8 }} />
+                style={{ background: kindColor, width: 8, height: 8 }} />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-                <cfg.Icon style={{ color: cfg.color, fontSize: 11 }} />
-                <span style={{ color: cfg.color, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <cfg.Icon style={{ color: kindColor, fontSize: 11 }} />
+                <span style={{ color: kindColor, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     {data.kind}
                 </span>
             </div>
-            <div style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ color: 'var(--ink)', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {data.name}
             </div>
             {data.namespace && (
-                <div style={{ color: '#475569', fontSize: 11, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ color: 'var(--ink3)', fontSize: 11, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {data.namespace}
                 </div>
             )}
@@ -109,7 +117,7 @@ function SecNode({ data }: NodeProps<SecurityNodeData>) {
                     {data.verbs.split(', ').map(v => (
                         <span key={v} style={{
                             fontSize: 9, lineHeight: 1.4, padding: '0 5px', borderRadius: 4,
-                            background: 'rgba(6,182,212,0.16)', color: '#67e8f9',
+                            background: themeAlpha('--teal', 0.16), color: 'var(--teal)',
                             fontFamily: 'var(--font-family-mono)',
                         }}>
                             {v}
@@ -119,7 +127,7 @@ function SecNode({ data }: NodeProps<SecurityNodeData>) {
             )}
 
             <Handle type="source" position={Position.Right}
-                style={{ background: cfg.color, width: 8, height: 8 }} />
+                style={{ background: kindColor, width: 8, height: 8 }} />
         </div>
     );
 }
@@ -186,17 +194,17 @@ function buildFlow(graph: SecurityGraph): { nodes: Node[]; edges: Edge[] } {
     });
 
     const edges: Edge[] = layoutEdges.map(e => {
-        const st = EDGE_STYLE[e.kind] ?? { stroke: '#475569', dashed: false };
+        const st = EDGE_STYLE[e.kind] ?? { stroke: '--ink3' as ThemeVar, dashed: false };
         return {
             id: e.id,
             source: e.source,
             target: e.target,
             label: e.label || undefined,
             type: 'smoothstep',
-            markerEnd: { type: MarkerType.ArrowClosed, color: st.stroke },
-            style: { stroke: st.stroke, strokeWidth: 1.5, strokeDasharray: st.dashed ? '5 4' : undefined },
-            labelStyle: { fill: '#cbd5e1', fontSize: 10, fontFamily: 'var(--font-family-mono)' },
-            labelBgStyle: { fill: '#0f172a', fillOpacity: 0.85 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: themeColor(st.stroke) },
+            style: { stroke: themeColor(st.stroke), strokeWidth: 1.5, strokeDasharray: st.dashed ? '5 4' : undefined },
+            labelStyle: { fill: themeColor('--ink2'), fontSize: 10, fontFamily: 'var(--font-family-mono)' },
+            labelBgStyle: { fill: themeColor('--panel'), fillOpacity: 0.85 },
             labelBgPadding: [4, 2] as [number, number],
         };
     });
@@ -287,6 +295,9 @@ function computeDetail(graph: SecurityGraph, nodeId: string): NodeDetail | null 
 // ── Panel ───────────────────────────────────────────────────────────────────────
 
 export default function SecurityRoleMap({ clusterName }: { clusterName: string }) {
+    // Graph colors are resolved values (reactflow puts several in SVG
+    // attributes), so a re-render is what repaints after a theme switch.
+    useThemeVersion();
     const t = useT();
     const cn = clusterName ?? '';
     const [graph, setGraph] = useState<SecurityGraph | null>(null);
@@ -414,7 +425,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
     const displayEdges = useMemo<Edge[]>(() => {
         if (!highlightEdges) return edges;
         return edges.map(e => highlightEdges.has(e.id)
-            ? { ...e, animated: true, zIndex: 1000, style: { ...e.style, strokeWidth: 2.5, opacity: 1, filter: `drop-shadow(0 0 4px ${e.style?.stroke ?? '#e2e8f0'})` } }
+            ? { ...e, animated: true, zIndex: 1000, style: { ...e.style, strokeWidth: 2.5, opacity: 1, filter: `drop-shadow(0 0 4px ${e.style?.stroke ?? themeColor('--ink')})` } }
             : { ...e, animated: false, style: { ...e.style, opacity: 0.07 } });
     }, [edges, highlightEdges]);
 
@@ -424,7 +435,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
             if (!highlightNodes.has(n.id)) {
                 return { ...n, style: { ...n.style, opacity: 0.18 } };
             }
-            const color = KIND_CONFIG[(n.data as SecurityNodeData).kind]?.color ?? '#38bdf8';
+            const color = themeColor(KIND_CONFIG[(n.data as SecurityNodeData).kind]?.color ?? '--teal');
             const clicked = n.id === selectedNodeId;
             return {
                 ...n,
@@ -463,7 +474,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
     const FILTER_KINDS: Array<keyof typeof KIND_CONFIG> = ['ServiceAccount', 'RoleBinding', 'Role', 'ClusterRole'];
 
     const detail = detailNodeId && graph ? computeDetail(graph, detailNodeId) : null;
-    const detailCfg = detail ? (KIND_CONFIG[detail.node.kind] ?? { color: '#6b7280', Icon: VscTypeHierarchySub }) : null;
+    const detailCfg = detail ? (KIND_CONFIG[detail.node.kind] ?? UNKNOWN_KIND) : null;
 
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--app)' }}>
@@ -492,7 +503,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                     const cfg = KIND_CONFIG[kind];
                     return (
                         <div key={kind} style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0, flex: '1 1 180px' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: cfg.color }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: `var(${cfg.color})` }}>
                                 <cfg.Icon style={{ fontSize: 11 }} /> {kind}
                             </span>
                             <Dropdown
@@ -522,15 +533,15 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                 background: 'var(--panel2)',
             }}>
                 {Object.entries(KIND_CONFIG).filter(([kind]) => kind !== 'Object').map(([kind, cfg]) => (
-                    <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: cfg.color }}>
+                    <span key={kind} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: `var(${cfg.color})` }}>
                         <cfg.Icon style={{ fontSize: 11 }} />{' '}
                         {kind}
                     </span>
                 ))}
-                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: '#64748b' }}>
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: 'var(--ink3)' }}>
                     <span style={{ fontStyle: 'italic' }}>{t('panels:roleMap.tip')}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#06b6d4', display: 'inline-block' }} />{' '}
+                        <span style={{ width: 24, height: 2, background: 'var(--teal)', display: 'inline-block' }} />{' '}
                         {t('panels:roleMap.legendGrants')}
                     </span>
                 </span>
@@ -539,7 +550,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
             {/* Flow canvas */}
             <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
                 {error ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: '#ef4444' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: 'var(--red)' }}>
                         <VscWarning style={{ fontSize: 32 }} />
                         <span style={{ fontSize: 13 }}>{error}</span>
                         <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
@@ -563,7 +574,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                         onInit={inst => { rfRef.current = inst; }}
                         style={{ background: 'var(--app)' }}
                     >
-                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
+                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color={themeColor('--line')} />
                         <Controls style={{
                             background: 'var(--panel2)',
                             border: '1px solid var(--surface-border)',
@@ -574,7 +585,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                 background: 'var(--panel2)',
                                 border: '1px solid var(--surface-border)',
                             }}
-                            nodeColor={n => KIND_CONFIG[(n.data as SecurityNodeData)?.kind]?.color ?? '#6b7280'}
+                            nodeColor={n => themeColor(KIND_CONFIG[(n.data as SecurityNodeData)?.kind]?.color ?? UNKNOWN_KIND.color)}
                         />
                     </ReactFlow>
                 )}
@@ -588,9 +599,9 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                 style={{ width: '34rem', maxWidth: '94vw' }}
                 header={detail && detailCfg ? (
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <detailCfg.Icon style={{ color: detailCfg.color, fontSize: 16 }} />
+                        <detailCfg.Icon style={{ color: `var(${detailCfg.color})`, fontSize: 16 }} />
                         <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-                            <span style={{ color: detailCfg.color, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <span style={{ color: `var(${detailCfg.color})`, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                 {detail.node.kind}
                             </span>
                             <span style={{ fontSize: 15, fontWeight: 600 }}>
@@ -619,7 +630,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                                 display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12,
                                                 padding: '5px 9px', background: 'var(--panel2)', border: '1px solid var(--surface-border)', borderRadius: 6,
                                             }}>
-                                                <span style={{ fontSize: 13, fontWeight: 500, color: '#e2e8f0', wordBreak: 'break-all' }}>{it.label}</span>
+                                                <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', wordBreak: 'break-all' }}>{it.label}</span>
                                                 {it.sub && (
                                                     <span style={{ fontSize: 11, color: 'var(--text-color-secondary)', fontFamily: 'var(--font-family-mono)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                                                         {it.sub}
@@ -655,7 +666,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                                 style={{
                                                     width: '100%', boxSizing: 'border-box', marginBottom: 6,
                                                     padding: '5px 9px', fontSize: 13, borderRadius: 6,
-                                                    background: 'var(--panel2)', color: '#e2e8f0',
+                                                    background: 'var(--panel2)', color: 'var(--ink)',
                                                     border: '1px solid var(--surface-border)', outline: 'none',
                                                 }}
                                             />
@@ -667,7 +678,7 @@ export default function SecurityRoleMap({ clusterName }: { clusterName: string }
                                                         display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12,
                                                         padding: '5px 9px', background: 'var(--panel2)', border: '1px solid var(--surface-border)', borderRadius: 6,
                                                     }}>
-                                                        <span style={{ fontSize: 13, fontWeight: 500, color: '#e2e8f0', wordBreak: 'break-all' }}>{it.label}</span>
+                                                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', wordBreak: 'break-all' }}>{it.label}</span>
                                                         {it.sub && (
                                                             <span style={{ fontSize: 11, color: 'var(--text-color-secondary)', fontFamily: 'var(--font-family-mono)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                                                                 {it.sub}

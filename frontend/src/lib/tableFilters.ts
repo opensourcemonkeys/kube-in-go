@@ -1,31 +1,32 @@
 import { FilterService } from 'primereact/api';
 import type { DataTableFilterMeta } from 'primereact/datatable';
 
-// PrimeReact `matchMode`'u yerleşik modlardan oluşan kapalı bir union olarak
-// tipliyor ve kayıtlı özel modları tanımıyor (DataTableFilterMetaData de dışa
-// aktarılmıyor, o yüzden tipi buradan türetiyoruz). Daraltmayı tek bir yerde
-// yapıp çağrı yerlerinin temiz kalmasını sağlıyoruz.
+// PrimeReact types `matchMode` as a closed union of its built-in modes and does
+// not know about registered custom ones (and it does not export
+// DataTableFilterMetaData, hence deriving the type here). The cast is done once,
+// in this file, so call sites stay clean.
 type MatchMode = Extract<DataTableFilterMeta[string], { matchMode: unknown }>['matchMode'];
 
 const ARRAY_IN_MODE: string = 'arrayIn';
 
 /**
- * IN filtresinin dizi değerli satır alanları için karşılığı: satırın dizisi
- * seçilenlerden en az biriyle kesişiyorsa eşleşir.
+ * The IN filter's counterpart for array-valued row fields: matches when the
+ * row's array intersects the selection.
  *
- * PrimeReact'ın yerleşik `in` modu satır değerini skaler kabul ettiği için
- * (`ObjectUtils.equals(value, filter[i])`) dizi değerli bir alanla asla
- * eşleşmez. `<Column filterFunction>` de bir çözüm değil: PrimeReact onu
- * yalnızca `filters` prop'u verilmediğinde kaydediyor, bizim tablolar ise her
- * zaman kontrollü `filters` geçiyor. Bu yüzden match mode'u global olarak
- * kaydediyoruz — `executeLocalFilter` doğrudan `FilterService.filters[mode]`
- * üzerinden çözdüğü için bu yol sorunsuz çalışıyor.
+ * PrimeReact's built-in `in` mode treats the row value as a scalar
+ * (`ObjectUtils.equals(value, filter[i])`), so it never matches an
+ * array-valued field. `<Column filterFunction>` is not a way out either:
+ * PrimeReact only registers it when no `filters` prop is supplied, and every
+ * table here passes controlled `filters`. Hence registering the match mode
+ * globally — `executeLocalFilter` resolves it straight from
+ * `FilterService.filters[mode]`, so this path works unmodified.
  */
 export const ARRAY_IN = ARRAY_IN_MODE as MatchMode;
 
 FilterService.register(ARRAY_IN_MODE, (value: unknown, filter: unknown[] | null) => {
-    // Yerleşik `in` ile aynı boş-değer semantiği: hiçbir şey seçili değilken
-    // (MultiSelect tümü kaldırılınca `[]` gönderir) filtre uygulanmaz.
+    // Same empty-value semantics as the built-in `in`: with nothing selected
+    // (MultiSelect sends `[]` once everything is deselected) the filter is a
+    // no-op.
     if (filter == null || filter.length === 0) return true;
     if (value == null) return false;
     const values = (Array.isArray(value) ? value : [value]).map(String);

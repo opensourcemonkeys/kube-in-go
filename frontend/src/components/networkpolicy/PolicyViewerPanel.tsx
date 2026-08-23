@@ -24,6 +24,10 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Editor, { OnMount } from '@monaco-editor/react';
+// Configures @monaco-editor/react to use the bundled Monaco. Side-effect
+// import: this panel is lazily loaded, so Monaco arrives with it.
+import '../../lib/monacoBootstrap';
+import { themeAlpha, themeColor, useThemeVersion } from '../../lib/themeColors';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import type * as monaco from 'monaco-editor';
@@ -39,73 +43,80 @@ interface PolicyViewerPanelParams {
 }
 
 // ── Node styles ───────────────────────────────────────────────────────────────
+//
+// Built per call rather than as module constants, and resolved through
+// `themeColor`/`themeAlpha` rather than written as `var(--x)`: reactflow passes
+// some of these straight through to SVG *attributes* (edge markers, the minimap,
+// the dot background), and a CSS variable never resolves in an attribute. The
+// graph builder runs on every render and the panel subscribes to the theme, so
+// switching palettes repaints it.
 
-const NODE_POLICY: React.CSSProperties = {
+const nodePolicy = (): React.CSSProperties => ({
     background: 'var(--panel2)',
-    border: '2px solid var(--p-primary-color, #6366f1)',
+    border: `2px solid ${themeColor('--violet')}`,
     borderRadius: 10,
     padding: '10px 16px',
-    color: 'var(--text-color, #e2e8f0)',
+    color: 'var(--ink)',
     fontFamily: 'var(--font-family)',
     width: 220,
     textAlign: 'center',
-};
+});
 
-const NODE_INGRESS: React.CSSProperties = {
-    background: '#0f2d45',
-    border: '1.5px solid #3b82f6',
+const nodeIngress = (): React.CSSProperties => ({
+    background: themeAlpha('--blue', 0.18),
+    border: `1.5px solid ${themeColor('--blue')}`,
     borderRadius: 8,
     padding: '8px 14px',
-    color: '#93c5fd',
+    color: themeColor('--blue'),
     fontFamily: 'var(--font-family)',
     minWidth: 180,
     fontSize: 12,
-};
+});
 
-const NODE_EGRESS: React.CSSProperties = {
-    background: '#2d1f00',
-    border: '1.5px solid #f59e0b',
+const nodeEgress = (): React.CSSProperties => ({
+    background: themeAlpha('--amber', 0.18),
+    border: `1.5px solid ${themeColor('--amber')}`,
     borderRadius: 8,
     padding: '8px 14px',
-    color: '#fcd34d',
+    color: themeColor('--amber'),
     fontFamily: 'var(--font-family)',
     minWidth: 180,
     fontSize: 12,
-};
+});
 
-const NODE_DENY: React.CSSProperties = {
-    background: '#2d0a0a',
-    border: '2px solid #ef4444',
+const nodeDeny = (): React.CSSProperties => ({
+    background: themeAlpha('--red', 0.18),
+    border: `2px solid ${themeColor('--red')}`,
     borderRadius: 8,
     padding: '8px 14px',
-    color: '#fca5a5',
+    color: themeColor('--red'),
     fontFamily: 'var(--font-family)',
     minWidth: 180,
     fontSize: 12,
     textAlign: 'center',
-};
+});
 
-const NODE_PODS: React.CSSProperties = {
-    background: '#0f2d1a',
-    border: '1.5px solid #22c55e',
+const nodePods = (): React.CSSProperties => ({
+    background: themeAlpha('--green', 0.18),
+    border: `1.5px solid ${themeColor('--green')}`,
     borderRadius: 8,
     padding: '8px 14px',
-    color: '#86efac',
+    color: themeColor('--green'),
     fontFamily: 'var(--font-family)',
     width: 220,
     textAlign: 'center',
     fontSize: 12,
-};
+});
 
 // ── Custom policy node (left target + right source + bottom source) ───────────
 
 function PolicyNodeComponent({ data }: NodeProps) {
     return (
         <>
-            <Handle type="target" position={Position.Left} id="left" style={{ background: '#6366f1', borderColor: '#6366f1' }} />
+            <Handle type="target" position={Position.Left} id="left" style={{ background: 'var(--violet)', borderColor: 'var(--violet)' }} />
             {data.label}
-            <Handle type="source" position={Position.Right} id="right" style={{ background: '#6366f1', borderColor: '#6366f1' }} />
-            <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: '#22c55e', borderColor: '#22c55e' }} />
+            <Handle type="source" position={Position.Right} id="right" style={{ background: 'var(--violet)', borderColor: 'var(--violet)' }} />
+            <Handle type="source" position={Position.Bottom} id="bottom" style={{ background: 'var(--green)', borderColor: 'var(--green)' }} />
         </>
     );
 }
@@ -142,8 +153,8 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                                 <span
                                     key={t}
                                     style={{
-                                        background: t === 'Ingress' ? '#1e40af' : '#92400e',
-                                        color: t === 'Ingress' ? '#bfdbfe' : '#fde68a',
+                                        background: t === 'Ingress' ? themeAlpha('--blue', 0.3) : themeAlpha('--amber', 0.3),
+                                        color: t === 'Ingress' ? themeColor('--blue') : themeColor('--amber'),
                                         borderRadius: 4,
                                         padding: '1px 6px',
                                         fontSize: 10,
@@ -157,7 +168,7 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                 </div>
             ),
         },
-        style: NODE_POLICY,
+        style: nodePolicy(),
     });
 
     nodes.push({
@@ -176,7 +187,7 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                 </div>
             ),
         },
-        style: NODE_PODS,
+        style: nodePods(),
     });
 
     edges.push({
@@ -186,8 +197,8 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
         sourceHandle: 'bottom',
         type: 'straight',
         animated: true,
-        style: { stroke: '#22c55e', strokeDasharray: '4 3' },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#22c55e' },
+        style: { stroke: themeColor('--green'), strokeDasharray: '4 3' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: themeColor('--green') },
     });
 
     const policyTypes = detail.policy_types ?? [];
@@ -205,14 +216,14 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <VscCircleSlash size={13} color="#ef4444" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
+                            <VscCircleSlash size={13} color="var(--red)" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                             {t('panels:policy.denyAllIngress')}
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>{t('panels:policy.denyAllIngressHint')}</div>
                     </div>
                 ),
             },
-            style: NODE_DENY,
+            style: nodeDeny(),
         });
         edges.push({
             id: 'deny-ingress-edge',
@@ -220,11 +231,11 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
             target: 'policy',
             targetHandle: 'left',
             animated: false,
-            style: { stroke: '#ef4444', strokeDasharray: '6 3' },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
+            style: { stroke: themeColor('--red'), strokeDasharray: '6 3' },
+            markerEnd: { type: MarkerType.ArrowClosed, color: themeColor('--red') },
             label: '✕ blocked',
-            labelStyle: { fill: '#ef4444', fontSize: 10, fontWeight: 700 },
-            labelBgStyle: { fill: '#2d0a0a', opacity: 0.9 },
+            labelStyle: { fill: themeColor('--red'), fontSize: 10, fontWeight: 700 },
+            labelBgStyle: { fill: themeAlpha('--red', 0.18), opacity: 0.9 },
         });
     }
 
@@ -239,14 +250,14 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                 label: (
                     <div>
                         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-                            <VscCircleSlash size={13} color="#ef4444" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
+                            <VscCircleSlash size={13} color="var(--red)" style={{ marginRight: 6, verticalAlign: 'middle' }} />{' '}
                             {t('panels:policy.denyAllEgress')}
                         </div>
                         <div style={{ fontSize: 11, opacity: 0.8 }}>{t('panels:policy.denyAllEgressHint')}</div>
                     </div>
                 ),
             },
-            style: NODE_DENY,
+            style: nodeDeny(),
         });
         edges.push({
             id: 'deny-egress-edge',
@@ -254,11 +265,11 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
             target: 'deny-egress',
             sourceHandle: 'right',
             animated: false,
-            style: { stroke: '#ef4444', strokeDasharray: '6 3' },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#ef4444' },
+            style: { stroke: themeColor('--red'), strokeDasharray: '6 3' },
+            markerEnd: { type: MarkerType.ArrowClosed, color: themeColor('--red') },
             label: '✕ blocked',
-            labelStyle: { fill: '#ef4444', fontSize: 10, fontWeight: 700 },
-            labelBgStyle: { fill: '#2d0a0a', opacity: 0.9 },
+            labelStyle: { fill: themeColor('--red'), fontSize: 10, fontWeight: 700 },
+            labelBgStyle: { fill: themeAlpha('--red', 0.18), opacity: 0.9 },
         });
     }
 
@@ -286,7 +297,7 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                                 {p.pod_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.podSelector', { selector: p.pod_selector })}</div>}
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.ipBlock', { block: p.ip_block })}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
-                                    <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
+                                    <div key={ei} style={{ fontSize: 10, color: 'var(--red)', marginTop: 1 }}>
                                         <VscCircleSlash size={9} style={{ marginRight: 3, verticalAlign: 'middle' }} />{' '}
                                         {t('panels:policy.except', { value: exc })}
                                     </div>
@@ -296,7 +307,7 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                     </div>
                 ),
             },
-            style: NODE_INGRESS,
+            style: nodeIngress(),
         });
 
         edges.push({
@@ -305,8 +316,8 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
             target: 'policy',
             targetHandle: 'left',
             animated: true,
-            style: { stroke: '#3b82f6' },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#3b82f6' },
+            style: { stroke: themeColor('--blue') },
+            markerEnd: { type: MarkerType.ArrowClosed, color: themeColor('--blue') },
         });
     });
 
@@ -334,7 +345,7 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                                 {p.pod_selector && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.podSelector', { selector: p.pod_selector })}</div>}
                                 {p.ip_block && <div style={{ fontSize: 10, opacity: 0.75 }}>{t('panels:policy.ipBlock', { block: p.ip_block })}</div>}
                                 {(p.ip_block_except ?? []).map((exc, ei) => (
-                                    <div key={ei} style={{ fontSize: 10, color: '#ef4444', marginTop: 1 }}>
+                                    <div key={ei} style={{ fontSize: 10, color: 'var(--red)', marginTop: 1 }}>
                                         <VscCircleSlash size={9} style={{ marginRight: 3, verticalAlign: 'middle' }} />{' '}
                                         {t('panels:policy.except', { value: exc })}
                                     </div>
@@ -344,7 +355,7 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
                     </div>
                 ),
             },
-            style: NODE_EGRESS,
+            style: nodeEgress(),
         });
 
         edges.push({
@@ -353,8 +364,8 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
             target: nodeId,
             sourceHandle: 'right',
             animated: true,
-            style: { stroke: '#f59e0b' },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#f59e0b' },
+            style: { stroke: themeColor('--amber') },
+            markerEnd: { type: MarkerType.ArrowClosed, color: themeColor('--amber') },
         });
     });
 
@@ -365,6 +376,9 @@ function buildGraph(detail: models.NetworkPolicyDetail, t: TFn): { nodes: Node[]
 
 export default function PolicyViewerPanel({ params }: IDockviewPanelProps<PolicyViewerPanelParams>) {
     const t = useT();
+    // The graph's colors are resolved values (reactflow puts several of them in
+    // SVG attributes), so a re-render is what repaints it after a theme switch.
+    useThemeVersion();
     const { clusterName, name, namespace } = params;
     const cn = clusterName ?? '';
 
@@ -551,7 +565,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                         onlyRenderVisibleElements
                         style={{ background: 'var(--app)' }}
                     >
-                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
+                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color={themeColor('--line')} />
                         <Controls
                             style={{
                                 background: 'var(--panel2)',
@@ -564,7 +578,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                                 background: 'var(--panel2)',
                                 border: '1px solid var(--surface-border)',
                             }}
-                            nodeColor="#6366f1"
+                            nodeColor={themeColor('--violet')}
                         />
                     </ReactFlow>
                 )}
@@ -580,7 +594,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                     flexShrink: 0,
                     height: 6,
                     cursor: 'row-resize',
-                    background: 'var(--surface-border, #2a3042)',
+                    background: 'var(--line)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -590,7 +604,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                     width: '100%',
                 }}
             >
-                <div style={{ width: 40, height: 3, borderRadius: 2, background: 'var(--surface-400, #4a5568)' }} />
+                <div style={{ width: 40, height: 3, borderRadius: 2, background: 'var(--ink3)' }} />
             </button>
 
             {/* Bottom: YAML Editor */}

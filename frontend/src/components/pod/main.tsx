@@ -40,10 +40,10 @@ const getOwnerSeverity = (kind: string) => {
 // Per-container status dot color: green=ready, orange=running-but-not-ready,
 // grey=completed/terminated cleanly, red=waiting/error.
 const containerDotColor = (c: models.ContainerStatusInfo) => {
-    if (c.ready) return 'var(--green, #5fc98a)';
-    if (c.state === 'Terminated' && c.reason === 'Completed') return '#9ca3af';
-    if (c.state === 'Running') return 'var(--amber, #e2a85a)';
-    return 'var(--red, #e07d6e)';
+    if (c.ready) return 'var(--green)';
+    if (c.state === 'Terminated' && c.reason === 'Completed') return 'var(--ink2)';
+    if (c.state === 'Running') return 'var(--amber)';
+    return 'var(--red)';
 };
 
 // Live usage formatting, mirroring the Monitoring dashboard.
@@ -65,7 +65,7 @@ const defaultFilters: DataTableFilterMeta = {
 // `options.onClick` must be wired so the item's `command` still fires with a custom template.
 const renderContainerItem = (row: models.PodInfo, name: string, options: MenuItemOptions) => {
     const cs = (row.container_statuses || []).find((c) => !c.init && c.name === name);
-    const color = cs ? containerDotColor(cs) : '#9ca3af';
+    const color = cs ? containerDotColor(cs) : 'var(--ink2)';
     const stateText = cs ? (cs.ready ? 'Ready' : (cs.reason || cs.state || 'Unknown')) : '';
     return (
         <a className={options.className} role="menuitem" onClick={options.onClick}
@@ -155,14 +155,14 @@ export default function DataTableComponent({ clusterName, api }: { clusterName: 
                         }} />
                     <Column field="restarts" header={t('resources:column.restarts')} sortable style={{ minWidth: '5.5rem' }}
                         body={(row: models.PodInfo) => (
-                            <span style={{ color: row.restarts > 0 ? 'var(--amber, #e2a85a)' : 'inherit', fontWeight: row.restarts > 0 ? 600 : 400 }}>{row.restarts}</span>
+                            <span style={{ color: row.restarts > 0 ? 'var(--amber)' : 'inherit', fontWeight: row.restarts > 0 ? 600 : 400 }}>{row.restarts}</span>
                         )} />
                     <Column field="created_at" header={t('resources:column.age')} sortable style={{ minWidth: '5rem' }}
                         body={(row: models.PodInfo) => <span title={absTime(row.created_at)}>{humanAge(row.created_at)}</span>} />
                     <Column field="last_restart_at" header={t('resources:column.lastRestart')} sortable style={{ minWidth: '7.5rem' }}
                         body={(row: models.PodInfo) => (
                             <span title={absTime(row.last_restart_at)}
-                                style={{ color: row.last_restart_at ? 'var(--amber, #e2a85a)' : undefined, opacity: row.last_restart_at ? 1 : 0.5 }}>
+                                style={{ color: row.last_restart_at ? 'var(--amber)' : undefined, opacity: row.last_restart_at ? 1 : 0.5 }}>
                                 {humanAge(row.last_restart_at)}
                             </span>
                         )} />

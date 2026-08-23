@@ -14,8 +14,8 @@ import { useT } from '../../i18n/useT';
 const defaultFilters: DataTableFilterMeta = {
     name:       { value: null, matchMode: FilterMatchMode.CONTAINS },
     namespace:  { value: null, matchMode: FilterMatchMode.IN },
-    // Addresses/Ports satırda düz bir alan değil, `subsets` içinden türetiliyor —
-    // filtre satırdaki sentetik dizilere bakar (bkz. createFrom).
+    // Addresses/Ports are not plain row fields; they are derived from `subsets`,
+    // so the filter reads the synthetic arrays on the row (see createFrom).
     _addresses: { value: null, matchMode: ARRAY_IN },
     _ports:     { value: null, matchMode: ARRAY_IN },
 };

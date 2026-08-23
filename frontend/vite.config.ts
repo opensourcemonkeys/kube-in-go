@@ -19,9 +19,45 @@ const devToken = () => ({
     html.replace('<head>', '<head><script>window.__KUBE_INS_RPC__="dev";</script>'),
 })
 
+// Vendor chunks. Without these, Rollup hoists every shared dependency of the
+// lazy panels back into one chunk and the code splitting buys nothing: the
+// libraries below are exactly the weight the app used to pay at launch.
+// Matching is on the module path, so a nested copy under another package's
+// node_modules lands in the same chunk as its top-level one.
+const VENDOR_CHUNKS: Record<string, string[]> = {
+  monaco: ['monaco-editor', '@monaco-editor/react', 'monaco-yaml'],
+  reactflow: ['reactflow', '@reactflow/', '@dagrejs/dagre'],
+  charts: ['chart.js'],
+  xterm: ['@xterm/'],
+  mui: ['@mui/', '@emotion/'],
+  primereact: ['primereact'],
+}
+
+const vendorChunk = (id: string): string | undefined => {
+  if (!id.includes('node_modules')) return undefined
+  // Compare against the path *after* node_modules so a package name that also
+  // appears in the repo path cannot match by accident.
+  const path = id.split('node_modules/').pop() ?? ''
+  for (const [chunk, packages] of Object.entries(VENDOR_CHUNKS)) {
+    if (packages.some((pkg) => path.startsWith(pkg))) return chunk
+  }
+  return undefined
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), devToken()],
+  build: {
+    rollupOptions: {
+      output: { manualChunks: (id) => vendorChunk(id) },
+    },
+    // Set to catch regressions, not to silence the warning. Exactly one chunk
+    // is expected to exceed it — `monaco`, which is ~3.6MB of editor that no
+    // amount of splitting makes smaller and which is loaded on demand anyway.
+    // Vite prints oversized chunks in yellow, so a *second* yellow line in the
+    // build table is the signal that something new got too big.
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     proxy: {
       '/rpc': { target: DEV_GO, changeOrigin: true },
@@ -29,7 +65,24 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
+    // Monaco's default entry (`editor.main`) statically imports the css, html,
+    // json and TypeScript *language services* — the TypeScript one carries the
+    // whole compiler — plus ~80 basic-language grammars. This app edits
+    // Kubernetes YAML and nothing else. `edcore.main` is the same editor with
+    // every editor contribution (find, folding, suggest, hover, context menu)
+    // and no languages; lib/monacoBootstrap.ts then adds the one grammar we do
+    // want.
+    //
+    // Aliased rather than imported directly so that *every* importer gets the
+    // trimmed build — otherwise one `import 'monaco-editor'` left anywhere
+    // silently pulls the full entry back in and undoes it.
+    //
+    // Array form, because the object form matches by prefix: aliasing the bare
+    // string also rewrote `monaco-editor/esm/...` deep imports into nonsense
+    // paths. A regex anchors it to the bare specifier.
+    alias: [
+      { find: /^monaco-editor$/, replacement: nm('monaco-editor/esm/vs/editor/edcore.main.js') },
+      ...Object.entries({
       'next/navigation': new URL('src/lib/next-stub.ts', import.meta.url).pathname,
       'next/router': new URL('src/lib/next-stub.ts', import.meta.url).pathname,
       '@fontsource/inter/400.css': nm('@fontsource/inter/400.css'),
@@ -39,6 +92,7 @@ export default defineConfig({
       '@fontsource/jetbrains-mono/400.css': nm('@fontsource/jetbrains-mono/400.css'),
       '@fontsource/jetbrains-mono/500.css': nm('@fontsource/jetbrains-mono/500.css'),
       '@fontsource/jetbrains-mono/600.css': nm('@fontsource/jetbrains-mono/600.css'),
-    }
+      }).map(([find, replacement]) => ({ find, replacement })),
+    ]
   }
 })

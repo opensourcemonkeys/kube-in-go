@@ -248,7 +248,8 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           body_path: /tmp/release_notes.md
-          # files parametresi kaldırıldı. GitHub sadece otomatik kaynak kodlarını (.zip/.tar.gz) ekleyecek.
+          # No `files` parameter: GitHub attaches only the automatic source
+          # archives (.zip/.tar.gz); the real artifacts are published to R2.
 
   # ==========================================
   # STAGE 2c: BUILD & PUBLISH DOCS WEBSITE

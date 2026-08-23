@@ -22,7 +22,7 @@
 - [x] **S12b** — kalan 21 list view + panellerin İngilizce çıkarımı ✅
 - [x] **S13a** — parite denetleyicisi + CI/Makefile wiring ✅
 - [x] **S13b** — tr / de / ru / zh / ja çevirileri + dürüstlük işaretleri ✅
-- [ ] **S14** — Performans ve render hijyeni
+- [x] **S14** — Performans ve render hijyeni ✅
 - [ ] **S15** — Release altyapısı: CI, kanallar, updater, paketleme
 - [ ] **S16** — Beta dokümantasyonu
 - [ ] **S17** — Beta sürümünü çıkar (`v0.16.0-beta.1`)
@@ -1663,6 +1663,97 @@ Manuel, ~10 panel açıkken gerçek cluster'da:
 2. Bir Dockview sekmesini arka plana al → poll'ü durmalı.
 3. Konuşkan bir pod'da 5 dakika log viewer aç → renderer belleği tırmanmayıp plato yapmalı.
 4. Tema değiştir → terminal ve exec panelleri de yeniden renklenmeli.
+
+### Uygulandı — sonuç
+
+**14a — planın önerdiği satır hatalıydı.** `usePanelActive(api) && useDocumentVisible()`
+kısa devre yapıyor: ilk hook `false` dönünce ikincisi hiç çağrılmıyor ve hook
+sırası render'lar arasında değişiyor (ESLint `react-hooks/rules-of-hooks` yakaladı).
+Görünürlük kontrolü bu yüzden **`usePanelActive`'in içine** kondu — 8 çağrı yeri
+bedavaya kazandı ve kimse sırayı yanlış kuramaz. `lib/useDocumentVisible.ts` yine
+de ayrı bir hook olarak duruyor (paneli olmayan işler için) ve dokümantasyonu
+tuzağı açıkça anlatıyor.
+
+**14b — üç view'a `api` geçirildi**, ama tek başına yetmiyordu: `node/main.tsx`
+`loadNodes`'u `useCallback`'e alıp effect'i `[active, loadNodes]`'e, `resourcequota`
+ve `monitoring` effect'leri `if (!active) return`'e bağlandı. Monitoring'in 4s'lik
+metrics-server fan-out'u artık arka plandaki sekmede ve küçültülmüş pencerede
+duruyor.
+
+**14c — `GetClusterCounts`** (`models.ClusterCounts` + `services/clusterCountsServices.go`
++ `business/clusterCounts.go` + controller). Beş sayım `safego.Go` ile paralel,
+her biri kendi slot'una yazıyor; **tek bir hata tüm çağrıyı hataya düşürüyor**
+(yarısı taze yarısı sessizce sıfır olan bir tile satırı, dürüst bir hata
+banner'ından kötü). Sayım `Limit: 1` + `ListMeta.RemainingItemCount` ile tek
+nesne trafiğinde **kesin** sonuç veriyor; API server `RemainingItemCount`
+vermezse tam listeye düşüyor (`countAll`, 4 hermetik testle kapsandı). Overview
+artık 6 tam listeleme yerine 3 çağrı yapıyor (GetNodes kaldı — node kartları
+objeleri gerçekten render ediyor) ve aralık **5s → 15s**.
+
+**14d — iki sınırsız tampon.** LogViewer artık `MAX_LOG_LINES = 5000`'lik bir
+satır ring buffer'ı tutuyor; chunk sınırı satır sınırı olmadığı için yarım satır
+`tailRef`'te bekliyor, aksi hâlde tek bir log satırı ikiye bölünürdü. Kırpma
+olunca araç çubuğunda i18n'li bir not çıkıyor (6 katalog, `panels:logs.truncated`).
+`eventsStore` `MAX_EVENTS = 1000` ile **hem bellekte hem diskte** sınırlı
+(`capEvents` "en yeniyi" `last_timestamp`'ten türetiyor — API server sırayı
+garanti etmiyor), `partialize` eklendi ve `persist` kota hatasında kendi
+anahtarını düşürüp devam eden bir storage sarmalayıcısı kullanıyor. 5 vitest.
+
+**14e — kimlik çalkantısı.** `lib/usePayloadSignature.ts`: ham payload'ın
+serileştirilmiş imzası değişmediyse `setItems` hiç çağrılmıyor. `useResourceList`,
+`node` ve `resourcequota` bunu kullanıyor. Dönen nesne **`useMemo`'lu** olmak
+zorunda — ilk hâli her render'da yeni literal döndürüyordu, bu da polling
+effect'ini sonsuz döngüye soktu (testler timeout'la yakaladı). Üzerine `NodeCard`,
+`QuotaRow`, `NamespaceGroup` `React.memo`'landı ve prop olarak gittikleri
+callback'ler `useCallback`'e alındı (yoksa memo hiçbir şey tutmaz).
+`buildInOptions` memoizasyonu S8'de zaten yapılmıştı. 2 yeni vitest.
+
+**14f — giriş chunk'ı 6328 KiB → 853 KiB** (gzip 1694 → 242 KiB).
+- `manualChunks`: monaco / reactflow / charts / xterm / mui / primereact.
+- `DockviewContainer`'daki `view` dışındaki **her panel** ve `ViewPanel`'deki
+  **30 view'ın tamamı** `React.lazy`. `Suspense` fallback'i `withBoundary`'nin
+  içine kondu, yani error boundary'nin **içinde** — chunk indirilemezse "Copy
+  diagnostics" düğmeli crash kartı çıkıyor, ağaç sessizce sökülmüyor.
+- **Asıl kazanç `main.tsx`'ten Monaco'yu çıkarmaktı**: eager `import * as
+  monacoEditor from 'monaco-editor'` her açılışta tüm Monaco'yu parse ettiriyordu.
+  Kurulum `lib/monacoBootstrap.ts`'e taşındı ve dört editör paneli onu import
+  ediyor; hepsi lazy olduğu için Monaco ilk YAML sekmesiyle geliyor.
+- `monaco-editor` **açık bağımlılık** olarak eklendi (0.55.1) — hoisting'e
+  bağlıydı. Ayrıca `vite.config.ts`'te `edcore.main`'e alias'landı: varsayılan
+  giriş css/html/json/**typescript** dil servislerini ve ~80 grameri statik
+  import ediyor, uygulama ise yalnızca YAML düzenliyor (grep ile doğrulandı).
+  Alias **dizi formunda ve regex ile**, çünkü nesne formu önek eşliyor ve
+  `monaco-editor/esm/...` derin import'larını da bozuyordu. 4232 → 3663 KiB.
+- `chunkSizeWarningLimit: 1000` — susturmak için değil, yakalamak için:
+  sarı satır **yalnızca `monaco`** olmalı, ikinci bir sarı satır regresyondur.
+- Son adım olarak **vite 3 → 5.4.21 ve @vitejs/plugin-react 2 → 4.7.0**. Build,
+  testler (44), lint ve **dev server** (devToken plugin'i + `/rpc` `/events`
+  proxy'si + monaco alias'ı canlı olarak kontrol edildi) sorunsuz.
+
+**14g — `.tsx` içinde kalan hardcoded hex sayısı: 0** (180'den). İki sınıf vardı:
+CSS'in ulaşabildiği yerler `var(--x)` oldu; **canvas ve SVG attribute'ları**
+(chart.js, reactflow marker/minimap/Background, xterm `ITheme`) `var()`
+çözemediği için yeni `lib/themeColors.ts` üzerinden **çözümlenmiş** değer alıyor
+(`themeColor` / `themeAlpha` + `PALETTE_FALLBACK`). Bunları kullanan altı bileşen
+`useThemeVersion()` ile temaya abone, yoksa palet değişince yeniden boyanmazlardı.
+Üç xterm paleti tek bir `lib/xtermTheme.ts`'e indi (`useXtermTheme` canlı
+terminali yeniden boyuyor; ref **kimlikle** temizleniyor, StrictMode'un
+create → dispose → create döngüsü yüzünden). `getUsageColor`'ın iki kopyası
+silinip `lib/usage.tsx`'ten import edildi. `lib/clusterColors.ts` kasıtlı
+istisna: orası kullanıcının seçtiği etiket rengi paleti, tema değeri değil.
+Kalan Türkçe yorumlar İngilizce'ye çevrildi (`tableFilters.ts`, `endpoints`,
+`ingress`, `eventsStore`, `Makefile`, `build.yml`).
+
+**Not (S15/S16'ya):** `monaco-yaml` `package.json`'da duruyor ama `src/` içinde
+hiçbir yerden import edilmiyor — YAML zekası `lib/k8sYamlIntellisense.ts`'te
+kendi başına yazılmış. CLAUDE.md'deki "monaco-yaml ile şema doğrulama" ifadesi
+bu yüzden güncel değil; bağımlılığı kaldırmak ayrı bir karar.
+
+**Doğrulama:** `go build`/`vet`/`test ./...` temiz; `tsc --noEmit`, `eslint`
+(0 error), `i18n:check` (6/6, 630 anahtar), `vitest` (44/44), `npm run build`
+temiz. Manuel maddeler (gerçek cluster'da 10 panelle DevTools Network, 5 dakikalık
+log viewer bellek platosu, tema değişiminde terminal yeniden boyanması) bu
+oturumda **koşulmadı** — canlı cluster ve GUI gerektiriyor.
 
 ---
 

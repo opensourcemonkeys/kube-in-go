@@ -1,36 +1,47 @@
+import { lazy } from 'react';
 import { IDockviewPanelProps } from 'dockview';
-import DataTableComponent from '../pod/main';
-import DeploymentListComponent from '../deployment/main';
-import StatefulSetListComponent from '../statefulset/main';
-import ReplicaSetListComponent from '../replicaset/main';
-import DaemonSetListComponent from '../daemonset/main';
-import JobListComponent from '../job/main';
-import CronJobListComponent from '../cronjob/main';
-import ServiceListComponent from '../service/main';
-import IngressListComponent from '../ingress/main';
-import IngressClassListComponent from '../ingressclass/main';
-import EndpointListComponent from '../endpoints/main';
-import NetworkPolicyListComponent from '../networkpolicy/main';
-import ConfigMapListComponent from '../configmap/main';
-import SecretListComponent from '../secret/main';
-import NodeListComponent from '../node/main';
-import NamespaceListComponent from '../namespace/main';
-import ResourceQuotaListComponent from '../resourcequota/main';
-import EventListComponent from '../events/main';
-import LimitRangeListComponent from '../limitrange/main';
-import PersistentVolumeListComponent from '../persistentvolume/main';
-import PersistentVolumeClaimListComponent from '../persistentvolumeclaim/main';
-import StorageClassListComponent from '../storageclass/main';
-import ServiceAccountListComponent from '../serviceaccount/main';
-import RoleListComponent from '../role/main';
-import RoleBindingListComponent from '../rolebinding/main';
-import SecurityRoleMap from '../security/SecurityRoleMap';
-import TrivyScanner from '../security/TrivyScanner';
-import MonitoringDashboard from '../monitoring/main';
-import OverviewDashboard from '../overview/main';
-import CrdListComponent from '../crd/main';
 import { useT } from '../../i18n/useT';
 
+/**
+ * Routes a `view` panel to the resource view it names.
+ *
+ * Every view is `React.lazy`. They are cheap individually but there are ~30 of
+ * them, and between them they pull in chart.js (monitoring, nodes, quotas),
+ * reactflow (the security role map) and the Trivy scanner UI — all of which
+ * used to be parsed at launch for a session that only ever looks at Pods.
+ * Suspense is supplied by `withBoundary` in DockviewContainer, which wraps this
+ * component, so a view's chunk loading is already covered.
+ */
+const DataTableComponent = lazy(() => import('../pod/main'));
+const DeploymentListComponent = lazy(() => import('../deployment/main'));
+const StatefulSetListComponent = lazy(() => import('../statefulset/main'));
+const ReplicaSetListComponent = lazy(() => import('../replicaset/main'));
+const DaemonSetListComponent = lazy(() => import('../daemonset/main'));
+const JobListComponent = lazy(() => import('../job/main'));
+const CronJobListComponent = lazy(() => import('../cronjob/main'));
+const ServiceListComponent = lazy(() => import('../service/main'));
+const IngressListComponent = lazy(() => import('../ingress/main'));
+const IngressClassListComponent = lazy(() => import('../ingressclass/main'));
+const EndpointListComponent = lazy(() => import('../endpoints/main'));
+const NetworkPolicyListComponent = lazy(() => import('../networkpolicy/main'));
+const ConfigMapListComponent = lazy(() => import('../configmap/main'));
+const SecretListComponent = lazy(() => import('../secret/main'));
+const NodeListComponent = lazy(() => import('../node/main'));
+const NamespaceListComponent = lazy(() => import('../namespace/main'));
+const ResourceQuotaListComponent = lazy(() => import('../resourcequota/main'));
+const EventListComponent = lazy(() => import('../events/main'));
+const LimitRangeListComponent = lazy(() => import('../limitrange/main'));
+const PersistentVolumeListComponent = lazy(() => import('../persistentvolume/main'));
+const PersistentVolumeClaimListComponent = lazy(() => import('../persistentvolumeclaim/main'));
+const StorageClassListComponent = lazy(() => import('../storageclass/main'));
+const ServiceAccountListComponent = lazy(() => import('../serviceaccount/main'));
+const RoleListComponent = lazy(() => import('../role/main'));
+const RoleBindingListComponent = lazy(() => import('../rolebinding/main'));
+const SecurityRoleMap = lazy(() => import('../security/SecurityRoleMap'));
+const TrivyScanner = lazy(() => import('../security/TrivyScanner'));
+const MonitoringDashboard = lazy(() => import('../monitoring/main'));
+const OverviewDashboard = lazy(() => import('../overview/main'));
+const CrdListComponent = lazy(() => import('../crd/main'));
 interface ViewPanelParams {
     view: string;
     clusterName: string;

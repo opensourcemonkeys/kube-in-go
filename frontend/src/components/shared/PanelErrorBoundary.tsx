@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { VscWarning, VscRefresh, VscCopy, VscCheck } from 'react-icons/vsc';
 import { useDiagnosticsStore } from '../../stores/diagnosticsStore';
 import { copyDiagnostics } from '../../lib/diagnosticsReport';
 import { useT } from '../../i18n/useT';
+import PanelSkeleton from './PanelSkeleton';
 
 interface Props {
     /** Where the crash happened — a Dockview panel id, or "app" for the root. */
@@ -99,14 +100,21 @@ function CrashCard({ label, error, root, onReload }: {
 }
 
 /**
- * Wraps a Dockview panel component in a boundary. Applied once to the whole
- * `components` map in DockviewContainer, so every panel type gets one and a new
- * entry cannot forget to.
+ * Wraps a Dockview panel component in a boundary and a Suspense fallback.
+ * Applied once to the whole `components` map in DockviewContainer, so every
+ * panel type gets both and a new entry cannot forget to.
+ *
+ * Suspense sits *inside* the boundary on purpose: a chunk that fails to load
+ * throws, and the crash card (with its Copy diagnostics button) is a far better
+ * answer than an unmounted tree. Panels that are not lazy never suspend, so
+ * wrapping all of them costs nothing and keeps the map uniform.
  */
 export function withBoundary<P extends object>(Component: React.ComponentType<P>, name: string) {
     const Wrapped = (props: P) => (
         <PanelErrorBoundary label={(props as { api?: { id?: string } })?.api?.id ?? name}>
-            <Component {...props} />
+            <Suspense fallback={<PanelSkeleton />}>
+                <Component {...props} />
+            </Suspense>
         </PanelErrorBoundary>
     );
     Wrapped.displayName = `withBoundary(${name})`;

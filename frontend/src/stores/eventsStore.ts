@@ -142,12 +142,12 @@ export const useEventsStore = create<EventsStore>()(
                     ]),
                 ),
             }),
-            // Kayıtlı `filters` nesnesi patchTab tarafından tab seviyesinde
-            // birleştirildiği için varsayılanları bütünüyle eziyor — eski
-            // sürümlerde yeni filtre anahtarları (message) eksik kalır.
-            // PrimeReact'ın ColumnFilter'ı `filters[field].value = …` yaptığından
-            // eksik anahtar kullanıcı filtreye dokunduğu anda TypeError fırlatır,
-            // o yüzden kayıtlı değerleri koruyup eksikleri tamamlıyoruz.
+            // `patchTab` merges at the tab level, so a persisted `filters`
+            // object replaces the defaults wholesale — a snapshot written by an
+            // older version is missing any filter key added since (`message`).
+            // PrimeReact's ColumnFilter does `filters[field].value = …`, so a
+            // missing key is a TypeError the moment the user touches that
+            // filter. Keep the stored values, fill in whatever is absent.
             migrate: (persisted: any) => {
                 if (!persisted?.tabs) return persisted;
                 for (const tab of Object.values<any>(persisted.tabs)) {

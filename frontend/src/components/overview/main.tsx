@@ -9,7 +9,6 @@ import {
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { usePanelActive } from '../../lib/usePanelActive';
-import { useDocumentVisible } from '../../lib/useDocumentVisible';
 import { fmtCpu, fmtMem, pct, getUsageColor, CssBar } from '../../lib/usage';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
@@ -35,7 +34,7 @@ type Counts = models.ClusterCounts;
 export default function OverviewDashboard({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
     const { openTab } = useTabContext();
-    const active = usePanelActive(api) && useDocumentVisible();
+    const active = usePanelActive(api);
 
     const [snap, setSnap] = useState<models.MetricsSnapshot | null>(null);
     const [nodes, setNodes] = useState<models.NodeInfo[] | null>(null);

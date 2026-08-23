@@ -283,7 +283,7 @@ export default function FloatableTab({ api, containerApi, params }: IDockviewPan
                     borderRadius: 3,
                     display: 'flex',
                     alignItems: 'center',
-                    color: 'var(--dv-tab-color, #8a99b3)',
+                    color: 'var(--dv-tab-color, var(--ink2))',
                     opacity: 0,
                     flexShrink: 0,
                     transition: 'opacity 0.15s',

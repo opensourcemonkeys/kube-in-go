@@ -19,6 +19,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { GetClusterGraph } from '../../../wailsjs/go/controller_app/App';
 import { useT } from '../../i18n/useT';
+import { themeColor, useThemeVersion } from '../../lib/themeColors';
+import type { ThemeVar } from '../../lib/themeColors';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -39,15 +41,22 @@ interface ClusterGraph {
 
 // ── Kind config ───────────────────────────────────────────────────────────────
 
-const KIND_CONFIG: Record<string, { color: string; Icon: React.ComponentType<{ style?: React.CSSProperties }>; column: number }> = {
-    Ingress:     { color: '#ef4444', Icon: VscGlobe,       column: 0 },
-    Service:     { color: '#f97316', Icon: VscTypeHierarchySub,  column: 1 },
-    Deployment:  { color: '#10b981', Icon: VscLayers,       column: 2 },
-    StatefulSet: { color: '#8b5cf6', Icon: VscDatabase,      column: 2 },
-    DaemonSet:   { color: '#f59e0b', Icon: VscServer,          column: 2 },
-    ReplicaSet:  { color: '#06b6d4', Icon: VscCopy,  column: 3 },
-    Pod:         { color: '#3b82f6', Icon: VscPackage,   column: 4 },
+// Each kind carries a palette *variable*, not a color: reactflow hands some of
+// these to SVG attributes (the minimap), where `var(--x)` never resolves, so
+// they are resolved with `themeColor` at the point of use instead. Seven kinds,
+// seven distinct palette entries — ReplicaSet gets the muted one because it is
+// the intermediate object nobody is looking for.
+const KIND_CONFIG: Record<string, { color: ThemeVar; Icon: React.ComponentType<{ style?: React.CSSProperties }>; column: number }> = {
+    Ingress:     { color: '--red',    Icon: VscGlobe,             column: 0 },
+    Service:     { color: '--amber',  Icon: VscTypeHierarchySub,  column: 1 },
+    Deployment:  { color: '--green',  Icon: VscLayers,            column: 2 },
+    StatefulSet: { color: '--violet', Icon: VscDatabase,          column: 2 },
+    DaemonSet:   { color: '--teal',   Icon: VscServer,            column: 2 },
+    ReplicaSet:  { color: '--ink2',   Icon: VscCopy,              column: 3 },
+    Pod:         { color: '--blue',   Icon: VscPackage,           column: 4 },
 };
+
+const UNKNOWN_KIND = { color: '--ink3' as ThemeVar, Icon: VscPackage, column: 5 };
 
 const NODE_W = 220;
 const NODE_H = 80;
@@ -68,33 +77,33 @@ const ROW_Y: Record<string, number> = {
 // ── Status color ──────────────────────────────────────────────────────────────
 
 function statusColor(kind: string, status?: string): string {
-    if (!status) return '#64748b';
+    if (!status) return themeColor('--ink3');
     if (kind === 'Pod') {
-        if (status === 'Running') return '#22c55e';
-        if (status === 'Pending') return '#f59e0b';
-        if (status === 'Terminating') return '#ef4444';
-        return '#ef4444';
+        if (status === 'Running') return themeColor('--green');
+        if (status === 'Pending') return themeColor('--amber');
+        return themeColor('--red');
     }
     if (status.includes('/')) {
         const [ready, total] = status.split('/').map(Number);
-        if (ready === total && total > 0) return '#22c55e';
-        if (ready > 0) return '#f59e0b';
-        return '#ef4444';
+        if (ready === total && total > 0) return themeColor('--green');
+        if (ready > 0) return themeColor('--amber');
+        return themeColor('--red');
     }
-    return '#64748b';
+    return themeColor('--ink3');
 }
 
 // ── Custom node ───────────────────────────────────────────────────────────────
 
 function K8sNode({ data }: NodeProps<ResourceNode>) {
-    const cfg = KIND_CONFIG[data.kind] ?? { color: '#6b7280', Icon: VscPackage, column: 5 };
+    const cfg = KIND_CONFIG[data.kind] ?? UNKNOWN_KIND;
+    const kindColor = themeColor(cfg.color);
     const sc = statusColor(data.kind, data.status);
 
     return (
         <div style={{
-            border: `2px solid ${cfg.color}`,
+            border: `2px solid ${kindColor}`,
             borderRadius: 8,
-            background: '#131c2e',
+            background: 'var(--panel2)',
             padding: '7px 12px',
             width: NODE_W,
             minHeight: NODE_H,
@@ -116,10 +125,10 @@ function K8sNode({ data }: NodeProps<ResourceNode>) {
                     </span>
                 )}
             </div>
-            <div style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ color: 'var(--ink)', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {data.name}
             </div>
-            <div style={{ color: '#475569', fontSize: 11, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ color: 'var(--ink3)', fontSize: 11, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {data.namespace}
             </div>
 
@@ -274,9 +283,9 @@ function buildFlow(graph: ClusterGraph): { nodes: Node[]; edges: Edge[] } {
     const edges: Edge[] = graph.edges.map(e => {
         const isSelector = e.kind === 'selector';
         const isIngress  = e.kind === 'ingress';
-        let color = '#475569';
-        if (isSelector) color = '#3b82f6';
-        else if (isIngress) color = '#f97316';
+        let color = themeColor('--ink3');
+        if (isSelector) color = themeColor('--blue');
+        else if (isIngress) color = themeColor('--amber');
         return {
             id: e.id,
             source: e.source,
@@ -303,6 +312,9 @@ interface ClusterResourcePanelParams {
 
 export default function ClusterResourcePanel({ params }: IDockviewPanelProps<ClusterResourcePanelParams>) {
     const t = useT();
+    // Graph colors are resolved values (reactflow puts several in SVG
+    // attributes), so a re-render is what repaints after a theme switch.
+    useThemeVersion();
     const cn = params?.clusterName ?? '';
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
@@ -363,17 +375,17 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                         {kind}
                     </span>
                 ))}
-                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: '#64748b' }}>
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: 'var(--ink3)' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#334155', display: 'inline-block' }} />{' '}
+                        <span style={{ width: 24, height: 2, background: 'var(--line2)', display: 'inline-block' }} />{' '}
                         {t('panels:resourceGraph.legendOwner')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#3b82f6', display: 'inline-block', borderTop: '2px dashed #3b82f6' }} />{' '}
+                        <span style={{ width: 24, height: 2, background: 'var(--blue)', display: 'inline-block', borderTop: '2px dashed var(--blue)' }} />{' '}
                         {t('panels:resourceGraph.legendSelector')}
                     </span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 24, height: 2, background: '#f97316', display: 'inline-block' }} />{' '}
+                        <span style={{ width: 24, height: 2, background: 'var(--amber)', display: 'inline-block' }} />{' '}
                         {t('panels:resourceGraph.legendIngress')}
                     </span>
                 </span>
@@ -382,7 +394,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
             {/* Flow canvas */}
             <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
                 {error ? (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: '#ef4444' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 12, color: 'var(--red)' }}>
                         <VscWarning style={{ fontSize: 32 }} />
                         <span style={{ fontSize: 13 }}>{error}</span>
                         <button className="cluster-bar__edit-btn" onClick={load} style={{ marginTop: 4 }}>
@@ -403,7 +415,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                         onInit={inst => { rfRef.current = inst; }}
                         style={{ background: 'var(--app)' }}
                     >
-                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#1e293b" />
+                        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color={themeColor('--line')} />
                         <Controls style={{
                             background: 'var(--panel2)',
                             border: '1px solid var(--surface-border)',
@@ -414,7 +426,7 @@ export default function ClusterResourcePanel({ params }: IDockviewPanelProps<Clu
                                 background: 'var(--panel2)',
                                 border: '1px solid var(--surface-border)',
                             }}
-                            nodeColor={n => KIND_CONFIG[n.data?.kind]?.color ?? '#6b7280'}
+                            nodeColor={n => themeColor(KIND_CONFIG[n.data?.kind]?.color ?? UNKNOWN_KIND.color)}
                         />
                     </ReactFlow>
                 )}

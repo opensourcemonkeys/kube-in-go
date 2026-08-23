@@ -37,9 +37,10 @@ build-mac:
 dev-wails:
 	wails dev -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'"
 
-# Hızlı TUI geliştirme: webview-free CLI'yi doğrudan çalıştırır. Vite tarzı hot
-# reload yoktur (TUI terminali tam ekran ele geçirir); döngü: düzenle → q ile çık
-# → tekrar `make dev-tui`. Go build cache sayesinde ilk derlemeden sonra hızlıdır.
+# Fast TUI development: runs the webview-free CLI directly. There is no
+# Vite-style hot reload (the TUI takes over the whole terminal); the loop is
+# edit → quit with q → `make dev-tui` again. The Go build cache keeps every
+# rebuild after the first one quick.
 dev-tui:
 	go run $(GOFLAGS) -tags tui -ldflags "-X 'kube-ins/internal/business.appVersion=$(VERSION)-dev'" ./cmd/tui
 

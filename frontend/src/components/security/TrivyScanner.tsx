@@ -26,6 +26,8 @@ import {
 } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useT } from '../../i18n/useT';
+import { themeAlpha } from '../../lib/themeColors';
+import type { ThemeVar } from '../../lib/themeColors';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -101,8 +103,19 @@ const SEVERITY_ORDER: Record<string, number> = {
     CRITICAL: 5, HIGH: 4, MEDIUM: 3, LOW: 2, UNKNOWN: 1,
 };
 const SEVERITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'UNKNOWN'];
-const SEVERITY_HEX: Record<string, string> = {
-    CRITICAL: '#b3261e', HIGH: '#d9534f', MEDIUM: '#e2a85a', LOW: '#4a7bb5', UNKNOWN: '#888',
+/**
+ * Severity ramp, as palette variables so alternate themes re-skin it.
+ *
+ * Variables rather than colors because the tiles below tint their background
+ * from the same entry, and `var(--red)` cannot be given an alpha by string
+ * concatenation the way a hex could — `themeAlpha` does it instead.
+ *
+ * CRITICAL and HIGH share the palette's red and are told apart by the tile
+ * label; there is no second red to spend that would read on every theme.
+ */
+const SEVERITY_VAR: Record<string, ThemeVar> = {
+    CRITICAL: '--red', HIGH: '--red', MEDIUM: '--amber',
+    LOW: '--blue', UNKNOWN: '--ink3',
 };
 
 function severitySeverity(sev: string): 'danger' | 'warning' | 'info' | undefined {
@@ -232,7 +245,7 @@ function FindingDetailDialog({ finding, onHide }: { finding: DetailFinding | nul
                     className="flex flex-column gap-1 p-3 border-round"
                     style={{ background: 'rgba(74, 123, 181, 0.12)', border: '1px solid rgba(74, 123, 181, 0.4)' }}
                 >
-                    <span className="text-xs uppercase font-semibold" style={{ color: SEVERITY_HEX.LOW }}>
+                    <span className="text-xs uppercase font-semibold" style={{ color: 'var(--blue)' }}>
                         {t('panels:trivy.recommendation')}
                     </span>
                     <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
@@ -339,18 +352,18 @@ function SeverityCount({ sev, value }: { sev: string; value: number }) {
         <div
             className="flex flex-column align-items-center justify-content-center border-round py-2 px-1"
             style={{
-                background: active ? `${SEVERITY_HEX[sev]}22` : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${active ? `${SEVERITY_HEX[sev]}66` : 'rgba(255,255,255,0.06)'}`,
+                background: active ? themeAlpha(SEVERITY_VAR[sev], 0.13) : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${active ? themeAlpha(SEVERITY_VAR[sev], 0.4) : 'rgba(255,255,255,0.06)'}`,
                 minWidth: 0,
             }}
         >
             <span
                 className="font-semibold"
-                style={{ fontSize: '1.1rem', lineHeight: 1.1, color: active ? SEVERITY_HEX[sev] : 'var(--ink, #888)', opacity: active ? 1 : 0.4 }}
+                style={{ fontSize: '1.1rem', lineHeight: 1.1, color: active ? `var(${SEVERITY_VAR[sev]})` : 'var(--ink)', opacity: active ? 1 : 0.4 }}
             >
                 {value}
             </span>
-            <span className="text-xs uppercase font-semibold mt-1" style={{ color: SEVERITY_HEX[sev], opacity: active ? 0.85 : 0.35 }}>
+            <span className="text-xs uppercase font-semibold mt-1" style={{ color: `var(${SEVERITY_VAR[sev]})`, opacity: active ? 0.85 : 0.35 }}>
                 {sev}
             </span>
         </div>

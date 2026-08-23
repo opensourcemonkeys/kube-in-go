@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Terminal } from '@xterm/xterm';
+import { useXtermTheme, xtermTheme } from '../../lib/xtermTheme';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { EventsOn } from '../../../wailsjs/runtime/runtime';
@@ -19,6 +20,9 @@ import { useT } from '../../i18n/useT';
 export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
     const t = useT();
     const containerRef = useRef<HTMLDivElement>(null);
+    // Held so a theme switch can repaint the live terminal — see useXtermTheme.
+    const termRef = useRef<Terminal | null>(null);
+    useXtermTheme(termRef);
     const closeRef = useRef(onClose);
     closeRef.current = onClose;
 
@@ -31,16 +35,12 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
             fontFamily: '"JetBrains Mono", "Cascadia Code", monospace',
             fontSize: 13,
             lineHeight: 1.2,
-            theme: {
-                background: '#10141a',
-                foreground: '#dfe2eb',
-                cursor: '#2dd4bf',
-                cursorAccent: '#10141a',
-            },
+            theme: xtermTheme(),
         });
 
         const fitAddon = new FitAddon();
         term.loadAddon(fitAddon);
+        termRef.current = term;
         term.open(containerRef.current);
 
         // The TUI runs with mouse capture disabled (the backend sets
@@ -133,6 +133,7 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
             el.removeEventListener('mouseup', onMouseUp);
             el.removeEventListener('contextmenu', onContextMenu);
             CloseCliModeSession(sessionId).catch(() => {});
+            if (termRef.current === term) termRef.current = null;
             term.dispose();
         };
     }, []);
@@ -145,7 +146,7 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
                 zIndex: 1000,
                 display: 'flex',
                 flexDirection: 'column',
-                background: '#10141a',
+                background: 'var(--panel2)',
             }}
         >
             <div
@@ -154,22 +155,22 @@ export default function CliModeOverlay({ onClose }: { onClose: () => void }) {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '4px 10px',
-                    borderBottom: '1px solid #2a323d',
-                    color: '#8b95a7',
+                    borderBottom: '1px solid var(--line2)',
+                    color: 'var(--ink2)',
                     fontSize: 12,
                     fontFamily: '"JetBrains Mono", monospace',
                 }}
             >
                 <span>
-                    <span style={{ color: '#2dd4bf', fontWeight: 600 }}>{t('panels:cliMode.badge')}</span>
+                    <span style={{ color: 'var(--teal)', fontWeight: 600 }}>{t('panels:cliMode.badge')}</span>
                     &nbsp;{t('panels:cliMode.subtitle')}
                 </span>
                 <button
                     onClick={() => closeRef.current()}
                     style={{
                         background: 'transparent',
-                        border: '1px solid #2a323d',
-                        color: '#dfe2eb',
+                        border: '1px solid var(--line2)',
+                        color: 'var(--ink)',
                         borderRadius: 4,
                         padding: '2px 10px',
                         cursor: 'pointer',

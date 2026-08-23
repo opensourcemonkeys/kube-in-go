@@ -1,6 +1,9 @@
 import { useRef, useState } from 'react';
 import { IDockviewPanelProps } from 'dockview';
 import Editor, { OnMount } from '@monaco-editor/react';
+// Configures @monaco-editor/react to use the bundled Monaco. Side-effect
+// import: this panel is lazily loaded, so Monaco arrives with it.
+import '../../lib/monacoBootstrap';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { VscCloudUpload, VscTrash, VscOutput, VscClose } from 'react-icons/vsc';

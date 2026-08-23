@@ -4,14 +4,13 @@ import { useEffect, useState } from 'react';
  * Tracks whether the document is currently visible (window not minimised and,
  * in a browser tab, the tab in the foreground).
  *
- * `usePanelActive` only knows which Dockview tab is in front — it stays `true`
- * for the foreground panel of a minimised window, so every open panel keeps
- * polling the cluster while nobody is looking at it. Combine the two:
+ * `usePanelActive` composes this in, so a panel that already gates on the
+ * Dockview api gets window visibility for free and does not need this hook
+ * directly. Use it on its own only for work that has no panel of its own.
  *
- *     const active = usePanelActive(api) && useDocumentVisible();
- *
- * Both hooks are unconditional calls, so `&&` here does not short-circuit a
- * hook — it only combines their results.
+ * Do not write `usePanelActive(api) && useDocumentVisible()` at a call site:
+ * `&&` short-circuits, so the second hook is skipped whenever the first
+ * returns false, and hook order changes between renders.
  */
 export function useDocumentVisible(): boolean {
     const [visible, setVisible] = useState(

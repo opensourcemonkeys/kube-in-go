@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DockviewPanelApi } from 'dockview';
 import { Chart } from 'primereact/chart';
 
@@ -15,14 +15,10 @@ import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
+import { getUsageColor } from '../../lib/usage';
+import { themeColor, useThemeVersion } from '../../lib/themeColors';
 import { usePanelActive } from '../../lib/usePanelActive';
-import { useDocumentVisible } from '../../lib/useDocumentVisible';
-
-const getUsageColor = (pct: number) => {
-    if (pct < 60) return '#5fc98a'; // var(--green)
-    if (pct < 80) return '#e2a85a'; // var(--amber)
-    return '#e07d6e';               // var(--red)
-};
+import { usePayloadSignature } from '../../lib/usePayloadSignature';
 
 const barOptions = {
     indexAxis: 'y' as const,
@@ -46,7 +42,7 @@ function ResourceBar({ entry }: { entry: models.ResourceQuotaEntry }) {
         labels: [''],
         datasets: [
             { data: [pct],       backgroundColor: [getUsageColor(pct)], borderRadius: 3, borderSkipped: false as const },
-            { data: [100 - pct], backgroundColor: ['#252e3f'],          borderRadius: 0, borderSkipped: false as const },
+            { data: [100 - pct], backgroundColor: [themeColor('--line2')],          borderRadius: 0, borderSkipped: false as const },
         ],
     }));
 
@@ -79,7 +75,8 @@ function ResourceBar({ entry }: { entry: models.ResourceQuotaEntry }) {
     );
 }
 
-function QuotaRow({ rq, onEdit, onDescribe }: {
+/** One quota's bars. Memoized — see NamespaceGroup. */
+const QuotaRow = React.memo(function QuotaRow({ rq, onEdit, onDescribe }: {
     rq: models.NamespacedResourceQuota;
     onEdit: (quotaName: string, ns: string) => void;
     onDescribe: (quotaName: string, ns: string) => void;
@@ -116,9 +113,15 @@ function QuotaRow({ rq, onEdit, onDescribe }: {
             </div>
         </div>
     );
-}
+});
 
-function NamespaceGroup({ namespace, quotas, onEdit, onDescribe }: {
+/**
+ * One namespace's quotas. Memoized (as is QuotaRow) because the poll only
+ * replaces `quotas` when the payload really changed: on a quiet cluster every
+ * group keeps its props and the whole list re-renders zero components. Both are
+ * module-scope and take everything they need as explicit props.
+ */
+const NamespaceGroup = React.memo(function NamespaceGroup({ namespace, quotas, onEdit, onDescribe }: {
     namespace: string;
     quotas: models.NamespacedResourceQuota[];
     onEdit: (quotaName: string, namespace: string) => void;
@@ -147,17 +150,22 @@ function NamespaceGroup({ namespace, quotas, onEdit, onDescribe }: {
             ))}
         </div>
     );
-}
+});
 
 export default function ResourceQuotaListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
-    const active = usePanelActive(api) && useDocumentVisible();
+    const active = usePanelActive(api);
+    // Bar charts paint into a canvas, which CSS variables cannot reach: the
+    // colors are read from the palette per render, so this subscription is what
+    // repaints them on a theme switch.
+    useThemeVersion();
     const [quotas, setQuotas] = useState<models.NamespacedResourceQuota[]>([]);
     const [nsFilter, setNsFilter] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const { openYamlPanel, openDescribePanel } = useTabContext();
+    const payload = usePayloadSignature();
 
     // One quota list for the whole cluster (S9b). This used to rebuild the same
     // data out of GetNamespaces, which fanned out a quota list per namespace.
@@ -165,6 +173,12 @@ export default function ResourceQuotaListComponent({ clusterName, api }: { clust
         setRefreshing(true);
         try {
             const items = await GetResourceQuotas(clusterName);
+            // Unchanged poll: keep the current quota objects, so the memoized
+            // rows and the `groups` useMemo below all stay put.
+            if (!payload.changed(items)) {
+                setError(null);
+                return;
+            }
             setQuotas(items.map((item: any) => models.NamespacedResourceQuota.createFrom(item)));
             setError(null);
         } catch (e) {
@@ -175,7 +189,7 @@ export default function ResourceQuotaListComponent({ clusterName, api }: { clust
             setLoaded(true);
             setRefreshing(false);
         }
-    }, [clusterName]);
+    }, [clusterName, payload]);
 
     useEffect(() => {
         if (!active) return;
@@ -186,13 +200,15 @@ export default function ResourceQuotaListComponent({ clusterName, api }: { clust
 
     const referencePanel = `resourcequotas:${clusterName}`;
 
-    const handleEdit = (quotaName: string, namespace: string) => {
+    // useCallback so the memoized QuotaRow / NamespaceGroup below keep their
+    // props' identity across a poll that changed nothing.
+    const handleEdit = useCallback((quotaName: string, namespace: string) => {
         openYamlPanel({ clusterName, resourceKind: 'resourcequota', name: quotaName, namespace, referencePanel });
-    };
+    }, [openYamlPanel, clusterName, referencePanel]);
 
-    const handleDescribe = (quotaName: string, namespace: string) => {
+    const handleDescribe = useCallback((quotaName: string, namespace: string) => {
         openDescribePanel({ clusterName, resource: 'resourcequotas', name: quotaName, namespace, referencePanel });
-    };
+    }, [openDescribePanel, clusterName, referencePanel]);
 
     // The flat list arrives sorted by nothing in particular; group it back into
     // namespaces for display, keeping namespaces and quotas alphabetical.

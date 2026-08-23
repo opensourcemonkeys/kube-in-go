@@ -15,8 +15,10 @@ import { useTabContext } from '../../contexts/TabContext';
 import { errText } from '../../lib/errText';
 import ErrorBanner from '../shared/ErrorBanner';
 import { useT } from '../../i18n/useT';
+import { getUsageColor } from '../../lib/usage';
+import { themeColor, useThemeVersion } from '../../lib/themeColors';
 import { usePanelActive } from '../../lib/usePanelActive';
-import { useDocumentVisible } from '../../lib/useDocumentVisible';
+import { usePayloadSignature } from '../../lib/usePayloadSignature';
 
 type Severity = 'success' | 'warning' | 'danger' | 'info' | 'secondary' | 'contrast' | undefined;
 
@@ -26,12 +28,6 @@ const getStatusSeverity = (status: string): Severity => {
         case 'NotReady': return 'danger';
         default:         return 'warning';
     }
-};
-
-const getUsageColor = (pct: number): string => {
-    if (pct < 60) return '#5fc98a'; // var(--green)
-    if (pct < 80) return '#e2a85a'; // var(--amber)
-    return '#e07d6e';               // var(--red)
 };
 
 const barOptions = {
@@ -58,7 +54,7 @@ function UsageChart({ label, used, total, unit }: {
         labels: [''],
         datasets: [
             { data: [pct],       backgroundColor: [getUsageColor(pct)], borderRadius: 3, borderSkipped: false as const },
-            { data: [100 - pct], backgroundColor: ['#252e3f'],          borderRadius: 0, borderSkipped: false as const },
+            { data: [100 - pct], backgroundColor: [themeColor('--line2')],          borderRadius: 0, borderSkipped: false as const },
         ],
     }));
 
@@ -91,7 +87,14 @@ function UsageChart({ label, used, total, unit }: {
     );
 }
 
-function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
+/**
+ * One node's card. Memoized because a cluster of any size renders a lot of
+ * these and `loadNodes` only replaces the array when the payload really
+ * changed — so on a quiet cluster every card's props keep their identity and
+ * none of them re-render. Safe to memo: it is module-scope and takes
+ * everything it needs as explicit props.
+ */
+const NodeCard = React.memo(function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
     node: models.NodeInfo;
     clusterName: string;
     onEditYaml: (name: string) => void;
@@ -215,7 +218,7 @@ function NodeCard({ node, clusterName, onEditYaml, onAction, onToast }: {
             </Dialog>
         </div>
     );
-}
+});
 
 function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
     return (
@@ -229,13 +232,18 @@ function MetaItem({ icon, label, value }: { icon: React.ReactNode; label: string
 
 export default function NodeListComponent({ clusterName, api }: { clusterName: string; api?: DockviewPanelApi }) {
     const t = useT();
-    const active = usePanelActive(api) && useDocumentVisible();
+    const active = usePanelActive(api);
+    // Bar charts paint into a canvas, which CSS variables cannot reach: the
+    // colors are read from the palette per render, so this subscription is what
+    // repaints them on a theme switch.
+    useThemeVersion();
     const [nodes, setNodes] = useState<models.NodeInfo[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loaded, setLoaded] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const toast = useRef<Toast | null>(null);
     const { openYamlPanel } = useTabContext();
+    const payload = usePayloadSignature();
 
     // Mirrors lib/useResourceList: keep the last good cards on a failed poll and
     // let the banner say the data is stale, rather than blanking to a message
@@ -244,6 +252,12 @@ export default function NodeListComponent({ clusterName, api }: { clusterName: s
         setRefreshing(true);
         try {
             const items = await GetNodes(clusterName);
+            // Unchanged poll: keep the current node objects so the memoized
+            // cards below have nothing to re-render.
+            if (!payload.changed(items)) {
+                setError(null);
+                return;
+            }
             setNodes(items.map((item: any) => models.NodeInfo.createFrom(item)));
             setError(null);
         } catch (e) {
@@ -253,7 +267,7 @@ export default function NodeListComponent({ clusterName, api }: { clusterName: s
             setLoaded(true);
             setRefreshing(false);
         }
-    }, [clusterName]);
+    }, [clusterName, payload]);
 
     useEffect(() => {
         if (!active) return;
@@ -262,14 +276,16 @@ export default function NodeListComponent({ clusterName, api }: { clusterName: s
         return () => window.clearInterval(id);
     }, [active, loadNodes]);
 
-    const handleEditYaml = (name: string) => {
+    // useCallback, not because these are expensive, but because NodeCard is
+    // memoized: a fresh function identity per render would defeat the memo.
+    const handleEditYaml = useCallback((name: string) => {
         openYamlPanel({ clusterName,
             resourceKind: 'node', name, namespace: '', referencePanel: `nodes:${clusterName}` });
-    };
+    }, [openYamlPanel, clusterName]);
 
-    const showToast = (severity: 'success' | 'error', summary: string, detail: string) => {
+    const showToast = useCallback((severity: 'success' | 'error', summary: string, detail: string) => {
         toast.current?.show({ severity, summary, detail, life: 3000 });
-    };
+    }, []);
 
     const readyCount = nodes.filter(n => n.status === 'Ready').length;
 
