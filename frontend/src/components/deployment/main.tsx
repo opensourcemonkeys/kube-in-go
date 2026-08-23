@@ -10,6 +10,7 @@ import { GetDeployments, DeleteDeployment } from '../../../wailsjs/go/controller
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import WorkloadActions from '../shared/WorkloadActions';
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -51,7 +52,7 @@ export default function DeploymentListComponent({ clusterName, api }: { clusterN
             defaultFilters={defaultFilters}
             emptyMessage="No deployments found"
             onRowDoubleClick={(dep) => openYamlPanel({ clusterName, resourceKind: 'deployment', name: dep.name, namespace: dep.namespace, referencePanel })}
-            columns={({ buildInOptions }) => (
+            columns={({ buildInOptions, reload, toastRef }) => (
                 <>
                     <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
                     <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
@@ -67,10 +68,17 @@ export default function DeploymentListComponent({ clusterName, api }: { clusterN
                         body={(row: models.DeploymentInfo) => (
                             <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />
                         )} />
-                    <Column header="" style={{ width: '4rem', textAlign: 'center' }}
+                    <Column header="" style={{ width: '7.5rem', textAlign: 'center' }}
                         body={(row: models.DeploymentInfo) => (
-                            <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                                onClick={() => openLogPanel({ clusterName, resourceKind: 'deployment', name: row.name, namespace: row.namespace, referencePanel })} />
+                            <>
+                                <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+                                    onClick={() => openLogPanel({ clusterName, resourceKind: 'deployment', name: row.name, namespace: row.namespace, referencePanel })} />
+                                <WorkloadActions
+                                    clusterName={clusterName} name={row.name} namespace={row.namespace}
+                                    reload={reload} toastRef={toastRef}
+                                    scale={{ kind: 'deployment', replicas: row.replicas }}
+                                    restart={{ kind: 'deployment' }} />
+                            </>
                         )} />
                 </>
             )}

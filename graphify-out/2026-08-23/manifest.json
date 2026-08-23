@@ -310,8 +310,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/shared/ResourceListView.tsx": {
-    "mtime": 1786285915.6692493,
-    "ast_hash": "c5ef92111b98a2ae30e7dec62bb0179b",
+    "mtime": 1787476826.0148978,
+    "ast_hash": "e352686db6f0d55b71d97fe9dbe205b3",
     "semantic_hash": ""
   },
   "frontend/src/components/statefulset/main.tsx": {
@@ -435,8 +435,8 @@
     "semantic_hash": "5b0fb0fa7d8f3ea924b0028262918e4b"
   },
   "frontend/src/lib/useResourceList.ts": {
-    "mtime": 1786259385.962958,
-    "ast_hash": "0e452354f7c5045e64e6b0f0d14fedb9",
+    "mtime": 1787476826.0146463,
+    "ast_hash": "47214c8fcc5ec29685641e928b81cc3c",
     "semantic_hash": ""
   },
   "frontend/src/lib/wailsBridge.ts": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1786260764.185833,
-    "ast_hash": "fb6657a1f529c4e306d57a8bc44465ae",
+    "mtime": 1786286672.801859,
+    "ast_hash": "6b953297352bfe9e827a794b66866736",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
@@ -1880,8 +1880,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/shared/ScaleDialog.tsx": {
-    "mtime": 1786285966.7829318,
-    "ast_hash": "926dea200549d5f9f590b830a085f938",
+    "mtime": 1786286613.7034624,
+    "ast_hash": "b1db098cd89430acdd3d87881dbd603a",
     "semantic_hash": ""
   },
   "frontend/src/components/shared/WorkloadActions.tsx": {

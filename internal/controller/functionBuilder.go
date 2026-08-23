@@ -3,6 +3,7 @@ package controller_app
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -204,6 +205,40 @@ func (a *App) ResizePodExecSession(sessionId string, cols int, rows int) error {
 
 func (a *App) ClosePodExecSession(sessionId string) error {
 	return bussiness.ClosePodExecSession(sessionId)
+}
+
+// ============================================================================
+// Workloads Screen: Cross-kind actions (scale, rollout restart, suspend)
+// ============================================================================
+
+// ScaleWorkload takes `replicas` as int rather than int32 because JavaScript
+// has no int32 and the generated TypeScript is `number` either way. The range
+// check therefore has to happen here, *before* the narrowing conversion —
+// int32(replicas) on an out-of-range value wraps silently and would scale a
+// workload to an arbitrary number.
+func (a *App) ScaleWorkload(clusterName string, kind string, name string, namespace string, replicas int) error {
+	if replicas < 0 {
+		return fmt.Errorf("replicas must be >= 0, got %d", replicas)
+	}
+	if replicas > math.MaxInt32 {
+		return fmt.Errorf("replicas must be <= %d, got %d", math.MaxInt32, replicas)
+	}
+	return bussiness.ScaleWorkload(clusterName, kind, name, namespace, int32(replicas))
+}
+
+func (a *App) RestartWorkload(clusterName string, kind string, name string, namespace string) error {
+	return bussiness.RestartWorkload(clusterName, kind, name, namespace)
+}
+
+func (a *App) SetCronJobSuspend(clusterName string, name string, namespace string, suspend bool) error {
+	return bussiness.SetCronJobSuspend(clusterName, name, namespace, suspend)
+}
+
+// GetWorkloadAutoscaler returns nil when no HPA targets the workload *and* when
+// the lookup could not be performed at all — the frontend treats both as "no
+// warning to show". See business.GetWorkloadAutoscaler for why.
+func (a *App) GetWorkloadAutoscaler(clusterName string, kind string, name string, namespace string) (*models.HPAInfo, error) {
+	return bussiness.GetWorkloadAutoscaler(clusterName, kind, name, namespace)
 }
 
 // ============================================================================

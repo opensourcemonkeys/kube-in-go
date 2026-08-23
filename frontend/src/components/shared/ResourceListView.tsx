@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import type { DockviewPanelApi } from 'dockview';
 import { VscClearAll, VscTrash, VscClose } from 'react-icons/vsc';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
@@ -66,6 +66,14 @@ export interface ColumnsContext<T extends ResourceRow> {
      * Array-valued fields are flattened (pair them with `ARRAY_IN`).
      */
     buildInOptions: (field: keyof T) => { label: string; value: string }[];
+    /**
+     * Refetches the list. Row actions that mutate the object (scale, restart,
+     * suspend) call this so the change shows immediately instead of waiting out
+     * the poll interval.
+     */
+    reload: () => Promise<void>;
+    /** The list's own toast, so row actions report success/failure in the same place deletes do. */
+    toastRef: React.RefObject<Toast>;
 }
 
 export interface ResourceListViewProps<T extends ResourceRow> {
@@ -78,7 +86,12 @@ export interface ResourceListViewProps<T extends ResourceRow> {
     deleter?: (clusterName: string, name: string, namespace: string) => Promise<void>;
     /** Singular label for delete UI, e.g. "pod". */
     deleteLabel?: string;
-    /** DataTable row key (default "name"). Use a synthetic id when names can collide across namespaces. */
+    /**
+     * DataTable row key. Defaults to the `__rowKey` (`namespace/name`) that
+     * `useResourceList` stamps on every row, which is unique because a panel
+     * lists exactly one kind. Only override it for a view whose rows are *not*
+     * `namespace/name`-unique.
+     */
     dataKey?: string;
     /**
      * Plural resource name (e.g. "pods"). When set, a Describe button column is
@@ -109,7 +122,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         createFrom,
         deleter,
         deleteLabel = 'resource',
-        dataKey = 'name',
+        dataKey = '__rowKey',
         describeResource,
         defaultFilters,
         pollInterval,
@@ -195,23 +208,30 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
     // — unlike window.resize — also fires on Dockview splitter drags / tab show.
     const tableWrapRef = useRef<HTMLDivElement>(null);
     const [scrollHeight, setScrollHeight] = useState<string>('flex');
-    useEffect(() => {
+    useLayoutEffect(() => {
         const el = tableWrapRef.current;
         if (!el) return;
         let last = -1;
-        const observer = new ResizeObserver((entries) => {
-            const height = Math.round(entries[0]?.contentRect.height ?? 0);
+        const apply = (height: number) => {
             // Ignore 0 (tab backgrounded/hidden) so we keep the last good height.
             if (height === 0 || height === last) return;
             last = height;
             setScrollHeight(`${height}px`);
+        };
+        // Measured synchronously in a *layout* effect, before the browser paints.
+        // `observe()` delivers its first callback a frame later, which was late
+        // enough for the table to paint at the 'flex' height and then be torn down
+        // by the `key` below — the visible flicker on a panel's first load. The
+        // wrapper is rendered unconditionally (the first-load spinner sits *inside*
+        // it) precisely so this can run while the first fetch is still in flight,
+        // leaving the table nothing to re-measure by the time it mounts.
+        apply(Math.round(el.clientHeight));
+        const observer = new ResizeObserver((entries) => {
+            apply(Math.round(entries[0]?.contentRect.height ?? 0));
         });
         observer.observe(el);
         return () => observer.disconnect();
-        // Re-runs when the first-load spinner gives way to the table: the wrapper
-        // does not exist while `loading`, so a mount-only effect would observe
-        // nothing and the scroller would never get a measured height.
-    }, [loading]);
+    }, []);
 
     // PrimeReact's DataTable selection props are a discriminated union; spreading a
     // conditionally-typed object keeps TS from trying to resolve `selectionMode` as
@@ -270,12 +290,25 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                 context={`${title} (${clusterName})`}
             />
 
-            {loading ? (
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* The wrapper is never conditional: it is what the layout effect above
+                measures, and it has to exist (and have its final height) while the
+                first fetch is still running so the table can mount already knowing
+                its height. Only its *contents* swap from spinner to table. */}
+            <div
+                ref={tableWrapRef}
+                className="ktable-fill"
+                style={{
+                    flex: 1,
+                    minHeight: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    ...(loading ? { alignItems: 'center', justifyContent: 'center' } : null),
+                }}
+            >
+                {loading ? (
                     <ProgressSpinner style={{ width: 40, height: 40 }} strokeWidth="4" />
-                </div>
-            ) : (
-            <div ref={tableWrapRef} className="ktable-fill" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                ) : (
                 <DataTable
                     // The virtual scroller captures its viewport height once at init time.
                     // When a panel is auto-opened during app launch, that init can run before
@@ -284,8 +317,12 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     // once a measured pixel height is available forces a fresh init with the
                     // correct height, after which normal value updates render rows. (Manually
                     // opened panels already mount into a settled layout, so they never hit this.)
-                    // This flips exactly once — keying it to the live height would remount on
-                    // every resize, which reads as a visible flicker.
+                    // This flips exactly once, and because the wrapper is measured in a
+                    // layout effect it flips *before* the table has ever painted, so the
+                    // remount is invisible. Never key this to the live height: that would
+                    // remount on every resize, and PrimeReact's VirtualScroller already
+                    // re-runs init() when its scrollHeight prop changes (useUpdateEffect on
+                    // [itemSize, scrollHeight, scrollWidth]) — no remount needed for that.
                     key={scrollHeight === 'flex' ? 'measuring' : 'measured'}
                     value={items}
                     dataKey={dataKey}
@@ -307,10 +344,10 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     {deletable && (
                         <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} style={{ minWidth: '3rem', maxWidth: '3rem' }} />
                     )}
-                    {toColumnArray(columns({ items, buildInOptions }), describeColumn)}
+                    {toColumnArray(columns({ items, buildInOptions, reload, toastRef }), describeColumn)}
                 </DataTable>
+                )}
             </div>
-            )}
 
             {deletable && (
                 <Dialog

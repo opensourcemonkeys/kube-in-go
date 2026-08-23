@@ -9,3 +9,4 @@ var errNamespaceServiceRequired = errors.New("namespace and service name are req
 var errNamespaceServiceAccountRequired = errors.New("namespace and service account name are required")
 var errNamespaceRoleRequired = errors.New("namespace and role name are required")
 var errNamespaceRoleBindingRequired = errors.New("namespace and role binding name are required")
+var errNegativeReplicas = errors.New("replicas must be >= 0")

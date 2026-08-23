@@ -9,6 +9,14 @@ import { errText } from './errText';
 export interface ResourceRow {
     name: string;
     namespace?: string;
+    /**
+     * Row identity for the DataTable. Names repeat across namespaces, and
+     * PrimeReact compares selection by `dataKey` alone — keying on `name`
+     * made one checkbox tick every same-named row (and made clicking the
+     * second one *un*-tick the first). Injected by `reload` rather than by
+     * each view's `createFrom` so no list can forget it.
+     */
+    __rowKey?: string;
 }
 
 export interface UseResourceListOptions<T extends ResourceRow> {
@@ -88,7 +96,15 @@ export function useResourceList<T extends ResourceRow>(
         setRefreshing(true);
         try {
             const data = await fetcher(clusterName);
-            setItems(data.map(createFrom));
+            const rows = data.map(createFrom);
+            // Stamped in place, not mapped into a new object literal: `createFrom`
+            // returns model class instances (models.PodInfo …) that spreading
+            // would flatten. The `namespace ?` guard covers both `undefined` and
+            // the `''` Go serializes for cluster-scoped kinds.
+            for (const row of rows) {
+                row.__rowKey = row.namespace ? `${row.namespace}/${row.name}` : row.name;
+            }
+            setItems(rows);
             setError(null);
         } catch (e) {
             // The rows are deliberately left alone: the last good ones stay on

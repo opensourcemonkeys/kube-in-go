@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -220,6 +221,39 @@ func (a *App) confirm(msg string, onYes func()) {
 	m.SetTitle(" Confirm ")
 	a.pages.AddPage("confirm", m, true, true)
 	a.app.SetFocus(m)
+}
+
+// prompt asks for a single line of text and runs onOK with it. tview's Modal
+// only takes buttons, so unlike confirm this is a small Form — the same shape
+// showAddCluster uses. Cancelling (Esc or the button) runs nothing.
+func (a *App) prompt(title, label, initial string, onOK func(string)) {
+	form := tview.NewForm()
+	form.SetBackgroundColor(colPanel)
+	form.SetFieldBackgroundColor(colBg)
+	form.SetFieldTextColor(colInk)
+	form.SetLabelColor(colTeal)
+	form.SetButtonBackgroundColor(colTealDim)
+	form.SetButtonTextColor(colInk)
+	form.SetBorder(true).SetBorderColor(colTeal).SetTitle(" " + title + " ")
+
+	form.AddInputField(label, initial, 20, nil, nil)
+
+	finish := func() {
+		value := strings.TrimSpace(form.GetFormItem(0).(*tview.InputField).GetText())
+		a.closeModal("prompt")
+		onOK(value)
+	}
+	form.AddButton("OK", finish)
+	form.AddButton("Cancel", func() { a.closeModal("prompt") })
+	form.SetInputCapture(func(ev *tcell.EventKey) *tcell.EventKey {
+		if ev.Key() == tcell.KeyEsc {
+			a.closeModal("prompt")
+			return nil
+		}
+		return ev
+	})
+
+	a.modal("prompt", form, 44, 9)
 }
 
 // focusBorder lightens a pane's border while it holds focus so the user can see

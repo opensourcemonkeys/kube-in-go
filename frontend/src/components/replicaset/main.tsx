@@ -10,6 +10,7 @@ import { GetReplicaSets, DeleteReplicaSet } from '../../../wailsjs/go/controller
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import WorkloadActions from '../shared/WorkloadActions';
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -50,7 +51,7 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
             defaultFilters={defaultFilters}
             emptyMessage="No replicasets found"
             onRowDoubleClick={(r) => openYamlPanel({ clusterName, resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel })}
-            columns={({ buildInOptions }) => (
+            columns={({ buildInOptions, reload, toastRef }) => (
                 <>
                     <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
                     <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
@@ -66,10 +67,18 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />} />
                     <Column header="Available" sortable sortField="available_replicas" style={{ minWidth: '8rem' }}
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />} />
-                    <Column header="" style={{ width: '4rem', textAlign: 'center' }}
+                    {/* No Restart: a ReplicaSet has no rollout of its own — restarting is
+                        an operation on its owning Deployment. */}
+                    <Column header="" style={{ width: '6rem', textAlign: 'center' }}
                         body={(row: models.ReplicaSetInfo) => (
-                            <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                                onClick={() => openLogPanel({ clusterName, resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel })} />
+                            <>
+                                <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+                                    onClick={() => openLogPanel({ clusterName, resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel })} />
+                                <WorkloadActions
+                                    clusterName={clusterName} name={row.name} namespace={row.namespace}
+                                    reload={reload} toastRef={toastRef}
+                                    scale={{ kind: 'replicaset', replicas: row.replicas }} />
+                            </>
                         )} />
                 </>
             )}

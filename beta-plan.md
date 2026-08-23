@@ -16,7 +16,7 @@
 - [x] **S7** — 24 business fonksiyonuna error return *(en riskli)* ✅
 - [x] **S8** — UI'da hata + yükleme durumu ✅
 - [x] **S9** — Describe, Resource Quota, eksik delete/update, namespace create ✅
-- [ ] **S10** — Scale ve Rollout Restart
+- [x] **S10** — Scale ve Rollout Restart ✅
 - [ ] **S11** — Port forwarding
 - [ ] **S12** — i18n altyapısı + İngilizce katalog + dil seçici
 - [ ] **S13** — tr / de / ru / zh / ja çevirileri + çürüme koruması
@@ -826,7 +826,7 @@ plan onu saymıyordu ama Node describe'ı doğal bir adaydır, S16'ya not.
 
 ---
 
-## Step 10 — Eksik eylemler B: Scale ve Rollout Restart
+## Step 10 — Eksik eylemler B: Scale ve Rollout Restart ✅
 
 `frontend/wailsjs/go/controller_app/App.js`'te **hiç `Scale*` veya `Restart*`/`Rollout*` binding'i yok**. Kullanıcıların ilk beş dakikada ihtiyaç duyduğu iki eylem bunlar.
 
@@ -882,6 +882,93 @@ kubectl get deploy nginx -o jsonpath='{.spec.template.metadata.annotations}'
 kubectl rollout history deploy/nginx
 ```
 0'a scale de çalışmalı ve liste `Scaled Down` göstermeli (bu durum `deploymentToInfo`'da zaten var).
+
+### Uygulandı — sonuç
+
+**Kapsam planın ötesine geçti (kullanıcı onaylı):** Scale + Rollout Restart'a
+ek olarak **CronJob suspend/resume** ve **Scale dialog'unda HPA uyarısı**.
+İlki teknik olarak restart ile birebir aynı iş (tek alanlık patch), ikincisi
+olmadan HPA'lı bir workload'u scale etmek "uygulama bozuk" gibi görünüyordu.
+
+**10a. Scale.** `services/scaleServices.go::ScaleWorkload` — `autoscalingv1.Scale`
++ `UpdateScale`, planın dediği gibi **scale subresource'u**. İmza plandan
+kasten farklı: `(kind, namespace, name, replicas, client)` — komşu typed
+servislerin hiçbiri `ctx` almıyor ve hepsinde `client` **son** parametre;
+plandaki `(ctx, client, ...)` şekli bu dosyada yalnız kalırdı.
+`errNegativeReplicas` `errors.go`'ya eklendi.
+
+**10b. Rollout restart.** `services/rolloutServices.go::RestartWorkload` —
+`kubectl.kubernetes.io/restartedAt` annotation'ı, strategic-merge-patch, pod
+silme yok. Patch gövdesi `fmt.Sprintf` değil **`json.Marshal`** ile kuruluyor;
+zaman damgası gömüldüğü JSON string'inden kaçamasın diye.
+
+**10c. CronJob suspend.** `services/cronJobServices.go::SetCronJobSuspend` —
+kind'a özel olduğu için kendi dosyasında, cross-kind olan diğer ikisi ayrı
+dosyalarda.
+
+**HPA uyarısı.** `FindScaleAutoscaler` `autoscaling/v2` HPA'larını listeleyip
+`scaleTargetRef` ile eşleştiriyor (HPA'da Kind **TitleCase**, bizim sözlük
+küçük harf — arada `scaleTargetKinds` map'i var). `business.GetWorkloadAutoscaler`
+**hatayı yutuyor**: HPA listelemek ayrı bir RBAC fiili ve `autoscaling/v2` ancak
+1.23'ten beri var, ikisinde de doğru cevap "bilmiyoruz", "scale başarısız olsun"
+değil. Emsal `GetNodes`'un opsiyonel metrics client'ı (`business/node.go:56`).
+Sonuç: uyarı **garanti değil**, ama yokluğu hiçbir zaman eylemi engellemiyor.
+
+**Controller.** `ScaleWorkload` `replicas`'ı `int` alıyor (JS'te int32 yok) ve
+aralık kontrolünü **daraltmadan önce** yapıyor — `int32(replicas)` taşan bir
+değerde sessizce sarmalanıp workload'u rastgele bir sayıya çekerdi.
+
+**10d. Frontend.** `ScaleDialog.tsx` (**Slider + InputNumber birlikte**; mevcut
+sayı satırdan geliyor — ekstra çağrı yok; HPA notu; 0 uyarısı; hata dialog
+**içinde**, kullanıcı oradayken toast'a göndermek anlamsız) ve
+`ConfirmActionDialog.tsx`.
+
+Slider'ın tavanı **latch'lenen state**, türetilmiş değer değil: replica sayısının
+doğal bir üst sınırı yok, ama slider'ın bir `max`'ı olmak zorunda. Tavan açılışta
+`max(10, mevcut*2)` ile başlıyor ve sadece **büyüyor** (HPA daha yükseğini
+gösterirse veya kullanıcı üstünü yazarsa). `replicas`'tan türetilseydi handle'ı
+sola sürüklerken tavan da küçülür, handle imlecin altından sağ uca geri
+zıplardı. Büyük/kesin değerler için InputNumber duruyor — slider tek başına
+tavanının ötesini ifade edemez. `theme-monolith.css`'e `.p-slider` override'ı
+eklendi (yeni PrimeReact bileşenleri için proje kuralı; slider repoda ilk kez
+kullanılıyordu ve base tema renkleriyle geliyordu).
+**PrimeReact'ın `ConfirmDialog`'u kullanılmadı** — repoda hiç kullanılmıyor,
+global bir servis + mount noktası istiyor; mevcut her onay düz `<Dialog>` +
+footer (`ResourceListView`'ın delete'i, namespace create).
+
+Butonlar `shared/WorkloadActions.tsx`'te toplandı: 5 view'a kopyalanacak
+buton+dialog bloğu yerine tek bileşen, her `main.tsx` action kolonuna tek eleman
+ekliyor. `clusterName`/`reload`/`toastRef` **açık prop** — DataTable body
+renderer'ları module scope'ta, closure ile yakalayamazlar (CLAUDE.md kuralı).
+`ColumnsContext` bunun için `reload` + `toastRef` kazandı (ikisi de
+`useResourceList`'ten zaten dönüyordu).
+
+**Yetenek matrisi kasten simetrik değil:** replicasets'te Restart yok (kendi
+rollout'u yok, sahibi Deployment'ın işi), daemonsets'te Scale yok (replica
+sayısı = node sayısı, scale subresource'u yok). Backend de bu çiftleri net
+hatayla reddediyor; frontend sadece ölü butonu ekranda tutmuyor.
+
+**TUI pariteti.** `app.go`'ya `prompt()` eklendi — `confirm` var ama sayı
+sorabilecek hiçbir şey yoktu; `tview.Modal` sadece buton alıyor, o yüzden
+`showAddCluster`'daki gibi küçük bir Form. `rowAction`'a `promptLabel`/`runArg`
+eklendi, `resourcelist.go`'daki dispatch üç dallı oldu.
+**Tuşlar plandan farklı: `S`/`R`/`P`/`U`, küçük harf değil** — `keys.go`'da
+`r` zaten refresh, `s` pod ekranında shell; node eylemleri de bu yüzden
+büyük harf (`C`/`U`/`D`). CronJob'da tek toggle yerine iki idempotent tuş,
+çünkü `rowAction` satırın mevcut suspend durumunu görmüyor.
+
+**Verify çıktısı:** `go build` / `go vet` / `go test ./...` temiz,
+`grep -rn "wailsapp/wails" internal/tui cmd/tui` boş, bindings regen sonrası
+plandaki grep **4** döndü, `npx tsc --noEmit` temiz, `npm run lint` **0 hata**
+(127 uyarı — S9'daki sayının aynısı, hepsi önceden var), `npm run test` 17/17,
+`npm run build` geçti, `frontend/dist/.gitkeep` geri alındı,
+`graphify update .` koşuldu.
+
+**Yapılmayan:** plandaki manuel kontroller (gerçek scale/restart/suspend,
+`kubectl rollout history` karşılaştırması, HPA uyarısının canlı görünmesi)
+canlı cluster istiyor; bu oturumda koşulmadı. **S16'ya not:** HPA uyarısının
+`list hpa` yetkisi veya `autoscaling/v2` olmayan cluster'larda görünmemesi
+Known Limitations'a yazılmalı.
 
 ---
 

@@ -714,6 +714,23 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 .p-progressbar.p-progressbar-indeterminate .p-progressbar-value::before,
 .p-progressbar.p-progressbar-indeterminate .p-progressbar-value::after { background: var(--teal) !important; }
 
+/* PrimeReact Slider, re-skinned to the app palette (scale dialog). Global
+   .p-* override, per the styling convention. */
+.p-slider { background: var(--panel3) !important; border: 1px solid var(--line2); border-radius: 4px !important; }
+.p-slider.p-slider-horizontal { height: 6px; }
+.p-slider .p-slider-range { background: var(--teal) !important; border-radius: 4px; }
+.p-slider .p-slider-handle {
+  background: var(--teal) !important;
+  border: 2px solid var(--panel) !important;
+  border-radius: 50%;
+  height: 16px; width: 16px;
+  margin-top: -8px; margin-left: -8px;
+  transition: box-shadow .15s ease;
+}
+.p-slider .p-slider-handle:hover { background: var(--teal) !important; box-shadow: 0 0 0 4px rgba(63,200,180,.18); }
+.p-slider .p-slider-handle:focus,
+.p-slider .p-slider-handle.p-focus { outline: none; box-shadow: 0 0 0 4px rgba(63,200,180,.28); }
+
 /* ════════════════════════════════════════════════════════════
    DOCKVIEW
    ════════════════════════════════════════════════════════════ */

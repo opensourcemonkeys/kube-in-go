@@ -2,12 +2,14 @@ package services_k8sclient
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"kube-ins/internal/models"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"sigs.k8s.io/yaml"
 )
@@ -60,6 +62,24 @@ func UpdateCronJobYaml(namespace, name, yamlContent string, client *kubernetes.C
 	cj.Name = name
 
 	_, err := client.BatchV1().CronJobs(namespace).Update(context.Background(), &cj, metav1.UpdateOptions{})
+	return err
+}
+
+// SetCronJobSuspend pauses or resumes a CronJob's schedule. Patching rather
+// than updating keeps it a single field write, so it cannot revert a concurrent
+// edit to the schedule or the job template.
+func SetCronJobSuspend(namespace, name string, suspend bool, client *kubernetes.Clientset) error {
+	if namespace == "" || name == "" {
+		return errNamespaceNameRequired
+	}
+	patch, err := json.Marshal(map[string]any{
+		"spec": map[string]any{"suspend": suspend},
+	})
+	if err != nil {
+		return err
+	}
+	_, err = client.BatchV1().CronJobs(namespace).Patch(context.Background(), name,
+		types.StrategicMergePatchType, patch, metav1.PatchOptions{})
 	return err
 }
 

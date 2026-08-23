@@ -135,18 +135,18 @@
     "semantic_hash": ""
   },
   "frontend/src/components/cronjob/main.tsx": {
-    "mtime": 1786260356.46799,
-    "ast_hash": "f7f990ff214beccd8900f818875483b6",
+    "mtime": 1786286063.0913076,
+    "ast_hash": "e301d9aebbc3d16d43984e5d7bd9d6fd",
     "semantic_hash": ""
   },
   "frontend/src/components/daemonset/main.tsx": {
-    "mtime": 1786260356.4678073,
-    "ast_hash": "fdd136cd5da246286ce82d1eb868b198",
+    "mtime": 1786286053.3301466,
+    "ast_hash": "4ed7db63a572e95cc46d62f9b1e0b8e1",
     "semantic_hash": ""
   },
   "frontend/src/components/deployment/main.tsx": {
-    "mtime": 1786260356.4673328,
-    "ast_hash": "7b393399db36f9389a4c96e8e6d4bf88",
+    "mtime": 1786286015.806905,
+    "ast_hash": "2487c433698bb744f86ea2fbea3156f8",
     "semantic_hash": ""
   },
   "frontend/src/components/endpoints/main.tsx": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/replicaset/main.tsx": {
-    "mtime": 1786260356.4676604,
-    "ast_hash": "78c66b189894b14eaaa2d1b4c0de2abc",
+    "mtime": 1786286043.1283545,
+    "ast_hash": "3ac733c71032b7e9ac79c2ee099f9522",
     "semantic_hash": ""
   },
   "frontend/src/components/resourcequota/main.tsx": {
@@ -310,13 +310,13 @@
     "semantic_hash": ""
   },
   "frontend/src/components/shared/ResourceListView.tsx": {
-    "mtime": 1786260506.3460257,
-    "ast_hash": "da8b5bfef462b40a63f7e2eb80ac6825",
+    "mtime": 1787478449.9918518,
+    "ast_hash": "7df37f34cc44f8837d9508abc2059219",
     "semantic_hash": ""
   },
   "frontend/src/components/statefulset/main.tsx": {
-    "mtime": 1786260356.4675558,
-    "ast_hash": "a67ac25efdd1def9f1b057594fffb814",
+    "mtime": 1786286032.6534107,
+    "ast_hash": "795f70d5e4640d31ad60715c2e7895c7",
     "semantic_hash": ""
   },
   "frontend/src/components/storageclass/main.tsx": {
@@ -435,8 +435,8 @@
     "semantic_hash": "5b0fb0fa7d8f3ea924b0028262918e4b"
   },
   "frontend/src/lib/useResourceList.ts": {
-    "mtime": 1786259385.962958,
-    "ast_hash": "0e452354f7c5045e64e6b0f0d14fedb9",
+    "mtime": 1787476826.0146463,
+    "ast_hash": "47214c8fcc5ec29685641e928b81cc3c",
     "semantic_hash": ""
   },
   "frontend/src/lib/wailsBridge.ts": {
@@ -760,8 +760,8 @@
     "semantic_hash": "10ef7b66452ca6c79904cb99d2b183d6"
   },
   "internal/controller/functionBuilder.go": {
-    "mtime": 1786260075.6400044,
-    "ast_hash": "5218da0f4d769411c49666c0506f891b",
+    "mtime": 1786285864.033442,
+    "ast_hash": "190c6e06447938bdb176d6f3c3786a22",
     "semantic_hash": ""
   },
   "internal/controller/rpcserver.go": {
@@ -990,8 +990,8 @@
     "semantic_hash": ""
   },
   "internal/services/cronJobServices.go": {
-    "mtime": 1786196266.18194,
-    "ast_hash": "dcbb3de8b8cf570a43382f9f32a800ae",
+    "mtime": 1786285817.776889,
+    "ast_hash": "a8cdab7b1b1d7e0f7cac945fa7ea586b",
     "semantic_hash": ""
   },
   "internal/services/daemonSetServices.go": {
@@ -1010,8 +1010,8 @@
     "semantic_hash": ""
   },
   "internal/services/errors.go": {
-    "mtime": 1786259981.5658426,
-    "ast_hash": "a230afee0ce63935cabadb2c28fdfe97",
+    "mtime": 1786285809.2729752,
+    "ast_hash": "5b66511dc2d511ded33938ae3923d3d2",
     "semantic_hash": ""
   },
   "internal/services/eventServices.go": {
@@ -1160,9 +1160,9 @@
     "semantic_hash": "4147db654385ec19486d5f9b50a04f1c"
   },
   "internal/tui/app.go": {
-    "mtime": 1782656819.887242,
-    "ast_hash": "5de1eb9582df591b51bc27b1426b5039",
-    "semantic_hash": "5de1eb9582df591b51bc27b1426b5039"
+    "mtime": 1786286102.541851,
+    "ast_hash": "c9a2b870695bfaedb51bf4e3d9d45ba6",
+    "semantic_hash": ""
   },
   "internal/tui/applyyaml.go": {
     "mtime": 1786195158.877158,
@@ -1215,13 +1215,13 @@
     "semantic_hash": "e3a7bb6ad0374f3987f34948d1470681"
   },
   "internal/tui/registry.go": {
-    "mtime": 1786260119.4006848,
-    "ast_hash": "90100dc0d87dd7797200242162b850a5",
+    "mtime": 1786286166.1331418,
+    "ast_hash": "6b006748456f7fb570e353ec1321d7cb",
     "semantic_hash": ""
   },
   "internal/tui/resourcelist.go": {
-    "mtime": 1786257427.7942867,
-    "ast_hash": "b92c28a5fb3b00c6607ffba198bf9778",
+    "mtime": 1786286121.5376391,
+    "ast_hash": "f348a4a0564d85a21156d7192d3a1dbb",
     "semantic_hash": ""
   },
   "internal/tui/run.go": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1786259589.5076118,
-    "ast_hash": "ef57199ff2f01aafea519df35561ec5f",
+    "mtime": 1786286672.801859,
+    "ast_hash": "6b953297352bfe9e827a794b66866736",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
@@ -1872,6 +1872,46 @@
   "frontend/src/components/workspace/DescribePanel.tsx": {
     "mtime": 1786260247.2922816,
     "ast_hash": "8fbc5e318d646dcf522f1d75149e8646",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/shared/ConfirmActionDialog.tsx": {
+    "mtime": 1786285940.1727402,
+    "ast_hash": "3dc1fa383885caf11061a0cf8a02e10a",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/shared/ScaleDialog.tsx": {
+    "mtime": 1787477253.9961658,
+    "ast_hash": "c36df4f186b23dc4774da5c13bea1b06",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/shared/WorkloadActions.tsx": {
+    "mtime": 1786285990.5892127,
+    "ast_hash": "2442120c02f9403fef6ba6dbccb00a60",
+    "semantic_hash": ""
+  },
+  "internal/business/workloadActions.go": {
+    "mtime": 1786285840.614658,
+    "ast_hash": "b01cf414f60403e56ea92f2b24f83e89",
+    "semantic_hash": ""
+  },
+  "internal/models/hpaInfo.go": {
+    "mtime": 1786285805.140954,
+    "ast_hash": "7c5578e0742938d0339c6cc69e777b60",
+    "semantic_hash": ""
+  },
+  "internal/services/rolloutServices.go": {
+    "mtime": 1786285798.2720866,
+    "ast_hash": "640649727dfcf567147c70cc4ac8905b",
+    "semantic_hash": ""
+  },
+  "internal/services/scaleServices.go": {
+    "mtime": 1786285786.1162097,
+    "ast_hash": "efde58fd6a0c24b795d13bb6a7f7bbaf",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/shared/ResourceListView.test.tsx": {
+    "mtime": 1787478405.0006897,
+    "ast_hash": "3161b11f8b242d8381a239f732c38c51",
     "semantic_hash": ""
   }
 }

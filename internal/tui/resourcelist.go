@@ -331,18 +331,28 @@ func (a *App) buildResource(def *resourceDef) (tview.Primitive, *tview.Table, st
 			for _, act := range def.actions {
 				if ev.Rune() == act.key {
 					if r, ok := selected(); ok {
-						run := func() {
-							if err := act.run(a.cluster, r.name, r.namespace); err != nil {
+						finish := func(err error) {
+							if err != nil {
 								a.flash("Error", err.Error(), colDanger)
 								return
 							}
 							a.flash(act.label, fmt.Sprintf("%s: %s", act.label, r.name), colOk)
 							reload()
 						}
-						if act.confirm {
-							a.confirm(fmt.Sprintf("%s %q?", act.label, r.name), run)
-						} else {
-							run()
+						switch {
+						case act.promptLabel != "":
+							a.prompt(act.label, act.promptLabel, "", func(arg string) {
+								if arg == "" {
+									return
+								}
+								finish(act.runArg(a.cluster, r.name, r.namespace, arg))
+							})
+						case act.confirm:
+							a.confirm(fmt.Sprintf("%s %q?", act.label, r.name), func() {
+								finish(act.run(a.cluster, r.name, r.namespace))
+							})
+						default:
+							finish(act.run(a.cluster, r.name, r.namespace))
 						}
 					}
 					return nil

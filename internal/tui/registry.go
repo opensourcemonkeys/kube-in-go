@@ -20,12 +20,25 @@ type rowData struct {
 }
 
 // rowAction is an extra per-row verb beyond the standard yaml/edit/delete set
-// (e.g. cordon/drain on nodes). Bound to a single key on the list screen.
+// (e.g. cordon/drain on nodes, scale/restart on workloads). Bound to a single
+// key on the list screen.
+//
+// Keys are uppercase by convention: the lowercase letters are taken by the
+// list screen itself (r = refresh, d = delete, y = yaml, e = edit, l = logs,
+// s = shell on pods) — see keys.go.
+//
+// An action either runs straight away (`run`) or first asks for a value
+// (`promptLabel` + `runArg`); `confirm` only applies to `run`, since a prompt
+// is already an explicit step the user can cancel.
 type rowAction struct {
 	key     rune
 	label   string
 	confirm bool
 	run     func(cluster, name, namespace string) error
+	// promptLabel, when non-empty, makes the action ask for one line of input
+	// first and pass it to runArg instead of calling run.
+	promptLabel string
+	runArg      func(cluster, name, namespace, arg string) error
 }
 
 // resourceDef binds a menu view to the business functions that back it. The
@@ -148,6 +161,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetDeploymentYaml, updateYAML: business.UpdateDeploymentYaml, del: business.DeleteDeployment,
+			actions: []rowAction{scaleAction("deployment"), restartAction("deployment")},
 		},
 		{
 			view: "statefulsets", title: "StatefulSets", namespaced: true,
@@ -165,6 +179,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetStatefulSetYaml, updateYAML: business.UpdateStatefulSetYaml, del: business.DeleteStatefulSet,
+			actions: []rowAction{scaleAction("statefulset"), restartAction("statefulset")},
 		},
 		{
 			view: "replicasets", title: "ReplicaSets", namespaced: true,
@@ -182,6 +197,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetReplicaSetYaml, updateYAML: business.UpdateReplicaSetYaml, del: business.DeleteReplicaSet,
+			// No restart: a ReplicaSet has no rollout of its own.
+			actions: []rowAction{scaleAction("replicaset")},
 		},
 		{
 			view: "daemonsets", title: "DaemonSets", namespaced: true,
@@ -199,6 +216,8 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetDaemonSetYaml, updateYAML: business.UpdateDaemonSetYaml, del: business.DeleteDaemonSet,
+			// No scale: a DaemonSet's replica count is the node count.
+			actions: []rowAction{restartAction("daemonset")},
 		},
 		{
 			view: "jobs", title: "Jobs", namespaced: true,
@@ -233,6 +252,7 @@ func buildRegistry() ([]menuGroup, map[string]*resourceDef) {
 				return rows, nil
 			},
 			getYAML: business.GetCronJobYaml, updateYAML: business.UpdateCronJobYaml, del: business.DeleteCronJob,
+			actions: []rowAction{suspendAction('P', "pause", true), suspendAction('U', "unpause", false)},
 		},
 		{
 			view: "services", title: "Services", namespaced: true,
@@ -637,5 +657,46 @@ func clusterScopedUpdate(fn func(cluster, name, yaml string) error) func(cluster
 func clusterScopedDelete(group, resource string) func(cluster, name, namespace string) error {
 	return func(cluster, name, _ string) error {
 		return business.DeleteObject(cluster, group, resource, "", name)
+	}
+}
+
+// scaleAction builds the 'S' row action for a scalable workload kind. The
+// replica count is parsed here rather than in business so a typo produces a
+// readable message instead of an API rejection.
+func scaleAction(kind string) rowAction {
+	return rowAction{
+		key: 'S', label: "scale", promptLabel: "Replicas",
+		runArg: func(cluster, name, namespace, arg string) error {
+			replicas, err := strconv.Atoi(arg)
+			if err != nil {
+				return fmt.Errorf("replicas must be a number, got %q", arg)
+			}
+			if replicas < 0 {
+				return fmt.Errorf("replicas must be >= 0, got %d", replicas)
+			}
+			return business.ScaleWorkload(cluster, kind, name, namespace, int32(replicas))
+		},
+	}
+}
+
+// restartAction builds the 'R' row action for a workload kind that has a rollout.
+func restartAction(kind string) rowAction {
+	return rowAction{
+		key: 'R', label: "restart", confirm: true,
+		run: func(cluster, name, namespace string) error {
+			return business.RestartWorkload(cluster, kind, name, namespace)
+		},
+	}
+}
+
+// suspendAction builds the CronJob pause/resume pair. They are two idempotent
+// keys rather than one toggle because rowAction only sees a row's name and
+// namespace, not its current suspend state.
+func suspendAction(key rune, label string, suspend bool) rowAction {
+	return rowAction{
+		key: key, label: label, confirm: true,
+		run: func(cluster, name, namespace string) error {
+			return business.SetCronJobSuspend(cluster, name, namespace, suspend)
+		},
 	}
 }

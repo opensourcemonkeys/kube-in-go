@@ -188,10 +188,8 @@
   "186": "Community 186",
   "187": "Community 187",
   "188": "AboutModal.tsx",
-  "189": "html-to-image",
-  "190": "main.tsx",
+  "189": "chart.js",
   "191": "Community 191",
-  "192": "GetEndpoints",
   "193": "Community 193",
   "194": "Community 194",
   "195": "Community 195",
@@ -225,11 +223,8 @@
   "224": "zustand",
   "228": "motion",
   "230": "primereact",
-  "231": "cronJob.go",
   "233": "eslint.config.js",
   "234": "vitest.config.ts",
   "235": "limitRange.go",
-  "238": "statefulSet.go",
-  "239": "GetIngressClasses",
-  "240": "GetPersistentVolumes"
+  "239": "GetIngressClasses"
 }

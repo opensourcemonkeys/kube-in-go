@@ -10,6 +10,7 @@ import { GetStatefulSets, DeleteStatefulSet } from '../../../wailsjs/go/controll
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import WorkloadActions from '../shared/WorkloadActions';
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
     if (total === 0) return 'warning';
@@ -51,7 +52,7 @@ export default function StatefulSetListComponent({ clusterName, api }: { cluster
             defaultFilters={defaultFilters}
             emptyMessage="No statefulsets found"
             onRowDoubleClick={(s) => openYamlPanel({ clusterName, resourceKind: 'statefulset', name: s.name, namespace: s.namespace, referencePanel })}
-            columns={({ buildInOptions }) => (
+            columns={({ buildInOptions, reload, toastRef }) => (
                 <>
                     <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
                     <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
@@ -67,10 +68,17 @@ export default function StatefulSetListComponent({ clusterName, api }: { cluster
                         body={(row: models.StatefulSetInfo) => <Tag value={`${row.ready_replicas} / ${row.replicas}`} severity={getReplicasSeverity(row.ready_replicas, row.replicas)} />} />
                     <Column header="Updated" sortable sortField="updated_replicas" style={{ minWidth: '8rem' }}
                         body={(row: models.StatefulSetInfo) => <Tag value={`${row.current_replicas} current / ${row.updated_replicas} updated`} severity={row.current_replicas === row.updated_replicas ? 'success' : 'warning'} />} />
-                    <Column header="" style={{ width: '4rem', textAlign: 'center' }}
+                    <Column header="" style={{ width: '7.5rem', textAlign: 'center' }}
                         body={(row: models.StatefulSetInfo) => (
-                            <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                                onClick={() => openLogPanel({ clusterName, resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel })} />
+                            <>
+                                <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+                                    onClick={() => openLogPanel({ clusterName, resourceKind: 'statefulset', name: row.name, namespace: row.namespace, referencePanel })} />
+                                <WorkloadActions
+                                    clusterName={clusterName} name={row.name} namespace={row.namespace}
+                                    reload={reload} toastRef={toastRef}
+                                    scale={{ kind: 'statefulset', replicas: row.replicas }}
+                                    restart={{ kind: 'statefulset' }} />
+                            </>
                         )} />
                 </>
             )}

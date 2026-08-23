@@ -10,6 +10,7 @@ import { GetCronJobs, DeleteCronJob } from '../../../wailsjs/go/controller_app/A
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
+import WorkloadActions from '../shared/WorkloadActions';
 
 const defaultFilters: DataTableFilterMeta = {
     name:      { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -35,7 +36,7 @@ export default function CronJobListComponent({ clusterName, api }: { clusterName
             defaultFilters={defaultFilters}
             emptyMessage="No cronjobs found"
             onRowDoubleClick={(cj) => openYamlPanel({ clusterName, resourceKind: 'cronjob', name: cj.name, namespace: cj.namespace, referencePanel })}
-            columns={({ buildInOptions }) => (
+            columns={({ buildInOptions, reload, toastRef }) => (
                 <>
                     <Column field="name" header="Name" sortable filter filterField="name" filterPlaceholder="Search name" showFilterMenu={false} style={{ minWidth: '14rem' }} />
                     <Column field="namespace" header="Namespace" sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
@@ -49,10 +50,16 @@ export default function CronJobListComponent({ clusterName, api }: { clusterName
                     <Column header="Status" sortable sortField="suspend" style={{ minWidth: '8rem' }}
                         body={(row: models.CronJobInfo) => <Tag value={row.suspend ? 'Suspended' : 'Active'} severity={row.suspend ? 'warning' : 'success'} />} />
                     <Column field="active_count" header="Active Jobs" sortable style={{ minWidth: '8rem' }} body={(row: models.CronJobInfo) => row.active_count} />
-                    <Column header="" style={{ width: '4rem', textAlign: 'center' }}
+                    <Column header="" style={{ width: '6rem', textAlign: 'center' }}
                         body={(row: models.CronJobInfo) => (
-                            <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                                onClick={() => openLogPanel({ clusterName, resourceKind: 'cronjob', name: row.name, namespace: row.namespace, referencePanel })} />
+                            <>
+                                <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+                                    onClick={() => openLogPanel({ clusterName, resourceKind: 'cronjob', name: row.name, namespace: row.namespace, referencePanel })} />
+                                <WorkloadActions
+                                    clusterName={clusterName} name={row.name} namespace={row.namespace}
+                                    reload={reload} toastRef={toastRef}
+                                    suspend={{ suspended: row.suspend }} />
+                            </>
                         )} />
                 </>
             )}
