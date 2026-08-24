@@ -5,6 +5,7 @@
     "close": "閉じる",
     "delete": "削除",
     "deleteSelected": "選択項目を削除",
+    "more": "その他の操作",
     "describe": "Describe",
     "portForward": "ポートフォワード",
     "retry": "再試行"

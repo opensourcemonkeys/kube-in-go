@@ -35,6 +35,7 @@ import { GetNetworkPolicyDetail, GetNetworkPolicyYaml, ParseNetworkPolicyYaml, U
 import { models } from '../../../wailsjs/go/models';
 import { MONOLITH_THEME } from '../../lib/monacoTheme';
 import { useT, type TFn } from '../../i18n/useT';
+import PanelLoading from '../shared/PanelLoading';
 
 interface PolicyViewerPanelParams {
     clusterName: string;
@@ -390,7 +391,12 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
     const [graphLoading, setGraphLoading] = useState(true);
 
-    const [yaml, setYaml] = useState('Loading...');
+    // Held at null until the document arrives: the editor must be *created*
+    // holding the real YAML. @monaco-editor/react applies a later `value`
+    // change to a writable editor as executeEdits + pushUndoStop, so seeding
+    // the model with a placeholder puts the placeholder->document transition
+    // on Monaco's undo stack and Ctrl+Z on an untouched editor wipes the object.
+    const [yaml, setYaml] = useState<string | null>(null);
     const [originalYaml, setOriginalYaml] = useState('');
     const [dirty, setDirty] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -482,7 +488,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
     };
 
     const handleSave = async () => {
-        const value = editorRef.current?.getValue() ?? yaml;
+        const value = editorRef.current?.getValue() ?? yaml ?? '';
         setSaving(true);
         try {
             await UpdateNetworkPolicyYaml(cn, name, namespace, value);
@@ -609,7 +615,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
 
             {/* Bottom: YAML Editor */}
             <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-                <Editor
+                {yaml === null ? <PanelLoading /> : <Editor
                     height="100%"
                     defaultLanguage="yaml"
                     language="yaml"
@@ -627,7 +633,7 @@ export default function PolicyViewerPanel({ params }: IDockviewPanelProps<Policy
                         folding: true,
                         renderLineHighlight: 'all',
                     }}
-                />
+                />}
             </div>
         </div>
     );

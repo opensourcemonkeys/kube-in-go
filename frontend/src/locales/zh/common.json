@@ -5,6 +5,7 @@
     "close": "关闭",
     "delete": "删除",
     "deleteSelected": "删除所选",
+    "more": "更多操作",
     "describe": "Describe",
     "portForward": "端口转发",
     "retry": "重试"

@@ -5,6 +5,7 @@
     "close": "Close",
     "delete": "Delete",
     "deleteSelected": "Delete Selected",
+    "more": "More actions",
     "describe": "Describe",
     "portForward": "Port forward",
     "retry": "Retry"

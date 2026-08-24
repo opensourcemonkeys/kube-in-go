@@ -64,23 +64,6 @@ html[data-theme="god-of-war"] {
   color-scheme: dark;
 }
 
-/* ── Theme: Hello Kitty ──────────────────────────────────────
-   Bright milk-white & blush pink, hot-pink accent, candy pastels. */
-html[data-theme="hello-kitty"] {
-  --app:   #fff0f6;  --panel:  #ffffff;  --panel2: #fff6fa;
-  --panel3:#ffeaf3;  --hover:  #ffe1ef;  --line:   #ffd3e3;
-  --line2: #f6b6d1;
-
-  --ink:   #3c2630;  --ink2:   #9a6a80;  --ink3:   #c694ac;
-
-  --teal:  #ff4d97;  --green:  #4cc4a0;  --amber:  #ffa63d;
-  --red:   #ff5d7a;  --blue:   #5aa9e6;  --violet: #b07be0;
-
-  --on-accent: #ffffff;
-  --maskbg: rgba(60, 20, 40, 0.45);
-  color-scheme: light;
-}
-
 /* ── Base ────────────────────────────────────────────────────*/
 /* Smooth scrolling for every scroll container in the app. The root is
    overflow:hidden, so the real scroll lives in nested panes (sidebar,
@@ -446,8 +429,11 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 }
 .pf-overlay__more:hover { color: var(--teal); }
 
-/* ── Exec container picker (pod list terminal button) ─────────────────────── */
-.exec-container-menu.p-menu {
+/* ── Row popup menus: exec container picker + the ⋮ row-actions menu ─────── */
+/* One look for both: the pod list's container picker and the ⋮ menu every
+   resource list hangs its Describe / Port forward / Scale actions off. */
+.exec-container-menu.p-menu,
+.row-actions-menu.p-menu {
   background: var(--panel2);
   border: 1px solid var(--line2);
   border-radius: 11px;
@@ -460,8 +446,10 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
   from { opacity: 0; transform: translateY(-4px) scale(.98); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-.exec-container-menu.p-menu .p-menu-list { padding: 0; }
-.exec-container-menu .p-submenu-header {
+.exec-container-menu.p-menu .p-menu-list,
+.row-actions-menu.p-menu .p-menu-list { padding: 0; }
+.exec-container-menu .p-submenu-header,
+.row-actions-menu .p-submenu-header {
   background: transparent;
   color: var(--ink3);
   font-size: 10px;
@@ -472,8 +460,10 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
   margin: 0 0 2px;
   border-bottom: 1px solid var(--line);
 }
-.exec-container-menu .p-menuitem { margin: 1px 0; }
-.exec-container-menu .p-menuitem-link {
+.exec-container-menu .p-menuitem,
+.row-actions-menu .p-menuitem { margin: 1px 0; }
+.exec-container-menu .p-menuitem-link,
+.row-actions-menu .p-menuitem-link {
   padding: 7px 11px;
   border-radius: 8px;
   border-left: 2px solid transparent;
@@ -481,9 +471,38 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 }
 .exec-container-menu .p-menuitem-link:hover,
 .exec-container-menu .p-menuitem.p-focus > .p-menuitem-content > .p-menuitem-link,
-.exec-container-menu .p-menuitem.p-focus > .p-menuitem-link {
+.exec-container-menu .p-menuitem.p-focus > .p-menuitem-link,
+.row-actions-menu .p-menuitem-link:hover,
+.row-actions-menu .p-menuitem.p-focus > .p-menuitem-content > .p-menuitem-link,
+.row-actions-menu .p-menuitem.p-focus > .p-menuitem-link {
   background: color-mix(in srgb, var(--teal) 12%, var(--hover));
   border-left-color: var(--teal);
+}
+/* The menu is the only place these actions are reachable, so the label must not
+   be crowded by its icon and the row must stay compact. */
+.row-actions-menu.p-menu { min-width: 190px; }
+/* The spacing lives on the link as a `gap`, not as a margin on the icon:
+   these items pass React elements as `icon`, and PrimeReact only stamps
+   `p-menuitem-icon` onto *string* icons — a JSX icon renders bare, so an
+   icon-side margin silently matches nothing and the label sits against it. */
+.row-actions-menu .p-menuitem-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.row-actions-menu .p-menuitem-link .p-menuitem-icon {
+  color: var(--ink2);
+  display: inline-flex;
+  align-items: center;
+}
+.row-actions-menu .p-menuitem-link > svg { flex-shrink: 0; color: var(--ink2); }
+.row-actions-menu .p-menuitem-link:hover > svg { color: var(--teal); }
+.row-actions-menu .p-menuitem-link .p-menuitem-text { font-size: 12px; color: var(--ink); }
+.row-actions-menu .p-menuitem-link:hover .p-menuitem-icon { color: var(--teal); }
+/* Separates the actions that only read the object from the ones that change it. */
+.row-actions-menu .p-menu-separator {
+  border-top: 1px solid var(--line);
+  margin: 4px 6px;
 }
 .tb-actions { display: flex; align-items: center; height: 100%; --wails-draggable: no-drag; flex-shrink: 0; }
 .tb-actions .p-menubar { background: transparent; border: none; padding: 0; height: 100%; border-radius: 0; }
@@ -498,7 +517,7 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 .tb-actions .p-menubar .p-menubar-root-list > .p-menuitem { width: auto !important; position: relative !important; }
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content { border-radius: 0; }
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link { height: 36px; padding: 0 10px; gap: 0; border-radius: 0; color: var(--ink2); font-size: 12px; font-weight: 500; }
-/* lara hardcodes the text/icon color (white) — make it follow the link color so light themes (hello-kitty) stay legible */
+/* lara hardcodes the text/icon color (white) — make it follow the link color so a light theme stays legible */
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link .p-menuitem-text,
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link .p-menuitem-icon { color: inherit; }
 .tb-actions .p-menubar > .p-menubar-root-list > .p-menuitem > .p-menuitem-content > .p-menuitem-link:hover,

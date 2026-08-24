@@ -10,8 +10,8 @@ export interface ClusterColor {
     label: string;
 }
 
-// Mid-tone hues picked to stay readable both on the dark panels of the default
-// palettes and on the light "hello-kitty" theme.
+// Mid-tone hues picked to stay readable on the dark panels of every palette,
+// and on a light one should another be added.
 export const CLUSTER_PALETTE: ClusterColor[] = [
     { id: 'teal', hex: '#3fc8b4', label: 'Teal' },
     { id: 'cyan', hex: '#5fc2d6', label: 'Cyan' },

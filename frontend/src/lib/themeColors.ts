@@ -2,7 +2,7 @@ import { useThemeStore } from '../stores/themeStore';
 
 /**
  * Palette variable names, as defined in theme-monolith.css. Every alternate
- * theme (`last-samurai`, `god-of-war`, `hello-kitty`) re-binds exactly these,
+ * theme (`last-samurai`, `god-of-war`) re-binds exactly these,
  * which is what makes reading them enough to re-skin anything.
  */
 export type ThemeVar =

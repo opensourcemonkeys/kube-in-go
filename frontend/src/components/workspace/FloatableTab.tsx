@@ -59,13 +59,54 @@ export default function FloatableTab({ api, containerApi, params }: IDockviewPan
     // Panels without a cluster (terminals) simply get no accent.
     const accent = useClusterColor((params as Record<string, any>)?.clusterName);
 
-    useLayoutEffect(() => {
+    // Which wrapper we last painted. Moving a panel gives us a different one,
+    // and the stale wrapper has to be cleared by identity — resolving it again
+    // at cleanup time would find the *new* one and strip its accent.
+    const paintedRef = useRef<HTMLElement | null>(null);
+
+    const paintAccent = useCallback(() => {
         const wrapper = tabRef.current?.closest('.dv-tab') as HTMLElement | null;
+        const previous = paintedRef.current;
+        if (previous && previous !== wrapper) previous.style.removeProperty('--tab-accent');
+        paintedRef.current = wrapper;
         if (!wrapper) return;
         if (accent) wrapper.style.setProperty('--tab-accent', accent);
         else wrapper.style.removeProperty('--tab-accent');
-        return () => { wrapper.style.removeProperty('--tab-accent'); };
     }, [accent]);
+
+    useLayoutEffect(() => {
+        paintAccent();
+
+        // Moving a panel does NOT remount this component: dockview builds a
+        // fresh `.dv-tab` and re-parents our existing element into it
+        // (dockview-core Tabs.openPanel → Tab.setContent), while the panel's
+        // tab renderer object is created once per panel and reused. The new
+        // wrapper therefore carries no `--tab-accent` and the stylesheet falls
+        // back to the theme's default stripe — the cluster's colour silently
+        // turns into --teal on every split, reorder or drop into another group.
+        //
+        // Two signals are needed because neither covers the other's case:
+        //  - onDidMovePanel fires *after* the re-parent, and is the only one
+        //    raised for a reorder inside the same group (`api.group` is
+        //    unchanged there, so no group event is emitted at all).
+        //  - onDidGroupChange covers relocations that are not reported as a
+        //    move — floating a panel with shift-drag — but it is fired from the
+        //    `api.group` setter, i.e. *before* the new wrapper exists. The
+        //    repaint is therefore deferred to a microtask: still inside the
+        //    same task as the move, so nothing is painted in between.
+        const subs = [
+            containerApi.onDidMovePanel(e => {
+                if (e.panel.id === api.id) paintAccent();
+            }),
+            api.onDidGroupChange(() => queueMicrotask(paintAccent)),
+        ];
+
+        return () => {
+            subs.forEach(s => s.dispose());
+            paintedRef.current?.style.removeProperty('--tab-accent');
+            paintedRef.current = null;
+        };
+    }, [api, containerApi, paintAccent]);
     const canTransfer = !NON_TRANSFERABLE.has(componentType);
     const otherInstances = instances.filter(i => i.id !== selfInfo?.id);
 

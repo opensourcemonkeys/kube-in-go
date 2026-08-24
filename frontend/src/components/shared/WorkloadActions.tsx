@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
+import type { MenuItem } from 'primereact/menuitem';
 import { VscArrowBoth, VscDebugRestart, VscDebugPause, VscDebugStart } from 'react-icons/vsc';
 import { RestartWorkload, SetCronJobSuspend } from '../../../wailsjs/go/controller_app/App';
 import ScaleDialog from './ScaleDialog';
@@ -12,163 +12,157 @@ export type ScalableKind = 'deployment' | 'statefulset' | 'replicaset';
 export type RestartableKind = 'deployment' | 'statefulset' | 'daemonset';
 
 /**
- * Per-row mutating actions for workload lists (scale / rollout restart / cronjob
- * suspend). It owns both the buttons and their dialogs so each view adds one
- * element to its action column instead of repeating the whole block.
- *
- * `clusterName`, `reload` and `toastRef` must be explicit props: DataTable body
- * renderers are declared at module scope and cannot close over the list
- * component's values.
- *
- * Which buttons appear is decided by the caller, because the capability matrix
- * is not uniform — ReplicaSets have no rollout, DaemonSets have no replica
- * count, CronJobs have neither. The backend independently rejects unsupported
- * (kind, action) pairs; this only keeps dead buttons off the screen.
+ * Which mutating actions a given row offers. The capability matrix is not
+ * uniform — ReplicaSets have no rollout, DaemonSets have no replica count,
+ * CronJobs have neither — so the view decides per row. The backend
+ * independently rejects unsupported (kind, action) pairs; this only keeps dead
+ * entries off the menu.
  */
-export default function WorkloadActions({
-    clusterName,
-    name,
-    namespace,
-    reload,
-    toastRef,
-    scale,
-    restart,
-    suspend,
-}: {
-    clusterName: string;
-    name: string;
-    namespace: string;
-    reload: () => Promise<void>;
-    toastRef: React.RefObject<Toast>;
-    /** Enables the Scale button for a scalable kind, seeded with its current replica count. */
+export interface WorkloadActionSpec {
+    /** Enables Scale for a scalable kind, seeded with its current replica count. */
     scale?: { kind: ScalableKind; replicas: number };
-    /** Enables the Restart button for a kind that has a rollout. */
+    /** Enables Rollout restart for a kind that has a rollout. */
     restart?: { kind: RestartableKind };
     /** Enables the Pause/Resume toggle for CronJobs. `suspended` picks which way it goes. */
     suspend?: { suspended: boolean };
+}
+
+export interface WorkloadActionTarget {
+    name: string;
+    namespace: string;
+}
+
+/**
+ * Per-row mutating actions for workload lists (scale / rollout restart /
+ * cronjob suspend), as **menu items plus one shared set of dialogs**.
+ *
+ * It is a hook rather than a per-row component because the actions now live in
+ * the row's ⋮ menu: a DataTable body renderer runs for every visible row, so a
+ * component that owned its own dialog state mounted one ScaleDialog and two
+ * ConfirmActionDialogs per row. Hoisting the state here means one of each for
+ * the whole list, with the target row carried in state.
+ *
+ * `clusterName`, `reload` and `toastRef` come from the list (ResourceListView
+ * calls this), so body renderers stay free of closures over list state.
+ */
+export function useWorkloadActions({
+    clusterName,
+    reload,
+    toastRef,
+}: {
+    clusterName: string;
+    reload: () => Promise<void>;
+    toastRef: React.RefObject<Toast>;
 }) {
     const t = useT();
-    const [scaleOpen, setScaleOpen] = useState(false);
-    const [restartOpen, setRestartOpen] = useState(false);
-    const [suspendOpen, setSuspendOpen] = useState(false);
+    const [scaleT, setScaleT] = useState<(WorkloadActionTarget & { kind: ScalableKind; replicas: number }) | null>(null);
+    const [restartT, setRestartT] = useState<(WorkloadActionTarget & { kind: RestartableKind }) | null>(null);
+    const [suspendT, setSuspendT] = useState<(WorkloadActionTarget & { suspended: boolean }) | null>(null);
 
     const notify = (detail: string) =>
         toastRef.current?.show({ severity: 'success', summary: t('panels:workload.doneSummary'), detail, life: 3000 });
 
-    const target = `${namespace}/${name}`;
+    const target = (r: WorkloadActionTarget) => `${r.namespace}/${r.name}`;
 
-    return (
+    /** The row's entries for the ⋮ menu, in capability order. */
+    const menuItems = (row: WorkloadActionTarget, spec: WorkloadActionSpec | undefined): MenuItem[] => {
+        if (!spec) return [];
+        const items: MenuItem[] = [];
+        if (spec.scale) {
+            const { kind, replicas } = spec.scale;
+            items.push({
+                label: t('panels:workload.scale'),
+                icon: <VscArrowBoth size={13} />,
+                command: () => setScaleT({ name: row.name, namespace: row.namespace, kind, replicas }),
+            });
+        }
+        if (spec.restart) {
+            const { kind } = spec.restart;
+            items.push({
+                label: t('panels:workload.restart'),
+                icon: <VscDebugRestart size={13} />,
+                command: () => setRestartT({ name: row.name, namespace: row.namespace, kind }),
+            });
+        }
+        if (spec.suspend) {
+            const { suspended } = spec.suspend;
+            items.push({
+                label: t(suspended ? 'panels:workload.resume' : 'panels:workload.suspend'),
+                icon: suspended ? <VscDebugStart size={13} /> : <VscDebugPause size={13} />,
+                command: () => setSuspendT({ name: row.name, namespace: row.namespace, suspended }),
+            });
+        }
+        return items;
+    };
+
+    // Rendered once by the list, not once per row. Each dialog is mounted only
+    // while it has a target so it always opens with that row's seed values
+    // (ScaleDialog reads `currentReplicas` into state).
+    const dialogs = (
         <>
-            {scale && (
-                <Button
-                    icon={<VscArrowBoth size={16} />}
-                    text
-                    size="small"
-                    severity="secondary"
-                    style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                    tooltip={t('panels:workload.scale')}
-                    tooltipOptions={{ position: 'top' }}
-                    aria-label={t('panels:workload.scale')}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setScaleOpen(true);
-                    }}
-                />
-            )}
-            {restart && (
-                <Button
-                    icon={<VscDebugRestart size={16} />}
-                    text
-                    size="small"
-                    severity="secondary"
-                    style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                    tooltip={t('panels:workload.restart')}
-                    tooltipOptions={{ position: 'top' }}
-                    aria-label={t('panels:workload.restart')}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setRestartOpen(true);
-                    }}
-                />
-            )}
-            {suspend && (
-                <Button
-                    icon={suspend.suspended ? <VscDebugStart size={16} /> : <VscDebugPause size={16} />}
-                    text
-                    size="small"
-                    severity="secondary"
-                    style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                    tooltip={t(suspend.suspended ? 'panels:workload.resume' : 'panels:workload.suspend')}
-                    tooltipOptions={{ position: 'top' }}
-                    aria-label={t(suspend.suspended ? 'panels:workload.resume' : 'panels:workload.suspend')}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setSuspendOpen(true);
-                    }}
-                />
-            )}
-
-            {scale && (
+            {scaleT && (
                 <ScaleDialog
-                    visible={scaleOpen}
+                    visible
                     clusterName={clusterName}
-                    kind={scale.kind}
-                    name={name}
-                    namespace={namespace}
-                    currentReplicas={scale.replicas}
-                    onHide={() => setScaleOpen(false)}
+                    kind={scaleT.kind}
+                    name={scaleT.name}
+                    namespace={scaleT.namespace}
+                    currentReplicas={scaleT.replicas}
+                    onHide={() => setScaleT(null)}
                     onDone={async (replicas) => {
-                        notify(t('panels:workload.scaled', { target, replicas }));
+                        notify(t('panels:workload.scaled', { target: target(scaleT), replicas }));
                         await reload();
                     }}
                 />
             )}
 
-            {restart && (
+            {restartT && (
                 <ConfirmActionDialog
-                    visible={restartOpen}
+                    visible
                     header={t('panels:workload.restartHeader')}
                     message={
                         <Trans
                             t={t}
                             i18nKey="panels:workload.restartMessage"
-                            values={{ target }}
+                            values={{ target: target(restartT) }}
                             components={{ 1: <strong /> }}
                         />
                     }
                     warning={t('panels:workload.restartWarning')}
                     confirmLabel={t('panels:workload.restartConfirm')}
-                    onHide={() => setRestartOpen(false)}
+                    onHide={() => setRestartT(null)}
                     onConfirm={async () => {
-                        await RestartWorkload(clusterName, restart.kind, name, namespace);
-                        notify(t('panels:workload.restarted', { target }));
+                        await RestartWorkload(clusterName, restartT.kind, restartT.name, restartT.namespace);
+                        notify(t('panels:workload.restarted', { target: target(restartT) }));
                         await reload();
                     }}
                 />
             )}
 
-            {suspend && (
+            {suspendT && (
                 <ConfirmActionDialog
-                    visible={suspendOpen}
-                    header={t(suspend.suspended ? 'panels:workload.resumeHeader' : 'panels:workload.suspendHeader')}
+                    visible
+                    header={t(suspendT.suspended ? 'panels:workload.resumeHeader' : 'panels:workload.suspendHeader')}
                     message={
                         <Trans
                             t={t}
-                            i18nKey={suspend.suspended ? 'panels:workload.resumeMessage' : 'panels:workload.suspendMessage'}
-                            values={{ target }}
+                            i18nKey={suspendT.suspended ? 'panels:workload.resumeMessage' : 'panels:workload.suspendMessage'}
+                            values={{ target: target(suspendT) }}
                             components={{ 1: <strong /> }}
                         />
                     }
-                    warning={suspend.suspended ? undefined : t('panels:workload.suspendWarning')}
-                    confirmLabel={t(suspend.suspended ? 'panels:workload.resume' : 'panels:workload.suspend')}
-                    onHide={() => setSuspendOpen(false)}
+                    warning={suspendT.suspended ? undefined : t('panels:workload.suspendWarning')}
+                    confirmLabel={t(suspendT.suspended ? 'panels:workload.resume' : 'panels:workload.suspend')}
+                    onHide={() => setSuspendT(null)}
                     onConfirm={async () => {
-                        await SetCronJobSuspend(clusterName, name, namespace, !suspend.suspended);
-                        notify(t(suspend.suspended ? 'panels:workload.resumed' : 'panels:workload.suspended', { target }));
+                        await SetCronJobSuspend(clusterName, suspendT.name, suspendT.namespace, !suspendT.suspended);
+                        notify(t(suspendT.suspended ? 'panels:workload.resumed' : 'panels:workload.suspended', { target: target(suspendT) }));
                         await reload();
                     }}
                 />
             )}
         </>
     );
+
+    return { menuItems, dialogs };
 }

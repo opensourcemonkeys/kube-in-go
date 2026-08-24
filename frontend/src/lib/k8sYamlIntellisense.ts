@@ -64,6 +64,15 @@ const SCAFFOLD_KEYS: Array<{ key: string; shape: 'object' | 'scalar'; desc: stri
 
 function registerCompletion(index: SchemaIndex) {
     const RETRIGGER = { id: 'editor.action.triggerSuggest', title: 'Suggest' };
+    // Our insertText carries the finished, absolute indentation for the line
+    // it opens. Monaco otherwise inserts completions through the snippet
+    // session with `adjustWhitespace: !(insertTextRules & KeepWhitespace)`,
+    // which prefixes every line after the first with the leading whitespace
+    // of the line the item was accepted on — doubling the indent, and
+    // compounding with each accept because of RETRIGGER. KeepWhitespace also
+    // keeps monaco's normalizeIndentation from turning those spaces into
+    // tabs, which YAML does not allow.
+    const KEEP_INDENT = monaco.languages.CompletionItemInsertTextRule.KeepWhitespace;
 
     monaco.languages.registerCompletionItemProvider('yaml', {
         triggerCharacters: ['\n', ' ', '-'],
@@ -136,6 +145,7 @@ function registerCompletion(index: SchemaIndex) {
                             documentation: s.desc,
                             sortText: String(i),
                             insertText: s.shape === 'object' ? `${s.key}:\n  ` : `${s.key}: `,
+                            insertTextRules: KEEP_INDENT,
                             range,
                             command: RETRIGGER,
                         })),
@@ -160,6 +170,7 @@ function registerCompletion(index: SchemaIndex) {
                         documentation: prop.description ?? '',
                         sortText: (required.has(key) ? '0' : '1') + key,
                         insertText,
+                        insertTextRules: KEEP_INDENT,
                         range,
                         command: RETRIGGER,
                     };

@@ -63,7 +63,7 @@ const components = Object.fromEntries(
 
 export default function DockviewContainer() {
     const t = useT();
-    const { registerApi, openTab, openReceivedPanel } = useTabContext();
+    const { registerApi, openTab, openReceivedPanel, openApplyYaml } = useTabContext();
     const { activeCluster } = useClusterContext();
     const apiRef = useRef<DockviewApi | null>(null);
 
@@ -151,7 +151,21 @@ export default function DockviewContainer() {
         else openTab({ view: 'overview', clusterName: activeCluster, icon: <VscDashboard size={16} /> });
     };
 
+    // Double-clicking the empty strip of a tab bar opens a blank YAML editor in
+    // that group — the same panel the title bar's "YAML Editor" action opens.
+    // dockview surfaces no event for its void container, so this is a delegated
+    // listener on the dockview root; a double-click anywhere else bubbles
+    // through here and is ignored. The group is already active by then: the
+    // void container activates its group on pointerdown, so the panel lands in
+    // the tab bar that was clicked.
+    const openBlankYamlEditor = (event: React.MouseEvent) => {
+        const target = event.target as HTMLElement | null;
+        if (!target?.closest?.('.dv-void-container')) return;
+        openApplyYaml(activeCluster);
+    };
+
     return (
+        <div style={{ height: '100%', width: '100%' }} onDoubleClick={openBlankYamlEditor}>
         <DockviewReact
             className="dockview-theme-monolith"
             // Prevent dockview from adding `dockview-theme-abyss` (its default) to the
@@ -163,5 +177,6 @@ export default function DockviewContainer() {
             onReady={onReady}
             onDidDrop={placeDrop}
         />
+        </div>
     );
 }

@@ -10,7 +10,6 @@ import { GetReplicaSets, DeleteReplicaSet } from '../../../wailsjs/go/controller
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
-import WorkloadActions from '../shared/WorkloadActions';
 import { useT } from '../../i18n/useT';
 
 const getReplicasSeverity = (ready: number, total: number): 'success' | 'warning' | 'danger' => {
@@ -51,10 +50,11 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
             pollInterval={2000}
             describeResource="replicasets"
             portForward={{ kind: 'replicaset' }}
+            workloadActions={(row) => ({ scale: { kind: 'replicaset', replicas: row.replicas } })}
             defaultFilters={defaultFilters}
             emptyMessage={t('resources:replicaset.empty')}
             onRowDoubleClick={(r) => openYamlPanel({ clusterName, resourceKind: 'replicaset', name: r.name, namespace: r.namespace, referencePanel })}
-            columns={({ buildInOptions, reload, toastRef }) => (
+            columns={({ buildInOptions }) => (
                 <>
                     <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
                     <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
@@ -72,16 +72,10 @@ export default function ReplicaSetListComponent({ clusterName, api }: { clusterN
                         body={(row: models.ReplicaSetInfo) => <Tag value={`${row.available_replicas} available`} severity={row.available_replicas > 0 ? 'success' : 'danger'} />} />
                     {/* No Restart: a ReplicaSet has no rollout of its own — restarting is
                         an operation on its owning Deployment. */}
-                    <Column header="" style={{ width: '6rem', textAlign: 'center' }}
+                    <Column header="" style={{ width: '3rem', textAlign: 'center' }}
                         body={(row: models.ReplicaSetInfo) => (
-                            <>
-                                <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                                    onClick={() => openLogPanel({ clusterName, resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel })} />
-                                <WorkloadActions
-                                    clusterName={clusterName} name={row.name} namespace={row.namespace}
-                                    reload={reload} toastRef={toastRef}
-                                    scale={{ kind: 'replicaset', replicas: row.replicas }} />
-                            </>
+                            <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+                                onClick={() => openLogPanel({ clusterName, resourceKind: 'replicaset', name: row.name, namespace: row.namespace, referencePanel })} />
                         )} />
                 </>
             )}

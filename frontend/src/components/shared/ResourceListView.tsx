@@ -7,12 +7,15 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { VscInfo, VscArrowSwap } from 'react-icons/vsc';
+import { Menu } from 'primereact/menu';
+import type { MenuItem } from 'primereact/menuitem';
+import { VscInfo, VscArrowSwap, VscKebabVertical } from 'react-icons/vsc';
 import { useResourceList, ResourceRow } from '../../lib/useResourceList';
 import { useT } from '../../i18n/useT';
 import { useTabContext } from '../../contexts/TabContext';
 import ErrorBanner from './ErrorBanner';
 import PortForwardDialog, { type ForwardableKind } from './PortForwardDialog';
+import { useWorkloadActions, type WorkloadActionSpec } from './WorkloadActions';
 
 // PrimeReact's DataTable finds its columns via React.Children.toArray(children),
 // which flattens arrays but NOT Fragments. The `columns` render-prop returns a
@@ -108,6 +111,14 @@ export interface ResourceListViewProps<T extends ResourceRow> {
      * vocabulary.
      */
     portForward?: { kind: ForwardableKind };
+    /**
+     * Per-row mutating workload actions (scale / rollout restart / cronjob
+     * suspend). Returns the spec for a row, or undefined for a row that offers
+     * none. Their entries join Describe and Port forward in the same ⋮ menu,
+     * and their dialogs are mounted once for the whole list — see
+     * `useWorkloadActions`.
+     */
+    workloadActions?: (row: T) => WorkloadActionSpec | undefined;
     defaultFilters: DataTableFilterMeta;
     pollInterval?: number;
     emptyMessage: string;
@@ -134,6 +145,7 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
         dataKey = '__rowKey',
         describeResource,
         portForward,
+        workloadActions,
         defaultFilters,
         pollInterval,
         emptyMessage,
@@ -173,66 +185,103 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
     const deletable = !!deleter;
     const { openDescribePanel } = useTabContext();
 
-    // One trailing column carries both built-in row actions.
+    // Every built-in row action lives in one ⋮ (kebab) popup menu instead of a
+    // row of icon buttons. A list has ~8 columns of real data in a panel that is
+    // often only half the window wide, so up to five always-visible action
+    // buttons were the widest thing on the row that carried no information.
     //
-    // They are deliberately not two columns: `toColumnArray` takes a single
-    // `extra` and tags the action column *and* its left neighbour so their
-    // resize handles stay hidden. A second appended column would land between
-    // that pair and reintroduce a draggable edge that steals width from the
-    // buttons.
+    // It is deliberately a single column, not one per action: `toColumnArray`
+    // takes a single `extra` and tags the action column *and* its left
+    // neighbour so their resize handles stay hidden. A second appended column
+    // would land between that pair and reintroduce a draggable edge that steals
+    // width from the button.
+    //
+    // One Menu for the whole list, not one per row: the body renderer runs for
+    // every visible row, so a per-row Menu (and, before this, a per-row set of
+    // WorkloadActions dialogs) multiplied by the virtual scroller's row count.
+    // The ⋮ button fills the model for its own row on click — the same pattern
+    // the pod list's exec container picker uses.
     const [pfRow, setPfRow] = useState<{ name: string; namespace: string } | null>(null);
-    const trailing = describeResource || portForward ? (
+    const rowMenuRef = useRef<Menu>(null);
+    const [rowMenuItems, setRowMenuItems] = useState<MenuItem[]>([]);
+    // Which row the open menu belongs to. `toggle()` is wrong here: the button
+    // stops propagation (so a click on it never reaches the row underneath),
+    // which also keeps it from reaching PrimeReact's document-level
+    // close-on-outside-click listener — so clicking a *second* row's ⋮ while the
+    // menu is open would close it instead of re-opening it there.
+    const openRowRef = useRef<string | null>(null);
+    const { menuItems: workloadMenuItems, dialogs: workloadDialogs } = useWorkloadActions({
+        clusterName,
+        reload,
+        toastRef,
+    });
+
+    const buildRowMenu = (row: T): MenuItem[] => {
+        const items: MenuItem[] = [];
+        if (describeResource) {
+            items.push({
+                label: t('action.describe'),
+                icon: <VscInfo size={13} />,
+                command: () =>
+                    openDescribePanel({
+                        clusterName,
+                        resource: describeResource,
+                        name: row.name,
+                        namespace: row.namespace ?? '',
+                        referencePanel: `${describeResource}:${clusterName}`,
+                    }),
+            });
+        }
+        if (portForward) {
+            items.push({
+                label: t('action.portForward'),
+                icon: <VscArrowSwap size={13} />,
+                command: () => setPfRow({ name: row.name, namespace: row.namespace ?? '' }),
+            });
+        }
+        const workload = workloadMenuItems({ name: row.name, namespace: row.namespace ?? '' }, workloadActions?.(row));
+        // The separator only earns its line when both groups are present:
+        // above it, actions that read the object; below it, actions that change it.
+        if (items.length > 0 && workload.length > 0) items.push({ separator: true });
+        return [...items, ...workload];
+    };
+
+    const hasRowMenu = !!describeResource || !!portForward || !!workloadActions;
+    const trailing = hasRowMenu ? (
         <Column
             key="__actions"
             header=""
-            headerStyle={{ width: describeResource && portForward ? '5.4rem' : '3.2rem' }}
-            style={
-                describeResource && portForward
-                    ? { minWidth: '5.4rem', maxWidth: '5.4rem' }
-                    : { minWidth: '3.2rem', maxWidth: '3.2rem' }
-            }
-            body={(row: T) => (
-                <div className="flex gap-1">
-                    {portForward && (
-                        <Button
-                            icon={<VscArrowSwap size={16} />}
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem' }}
-                            tooltip={t('action.portForward')}
-                            tooltipOptions={{ position: 'top' }}
-                            aria-label={t('action.portForward')}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setPfRow({ name: row.name, namespace: row.namespace ?? '' });
-                            }}
-                        />
-                    )}
-                    {describeResource && (
-                        <Button
-                            icon={<VscInfo size={16} />}
-                            text
-                            size="small"
-                            severity="secondary"
-                            style={{ padding: '0.2rem' }}
-                            tooltip={t('action.describe')}
-                            tooltipOptions={{ position: 'top' }}
-                            aria-label={t('action.describe')}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                openDescribePanel({
-                                    clusterName,
-                                    resource: describeResource,
-                                    name: row.name,
-                                    namespace: row.namespace ?? '',
-                                    referencePanel: `${describeResource}:${clusterName}`,
-                                });
-                            }}
-                        />
-                    )}
-                </div>
-            )}
+            headerStyle={{ width: '3rem' }}
+            style={{ minWidth: '3rem', maxWidth: '3rem' }}
+            body={(row: T) => {
+                // A row whose capabilities add up to nothing gets no button at
+                // all, rather than one that opens an empty menu.
+                const items = buildRowMenu(row);
+                if (items.length === 0) return null;
+                const key = `${row.namespace ?? ''}/${row.name}`;
+                return (
+                    <Button
+                        icon={<VscKebabVertical size={16} />}
+                        text
+                        size="small"
+                        severity="secondary"
+                        style={{ padding: '0.2rem' }}
+                        aria-label={t('action.more')}
+                        aria-haspopup
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setRowMenuItems(items);
+                            if (openRowRef.current === key) {
+                                rowMenuRef.current?.hide(e);
+                                openRowRef.current = null;
+                            } else {
+                                openRowRef.current = key;
+                                rowMenuRef.current?.show(e);
+                            }
+                        }}
+                    />
+                );
+            }}
         />
     ) : null;
 
@@ -295,6 +344,20 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Toast ref={toastRef} position="bottom-right" />
+
+            {/* Appended to <body>: the panel root and the table wrapper are both
+                overflow:hidden, so an inline popup would be clipped by the row it
+                belongs to. */}
+            <Menu
+                model={rowMenuItems}
+                popup
+                ref={rowMenuRef}
+                className="row-actions-menu"
+                appendTo={document.body}
+                onHide={() => {
+                    openRowRef.current = null;
+                }}
+            />
 
             <div className="rlv-toolbar" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1rem', borderBottom: '1px solid var(--surface-border)', flexShrink: 0 }}>
                 {/* `title` so the ellipsis (theme-monolith.css) never hides the
@@ -413,6 +476,8 @@ export default function ResourceListView<T extends ResourceRow>(props: ResourceL
                     </ul>
                 </Dialog>
             )}
+
+            {workloadDialogs}
 
             {portForward && pfRow && (
                 <PortForwardDialog

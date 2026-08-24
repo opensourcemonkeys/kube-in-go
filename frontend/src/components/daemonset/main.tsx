@@ -10,7 +10,6 @@ import { GetDaemonSets, DeleteDaemonSet } from '../../../wailsjs/go/controller_a
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import ResourceListView from '../shared/ResourceListView';
-import WorkloadActions from '../shared/WorkloadActions';
 import { useT } from '../../i18n/useT';
 
 const getReadySeverity = (ready: number, desired: number): 'success' | 'warning' | 'danger' => {
@@ -51,10 +50,11 @@ export default function DaemonSetListComponent({ clusterName, api }: { clusterNa
             deleteLabel="daemonset"
             pollInterval={2000}
             describeResource="daemonsets"
+            workloadActions={() => ({ restart: { kind: 'daemonset' } })}
             defaultFilters={defaultFilters}
             emptyMessage={t('resources:daemonset.empty')}
             onRowDoubleClick={(d) => openYamlPanel({ clusterName, resourceKind: 'daemonset', name: d.name, namespace: d.namespace, referencePanel })}
-            columns={({ buildInOptions, reload, toastRef }) => (
+            columns={({ buildInOptions }) => (
                 <>
                     <Column field="name" header={t('resources:column.name')} sortable filter filterField="name" filterPlaceholder={t('resources:filter.searchName')} showFilterMenu={false} style={{ minWidth: '14rem' }} />
                     <Column field="namespace" header={t('resources:column.namespace')} sortable filter filterField="namespace" showFilterMenu={false} style={{ minWidth: '10rem' }}
@@ -72,16 +72,10 @@ export default function DaemonSetListComponent({ clusterName, api }: { clusterNa
                         body={(row: models.DaemonSetInfo) => <Tag value={`${row.current_number_scheduled} current / ${row.number_available} available`} severity={row.number_available === row.desired_number_scheduled ? 'success' : 'warning'} />} />
                     {/* No Scale: a DaemonSet's replica count is the node count, not a
                         settable field — it has no scale subresource. */}
-                    <Column header="" style={{ width: '6rem', textAlign: 'center' }}
+                    <Column header="" style={{ width: '3rem', textAlign: 'center' }}
                         body={(row: models.DaemonSetInfo) => (
-                            <>
-                                <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
-                                    onClick={() => openLogPanel({ clusterName, resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel })} />
-                                <WorkloadActions
-                                    clusterName={clusterName} name={row.name} namespace={row.namespace}
-                                    reload={reload} toastRef={toastRef}
-                                    restart={{ kind: 'daemonset' }} />
-                            </>
+                            <Button icon={<VscListFlat size={16} />} text size="small" severity="secondary" style={{ padding: '0.2rem', fontSize: '0.7rem' }}
+                                onClick={() => openLogPanel({ clusterName, resourceKind: 'daemonset', name: row.name, namespace: row.namespace, referencePanel })} />
                         )} />
                 </>
             )}
