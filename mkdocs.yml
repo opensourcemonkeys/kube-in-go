@@ -68,6 +68,7 @@ markdown_extensions:
 nav:
   - Getting Started:
     - Installation: getting-started/installation.md
+    - Verifying Downloads: getting-started/verifying-downloads.md
     - Adding Clusters: getting-started/cluster-setup.md
   - Downloads: downloads.md
   - CLI:

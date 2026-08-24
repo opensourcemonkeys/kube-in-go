@@ -48,7 +48,14 @@
     "openDownloads": "Download-Seite öffnen",
     "tryAgain": "Erneut versuchen",
     "notInstallable": "{{reason}} Laden Sie die neue Version stattdessen von der Website.",
-    "downloadFromSite": "Laden Sie die neue Version von der Website."
+    "downloadFromSite": "Laden Sie die neue Version von der Website.",
+    "titleUpToDate": "Alles auf dem neuesten Stand",
+    "upToDate": "Kube Inspector {{version}} ist die neueste Version im Kanal {{channel}}.",
+    "aheadOfChannel": "Sie verwenden {{current}}, neuer als {{latest}} — die neueste Version im Kanal {{channel}}. Es wird nichts installiert, bis dieser Kanal aufgeholt hat.",
+    "close": "Schließen",
+    "failedTitle": "Das letzte Update wurde nicht angewendet",
+    "failedBody": "Kube Inspector hat versucht, {{version}} zu installieren, führt aber weiterhin {{current}} aus. Installieren Sie sie manuell über die Download-Seite.",
+    "failedLog": "Protokoll des Update-Helfers"
   },
   "tour": {
     "welcome": {

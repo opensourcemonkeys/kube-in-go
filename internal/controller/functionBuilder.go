@@ -28,6 +28,14 @@ func (a *App) CheckForUpdate() models.UpdateInfo {
 	return bussiness.CheckForUpdate()
 }
 
+// SetUpdateChannel switches between the stable and beta update feeds. There is
+// deliberately no matching getter: Wails binds every exported App method, so
+// each one is permanent frontend API surface, and the current channel already
+// rides back on UpdateInfo.Channel from the CheckForUpdate the caller runs next.
+func (a *App) SetUpdateChannel(channel string) error {
+	return bussiness.SetUpdateChannel(channel)
+}
+
 var updateJobs = newCancelRegistry()
 
 // StartSelfUpdate downloads and installs the latest release, streaming progress

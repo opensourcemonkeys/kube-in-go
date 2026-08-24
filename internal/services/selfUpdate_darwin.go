@@ -10,7 +10,17 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
+
+	"kube-ins/internal/logging"
 )
+
+// updateHelperLogName is where the detached swap helper writes. It runs after
+// the app has quit, so a file is its only channel back; business.CheckForUpdate
+// reads and removes it on the next launch. Must match business.updateHelperLog.
+//
+// Declared here rather than beside the script renderer because it is genuinely
+// darwin-only: on any other platform it would be an unused constant.
+const updateHelperLogName = "update-helper.log"
 
 // PlatformAssetKey returns the manifest "assets" key for this machine. Only an
 // arm64 dmg is published — a universal build would have to embed two ~262 MB Go
@@ -110,37 +120,34 @@ func RunInstaller(ctx context.Context, pkgPath, kind string) (string, error) {
 	// The download came from the network, so Gatekeeper flags the whole tree.
 	_ = exec.Command("xattr", "-dr", "com.apple.quarantine", staged).Run()
 
-	if err := startSwapHelper(work, staged, target); err != nil {
+	// filepath.Dir(pkgPath), not filepath.Dir(work): the helper's last act is an
+	// rm -rf of this path. Deriving it from work would follow work if it ever
+	// moved — and work living beside the target would make that rm -rf
+	// /Applications.
+	if err := startSwapHelper(work, staged, target, filepath.Dir(pkgPath)); err != nil {
 		return "", err
 	}
 	return RestartExternal, nil
 }
 
 // startSwapHelper writes and detaches the script that replaces the bundle once
-// the app is gone. It waits on our parent — the Electron main process, the one
-// actually holding the bundle open — rather than on this sidecar, which Electron
-// kills early in its own shutdown.
-func startSwapHelper(work, staged, target string) error {
-	script := filepath.Join(work, "apply-update.sh")
-	body := fmt.Sprintf(`#!/bin/sh
-# Wait (max ~60s) for the running app to exit before touching its bundle.
-i=0
-while kill -0 %d 2>/dev/null && [ $i -lt 600 ]; do
-  sleep 0.1
-  i=$((i+1))
-done
-sleep 1
-/usr/bin/ditto %s %s || exit 1
-/usr/bin/xattr -dr com.apple.quarantine %s
-/usr/bin/open %s
-rm -rf %s
-`,
-		os.Getppid(),
-		shellQuote(staged), shellQuote(target),
-		shellQuote(target),
-		shellQuote(target),
-		shellQuote(filepath.Dir(work)))
+// the app is gone.
+//
+// Both PIDs are captured here, at spawn time, while both processes are
+// certainly alive. Reading the parent later is the bug this replaces: once the
+// shell has quit, os.Getppid() resolves to 1 and the wait either no-ops or
+// blocks on init.
+func startSwapHelper(work, staged, target, tmpDir string) error {
+	logPath := filepath.Join(os.TempDir(), updateHelperLogName)
+	if dir, err := logging.Dir(); err == nil {
+		logPath = filepath.Join(dir, updateHelperLogName)
+	}
+	// Append, not truncate: a second attempt after a failure must not erase the
+	// evidence of the first. business.consumeHelperLog removes the file once it
+	// has been reported, so it cannot grow without bound.
 
+	script := filepath.Join(work, "apply-update.sh")
+	body := swapHelperScript(logPath, os.Getpid(), os.Getppid(), staged, target, tmpDir)
 	if err := os.WriteFile(script, []byte(body), 0o755); err != nil {
 		return err
 	}
@@ -153,11 +160,13 @@ rm -rf %s
 		return fmt.Errorf("could not start the update helper: %w", err)
 	}
 	_ = cmd.Process.Release()
+	logging.With("services.selfUpdate").Info("update helper detached",
+		"pid", cmd.Process.Pid, "log", logPath, "target", target)
 	return nil
 }
 
-// shellQuote wraps s in single quotes for /bin/sh. Paths here contain a space
-// ("Kube Inspector.app") and are otherwise app-controlled.
-func shellQuote(s string) string {
-	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
-}
+// KeepPackageAfterInstall reports whether the installer is still reading the
+// downloaded package after RunInstaller returns. True on macOS: the swap helper
+// runs detached from the staging directory inside the temp dir and removes the
+// whole thing itself as its last act.
+func KeepPackageAfterInstall() bool { return true }

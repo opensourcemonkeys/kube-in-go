@@ -5,5 +5,12 @@
   "language": {
     "label": "Language",
     "mtNote": "Machine-translated — report a bad string"
+  },
+  "updateChannel": {
+    "label": "Update channel",
+    "stable": "Stable",
+    "beta": "Beta",
+    "betaHint": "Beta releases arrive first and may be less stable.",
+    "aheadNote": "You are running a build newer than this channel."
   }
 }

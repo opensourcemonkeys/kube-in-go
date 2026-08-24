@@ -5,5 +5,12 @@
   "language": {
     "label": "语言",
     "mtNote": "机器翻译 — 报告有问题的文本"
+  },
+  "updateChannel": {
+    "label": "更新通道",
+    "stable": "稳定版",
+    "beta": "测试版",
+    "betaHint": "测试版发布更早，但可能不够稳定。",
+    "aheadNote": "您运行的版本比该通道中的版本更新。"
   }
 }

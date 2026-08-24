@@ -13,6 +13,21 @@ DIST    := ./dist
 # resolves its per-platform download from docs/version.json, which is generated
 # against this (see the docs-downloads target).
 DIST_BASE_URL := https://kubeinspector.com/dist
+DOWNLOAD_PAGE_URL := https://kubeinspector.com/downloads/
+
+# What the `stable` update channel points at: the highest tag with no prerelease
+# suffix. A scan rather than $(VERSION), because tagging a -beta must leave the
+# stable channel exactly where it was — otherwise a v1.1.0-alpha would offer
+# itself to every user running a stable build.
+#
+# `sed '/-/d'` rather than `grep -v -- '-'`: a lone "-" is ambiguous to some grep
+# implementations (ugrep reads it as a missing pattern). And `sort -V` runs only
+# *after* the prereleases are gone — it is not SemVer-correct across them, as it
+# orders v0.16.0 before v0.16.0-beta.1.
+#
+# This is legitimately empty until the first non-prerelease tag exists; see the
+# empty branch of emit_manifest below.
+STABLE_VERSION := $(shell git tag --list 'v*' | sed '/-/d' | sed 's/^v//' | sort -V | tail -1)
 
 # Optional Wails build tags. On distros that ship webkit2gtk-4.1 instead of
 # 4.0 (Ubuntu 24.04+, Fedora 40+), build with: make build-linux WAILS_TAGS=webkit2_41
@@ -211,9 +226,19 @@ lint-go: vet
 check-frontend: bindings
 	cd frontend && npm run typecheck && npm run lint && npm run i18n:check && npm run test
 
-# Single source of truth for the release version. CI derives artifact names from
-# this rather than from GITHUB_REF_NAME, so the two can never disagree.
+# Single source of truth for the release version. CI derives every artifact name
+# and both update manifests from this rather than from GITHUB_REF_NAME, and
+# asserts the two agree - so they can never disagree silently.
+#
+# The empty check is not cosmetic: `git describe` on a tagless or shallow
+# checkout yields "", which used to flow silently into LDFLAGS, the nfpm version
+# and the manifest URLs, producing a package called kube-inspector--amd64.deb
+# and asset links that 404.
 print-version:
+	@test -n "$(VERSION)" || { \
+		echo "make: VERSION is empty - 'git describe --tags' found no tag." >&2; \
+		echo "      Use a full clone with tags (actions/checkout fetch-depth: 0)." >&2; \
+		exit 1; }
 	@echo $(VERSION)
 
 test-e2e:
@@ -229,16 +254,33 @@ test-e2e:
 # a copy rather than sed -i'ing the tracked file is what keeps `make docs-serve`
 # from dirtying the working tree — an in-place substitution cannot be ignored,
 # because gitignore never applies to a file git already tracks.
+# One update manifest per channel. $(1) = output path, $(2) = version.
+#
+# An empty version is the honest shape for "this channel has no release yet":
+# the client reads version:"" , isNewer() rejects it and no update is offered.
+# Emitting asset URLs built from an empty version would produce guaranteed 404s
+# that surface to users only as a failed in-app update.
+define emit_manifest
+	@if [ -z "$(2)" ]; then \
+		printf '{"version":"","downloadUrl":"%s","assets":{}}\n' "$(DOWNLOAD_PAGE_URL)" > $(1); \
+		echo "  $(1) — no release published on this channel yet"; \
+	else \
+		printf '{"version":"%s","downloadUrl":"%s","assets":{"linux-deb":"%s/kube-inspector-%s-linux-amd64.deb","linux-rpm":"%s/kube-inspector-%s-linux-x86_64.rpm","windows-amd64":"%s/kube-inspector-%s-windows-amd64.exe","darwin-arm64":"%s/kube-inspector-%s-macos-arm64.dmg"}}\n' \
+			"$(2)" "$(DOWNLOAD_PAGE_URL)" \
+			"$(DIST_BASE_URL)" "$(2)" \
+			"$(DIST_BASE_URL)" "$(2)" \
+			"$(DIST_BASE_URL)" "$(2)" \
+			"$(DIST_BASE_URL)" "$(2)" > $(1); \
+		echo "  $(1) — v$(2)"; \
+	fi
+endef
+
 docs-downloads:
 	@echo "Generating docs/downloads.md for v$(VERSION)"
 	@sed 's/__VERSION__/$(VERSION)/g' docs/downloads.md.in > docs/downloads.md
-	@echo "Writing docs/version.json for v$(VERSION) (in-app update check)"
-	@printf '{"version":"%s","downloadUrl":"https://kubeinspector.com/downloads/","assets":{"linux-deb":"%s/kube-inspector-%s-linux-amd64.deb","linux-rpm":"%s/kube-inspector-%s-linux-x86_64.rpm","windows-amd64":"%s/kube-inspector-%s-windows-amd64.exe","darwin-arm64":"%s/kube-inspector-%s-macos-arm64.dmg"}}\n' \
-		"$(VERSION)" \
-		"$(DIST_BASE_URL)" "$(VERSION)" \
-		"$(DIST_BASE_URL)" "$(VERSION)" \
-		"$(DIST_BASE_URL)" "$(VERSION)" \
-		"$(DIST_BASE_URL)" "$(VERSION)" > docs/version.json
+	@echo "Writing the update manifests (in-app update check)"
+	$(call emit_manifest,docs/version.json,$(STABLE_VERSION))
+	$(call emit_manifest,docs/version-beta.json,$(VERSION))
 
 docs-serve: docs-downloads
 	mkdocs serve

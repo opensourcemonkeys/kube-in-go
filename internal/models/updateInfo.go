@@ -21,6 +21,22 @@ type UpdateInfo struct {
 	Installable bool `json:"installable"`
 	// NotInstallableReason explains a false Installable, for the UI to show.
 	NotInstallableReason string `json:"notInstallableReason"`
+
+	// Channel is the update channel this result came from: "stable" or "beta".
+	Channel string `json:"channel"`
+	// AheadOfChannel is true when the running build is newer than the newest
+	// release on the selected channel — what happens when a beta user switches
+	// to stable. Nothing is installed; the app never downgrades itself.
+	AheadOfChannel bool `json:"aheadOfChannel"`
+
+	// FailedUpdateVersion is set once, on the first check after an update that
+	// did not take: the app is running an older version than the one it tried to
+	// install. Empty in every other case, including a successful update.
+	FailedUpdateVersion string `json:"failedUpdateVersion"`
+	// FailedUpdateLog is the tail of the macOS swap helper's log when there is
+	// one. That helper runs after the app has quit, so the file is its only
+	// channel back. Empty on other platforms.
+	FailedUpdateLog string `json:"failedUpdateLog"`
 }
 
 // UpdateProgress is streamed to the frontend while a self-update runs. Phase is

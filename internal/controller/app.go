@@ -3,8 +3,10 @@ package controller_app
 import (
 	"context"
 
+	bussiness "kube-ins/internal/business"
 	"kube-ins/internal/ipc"
 	"kube-ins/internal/models"
+	"kube-ins/internal/safego"
 )
 
 // App struct
@@ -30,4 +32,10 @@ func (a *App) start(ctx context.Context) {
 	a.hub = ipc.NewInstanceHub(ctx, func(panel models.SerializedPanel) {
 		a.emit("tab:received", panel)
 	})
+
+	// Windows' NSIS installer always leaves the ~190 MB download behind, and a
+	// macOS swap helper that died early does too. Off the startup path entirely:
+	// nothing waits on it, and safego rather than a bare `go func()` because
+	// neither shell recovers a panic on our behalf.
+	safego.Go("business.updateTempSweep", bussiness.SweepStaleUpdateTemps)
 }

@@ -67,3 +67,45 @@ func TestCheckForUpdateOffline(t *testing.T) {
 		t.Fatal("the downloads page fallback was dropped")
 	}
 }
+
+// A beta user who switches to the stable channel finds a manifest older than
+// the build they are running. Nothing must be offered, nothing downgraded, and
+// the state must be distinguishable from "no update" so the UI can explain it.
+func TestCheckForUpdateAheadOfChannel(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"version":"0.0.1","downloadUrl":"https://example.test/downloads/","assets":{}}`))
+	}))
+	defer srv.Close()
+
+	t.Setenv("KUBE_INS_UPDATE_MANIFEST", srv.URL)
+
+	info := CheckForUpdate()
+	if info.Available {
+		t.Fatal("a manifest older than the running build must not offer an update")
+	}
+	if !info.AheadOfChannel {
+		t.Fatalf("AheadOfChannel must be true when running %s against a 0.0.1 manifest", info.CurrentVersion)
+	}
+	if info.Channel == "" {
+		t.Fatal("Channel must be reported even when no update is available")
+	}
+}
+
+// The empty-version shape the Makefile emits for a channel with no release yet
+// must read as "nothing here", not as an update and not as being ahead.
+func TestCheckForUpdateEmptyChannelManifest(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"version":"","downloadUrl":"https://example.test/downloads/","assets":{}}`))
+	}))
+	defer srv.Close()
+
+	t.Setenv("KUBE_INS_UPDATE_MANIFEST", srv.URL)
+
+	info := CheckForUpdate()
+	if info.Available {
+		t.Fatal("an empty channel manifest must not offer an update")
+	}
+	if info.AheadOfChannel {
+		t.Fatal("an empty channel manifest is not a version to be ahead of")
+	}
+}

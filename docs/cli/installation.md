@@ -13,7 +13,7 @@ Grab the artifact for your platform from the [Downloads](../downloads.md#command
 | Platform | File |
 |---|---|
 | Linux — portable binary | `kube-inspector-cli-<version>-linux-amd64.tar.gz` |
-| Linux — Debian / Ubuntu | `kube-inspector-cli-<version>-debian-amd64.deb` |
+| Linux — Debian / Ubuntu | `kube-inspector-cli-<version>-linux-amd64.deb` |
 | Linux — RHEL / Fedora | `kube-inspector-cli-<version>-linux-x86_64.rpm` |
 | macOS (Universal) | `kube-inspector-cli-<version>-macos-universal.tar.gz` |
 | Windows | `kube-inspector-cli-<version>-windows-amd64.exe` |
@@ -25,15 +25,15 @@ Grab the artifact for your platform from the [Downloads](../downloads.md#command
 
 === "Debian / Ubuntu (.deb)"
     ```bash
-    sudo dpkg -i kube-inspector-cli-<version>-debian-amd64.deb
-    # installs to /usr/local/bin/kube-inspector-cli
+    sudo dpkg -i kube-inspector-cli-<version>-linux-amd64.deb
+    # installs to /usr/bin/kube-inspector-cli
     kube-inspector-cli
     ```
 
 === "RHEL / Fedora (.rpm)"
     ```bash
-    sudo rpm -i kube-inspector-cli-<version>-linux-x86_64.rpm
-    # installs to /usr/local/bin/kube-inspector-cli
+    sudo rpm -Uvh kube-inspector-cli-<version>-linux-x86_64.rpm
+    # installs to /usr/bin/kube-inspector-cli
     kube-inspector-cli
     ```
 

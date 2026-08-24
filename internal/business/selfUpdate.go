@@ -18,8 +18,8 @@ import (
 // mode tells the caller how to bring the new version up (see
 // services.RestartRelaunch / RestartExternal).
 //
-// The temporary download is kept on success — on Windows and macOS the
-// installer is still reading it after this returns.
+// The temporary download is removed on success only where the installer has
+// certainly finished with it — see services.KeepPackageAfterInstall.
 func RunSelfUpdate(ctx context.Context, info models.UpdateInfo, onProgress func(models.UpdateProgress)) (string, error) {
 	if !info.Installable || info.AssetURL == "" {
 		err := errors.New("this release cannot be installed automatically here")
@@ -68,15 +68,41 @@ func RunSelfUpdate(ctx context.Context, info models.UpdateInfo, onProgress func(
 	}
 
 	onProgress(models.UpdateProgress{Phase: "install", Received: 0, Total: -1})
+
+	// Recorded here and not earlier: everything above leaves the installed app
+	// completely untouched and is already reported live in the UI, so flagging
+	// it as a failed update on the next launch would be a lie. From this line on
+	// the outcome is genuinely unobservable — NSIS and the macOS swap helper are
+	// detached, and even dpkg can succeed while the relaunch does not.
+	writeUpdateState(updateState{
+		From:    appVersion,
+		To:      info.LatestVersion,
+		Asset:   info.AssetURL,
+		Channel: info.Channel,
+	})
+
 	// Past this point cancellation is dropped: killing dpkg/rpm mid-transaction
 	// would leave the package database — and the app — in a broken state. The UI
 	// hides its Cancel button here for the same reason.
 	restart, err := services.RunInstaller(context.WithoutCancel(ctx), pkgPath, info.AssetKind)
 	if err != nil {
 		os.RemoveAll(dir)
+		// The app is still running and the user has already seen this error —
+		// most often just "cancelled at the password prompt". Leaving the record
+		// behind would fire a spurious failed-update warning on the next launch.
+		clearUpdateState()
 		logging.With("business.selfUpdate").Error("self-update failed", "stage", "install", "kind", info.AssetKind, "err", err)
 		return "", err
 	}
 
+	if !services.KeepPackageAfterInstall() {
+		// dpkg/rpm ran synchronously and is done; nothing else will read this.
+		// Elsewhere the installer outlives us and the startup sweep collects it.
+		os.RemoveAll(dir)
+	}
+
+	logging.With("business.selfUpdate").Info("self-update applied",
+		"from", info.CurrentVersion, "to", info.LatestVersion,
+		"kind", info.AssetKind, "restart", restart)
 	return restart, nil
 }

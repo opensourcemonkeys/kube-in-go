@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+
+	"kube-ins/internal/logging"
 )
 
 // PlatformAssetKey returns the manifest "assets" key for this machine. Only an
@@ -47,5 +49,18 @@ func RunInstaller(ctx context.Context, pkgPath, kind string) (string, error) {
 		return "", errors.New("the installer did not start")
 	}
 
+	// The one record that this ever ran. NSIS is detached and silent (/S), so
+	// nothing else on Windows can say whether the update was even attempted —
+	// business.writeUpdateState, called just before this, is the other half.
+	logging.With("services.selfUpdate").Info("started the NSIS installer",
+		"pkg", pkgPath, "pid", cmd.Process.Pid)
+
 	return RestartExternal, nil
 }
+
+// KeepPackageAfterInstall reports whether the installer is still reading the
+// downloaded package after RunInstaller returns. True on Windows: the NSIS
+// installer is spawned detached and outlives this process, so deleting the
+// package here would pull it out from under the running installer. The startup
+// sweep collects it on the next launch.
+func KeepPackageAfterInstall() bool { return true }

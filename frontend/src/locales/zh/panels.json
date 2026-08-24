@@ -47,7 +47,14 @@
     "openDownloads": "打开下载页面",
     "tryAgain": "重试",
     "notInstallable": "{{reason}} 请改为从官网下载新版本。",
-    "downloadFromSite": "请从官网下载新版本。"
+    "downloadFromSite": "请从官网下载新版本。",
+    "titleUpToDate": "已是最新版本",
+    "upToDate": "Kube Inspector {{version}} 是 {{channel}} 通道中的最新版本。",
+    "aheadOfChannel": "您正在运行 {{current}}，它比 {{channel}} 通道的最新版本 {{latest}} 更新。在该通道追上之前不会安装任何内容。",
+    "close": "关闭",
+    "failedTitle": "上次更新未生效",
+    "failedBody": "Kube Inspector 尝试安装 {{version}}，但仍在运行 {{current}}。请从下载页面手动安装。",
+    "failedLog": "更新助手日志"
   },
   "tour": {
     "welcome": {

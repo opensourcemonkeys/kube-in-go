@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse, VscArrowSwap, VscGlobe } from 'react-icons/vsc';
+import { useCallback, useEffect, useState } from 'react';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscCloudUpload, VscCloudDownload, VscTerminal, VscQuestion, VscInfo, VscHubot, VscLayoutSidebarLeft, VscCheck, VscSymbolColor, VscScreenFull, VscPulse, VscArrowSwap, VscGlobe, VscWarning } from 'react-icons/vsc';
 import { Menubar } from 'primereact/menubar';
 import { MenuItem } from 'primereact/menuitem';
 import {
@@ -8,7 +8,7 @@ import {
     Quit,
     BrowserOpenURL,
 } from '../../../wailsjs/runtime/runtime';
-import { CheckForUpdate } from '../../../wailsjs/go/controller_app/App';
+import { CheckForUpdate, SetUpdateChannel } from '../../../wailsjs/go/controller_app/App';
 import { models } from '../../../wailsjs/go/models';
 import { useTabContext } from '../../contexts/TabContext';
 import { useClusterContext } from '../../contexts/ClusterContext';
@@ -38,6 +38,10 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const [aboutOpen, setAboutOpen] = useState(false);
     const [updateOpen, setUpdateOpen] = useState(false);
     const [update, setUpdate] = useState<models.UpdateInfo | null>(null);
+    // Latched. The backend reports a failed update exactly once — the record is
+    // read and cleared — so a later 6-hourly re-check comes back with the field
+    // empty and would otherwise pull the notice out from under the user.
+    const [failedUpdate, setFailedUpdate] = useState('');
     const { openTerminal, openApplyYaml, openDiagnostics, openPortForwards } = useTabContext();
     const { activeCluster } = useClusterContext();
     const { startNextStep } = useNextStep();
@@ -49,12 +53,33 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
     const setLocale = useLocaleStore((s) => s.setLocale);
     const t = useT();
 
+    // Hoisted out of the effect so the interval, the Help menu's "Check for
+    // updates" item and the channel switcher all run the same check.
+    const check = useCallback(
+        () =>
+            CheckForUpdate()
+                .then((u) => {
+                    setUpdate(u);
+                    if (u.failedUpdateVersion) setFailedUpdate(u.failedUpdateVersion);
+                })
+                .catch(() => { /* offline: ignore */ }),
+        [],
+    );
+
+    // Switching channel re-checks immediately: the manifest it reads is a
+    // different file, so the answer can change without any release happening.
+    const switchChannel = useCallback(
+        (channel: string) => {
+            SetUpdateChannel(channel).then(check).catch(() => { /* ignore */ });
+        },
+        [check],
+    );
+
     useEffect(() => {
-        const check = () => CheckForUpdate().then(setUpdate).catch(() => { /* offline: ignore */ });
         check();
         const id = window.setInterval(check, UPDATE_CHECK_INTERVAL_MS);
         return () => window.clearInterval(id);
-    }, []);
+    }, [check]);
 
     // Under a shell that reports real window state (Electron), subscribe to it
     // so the restore icon cannot desync from OS-initiated maximise/snap. Wails
@@ -118,11 +143,47 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                         },
                     ],
                 },
+                {
+                    // Here rather than in UpdateModal, which only opens when
+                    // there is something to install — invisible in exactly the
+                    // state where you would want to change channel. Theme and
+                    // language, the app's only other preferences, live here too.
+                    label: t('settings:updateChannel.label'),
+                    icon: <VscCloudDownload size={13} />,
+                    items: [
+                        {
+                            label: t('settings:updateChannel.stable'),
+                            icon: update?.channel === 'stable' ? <VscCheck size={13} /> : undefined,
+                            command: () => switchChannel('stable'),
+                        },
+                        {
+                            label: t('settings:updateChannel.beta'),
+                            icon: update?.channel === 'beta' ? <VscCheck size={13} /> : undefined,
+                            command: () => switchChannel('beta'),
+                        },
+                        { separator: true },
+                        {
+                            // Switching beta -> stable never downgrades. Say so
+                            // where the switch is made, or the user is left
+                            // wondering why nothing happened.
+                            label: update?.aheadOfChannel
+                                ? t('settings:updateChannel.aheadNote')
+                                : t('settings:updateChannel.betaHint'),
+                            className: 'tb-menu-note',
+                        },
+                    ],
+                },
             ],
         },
         {
             label: t('nav:menu.help'),
             items: [
+                {
+                    label: t('nav:menu.checkForUpdates'),
+                    icon: <VscCloudDownload size={13} />,
+                    command: () => { check(); setUpdateOpen(true); },
+                },
+                { separator: true },
                 { label: t('nav:menu.tutorial'),    icon: <VscQuestion size={13} />, command: () => startNextStep('main') },
                 { label: t('nav:menu.diagnostics'), icon: <VscPulse size={13} />,    command: () => openDiagnostics() },
                 { label: t('nav:menu.about'),       icon: <VscInfo size={13} />,     command: () => setAboutOpen(true) },
@@ -175,6 +236,20 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
                     nothing when there are none. */}
                 <PortForwardPill onOpenPanel={openPortForwards} />
 
+                {/* An update that was handed to an installer and did not take.
+                    Suppressed while a newer one is on offer: the fix is to
+                    install that, not to read about the last failure. */}
+                {failedUpdate && !update?.available && (
+                    <button
+                        className="tb-update tb-update--warn"
+                        title={t('nav:window.updateFailed')}
+                        onClick={() => setUpdateOpen(true)}
+                    >
+                        <VscWarning size={12} />
+                        {t('nav:window.updateFailed')}
+                    </button>
+                )}
+
                 {/* Update available (top-right, before window controls) */}
                 {update?.available && (
                     <button
@@ -205,7 +280,10 @@ function TitleBar({ onToggleSidebar, sidebarOpen = true, onToggleCli }: TitleBar
 
             <AboutModal visible={aboutOpen} onHide={() => setAboutOpen(false)} onDiagnostics={openDiagnostics} />
 
-            {update?.available && (
+            {/* Mounted whenever a check has returned, not only when an update is
+                available: it is also the "you're up to date", "ahead of this
+                channel" and "the last update did not apply" surface. */}
+            {update && (
                 <UpdateModal visible={updateOpen} onHide={() => setUpdateOpen(false)} info={update} />
             )}
         </>

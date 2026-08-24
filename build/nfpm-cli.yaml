@@ -15,14 +15,16 @@ license: "GPL-3.0"
 vendor: "hakanyorulmaz"
 
 contents:
+  # /usr/bin, not /usr/local/bin: the desktop package symlinks its binary into
+  # /usr/bin, and /usr/local is outside the RPM %{_bindir} convention — the FHS
+  # reserves it for the local administrator, so a package should not write there.
+  #
+  # One entry, not one per packager: they were identical apart from `packager:`.
+  #
+  # No migration script is needed for the move. Both dpkg and rpm remove files
+  # the previous version of the *same package* owned and the new one does not,
+  # so /usr/local/bin/kube-inspector-cli is cleaned up on upgrade.
   - src: "./build/bin/kube-inspector-cli"
-    dst: "/usr/local/bin/kube-inspector-cli"
-    packager: deb
-    file_info:
-      mode: 0o755
-
-  - src: "./build/bin/kube-inspector-cli"
-    dst: "/usr/local/bin/kube-inspector-cli"
-    packager: rpm
+    dst: "/usr/bin/kube-inspector-cli"
     file_info:
       mode: 0o755

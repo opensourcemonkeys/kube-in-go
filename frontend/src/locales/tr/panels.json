@@ -48,7 +48,14 @@
     "openDownloads": "İndirmeler sayfasını aç",
     "tryAgain": "Yeniden dene",
     "notInstallable": "{{reason}} Bunun yerine yeni sürümü web sitesinden indirin.",
-    "downloadFromSite": "Yeni sürümü web sitesinden indirin."
+    "downloadFromSite": "Yeni sürümü web sitesinden indirin.",
+    "titleUpToDate": "Her şey güncel",
+    "upToDate": "Kube Inspector {{version}}, {{channel}} kanalındaki en son sürüm.",
+    "aheadOfChannel": "{{current}} sürümünü çalıştırıyorsunuz; bu, {{channel}} kanalındaki en son sürüm olan {{latest}} sürümünden daha yeni. O kanal yetişene kadar hiçbir şey kurulmayacak.",
+    "close": "Kapat",
+    "failedTitle": "Son güncelleme uygulanmadı",
+    "failedBody": "Kube Inspector {{version}} sürümünü kurmayı denedi ama hâlâ {{current}} çalışıyor. Onu indirmeler sayfasından elle kurun.",
+    "failedLog": "Güncelleme yardımcısı günlüğü"
   },
   "tour": {
     "welcome": {

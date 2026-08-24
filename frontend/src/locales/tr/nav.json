@@ -49,7 +49,8 @@
     "help": "Yardım",
     "tutorial": "Öğretici",
     "diagnostics": "Tanılama",
-    "about": "Hakkında"
+    "about": "Hakkında",
+    "checkForUpdates": "Güncellemeleri denetle…"
   },
   "window": {
     "collapseSidebar": "Kenar çubuğunu daralt",
@@ -60,6 +61,7 @@
     "restore": "Geri yükle",
     "close": "Kapat",
     "updateAvailable": "Güncelleme mevcut",
-    "updateTooltip": "{{version}} sürümü mevcut — kurmak için tıklayın"
+    "updateTooltip": "{{version}} sürümü mevcut — kurmak için tıklayın",
+    "updateFailed": "Güncelleme uygulanmadı"
   }
 }

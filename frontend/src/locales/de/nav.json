@@ -49,7 +49,8 @@
     "help": "Hilfe",
     "tutorial": "Einführung",
     "diagnostics": "Diagnose",
-    "about": "Über"
+    "about": "Über",
+    "checkForUpdates": "Nach Updates suchen…"
   },
   "window": {
     "collapseSidebar": "Seitenleiste einklappen",
@@ -60,6 +61,7 @@
     "restore": "Wiederherstellen",
     "close": "Schließen",
     "updateAvailable": "Update verfügbar",
-    "updateTooltip": "Version {{version}} ist verfügbar — zum Installieren klicken"
+    "updateTooltip": "Version {{version}} ist verfügbar — zum Installieren klicken",
+    "updateFailed": "Update wurde nicht angewendet"
   }
 }

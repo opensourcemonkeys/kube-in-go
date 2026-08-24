@@ -40,16 +40,24 @@ contents:
     file_info:
       mode: 0o644
 
-  - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/512x512/apps/kube-inspector.png"
-    file_info:
-      mode: 0o644
+  # Every size the freedesktop icon spec asks for, pre-scaled from appicon.png
+  # and committed under build/icons. A `tree` rather than eight explicit entries
+  # so adding a size needs no packaging change, and so nothing here depends on
+  # ImageMagick being installed on the build host.
+  #
+  # This replaced a single 512x512 entry: nfpm rejects two entries for the same
+  # destination path, so the two cannot coexist. At 512 alone, panels and window
+  # title bars had to downscale on the fly and the launcher icon looked soft.
+  - src: "./build/icons/hicolor"
+    dst: "/usr/share/icons/hicolor"
+    type: tree
 
 # chrome-sandbox must end up setuid root or the app aborts at startup. It cannot
 # be expressed in contents: nfpm rejects a second entry for a path the `tree`
 # already supplied, and a non-root build user cannot assign root ownership.
 scripts:
   postinstall: ./build/electron-postinstall.sh
+  postremove: ./build/electron-postremove.sh
 
 # No `depends`: Electron bundles its own Chromium. Dropping the libwebkit2gtk
 # dependency the Wails packages carried is the entire point of this shell — and

@@ -373,6 +373,33 @@ html.electron-shell .tb-sidebar-toggle { -webkit-app-region: no-drag; }
 }
 .tb-update:hover { filter: brightness(1.08); box-shadow: 0 0 0 1px rgba(63,200,180,.6), 0 3px 14px rgba(63,200,180,.5); }
 
+/* The same pill in a warning tone: an update was handed to an installer and did
+   not take. It reports a fault rather than an opportunity, so it borrows the
+   amber the toasts and warning tags already use — via the theme variable, so
+   the alternate palettes re-skin it for free. */
+.tb-update--warn {
+  color: var(--amber); background: rgba(226,168,90,.12);
+  box-shadow: inset 0 0 0 1px rgba(226,168,90,.45);
+}
+.tb-update--warn:hover {
+  filter: none; background: rgba(226,168,90,.2);
+  box-shadow: inset 0 0 0 1px rgba(226,168,90,.7);
+}
+
+/* Collapsed tail of the macOS swap-helper log inside the update dialog. */
+.update-modal__log { width: 100%; margin-top: 10px; text-align: left; }
+.update-modal__log summary {
+  cursor: pointer; font-size: 11px; color: var(--ink2);
+  padding: 4px 0; user-select: none;
+}
+.update-modal__log pre {
+  margin: 6px 0 0; padding: 8px 10px; max-height: 160px; overflow: auto;
+  font-family: var(--font-family-mono); font-size: 11px; line-height: 1.45;
+  color: var(--ink); background: var(--app);
+  border: 1px solid var(--line2); border-radius: 6px;
+  white-space: pre-wrap; word-break: break-word;
+}
+
 /* ── Port-forward pill + popover ──────────────────────────────────────────────
    A forward outlives the panel that started it, so the title bar is the only
    place that can truthfully say one is running. Styled quieter than the update

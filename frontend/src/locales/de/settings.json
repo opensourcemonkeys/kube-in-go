@@ -5,5 +5,12 @@
   "language": {
     "label": "Sprache",
     "mtNote": "Maschinell übersetzt — fehlerhaften Text melden"
+  },
+  "updateChannel": {
+    "label": "Update-Kanal",
+    "stable": "Stabil",
+    "beta": "Beta",
+    "betaHint": "Beta-Versionen erscheinen zuerst und können weniger stabil sein.",
+    "aheadNote": "Sie verwenden eine neuere Version als die dieses Kanals."
   }
 }

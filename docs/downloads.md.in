@@ -11,6 +11,12 @@ Kube Inspector ships in two flavours:
 - **Desktop App** — the full graphical client.
 - **Command-Line (CLI)** — `kube-inspector-cli`, a terminal UI with the same features, ideal over SSH. See the [CLI docs](cli/index.md).
 
+!!! tip "Verify your download"
+    Each file has a `.sha256` sidecar, and the whole release is covered by
+    [`SHA256SUMS-__VERSION__`](/dist/SHA256SUMS-__VERSION__). The builds are
+    unsigned, so this is the one integrity check available —
+    [how to verify](getting-started/verifying-downloads.md).
+
 Both are self-contained: **no runtime dependencies to install on any platform**.
 
 ---
@@ -41,7 +47,7 @@ A single self-contained binary — one Linux package fits every distro. See [CLI
 ### Linux
 
 - **Portable binary (.tar.gz)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-amd64.tar.gz)
-- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-cli-__VERSION__-debian-amd64.deb)
+- **Debian / Ubuntu (.deb)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-amd64.deb)
 - **RHEL / Fedora (.rpm)** — [Download](/dist/kube-inspector-cli-__VERSION__-linux-x86_64.rpm)
 
 ### Windows

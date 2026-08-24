@@ -13,16 +13,10 @@ env:
   # The Trivy security-scanner library pulls in encoding/json/v2, which is
   # gated behind the jsonv2 GOEXPERIMENT on Go 1.26.
   GOEXPERIMENT: jsonv2
-  # ==========================================
-  # CLOUDFLARE R2 CREDENTIALS (GLOBAL)
-  # ==========================================
-  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-  AWS_DEFAULT_REGION: auto
-  AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
-  AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
-  R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-  R2_BUCKET: ${{ vars.R2_BUCKET }}
+
+# The R2 credentials are declared per job rather than here. They are write
+# credentials for the public bucket, and `release` — which only reads
+# CHANGELOG.md — has no business holding them.
 
 jobs:
   # ==========================================
@@ -32,11 +26,24 @@ jobs:
   build-linux:
     name: Build & Package (Linux)
     runs-on: ubuntu-22.04
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: recursive
+          # Full history with tags: `make print-version` runs
+          # `git describe --tags`, and the stable-channel manifest scans every
+          # tag. A shallow checkout yields an empty version that flows silently
+          # into LDFLAGS, the package name and the update manifest.
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -48,13 +55,37 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Resolve release version
+        # The single source of truth. Every later step uses ${VERSION} from the
+        # environment; nothing re-derives it. `make pkg-*` computes its own
+        # VERSION from the same `git describe`, so asserting that it equals the
+        # tag transitively guarantees the package name, the injected appVersion,
+        # the artifact filename and the update manifest all carry one string.
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(make -s print-version)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::make print-version produced an empty version - no tag is reachable from HEAD (is fetch-depth: 0 set on this checkout?)"
+            exit 1
+          fi
+          if [ "$VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch: the Makefile derives '$VERSION' from git describe, but the tag is '$TAG_VERSION'. The artifacts and the manifest would disagree."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        # Pinned to the version in go.mod. Every `uses:` here is SHA-pinned;
+        # an unpinned @latest toolchain generates the bindings a release is
+        # built from, which is the loudest remaining supply-chain gap.
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
 
       - name: Install nfpm
         run: |
@@ -69,20 +100,23 @@ jobs:
       # distro — no per-distro variants, no webkit2gtk version split.
       - name: Rename Packages with Platform
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          mv dist/kube-inspector_${VERSION}_amd64.deb dist/kube-inspector-${VERSION}-linux-amd64.deb || true
-          mv dist/kube-inspector-${VERSION}-1.x86_64.rpm dist/kube-inspector-${VERSION}-linux-x86_64.rpm || true
+          set -euo pipefail
+          mv "dist/kube-inspector_${VERSION}_amd64.deb"    "dist/kube-inspector-${VERSION}-linux-amd64.deb"
+          mv "dist/kube-inspector-${VERSION}-1.x86_64.rpm" "dist/kube-inspector-${VERSION}-linux-x86_64.rpm"
 
       - name: Build & Package CLI (kube-inspector-cli)
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          set -euo pipefail
           make build-tui-linux
           make pkg-tui-deb
           make pkg-tui-rpm
           mkdir -p dist
-          tar -czf dist/kube-inspector-cli-${VERSION}-linux-amd64.tar.gz -C build/bin kube-inspector-cli
-          mv dist/kube-inspector-cli_${VERSION}_amd64.deb dist/kube-inspector-cli-${VERSION}-debian-amd64.deb || true
-          mv dist/kube-inspector-cli-${VERSION}-1.x86_64.rpm dist/kube-inspector-cli-${VERSION}-linux-x86_64.rpm || true
+          tar -czf "dist/kube-inspector-cli-${VERSION}-linux-amd64.tar.gz" -C build/bin kube-inspector-cli
+          # -linux-, not -debian-: the desktop deb is already -linux-amd64.deb and
+          # two conventions in one dist/ is how a docs link ends up pointing at
+          # a name nothing produces.
+          mv "dist/kube-inspector-cli_${VERSION}_amd64.deb"    "dist/kube-inspector-cli-${VERSION}-linux-amd64.deb"
+          mv "dist/kube-inspector-cli-${VERSION}-1.x86_64.rpm" "dist/kube-inspector-cli-${VERSION}-linux-x86_64.rpm"
 
       # A .sha256 sidecar per artifact. The in-app updater fetches
       # <assetUrl>.sha256 and refuses to install a package that does not match,
@@ -107,11 +141,24 @@ jobs:
   build-windows:
     name: Build & Package (Windows)
     runs-on: windows-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: recursive
+          # Full history with tags: `make print-version` runs
+          # `git describe --tags`, and the stable-channel manifest scans every
+          # tag. A shallow checkout yields an empty version that flows silently
+          # into LDFLAGS, the package name and the update manifest.
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -123,13 +170,37 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Resolve release version
+        # The single source of truth. Every later step uses ${VERSION} from the
+        # environment; nothing re-derives it. `make pkg-*` computes its own
+        # VERSION from the same `git describe`, so asserting that it equals the
+        # tag transitively guarantees the package name, the injected appVersion,
+        # the artifact filename and the update manifest all carry one string.
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(make -s print-version)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::make print-version produced an empty version - no tag is reachable from HEAD (is fetch-depth: 0 set on this checkout?)"
+            exit 1
+          fi
+          if [ "$VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch: the Makefile derives '$VERSION' from git describe, but the tag is '$TAG_VERSION'. The artifacts and the manifest would disagree."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Install NSIS
         run: |
           winget install NSIS.NSIS --silent --accept-source-agreements
           echo "C:\Program Files (x86)\NSIS" >> $env:GITHUB_PATH
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        # Pinned to the version in go.mod. Every `uses:` here is SHA-pinned;
+        # an unpinned @latest toolchain generates the bindings a release is
+        # built from, which is the loudest remaining supply-chain gap.
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
 
       - name: Build and Package
         shell: bash
@@ -138,15 +209,19 @@ jobs:
       - name: Rename Installer with Version
         shell: bash
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          mv dist/kube-inspector-${VERSION}-x64.exe dist/kube-inspector-${VERSION}-windows-amd64.exe || true
+          set -euo pipefail
+          mv "dist/kube-inspector-${VERSION}-x64.exe" "dist/kube-inspector-${VERSION}-windows-amd64.exe"
 
       - name: Build CLI (kube-inspector-cli)
         shell: bash
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          set -euo pipefail
           make build-tui-windows
-          mv build/bin/kube-inspector-cli.exe build/bin/kube-inspector-cli-${VERSION}-windows-amd64.exe
+          mkdir -p dist
+          # Into dist/, not build/bin/: the Checksums step does `cd dist` and the
+          # R2 sync only uploads dist/, so renaming in place published nothing
+          # while docs/downloads.md.in advertised the URL.
+          mv build/bin/kube-inspector-cli.exe "dist/kube-inspector-cli-${VERSION}-windows-amd64.exe"
 
       - name: Checksums
         shell: bash
@@ -170,11 +245,24 @@ jobs:
   build-macos:
     name: Build & Package (macOS)
     runs-on: macos-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: recursive
+          # Full history with tags: `make print-version` runs
+          # `git describe --tags`, and the stable-channel manifest scans every
+          # tag. A shallow checkout yields an empty version that flows silently
+          # into LDFLAGS, the package name and the update manifest.
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
@@ -186,23 +274,47 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Resolve release version
+        # The single source of truth. Every later step uses ${VERSION} from the
+        # environment; nothing re-derives it. `make pkg-*` computes its own
+        # VERSION from the same `git describe`, so asserting that it equals the
+        # tag transitively guarantees the package name, the injected appVersion,
+        # the artifact filename and the update manifest all carry one string.
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(make -s print-version)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::make print-version produced an empty version - no tag is reachable from HEAD (is fetch-depth: 0 set on this checkout?)"
+            exit 1
+          fi
+          if [ "$VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch: the Makefile derives '$VERSION' from git describe, but the tag is '$TAG_VERSION'. The artifacts and the manifest would disagree."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        # Pinned to the version in go.mod. Every `uses:` here is SHA-pinned;
+        # an unpinned @latest toolchain generates the bindings a release is
+        # built from, which is the loudest remaining supply-chain gap.
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.12.0
 
       - name: Build and Package
         run: make pkg-mac
 
       - name: Rename Installer with Version
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          mv dist/kube-inspector-${VERSION}-arm64.dmg dist/kube-inspector-${VERSION}-macos-arm64.dmg || true
+          set -euo pipefail
+          mv "dist/kube-inspector-${VERSION}-arm64.dmg" "dist/kube-inspector-${VERSION}-macos-arm64.dmg"
 
       - name: Build CLI (kube-inspector-cli)
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          set -euo pipefail
           make build-tui-mac
           mkdir -p dist
-          tar -czf dist/kube-inspector-cli-${VERSION}-macos-universal.tar.gz -C build/bin kube-inspector-cli
+          tar -czf "dist/kube-inspector-cli-${VERSION}-macos-universal.tar.gz" -C build/bin kube-inspector-cli
 
       # macOS has no sha256sum; shasum -a 256 emits the same "<hash>  <name>".
       - name: Checksums
@@ -223,18 +335,114 @@ jobs:
           aws s3 sync dist/ "s3://${R2_BUCKET}/dist/" --endpoint-url "$ENDPOINT" --no-progress
 
   # ==========================================
+  # STAGE 2b: PUBLISH SHA256SUMS
+  # ==========================================
+  # A checksum served from the same host as the artifact only proves the file
+  # arrived intact — against a compromised host it proves nothing. Publishing the
+  # same SHA256SUMS to the GitHub Release as well gives it a second origin, with
+  # different credentials and a different operator, and that cross-check is the
+  # strongest integrity story this project can offer without code-signing
+  # certificates (see docs/getting-started/verifying-downloads.md).
+  #
+  # It has to be its own job: each build job produces a disjoint slice of the
+  # artifacts, so none of them can see them all.
+  checksums:
+    name: Publish SHA256SUMS
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-windows, build-macos]
+    if: github.ref_type == 'tag'
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(make -s print-version)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::make print-version produced an empty version - no tag is reachable from HEAD (is fetch-depth: 0 set on this checkout?)"
+            exit 1
+          fi
+          if [ "$VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch: the Makefile derives '$VERSION' from git describe, but the tag is '$TAG_VERSION'. The artifacts and the manifest would disagree."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Collect and publish SHA256SUMS
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+          mkdir -p sums
+
+          # Only this release's sidecars. dist/ accumulates every version ever
+          # shipped, on purpose: the artifact sync has no --delete, so a link
+          # published in an old changelog keeps working.
+          aws s3 cp "s3://${R2_BUCKET}/dist/" sums/ \
+            --endpoint-url "$ENDPOINT" --recursive --no-progress \
+            --exclude "*" --include "*${VERSION}*.sha256"
+
+          cd sums
+          count=$(ls -1 ./*.sha256 2>/dev/null | wc -l)
+          if [ "$count" -lt 7 ]; then
+            echo "::error::expected at least 7 checksum sidecars for ${VERSION}, found ${count} - a build job silently published nothing"
+            ls -la
+            exit 1
+          fi
+
+          # sha256sum (Linux/Windows) and shasum -a 256 (macOS) both emit
+          # "<hash>  <name>", so concatenating them yields a file that
+          # `sha256sum -c` accepts verbatim.
+          #
+          # The per-file .sha256 sidecars STAY. The in-app updater fetches
+          # <assetUrl>.sha256 and refuses to install without it, so consolidating
+          # them away here would silently disable every in-app update.
+          cat $(ls -1 ./*.sha256 | sort) > SHA256SUMS
+          cat SHA256SUMS
+
+          # Two objects by design: the versioned one is immutable and is what the
+          # docs link to; the bare one always names the newest release.
+          aws s3 cp SHA256SUMS "s3://${R2_BUCKET}/dist/SHA256SUMS-${VERSION}" \
+            --endpoint-url "$ENDPOINT" --no-progress
+          aws s3 cp SHA256SUMS "s3://${R2_BUCKET}/dist/SHA256SUMS" \
+            --endpoint-url "$ENDPOINT" --no-progress
+
+      - name: Upload SHA256SUMS as a workflow artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sha256sums
+          path: sums/SHA256SUMS
+
+  # ==========================================
   # STAGE 2: RELEASE (SOURCE CODE ONLY)
   # ==========================================
 
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-linux, build-windows, build-macos]
+    needs: [checksums]
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Download SHA256SUMS
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sha256sums
 
       - name: Extract Release Notes
         run: |
@@ -248,8 +456,11 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           body_path: /tmp/release_notes.md
-          # No `files` parameter: GitHub attaches only the automatic source
-          # archives (.zip/.tar.gz); the real artifacts are published to R2.
+          # The binaries themselves live on R2 — only SHA256SUMS is attached
+          # here, and deliberately so: a checksum file is worth little served
+          # from the same host as the artifacts it describes. This copy is the
+          # independent origin users can check the R2 copy against.
+          files: SHA256SUMS
 
   # ==========================================
   # STAGE 2c: BUILD & PUBLISH DOCS WEBSITE
@@ -257,11 +468,27 @@ jobs:
   deploy-docs:
     name: Build & deploy docs to R2
     runs-on: ubuntu-latest
-    needs: [build-linux, build-windows, build-macos]
+    # Through checksums rather than straight off the builds: this job publishes
+    # the update manifests, and the step below refuses to publish one whose
+    # assets are not reachable — which includes their .sha256 sidecars.
+    needs: [checksums]
     if: github.ref_type == 'tag'
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: auto
+      AWS_REQUEST_CHECKSUM_CALCULATION: WHEN_REQUIRED
+      AWS_RESPONSE_CHECKSUM_VALIDATION: WHEN_REQUIRED
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # Three separate reasons, and this job had none of them: docs-downloads
+          # runs `git describe`, the stable-channel manifest scans every tag, and
+          # mkdocs_hooks.py falls back to `git describe` for the header chip.
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
@@ -277,8 +504,64 @@ jobs:
       - name: Install MkDocs Material
         run: pip install "mkdocs-material[imaging]"
 
+      - name: Resolve release version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(make -s print-version)"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::make print-version produced an empty version - no tag is reachable from HEAD (is fetch-depth: 0 set on this checkout?)"
+            exit 1
+          fi
+          if [ "$VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Version mismatch: the Makefile derives '$VERSION' from git describe, but the tag is '$TAG_VERSION'. The artifacts and the manifest would disagree."
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Build site
         run: make docs-build
+
+      # This job is what publishes the manifests (mkdocs copies docs/*.json into
+      # site/, and the sync below puts them at the bucket root). If a URL in one
+      # of them 404s, the only place that surfaces is a user's failed in-app
+      # update — so fail here instead, and leave the previous release's manifest
+      # in place, still pointing at assets that exist.
+      - name: Verify every URL in the generated manifests
+        run: |
+          set -euo pipefail
+          # `.assets[]?` with the ? is deliberate: it yields nothing rather than
+          # erroring on the empty-assets shape a channel with no release yet has.
+          urls="$(jq -r '.assets[]?, (.assets[]? + ".sha256")' \
+                    docs/version.json docs/version-beta.json | sort -u)"
+          if [ -z "$urls" ]; then
+            echo "::error::the generated manifests contain no asset URLs at all"
+            exit 1
+          fi
+
+          fail=0
+          for u in $urls; do
+            ok=0
+            # Cloudflare caches a 404 in front of R2 for a few minutes, so a
+            # probe that lost the race with the upload would poison the check.
+            # no-cache forces revalidation; the retries cover propagation.
+            for attempt in 1 2 3; do
+              code="$(curl -sS -o /dev/null -w '%{http_code}' -I \
+                        -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \
+                        "$u" || echo 000)"
+              [ "$code" = "200" ] && { ok=1; break; }
+              echo "  $u -> $code (attempt $attempt/3)"
+              sleep 20
+            done
+            if [ "$ok" = 1 ]; then
+              echo "200 $u"
+            else
+              echo "::error::release asset is not reachable: $u"
+              fail=1
+            fi
+          done
+          [ "$fail" = 0 ]
 
       - name: Publish site to Cloudflare R2
         run: |
@@ -292,145 +575,3 @@ jobs:
             --exclude "dcount.json" \
             --exclude "vcount.json" \
             --no-progress
-
-  # ==========================================
-  # STAGE 3: END-TO-END TESTS
-  # ==========================================
-  # Runs the Selenium E2E suite against the live Wails dev server, backed by an
-  # ephemeral kind cluster. Not gated to the release job: GUI E2E can be flaky
-  # and should not block publishing. To gate releases, add `e2e` to release.needs.
-
-  # NOTE: The E2E and mail-report jobs are temporarily disabled (commented out)
-  # but kept here so they can be re-enabled later. To restore, uncomment the
-  # `e2e` and `mail-report` jobs below.
-  #
-  # e2e:
-  #   name: End-to-End Tests
-  #   runs-on: ubuntu-22.04
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-  #       with:
-  #         submodules: recursive
-  #
-  #     - name: Setup Go
-  #       uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
-  #       with:
-  #         go-version: '1.26'
-  #
-  #     - name: Setup Node
-  #       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-  #       with:
-  #         node-version: '20'
-  #
-  #     - name: Setup Python
-  #       uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
-  #       with:
-  #         python-version: '3.12'
-  #
-  #     - name: Install Linux Dependencies
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev xvfb
-  #
-  #     - name: Setup Chrome
-  #       uses: browser-actions/setup-chrome@facf10a55b9caf92e0cc749b4f82bf8220989148 # v1.7.2
-  #       with:
-  #         install-chromedriver: false
-  #
-  #     - name: Install Wails CLI
-  #       run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-  #
-  #
-  #     - name: Create kind cluster
-  #       uses: helm/kind-action@0025e74a8c7512023d06dc019c617aa3cf561fde # v1.10.0
-  #
-  #     - name: Provision kube-ins cluster config
-  #       run: |
-  #         mkdir -p ~/.kube-ins
-  #         # kind-action's default cluster name is 'chart-testing'.
-  #         kind get kubeconfig --name chart-testing > ~/.kube-ins/ci.yaml
-  #         # The Go backend init() reads .active and selects this cluster on boot.
-  #         printf 'ci' > ~/.kube-ins/.active
-  #         # Give the Logs/Exec panel tests a real pod to act on (otherwise they skip).
-  #         kubectl run nginx --image=nginx --restart=Never
-  #         kubectl wait --for=condition=Ready pod/nginx --timeout=120s || true
-  #
-  #     - name: Start Wails dev server (xvfb)
-  #       run: |
-  #         xvfb-run -a -s "-screen 0 1280x800x24" make dev > /tmp/wails-dev.log 2>&1 &
-  #         WAILS_PID=$!
-  #         echo "wails dev started (pid $WAILS_PID); waiting for http://localhost:34115 ..."
-  #         # Up to ~10 min: the first cold compile of client-go is slow.
-  #         for i in $(seq 1 120); do
-  #           # Fail fast if the dev process died (e.g. Go compile / embed error).
-  #           if ! kill -0 "$WAILS_PID" 2>/dev/null; then
-  #             echo "::error::wails dev exited before becoming ready — log below:"
-  #             cat /tmp/wails-dev.log || true
-  #             exit 1
-  #           fi
-  #           if curl -sf http://localhost:34115 >/dev/null; then
-  #             echo "Wails dev server is up."
-  #             exit 0
-  #           fi
-  #           echo "--- attempt $i/120, recent log: ---"
-  #           tail -n 5 /tmp/wails-dev.log || true
-  #           sleep 5
-  #         done
-  #         echo "::error::Wails dev server did not become ready in time — full log below:"
-  #         cat /tmp/wails-dev.log || true
-  #         exit 1
-  #
-  #     - name: Run E2E suite
-  #       env:
-  #         E2E_HEADLESS: '1'
-  #       run: make test-e2e
-  #
-  #     - name: Upload E2E report
-  #       if: always()
-  #       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-  #       with:
-  #         name: e2e-report
-  #         path: report.html
-  #
-  #     - name: Upload Wails dev log
-  #       if: always()
-  #       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-  #       with:
-  #         name: wails-dev-log
-  #         path: /tmp/wails-dev.log
-  #         if-no-files-found: ignore
-  #
-  # # ==========================================
-  # # STAGE 4: EMAIL E2E REPORT
-  # # ==========================================
-  #
-  # mail-report:
-  #   name: Email E2E Report
-  #   runs-on: ubuntu-latest
-  #   needs: [e2e]
-  #   if: always()
-  #   steps:
-  #     - name: Download E2E report
-  #       uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-  #       with:
-  #         name: e2e-report
-  #         path: .
-  #
-  #     - name: Send report via Gmail SMTP
-  #       uses: dawidd6/action-send-mail@2cea9617b09d79a095af21254fbcb7ae95903dde # v3.12.0
-  #       with:
-  #         server_address: smtp.gmail.com
-  #         server_port: 465
-  #         secure: true
-  #         username: ${{ secrets.MAIL_USERNAME }}
-  #         password: ${{ secrets.MAIL_PASSWORD }}
-  #         from: kube-ins CI <${{ secrets.MAIL_USERNAME }}>
-  #         to: ${{ secrets.MAIL_TO }}
-  #         subject: "kube-ins E2E ${{ needs.e2e.result }} — ${{ github.ref_name }}"
-  #         html_body: |
-  #           <h3>kube-ins E2E — ${{ needs.e2e.result }}</h3>
-  #           <p>Tag <b>${{ github.ref_name }}</b> · run
-  #           <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">${{ github.run_id }}</a></p>
-  #           <p>Full report attached (open <code>report.html</code> in a browser — failure screenshots are inline).</p>
-  #         attachments: report.html

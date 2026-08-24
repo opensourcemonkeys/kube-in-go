@@ -23,7 +23,7 @@
 - [x] **S13a** — parite denetleyicisi + CI/Makefile wiring ✅
 - [x] **S13b** — tr / de / ru / zh / ja çevirileri + dürüstlük işaretleri ✅
 - [x] **S14** — Performans ve render hijyeni ✅
-- [ ] **S15** — Release altyapısı: CI, kanallar, updater, paketleme
+- [x] **S15** — Release altyapısı: CI, kanallar, updater, paketleme ✅
 - [ ] **S16** — Beta dokümantasyonu
 - [ ] **S17** — Beta sürümünü çıkar (`v0.16.0-beta.1`)
 
@@ -1801,6 +1801,136 @@ GOEXPERIMENT=jsonv2 go test ./internal/business/... -run TestIsNewer -v
 make pkg-deb && sudo dpkg -i dist/*.deb && sudo dpkg -i dist/*.deb   # yeniden kurulum başarılı olmalı
 sudo dpkg -r kube-inspector && ls /usr/share/applications/ | grep kube   # postremove temizlemiş olmalı
 ```
+
+---
+
+### Uygulandı — sonuç
+
+**Plan metninde dört madde yanlıştı.**
+- **`~/.kube-ins/tmp` diye bir dizin yok.** `business/selfUpdate.go:30` `os.MkdirTemp("", …)`
+  yani OS temp'ini kullanıyor. Yeni bir temp kökü açmak yerine orada kalındı: OS temp'i
+  zaten sistem tarafından süpürülüyor, ve `~/.kube-ins/` kubeconfig'lerin durduğu **config**
+  dizini — 190MB installer'ları oraya park etmek kötü bir varsayılan olurdu.
+- **`selfUpdate_darwin.go:105`'teki `ditto` merge etmiyordu.** Orası read-only dmg'den az
+  önce `RemoveAll`'lanmış staging dizinine kopyalıyor ve `ditto` orada doğru araç (xattr/imza
+  metadata'sını korur). Merge eden `ditto` **script gövdesindeydi (L133)**. L105'e dokunulmadı.
+- **postremove'un işi "kalıntı temizlemek" değil.** dpkg/rpm `chrome-sandbox`'ı zaten kendi
+  `tree`'lerinin parçası olarak siliyor. Asıl tehlike tersiydi: korumasız bir postremove
+  **upgrade'de de** çalışır ve Linux in-app updater'ı `dpkg -i`/`rpm -Uvh` koştuğu için
+  az önce kurulan setuid `chrome-sandbox`'ı silerdi — Electron onsuz açılmaz, yani
+  **Linux'ta self-update ilk denemede uygulamayı bozardı**. `$1` guard'ı bu maddenin tamamı.
+- Plan `sort -V`'yi "en yüksek tag" için öneriyordu; **prerelease'ler arasında SemVer-doğru
+  değil** (test edildi: `v0.16.0`'ı `v0.16.0-beta.1`'den önce sıralıyor). Yalnızca
+  prerelease'ler süzüldükten sonra kullanıldı.
+
+**Planda olmayan, S17'yi ilk tag'de kıracak bir hata bulundu ve düzeltildi.**
+`docs/downloads.md` `.gitignore`'da listeli olmasına rağmen hâlâ **tracked**'di (S1 `.in`
+şablonunu ekledi ama `git rm --cached` yapmadı; gitignore tracked dosyaya işlemez). Temiz
+görünmesinin tek sebebi `git describe`'ın hâlâ `v0.15.0-alpha` dönmesiydi. İlk beta tag'inde
+`make docs-downloads` dosyayı yeniden yazacak ve `ci.yml:150-156` `docs` job'ını düşürecekti.
+
+**15a — tek kaynak VERSION.** Yedi `|| true` kalktı, her rename step'i `set -euo pipefail`
+ile başlıyor. Dört checkout'a `fetch-depth: 0` (`deploy-docs`'un üç ayrı sebebi vardı ve
+hiçbirine sahip değildi). Yeni `Resolve release version` step'i `make -s print-version` ile
+tag'i karşılaştırıp uyuşmazlıkta job'ı düşürüyor; `print-version` artık boş VERSION'da
+hata veriyor. İki gerçek artifact hatası da düzeldi: **Windows CLI `dist/`e hiç ulaşmıyordu**
+(`build/bin/` içinde rename ediliyordu → checksum'lanmıyor, R2'ye gitmiyor, ama
+`downloads.md.in` o URL'i reklam ediyordu) ve CLI deb'i `-debian-amd64` adıyla çıkıyordu.
+Ayrıca R2 **yazma** kimlik bilgileri workflow seviyesinden alınıp yalnızca sync yapan
+job'lara indirildi, ve dört yerdeki pinsiz `wails@latest` `v2.12.0`'a pinlendi.
+
+**15b — kanallar.** `docs/version.json` artık **stable-only** (prerelease'siz en yüksek tag),
+`docs/version-beta.json` release edilen tag. Stable bugün boş — hiç non-prerelease tag yok —
+ve bu desteklenen bir durum: `{"version":"","assets":{}}` şekli `isNewer`'ı reddettiriyor,
+boş sürümden URL üretmek garantili 404 olurdu. `~/.kube-ins/.channel` (`.active` deseniyle
+birebir: 0600, her hata yolu sessizce default'a düşer), 0.x'te varsayılan **beta**.
+Controller'a **tek** metot eklendi (`SetUpdateChannel`) — getter yok, çünkü Wails her exported
+metodu kalıcı API yüzeyine çeviriyor ve mevcut kanal zaten `UpdateInfo.Channel` ile geliyor.
+`mkdocs_hooks.py:38` aynı commit'te `version-beta.json`'a çevrildi, yoksa beta deploy'u
+header'da stable sürümü gösterirdi.
+
+**beta→stable asla downgrade etmiyor.** `AheadOfChannel` ile raporlanıyor ve kullanıcı
+beta'da kalıyor: otomatik downgrade, `pkexec` altında dpkg'ye eski paket vermek demek ve
+yeni sürümün yazdığı hiçbir şey için migration hikâyesi yok. İlk stable release build'i
+geçtiğinde kendiliğinden düzeliyor.
+
+**Kanal seçici title bar menüsünde** (Theme/Language'ın yanında), `UpdateModal`'da değil —
+o modal yalnızca kurulacak bir şey varken mount oluyordu, yani kanalı değiştirmek
+isteyeceğin durumda görünmezdi. Bu da **"güncelsin" yüzeyini zorunlu kıldı**: onsuz kanal
+değiştirmek sıfır geri bildirim veriyordu. `UpdateModal` artık koşulsuz mount ediliyor ve
+up-to-date / ahead-of-channel / failed dallarını taşıyor; Help menüsüne
+"Check for updates…" eklendi.
+
+**15c — updater.** `.part` dosyasına indirip yalnızca tamamlanınca `dest`'e rename etmek hem
+resume'u mümkün kıldı hem de mevcut "iptalde kısmi dosya kalmıyor" assertion'ını
+değiştirmeden geçirdi. 3 deneme, `Range` ile devam, yok sayılan Range'de sıfırdan, 416'da
+checksum'a bırak. **Stall detector şarttı**: half-open bir TCP bağlantısı hiç hata üretmiyor,
+read sonsuza kadar blokluyor ve retry döngüsü hiç çalışmıyordu — yani resume'un var olma
+sebebi olan senaryoda hiçbir işe yaramazdı. Resume'un güvenli olmasının sebebi
+`VerifySha256`'nın indirmeden **önce** çekilen checksum'a karşı koşması: sunucunun retry'da
+farklı gövde vermesi zaten yakalanıyor, hem de dosya root olarak dpkg'ye verilmeden önce.
+
+macOS swap'ı `mv` tabanlı oldu (eski bundle `<bundle>.old`'a, yeni yerine, hata olursa geri);
+her iki operand aynı dizinde kardeş olduğu için ilk `mv` bir `rename(2)` — atomik, 500MB'la
+orantılı süre yok. Helper artık **kendi PID'ini de** bekliyor ve `<= 1`'i beklemeyi
+reddediyor (eski kod yalnızca `os.Getppid()` bekliyordu, parent gitmişse 1'e çözülüyordu).
+stdout/stderr `~/.kube-ins/logs/update-helper.log`'a append ediliyor — helper uygulama
+çıktıktan sonra çalıştığı için tek kanalı bu. Script gövdesi **platform-nötr** bir dosyaya
+alındı ki `sh -n` her CI koşusunda parse edebilsin: bu script yalnızca uygulamanın çıktığı
+bir makinede çalışıyor, yani içindeki bir sözdizimi hatası "update sessizce hiçbir şey
+yapmadı" olarak görünürdü.
+
+`.update-state` `RunInstaller`'dan hemen önce yazılıyor, sonraki `CheckForUpdate`'te
+read-and-clear ile **tam bir kez** raporlanıyor. Planın kaçırdığı tuzak: `RunInstaller`
+hata dönerse (ezici çoğunlukla `pkexec` exit 126, "parola isteminde iptal") kayıt diskte
+kalıp sonraki açılışta sahte bir uyarı üretirdi — o dal da `clearUpdateState()` yapıyor.
+
+Temp sızıntısı `KeepPackageAfterInstall()` ile platform verisi olarak ifade edildi
+(`runtime.GOOS` switch'i yerine): yalnızca Linux installer'ını bekliyor, dolayısıyla yalnızca
+orada hemen silinebiliyor. Kalanlar için `SweepStaleUpdateTemps` — `kube-ins-update-` öneki
++ `IsDir()` + 24 saat, `safego.Go` ile `App.start`'tan.
+
+**15d — paketleme.** Sekiz ikon boyutu (16–512) `build/icons/hicolor` altında commit'lendi
+ve nfpm'e tek `tree` girdisi olarak verildi (paketleme sırasında ImageMagick yok). 16px'e
+gözle bakıldı: hexagon konturu ve merkez düğüm okunaklı, sadeleştirme gerekmedi. CLI paketi
+`/usr/local/bin` → `/usr/bin` (iki özdeş `packager:` girdisi tek girdiye indi); dpkg ve rpm
+eski sürümün sahip olduğu dosyayı upgrade'de kendiliğinden sildiği için migration gerekmiyor.
+`rpm -i` → `rpm -Uvh` hem desktop hem CLI docs'unda.
+
+**15e — minimal (kullanıcı kararı).** `build.yml` L296-436'daki yorumlu `e2e` ve
+`mail-report` job'ları silindi. Suite retarget edilmedi.
+
+**Doğrulandı:** `go build`/`vet`/`test ./...` temiz; üç GOOS'ta cross-compile; `golangci-lint`
+**5 issue — hepsi S15 öncesinden** (stash ile baseline karşılaştırıldı, yeni sıfır); TUI
+Wails-free; `tsc --noEmit`, `eslint` (0 error), `i18n:check` (6/6, 630 → **644** anahtar),
+`vitest` (44/44), `npm run build` (tek sarı satır yine yalnızca monaco). `make docs-build`
+`--strict` geçiyor ve **hiçbir tracked dosyayı kirletmiyor** (before/after `git status`
+karşılaştırıldı — `ci.yml:150-156`'nın tam kapısı). Manifest doğrulama adımının jq ifadesi
+**canlı R2'ye karşı** koşuldu: 8 URL'in hepsi 200; boş stable manifest'te `.assets[]?`
+hata yerine hiçbir şey dönüyor. deb ve rpm üretilip **açıldı**: 8 ikon 0644 ile yerinde,
+`postinst` + `postrm` ikisi de pakette, CLI `/usr/bin`'de. postremove `$1` guard'ı on argüman
+için matris olarak sınandı (deb `remove`/`purge`/boş ve rpm `0` → temizlik; deb `upgrade`
+aileleri ve rpm `>=1` → çıkış).
+
+**Bu oturumda KOŞULMADI** (S17'ye kalıyor): gerçek tag push'u olmadan `build.yml`
+değişiklikleri uçtan uca test edilemez — fork'ta atılabilir bir tag'de prova edilmeli;
+macOS swap helper'ı gerçek bir Mac gerektiriyor (script `sh -n` ile parse edildi, davranış
+edilmedi); Windows NSIS yolu; ve **deb/rpm'in gerçek kurulum → upgrade → silme döngüsü**
+(bu makinede `sudo` parola istiyor). Sonuncusu E1'in en kritik doğrulaması —
+`sudo dpkg -i` iki kez üst üste koşulup `chrome-sandbox`'ın **hâlâ 4755** olduğu
+görülmeli; kaybediyorsa `$1` guard'ı yanlıştır ve Linux self-update'i bozar.
+
+**S16 Known Limitations'a devredilenler:** update rollback yok (S15 yalnızca *tespit*
+gönderiyor); macOS swap penceresi (helper iki `mv` arasında ölürse uygulama
+`/Applications/Kube Inspector.app.old`'da — tek satırlık kurtarma talimatıyla);
+beta→stable downgrade yapmaz; e2e suite bayat (yalnızca geliştirmede kalan Wails dev
+server'ını hedefliyor, CI'da koşmuyor); build'ler imzasız, checksum transfer bütünlüğüdür
+provenance değil; Windows ~190MB installer'ı `%TEMP%`'te bırakıyor.
+
+**S16 için not:** README'den 5 SonarCloud rozeti kaldırıldı, ama **gömülü token git
+geçmişinde duruyor — SonarCloud'da revoke edilmeli.** Ayrıca `golangci-lint run ./...`
+bugün **5 issue ile çıkıyor**, yani `ci.yml`'in `go` job'ı main'de kırmızı; S15 kapsamı
+değil ama S17 öncesi bakılmalı.
 
 ---
 

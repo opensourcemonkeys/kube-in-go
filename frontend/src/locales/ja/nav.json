@@ -49,7 +49,8 @@
     "help": "ヘルプ",
     "tutorial": "チュートリアル",
     "diagnostics": "診断",
-    "about": "このアプリについて"
+    "about": "このアプリについて",
+    "checkForUpdates": "アップデートを確認…"
   },
   "window": {
     "collapseSidebar": "サイドバーを折りたたむ",
@@ -60,6 +61,7 @@
     "restore": "元のサイズに戻す",
     "close": "閉じる",
     "updateAvailable": "更新があります",
-    "updateTooltip": "バージョン {{version}} が利用できます — クリックしてインストール"
+    "updateTooltip": "バージョン {{version}} が利用できます — クリックしてインストール",
+    "updateFailed": "アップデートが適用されませんでした"
   }
 }

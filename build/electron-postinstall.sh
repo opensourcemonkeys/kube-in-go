@@ -15,3 +15,14 @@ if [ -f "$SANDBOX" ]; then
     chown root:root "$SANDBOX"
     chmod 4755 "$SANDBOX"
 fi
+
+# Refresh the desktop caches so the launcher entry and the icon appear without a
+# re-login. Both tools may be absent on a minimal or non-GTK system, and neither
+# should turn a successful install into a failed one — hence the guards and the
+# `|| true`, which also keep them out of `set -e`'s reach.
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database -q /usr/share/applications || true
+fi
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor || true
+fi

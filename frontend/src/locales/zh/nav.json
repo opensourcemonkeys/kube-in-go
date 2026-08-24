@@ -49,7 +49,8 @@
     "help": "帮助",
     "tutorial": "教程",
     "diagnostics": "诊断",
-    "about": "关于"
+    "about": "关于",
+    "checkForUpdates": "检查更新…"
   },
   "window": {
     "collapseSidebar": "收起侧边栏",
@@ -60,6 +61,7 @@
     "restore": "还原",
     "close": "关闭",
     "updateAvailable": "有可用更新",
-    "updateTooltip": "{{version}} 版本已发布 — 点击安装"
+    "updateTooltip": "{{version}} 版本已发布 — 点击安装",
+    "updateFailed": "更新未生效"
   }
 }

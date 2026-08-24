@@ -47,7 +47,14 @@
     "openDownloads": "ダウンロードページを開く",
     "tryAgain": "再試行",
     "notInstallable": "{{reason}} 代わりに新しいバージョンをウェブサイトからダウンロードしてください。",
-    "downloadFromSite": "新しいバージョンをウェブサイトからダウンロードしてください。"
+    "downloadFromSite": "新しいバージョンをウェブサイトからダウンロードしてください。",
+    "titleUpToDate": "最新の状態です",
+    "upToDate": "Kube Inspector {{version}} は {{channel}} チャンネルの最新リリースです。",
+    "aheadOfChannel": "実行中の {{current}} は、{{channel}} チャンネルの最新リリース {{latest}} より新しいバージョンです。そのチャンネルが追いつくまで何もインストールされません。",
+    "close": "閉じる",
+    "failedTitle": "前回のアップデートが適用されませんでした",
+    "failedBody": "Kube Inspector は {{version}} のインストールを試みましたが、まだ {{current}} を実行しています。ダウンロードページから手動でインストールしてください。",
+    "failedLog": "アップデートヘルパーのログ"
   },
   "tour": {
     "welcome": {

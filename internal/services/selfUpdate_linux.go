@@ -87,3 +87,12 @@ func RunInstaller(ctx context.Context, pkgPath, kind string) (string, error) {
 
 	return RestartRelaunch, nil
 }
+
+// KeepPackageAfterInstall reports whether the installer is still reading the
+// downloaded package after RunInstaller returns.
+//
+// False here, and only here: the Linux path runs dpkg/rpm through
+// CombinedOutput and therefore waits for it, so by the time RunInstaller
+// returns the ~190 MB package is safe to delete. Windows and macOS both detach
+// their installer and are still reading it.
+func KeepPackageAfterInstall() bool { return false }

@@ -17,6 +17,11 @@ Get the package for your platform from the [Downloads](../downloads.md) page:
 | macOS (Apple Silicon) | `kube-inspector-<version>-macos-arm64.dmg` |
 | Windows | `kube-inspector-<version>-windows-amd64.exe` |
 
+!!! tip "Verify before you install"
+    Every release publishes a SHA-256 checksum beside each file. See
+    [Verifying your download](verifying-downloads.md) — it takes a few seconds
+    and the builds are unsigned, so it is the one integrity check available.
+
 !!! note "One Linux build"
     Earlier releases shipped separate packages per distribution because the app used the system WebKitGTK library, whose version differs between distros. It now bundles its own browser engine, so **a single `.deb` and a single `.rpm` work everywhere**.
 
@@ -31,7 +36,7 @@ The packages declare no dependencies. Install and run:
 
 === "RHEL / Fedora"
     ```bash
-    sudo rpm -i kube-inspector-<version>-linux-x86_64.rpm
+    sudo rpm -Uvh kube-inspector-<version>-linux-x86_64.rpm
     ```
 
 The application is installed to `/opt/kube-inspector` and linked as `/usr/bin/kube-inspector`, so you can launch it from the application menu or by running `kube-inspector`.

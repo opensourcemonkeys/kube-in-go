@@ -125,6 +125,12 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
     const downloadPercent = progress && progress.phase === 'download' ? progress.percent : 0;
     const indeterminateDownload = stage === 'downloading' && (progress?.total ?? -1) <= 0;
 
+    // This dialog is now mounted whenever a check has returned, not only when
+    // there is something to install — otherwise switching update channel, or
+    // asking Help ▸ Check for updates, produced no feedback whatsoever.
+    const failed = !!info.failedUpdateVersion;
+    const nothingToInstall = !info.available;
+
     return (
         <Dialog
             visible={visible}
@@ -138,22 +144,78 @@ export default function UpdateModal({ visible, onHide, info }: Props) {
         >
             <div className="update-modal__content">
                 <div className="update-modal__logo">
-                    {stage === 'done' ? <VscCheck className="update-modal__logo-icon" />
-                        : stage === 'error' ? <VscWarning className="update-modal__logo-icon update-modal__logo-icon--warn" />
+                    {stage === 'done' || (nothingToInstall && !failed) ? <VscCheck className="update-modal__logo-icon" />
+                        : stage === 'error' || failed ? <VscWarning className="update-modal__logo-icon update-modal__logo-icon--warn" />
                         : <VscCloudDownload className="update-modal__logo-icon" />}
                 </div>
 
                 <h2 className="update-modal__title">
-                    {stage === 'done' ? t('panels:update.titleDone') : t('panels:update.titleAvailable')}
+                    {stage === 'done' ? t('panels:update.titleDone')
+                        : failed && nothingToInstall ? t('panels:update.failedTitle')
+                        : nothingToInstall ? t('panels:update.titleUpToDate')
+                        : t('panels:update.titleAvailable')}
                 </h2>
 
-                <div className="update-modal__versions">
-                    <span className="update-modal__ver">{info.currentVersion}</span>
-                    <span className="update-modal__arrow">→</span>
-                    <span className="update-modal__ver update-modal__ver--new">{info.latestVersion}</span>
-                </div>
+                {/* Only when there is something to move to. On the stable
+                    channel latestVersion can be empty (no stable release yet) or
+                    older than what is running, and "0.16.0-beta.3 → 0.15.0"
+                    would read as an offer to downgrade. */}
+                {!nothingToInstall && (
+                    <div className="update-modal__versions">
+                        <span className="update-modal__ver">{info.currentVersion}</span>
+                        <span className="update-modal__arrow">→</span>
+                        <span className="update-modal__ver update-modal__ver--new">{info.latestVersion}</span>
+                    </div>
+                )}
 
-                {canInstall ? (
+                {nothingToInstall ? (
+                    <div className="update-modal__body">
+                        {failed ? (
+                            <>
+                                <p className="update-modal__desc">
+                                    {t('panels:update.failedBody', {
+                                        version: info.failedUpdateVersion,
+                                        current: info.currentVersion,
+                                    })}
+                                </p>
+                                {/* The macOS swap helper runs after the app has
+                                    quit, so this log is the only account of what
+                                    it did. Absent on every other platform. */}
+                                {info.failedUpdateLog && (
+                                    <details className="update-modal__log">
+                                        <summary>{t('panels:update.failedLog')}</summary>
+                                        <pre>{info.failedUpdateLog}</pre>
+                                    </details>
+                                )}
+                            </>
+                        ) : info.aheadOfChannel ? (
+                            <p className="update-modal__desc">
+                                {t('panels:update.aheadOfChannel', {
+                                    current: info.currentVersion,
+                                    latest: info.latestVersion,
+                                    channel: info.channel,
+                                })}
+                            </p>
+                        ) : (
+                            <p className="update-modal__desc">
+                                {t('panels:update.upToDate', {
+                                    version: info.currentVersion,
+                                    channel: info.channel,
+                                })}
+                            </p>
+                        )}
+                        <div className="update-modal__actions">
+                            {(failed || info.aheadOfChannel) && (
+                                <button className="update-modal__btn" onClick={() => BrowserOpenURL(info.downloadUrl)}>
+                                    {t('panels:update.openDownloads')}
+                                </button>
+                            )}
+                            <button className="update-modal__btn update-modal__btn--primary" onClick={onHide}>
+                                {t('panels:update.close')}
+                            </button>
+                        </div>
+                    </div>
+                ) : canInstall ? (
                     <>
                         <div className="update-modal__steps">
                             <div className={stepClass(1)}>

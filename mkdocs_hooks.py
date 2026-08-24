@@ -30,12 +30,18 @@ MARKER = "<!-- KI_CHANGELOG -->"
 def _app_version(config):
     """Resolve the current app version for the header chip.
 
-    Prefers the generated docs/version.json (written by `make docs-downloads`),
-    falling back to the latest git tag so a bare `mkdocs serve` still works.
+    Prefers the generated docs/version-beta.json (written by
+    `make docs-downloads`), falling back to the latest git tag so a bare
+    `mkdocs serve` still works.
+
+    version-beta.json, not version.json: the chip must show the version this
+    site was built from, and since S15 version.json is the *stable channel*
+    pointer, which deliberately lags behind on a prerelease. Reading it here
+    would stamp a beta deploy with the last stable version.
     """
     root = os.path.dirname(config["config_file_path"])
     try:
-        with open(os.path.join(root, "docs", "version.json"), "r", encoding="utf-8") as fh:
+        with open(os.path.join(root, "docs", "version-beta.json"), "r", encoding="utf-8") as fh:
             ver = json.load(fh).get("version")
             if ver:
                 return ver if ver.startswith("v") else "v" + ver

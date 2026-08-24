@@ -49,7 +49,8 @@
     "help": "Help",
     "tutorial": "Tutorial",
     "diagnostics": "Diagnostics",
-    "about": "About"
+    "about": "About",
+    "checkForUpdates": "Check for updates…"
   },
   "window": {
     "collapseSidebar": "Collapse sidebar",
@@ -60,6 +61,7 @@
     "restore": "Restore",
     "close": "Close",
     "updateAvailable": "Update available",
-    "updateTooltip": "Version {{version}} is available — click to install"
+    "updateTooltip": "Version {{version}} is available — click to install",
+    "updateFailed": "Update did not apply"
   }
 }

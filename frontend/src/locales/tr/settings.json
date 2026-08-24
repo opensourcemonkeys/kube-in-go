@@ -5,5 +5,12 @@
   "language": {
     "label": "Dil",
     "mtNote": "Makine çevirisi — hatalı bir metni bildirin"
+  },
+  "updateChannel": {
+    "label": "Güncelleme kanalı",
+    "stable": "Kararlı",
+    "beta": "Beta",
+    "betaHint": "Beta sürümleri önce gelir ve daha az kararlı olabilir.",
+    "aheadNote": "Bu kanaldakinden daha yeni bir sürüm çalıştırıyorsunuz."
   }
 }
