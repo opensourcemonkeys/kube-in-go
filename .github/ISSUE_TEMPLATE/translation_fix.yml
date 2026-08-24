@@ -1,0 +1,64 @@
+name: Translation fix
+description: A string reads wrong in your language.
+labels: ["i18n", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **German, Russian, Chinese and Japanese were translated by machine and have never been read by a fluent speaker.** If something reads wrong, that is expected — and telling us is genuinely useful.
+
+        You do not need to know the codebase. "This word is wrong, it should be X" is a complete report.
+
+        If you would rather send the fix yourself, it is a JSON value change plus one command: [Translations](https://kubeinspector.com/contributing/translations/).
+
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Language
+      options:
+        - Deutsch (de)
+        - Русский (ru)
+        - 中文 (zh)
+        - 日本語 (ja)
+        - Türkçe (tr)
+        - English (en)
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: What it says now
+      description: Copy the string as it appears, or attach a screenshot.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested
+    attributes:
+      label: What it should say
+      description: Your suggested wording. If you are unsure of the best phrasing, say what is wrong with the current one and we will work it out.
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: Where in the app?
+      description: The panel, menu or dialog it appears in.
+      placeholder: "Deployments list → ⋮ menu → Scale dialog"
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: |
+        Useful when relevant:
+        - The string is a Kubernetes term that should have stayed in English.
+        - The plural form is wrong for a particular count.
+        - A number or name is missing from the sentence (a dropped placeholder).
+        - The text is cut off or overflows its button.
+    validations:
+      required: false

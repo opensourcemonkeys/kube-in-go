@@ -3820,8 +3820,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_climode_climodeoverlay",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "climodeoverlay.tsx"
     },
     {
@@ -3831,8 +3831,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_components_climode_climodeoverlay_climodeoverlay",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "climodeoverlay()"
     },
     {
@@ -4480,8 +4480,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_daemonset_main",
-      "community": 137,
-      "community_name": "Incremental --update Flow",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "main.tsx"
     },
     {
@@ -4491,8 +4491,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_components_daemonset_main_getreadyseverity",
-      "community": 137,
-      "community_name": "Incremental --update Flow",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "getreadyseverity()"
     },
     {
@@ -4502,8 +4502,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_components_daemonset_main_getstatusseverity",
-      "community": 137,
-      "community_name": "Incremental --update Flow",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "getstatusseverity()"
     },
     {
@@ -4513,8 +4513,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_src_components_daemonset_main_defaultfilters",
-      "community": 137,
-      "community_name": "Incremental --update Flow",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "defaultfilters"
     },
     {
@@ -4524,8 +4524,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "frontend_src_components_daemonset_main_daemonsetlistcomponent",
-      "community": 137,
-      "community_name": "Incremental --update Flow",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "daemonsetlistcomponent()"
     },
     {
@@ -4535,8 +4535,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_deployment_main",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "main.tsx"
     },
     {
@@ -4546,8 +4546,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_components_deployment_main_getreplicasseverity",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "getreplicasseverity()"
     },
     {
@@ -4557,8 +4557,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_components_deployment_main_getstatusseverity",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "getstatusseverity()"
     },
     {
@@ -4568,8 +4568,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_src_components_deployment_main_defaultfilters",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "defaultfilters"
     },
     {
@@ -4579,8 +4579,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "frontend_src_components_deployment_main_deploymentlistcomponent",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "deploymentlistcomponent()"
     },
     {
@@ -4590,8 +4590,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_diagnostics_diagnosticspanel",
-      "community": 53,
-      "community_name": "Community 53",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "diagnosticspanel.tsx"
     },
     {
@@ -4601,8 +4601,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_components_diagnostics_diagnosticspanel_diagnosticspanel",
-      "community": 53,
-      "community_name": "Community 53",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "diagnosticspanel()"
     },
     {
@@ -4645,8 +4645,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_diagnostics_healthchecklist",
-      "community": 90,
-      "community_name": "Community 90",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "healthchecklist.tsx"
     },
     {
@@ -4656,8 +4656,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_src_components_diagnostics_healthchecklist_status_label",
-      "community": 90,
-      "community_name": "Community 90",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "status_label"
     },
     {
@@ -4667,8 +4667,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_components_diagnostics_healthchecklist_healthchecklist",
-      "community": 90,
-      "community_name": "Community 90",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "healthchecklist()"
     },
     {
@@ -5228,8 +5228,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_logs_logviewerpanel",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "logviewerpanel.tsx"
     },
     {
@@ -5239,8 +5239,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_components_logs_logviewerpanel_workloadkind",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "workloadkind"
     },
     {
@@ -5250,8 +5250,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_components_logs_logviewerpanel_logviewerpanelparams",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "logviewerpanelparams"
     },
     {
@@ -5261,8 +5261,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_src_components_logs_logviewerpanel_fetchpodsforkind",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "fetchpodsforkind()"
     },
     {
@@ -5272,8 +5272,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_src_components_logs_logviewerpanel_logviewerpanel",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "logviewerpanel()"
     },
     {
@@ -5283,8 +5283,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menu",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "menu.tsx"
     },
     {
@@ -5294,8 +5294,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menu_group_icons",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "group_icons"
     },
     {
@@ -5305,8 +5305,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menu_sidemenu",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "sidemenu()"
     },
     {
@@ -5316,8 +5316,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "menuitems.tsx"
     },
     {
@@ -5327,8 +5327,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_s",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "s"
     },
     {
@@ -5338,8 +5338,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_viewkey",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "viewkey"
     },
     {
@@ -5349,8 +5349,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_groupkey",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "groupkey"
     },
     {
@@ -5360,8 +5360,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_navitem",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "navitem"
     },
     {
@@ -5371,8 +5371,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_navgroup",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "navgroup"
     },
     {
@@ -5382,8 +5382,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_nav_groups",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "nav_groups"
     },
     {
@@ -5393,8 +5393,8 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "frontend_src_components_menu_menuitems_view_group",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "view_group"
     },
     {
@@ -5404,8 +5404,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "main.tsx"
     },
     {
@@ -5415,8 +5415,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_windows",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "windows"
     },
     {
@@ -5426,8 +5426,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_defaultfilters",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "defaultfilters()"
     },
     {
@@ -5437,8 +5437,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_fmttime",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "fmttime()"
     },
     {
@@ -5448,8 +5448,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_lineoptions",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "lineoptions()"
     },
     {
@@ -5459,8 +5459,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_bdrow",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "bdrow"
     },
     {
@@ -5470,8 +5470,8 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_breakdownlist",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "breakdownlist()"
     },
     {
@@ -5481,8 +5481,8 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_selected",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "selected"
     },
     {
@@ -5492,8 +5492,8 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_findusage",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "findusage()"
     },
     {
@@ -5503,8 +5503,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_podsel",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "podsel()"
     },
     {
@@ -5514,8 +5514,8 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_monitoringdashboard",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "monitoringdashboard()"
     },
     {
@@ -5525,8 +5525,8 @@
       "source_location": "L361",
       "_origin": "ast",
       "id": "frontend_src_components_monitoring_main_detaildrawer",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "detaildrawer()"
     },
     {
@@ -5811,8 +5811,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "frontend_src_components_node_main_usagechart",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "usagechart()"
     },
     {
@@ -5855,8 +5855,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_overview_main",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "main.tsx"
     },
     {
@@ -5866,8 +5866,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_src_components_overview_main_tiledef",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "tiledef"
     },
     {
@@ -5877,8 +5877,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_src_components_overview_main_tiles",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "tiles"
     },
     {
@@ -5888,8 +5888,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_src_components_overview_main_counts",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "counts"
     },
     {
@@ -5899,8 +5899,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_components_overview_main_overviewdashboard",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "overviewdashboard()"
     },
     {
@@ -5976,8 +5976,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_persistentvolumeclaim_main",
-      "community": 91,
-      "community_name": "Community 91",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "main.tsx"
     },
     {
@@ -5987,8 +5987,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_components_persistentvolumeclaim_main_tagseverity",
-      "community": 91,
-      "community_name": "Community 91",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "tagseverity"
     },
     {
@@ -5998,8 +5998,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_components_persistentvolumeclaim_main_getstatusseverity",
-      "community": 91,
-      "community_name": "Community 91",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "getstatusseverity()"
     },
     {
@@ -6009,8 +6009,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_src_components_persistentvolumeclaim_main_defaultfilters",
-      "community": 91,
-      "community_name": "Community 91",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "defaultfilters"
     },
     {
@@ -6020,8 +6020,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_components_persistentvolumeclaim_main_persistentvolumeclaimlistcomponent",
-      "community": 91,
-      "community_name": "Community 91",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "persistentvolumeclaimlistcomponent()"
     },
     {
@@ -6031,8 +6031,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_pod_podexecpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "podexecpanel.tsx"
     },
     {
@@ -6042,8 +6042,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_components_pod_podexecpanel_podexecpanelparams",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "podexecpanelparams"
     },
     {
@@ -6053,8 +6053,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_src_components_pod_podexecpanel_podexecpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "podexecpanel()"
     },
     {
@@ -6163,8 +6163,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_portforward_portforwardspanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardspanel.tsx"
     },
     {
@@ -6174,8 +6174,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_src_components_portforward_portforwardspanel_tagseverity",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "tagseverity"
     },
     {
@@ -6185,8 +6185,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_src_components_portforward_portforwardspanel_statusseverity",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "statusseverity()"
     },
     {
@@ -6196,8 +6196,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "frontend_src_components_portforward_portforwardspanel_age",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "age()"
     },
     {
@@ -6207,8 +6207,8 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "frontend_src_components_portforward_portforwardspanel_portforwardspanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardspanel()"
     },
     {
@@ -6273,8 +6273,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_resourcequota_main",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 75,
+      "community_name": "Community 75",
       "norm_label": "main.tsx"
     },
     {
@@ -6284,8 +6284,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "frontend_src_components_resourcequota_main_baroptions",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 75,
+      "community_name": "Community 75",
       "norm_label": "baroptions"
     },
     {
@@ -6295,8 +6295,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "frontend_src_components_resourcequota_main_resourcebar",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "resourcebar()"
     },
     {
@@ -6306,8 +6306,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "frontend_src_components_resourcequota_main_quotarow",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 75,
+      "community_name": "Community 75",
       "norm_label": "quotarow"
     },
     {
@@ -6317,8 +6317,8 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "frontend_src_components_resourcequota_main_namespacegroup",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 75,
+      "community_name": "Community 75",
       "norm_label": "namespacegroup"
     },
     {
@@ -7637,8 +7637,8 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "frontend_src_components_shared_panelerrorboundary_withboundary",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "withboundary()"
     },
     {
@@ -7648,8 +7648,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_shared_panelloading",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 97,
+      "community_name": "Community 97",
       "norm_label": "panelloading.tsx"
     },
     {
@@ -7659,8 +7659,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_components_shared_panelloading_panelloading",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 97,
+      "community_name": "Community 97",
       "norm_label": "panelloading()"
     },
     {
@@ -7692,8 +7692,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_shared_portforwarddialog",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "portforwarddialog.tsx"
     },
     {
@@ -7714,8 +7714,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "frontend_src_components_shared_portforwarddialog_portforwarddialog",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "portforwarddialog()"
     },
     {
@@ -7857,8 +7857,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "frontend_src_components_shared_resourcelistview_tocolumnarray",
-      "community": 14,
-      "community_name": "Resource List Components",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "tocolumnarray()"
     },
     {
@@ -8088,8 +8088,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_terminal_terminalpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "terminalpanel.tsx"
     },
     {
@@ -8099,8 +8099,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "frontend_src_components_terminal_terminalpanel_terminalpanelparams",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "terminalpanelparams"
     },
     {
@@ -8110,8 +8110,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_components_terminal_terminalpanel_terminalpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "terminalpanel()"
     },
     {
@@ -8121,8 +8121,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_portforwardpill",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardpill.tsx"
     },
     {
@@ -8132,8 +8132,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_portforwardpill_portforwardpill",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardpill()"
     },
     {
@@ -8176,8 +8176,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_updatemodal",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "updatemodal.tsx"
     },
     {
@@ -8187,8 +8187,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_updatemodal_props",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "props"
     },
     {
@@ -8198,8 +8198,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_updatemodal_updateprogress",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "updateprogress"
     },
     {
@@ -8209,8 +8209,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_updatemodal_stage",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "stage"
     },
     {
@@ -8220,8 +8220,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_updatemodal_formatbytes",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "formatbytes()"
     },
     {
@@ -8231,8 +8231,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "frontend_src_components_titlebar_updatemodal_updatemodal",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "updatemodal()"
     },
     {
@@ -8242,8 +8242,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_tour_tourcard",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "tourcard.tsx"
     },
     {
@@ -8253,8 +8253,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_src_components_tour_tourcard_tourcard",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "tourcard()"
     },
     {
@@ -8264,8 +8264,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_transfer_instancepickermenu",
-      "community": 190,
-      "community_name": "ingress.go",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instancepickermenu.tsx"
     },
     {
@@ -8275,8 +8275,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_components_transfer_instancepickermenu_tabtarget",
-      "community": 190,
-      "community_name": "ingress.go",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "tabtarget"
     },
     {
@@ -8286,8 +8286,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_src_components_transfer_instancepickermenu_props",
-      "community": 190,
-      "community_name": "ingress.go",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "props"
     },
     {
@@ -8297,8 +8297,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "frontend_src_components_transfer_instancepickermenu_icons",
-      "community": 190,
-      "community_name": "ingress.go",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "icons"
     },
     {
@@ -8308,8 +8308,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_src_components_transfer_instancepickermenu_keyof",
-      "community": 190,
-      "community_name": "ingress.go",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "keyof()"
     },
     {
@@ -8319,8 +8319,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_components_transfer_instancepickermenu_instancepickermenu",
-      "community": 190,
-      "community_name": "ingress.go",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instancepickermenu()"
     },
     {
@@ -8330,8 +8330,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_applyyamlpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "applyyamlpanel.tsx"
     },
     {
@@ -8341,8 +8341,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_applyyamlpanel_applyyamlpanelparams",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "applyyamlpanelparams"
     },
     {
@@ -8352,8 +8352,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_applyyamlpanel_applyyamlpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "applyyamlpanel()"
     },
     {
@@ -8396,8 +8396,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "dockviewcontainer.tsx"
     },
     {
@@ -8407,8 +8407,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer_rawcomponents",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "rawcomponents"
     },
     {
@@ -8418,8 +8418,8 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer_components",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "components"
     },
     {
@@ -8429,8 +8429,8 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_dockviewcontainer_dockviewcontainer",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "dockviewcontainer()"
     },
     {
@@ -8473,8 +8473,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_floatabletab",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "floatabletab.tsx"
     },
     {
@@ -8484,8 +8484,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_floatabletab_non_transferable",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "non_transferable"
     },
     {
@@ -8495,8 +8495,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_floatabletab_getcomponenttype",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "getcomponenttype()"
     },
     {
@@ -8506,8 +8506,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_floatabletab_floatabletab",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "floatabletab()"
     },
     {
@@ -8517,8 +8517,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_objectyamlpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 97,
+      "community_name": "Community 97",
       "norm_label": "objectyamlpanel.tsx"
     },
     {
@@ -8528,8 +8528,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_objectyamlpanel_objectyamlpanelparams",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 97,
+      "community_name": "Community 97",
       "norm_label": "objectyamlpanelparams"
     },
     {
@@ -8539,8 +8539,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_objectyamlpanel_objectyamlpanel",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 97,
+      "community_name": "Community 97",
       "norm_label": "objectyamlpanel()"
     },
     {
@@ -8550,8 +8550,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_tabinstancebridge",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "tabinstancebridge.tsx"
     },
     {
@@ -8561,8 +8561,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_components_workspace_tabinstancebridge_tabinstancebridge",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "tabinstancebridge()"
     },
     {
@@ -9001,8 +9001,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "clustercontext.tsx"
     },
     {
@@ -9012,8 +9012,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_clustercontextvalue",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "clustercontextvalue"
     },
     {
@@ -9023,8 +9023,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_clustercontext",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "clustercontext"
     },
     {
@@ -9034,8 +9034,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_clusterprovider",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "clusterprovider()"
     },
     {
@@ -9045,8 +9045,8 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "frontend_src_contexts_clustercontext_useclustercontext",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 90,
+      "community_name": "Community 90",
       "norm_label": "useclustercontext()"
     },
     {
@@ -9056,8 +9056,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instancecontext.tsx"
     },
     {
@@ -9067,8 +9067,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext_instanceinfo",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instanceinfo"
     },
     {
@@ -9078,8 +9078,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext_serializedpanel",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "serializedpanel"
     },
     {
@@ -9089,8 +9089,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext_instancecontextvalue",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instancecontextvalue"
     },
     {
@@ -9100,8 +9100,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext_instancecontext",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instancecontext"
     },
     {
@@ -9111,8 +9111,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext_instanceprovider",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "instanceprovider()"
     },
     {
@@ -9122,8 +9122,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "frontend_src_contexts_instancecontext_useinstancecontext",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "useinstancecontext()"
     },
     {
@@ -9144,8 +9144,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "tabcontext.tsx"
     },
     {
@@ -9155,8 +9155,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_viewicons",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "viewicons"
     },
     {
@@ -9166,8 +9166,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_paneltitleparams",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "paneltitleparams"
     },
     {
@@ -9177,8 +9177,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_renderpaneltitle",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "renderpaneltitle()"
     },
     {
@@ -9188,8 +9188,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_viewtitlekey",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "viewtitlekey()"
     },
     {
@@ -9199,8 +9199,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_tabdef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "tabdef"
     },
     {
@@ -9210,8 +9210,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_yamlpaneldef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "yamlpaneldef"
     },
     {
@@ -9221,8 +9221,8 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_logpaneldef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "logpaneldef"
     },
     {
@@ -9232,8 +9232,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_execpaneldef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "execpaneldef"
     },
     {
@@ -9243,8 +9243,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_policyviewerdef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "policyviewerdef"
     },
     {
@@ -9254,8 +9254,8 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_configmapeditordef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "configmapeditordef"
     },
     {
@@ -9265,8 +9265,8 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_secreteditordef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "secreteditordef"
     },
     {
@@ -9276,8 +9276,8 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_roleeditordef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "roleeditordef"
     },
     {
@@ -9287,8 +9287,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_rolebindingeditordef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "rolebindingeditordef"
     },
     {
@@ -9298,8 +9298,8 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_describepaneldef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "describepaneldef"
     },
     {
@@ -9309,8 +9309,8 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_objectyamldef",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "objectyamldef"
     },
     {
@@ -9320,8 +9320,8 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_receivedpanel",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "receivedpanel"
     },
     {
@@ -9331,8 +9331,8 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_tabcontextvalue",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "tabcontextvalue"
     },
     {
@@ -9342,8 +9342,8 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_positionafter",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "positionafter()"
     },
     {
@@ -9353,8 +9353,8 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_tabcontext",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "tabcontext"
     },
     {
@@ -9364,8 +9364,8 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "frontend_src_contexts_tabcontext_tabprovider",
-      "community": 20,
-      "community_name": "Tab Context & ConfigMaps",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "tabprovider()"
     },
     {
@@ -9518,8 +9518,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_i18n_uset_uset",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "uset()"
     },
     {
@@ -9529,8 +9529,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_src_i18n_uset_tfn",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "tfn"
     },
     {
@@ -9551,8 +9551,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_clipboard",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "clipboard.ts"
     },
     {
@@ -9562,8 +9562,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_lib_clipboard_execcopy",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "execcopy()"
     },
     {
@@ -9573,8 +9573,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "frontend_src_lib_clipboard_writeclipboard",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "writeclipboard()"
     },
     {
@@ -9672,8 +9672,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "crosswindowdrop.ts"
     },
     {
@@ -9683,8 +9683,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_fire",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "fire()"
     },
     {
@@ -9694,8 +9694,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_iscrosswindowdragactive",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "iscrosswindowdragactive()"
     },
     {
@@ -9705,8 +9705,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_takedroppedpanel",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "takedroppedpanel()"
     },
     {
@@ -9716,8 +9716,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_draghover",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "draghover()"
     },
     {
@@ -9727,8 +9727,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_dragleave",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "dragleave()"
     },
     {
@@ -9738,8 +9738,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_src_lib_crosswindowdrop_droppanel",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "droppanel()"
     },
     {
@@ -10189,8 +10189,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_monacotheme",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 97,
+      "community_name": "Community 97",
       "norm_label": "monacotheme.ts"
     },
     {
@@ -10266,8 +10266,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "shellwindows.ts"
     },
     {
@@ -10277,8 +10277,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_panelpayload",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "panelpayload"
     },
     {
@@ -10288,8 +10288,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_shellwindow",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "shellwindow"
     },
     {
@@ -10299,8 +10299,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_shellapi",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "shellapi"
     },
     {
@@ -10310,8 +10310,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_shell",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "shell()"
     },
     {
@@ -10321,8 +10321,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_supportswindows",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "supportswindows()"
     },
     {
@@ -10332,8 +10332,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_windowid",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "windowid()"
     },
     {
@@ -10343,8 +10343,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_isprimarywindow",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "isprimarywindow()"
     },
     {
@@ -10354,8 +10354,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_initialpanel",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "initialpanel()"
     },
     {
@@ -10365,8 +10365,8 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_startdragghost",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "startdragghost()"
     },
     {
@@ -10376,8 +10376,8 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_enddragghost",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "enddragghost()"
     },
     {
@@ -10387,8 +10387,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_ondraghover",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "ondraghover()"
     },
     {
@@ -10398,8 +10398,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_ondragleave",
-      "community": 131,
-      "community_name": "Community 131",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "ondragleave()"
     },
     {
@@ -10409,8 +10409,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_undockpanel",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "undockpanel()"
     },
     {
@@ -10420,8 +10420,8 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_sendpaneltowindow",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "sendpaneltowindow()"
     },
     {
@@ -10431,8 +10431,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_listwindows",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "listwindows()"
     },
     {
@@ -10442,8 +10442,8 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_windowatcursor",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "windowatcursor()"
     },
     {
@@ -10453,8 +10453,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_onpanelfromwindow",
-      "community": 84,
-      "community_name": "Community 84",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "onpanelfromwindow()"
     },
     {
@@ -10464,8 +10464,8 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_supportsselfrestart",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "supportsselfrestart()"
     },
     {
@@ -10475,8 +10475,8 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_relaunchapp",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "relaunchapp()"
     },
     {
@@ -10486,8 +10486,8 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "frontend_src_lib_shellwindows_quitapp",
-      "community": 165,
-      "community_name": "AppInfo",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "quitapp()"
     },
     {
@@ -10673,8 +10673,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_toursteps",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "toursteps.ts"
     },
     {
@@ -10684,8 +10684,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_lib_toursteps_buildapptour",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "buildapptour()"
     },
     {
@@ -10695,8 +10695,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_usage",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "usage.tsx"
     },
     {
@@ -10706,8 +10706,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_fmtcpu",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "fmtcpu()"
     },
     {
@@ -10717,8 +10717,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_fmtmem",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "fmtmem()"
     },
     {
@@ -10728,8 +10728,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_pct",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "pct()"
     },
     {
@@ -10739,8 +10739,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_getusagecolor",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "getusagecolor()"
     },
     {
@@ -10750,8 +10750,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_baroptions",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "baroptions"
     },
     {
@@ -10761,8 +10761,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_usagebarchart",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "usagebarchart()"
     },
     {
@@ -10772,8 +10772,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "frontend_src_lib_usage_cssbar",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "cssbar()"
     },
     {
@@ -10805,8 +10805,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_usedocumentvisible",
-      "community": 53,
-      "community_name": "Community 53",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "usedocumentvisible.ts"
     },
     {
@@ -10816,8 +10816,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_lib_usedocumentvisible_usedocumentvisible",
-      "community": 53,
-      "community_name": "Community 53",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "usedocumentvisible()"
     },
     {
@@ -10827,8 +10827,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_usepanelactive",
-      "community": 53,
-      "community_name": "Community 53",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "usepanelactive.ts"
     },
     {
@@ -10838,8 +10838,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "frontend_src_lib_usepanelactive_usepanelactive",
-      "community": 53,
-      "community_name": "Community 53",
+      "community": 94,
+      "community_name": "Community 94",
       "norm_label": "usepanelactive()"
     },
     {
@@ -10948,8 +10948,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "frontend_src_lib_useresourcelist_resourcerow",
-      "community": 14,
-      "community_name": "Resource List Components",
+      "community": 75,
+      "community_name": "Community 75",
       "norm_label": "resourcerow"
     },
     {
@@ -11036,8 +11036,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_lib_xtermtheme",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "xtermtheme.ts"
     },
     {
@@ -11047,8 +11047,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "frontend_src_lib_xtermtheme_xtermtheme",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "xtermtheme()"
     },
     {
@@ -11058,8 +11058,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "frontend_src_lib_xtermtheme_usextermtheme",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 20,
+      "community_name": "Tab Context & ConfigMaps",
       "norm_label": "usextermtheme()"
     },
     {
@@ -11124,8 +11124,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_pages_info_info",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "info.tsx"
     },
     {
@@ -11135,8 +11135,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_src_pages_info_info_app",
-      "community": 75,
-      "community_name": "Community 75",
+      "community": 14,
+      "community_name": "Resource List Components",
       "norm_label": "app()"
     },
     {
@@ -11146,8 +11146,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_pages_main_appmain",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "appmain.tsx"
     },
     {
@@ -11157,8 +11157,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "frontend_src_pages_main_appmain_appmain",
-      "community": 215,
-      "community_name": ".GetInstances",
+      "community": 113,
+      "community_name": "Community 113",
       "norm_label": "appmain()"
     },
     {
@@ -11542,8 +11542,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "metricsstore.ts"
     },
     {
@@ -11553,8 +11553,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_clusterpoint",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "clusterpoint"
     },
     {
@@ -11564,8 +11564,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_entitypoint",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "entitypoint"
     },
     {
@@ -11575,8 +11575,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_metricstabstate",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "metricstabstate"
     },
     {
@@ -11586,8 +11586,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_emptytab",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "emptytab()"
     },
     {
@@ -11597,8 +11597,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_cap",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "cap()"
     },
     {
@@ -11608,8 +11608,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_metricsstore",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "metricsstore"
     },
     {
@@ -11619,8 +11619,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "frontend_src_stores_metricsstore_usemetricsstore",
-      "community": 2,
-      "community_name": "AI Assistant Agent Loop",
+      "community": 9,
+      "community_name": "Monitoring & Overview Dashboards",
       "norm_label": "usemetricsstore"
     },
     {
@@ -11630,8 +11630,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_test",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardstore.test.ts"
     },
     {
@@ -11641,8 +11641,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_test_listmock",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "listmock"
     },
     {
@@ -11652,8 +11652,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_test_forward",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "forward()"
     },
     {
@@ -11663,8 +11663,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardstore.ts"
     },
     {
@@ -11674,8 +11674,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_portforward",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforward"
     },
     {
@@ -11685,8 +11685,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_portforwardstore",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "portforwardstore"
     },
     {
@@ -11696,8 +11696,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_useportforwardstore",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "useportforwardstore"
     },
     {
@@ -11707,8 +11707,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_iswebforward",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "iswebforward()"
     },
     {
@@ -11718,8 +11718,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_forwardurl",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "forwardurl()"
     },
     {
@@ -11729,8 +11729,8 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "frontend_src_stores_portforwardstore_forwardaddress",
-      "community": 6,
-      "community_name": "YAML Editor & Policy Panels",
+      "community": 2,
+      "community_name": "AI Assistant Agent Loop",
       "norm_label": "forwardaddress()"
     },
     {
@@ -11770,7 +11770,7 @@
       "label": "applyTheme()",
       "file_type": "code",
       "source_file": "frontend/src/stores/themeStore.ts",
-      "source_location": "L17",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_stores_themestore_applytheme",
       "community": 90,
@@ -11778,10 +11778,21 @@
       "norm_label": "applytheme()"
     },
     {
+      "label": "coerceTheme()",
+      "file_type": "code",
+      "source_file": "frontend/src/stores/themeStore.ts",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "frontend_src_stores_themestore_coercetheme",
+      "community": 90,
+      "community_name": "Community 90",
+      "norm_label": "coercetheme()"
+    },
+    {
       "label": "ThemeStore",
       "file_type": "code",
       "source_file": "frontend/src/stores/themeStore.ts",
-      "source_location": "L33",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "frontend_src_stores_themestore_themestore",
       "community": 90,
@@ -11792,7 +11803,7 @@
       "label": "useThemeStore",
       "file_type": "code",
       "source_file": "frontend/src/stores/themeStore.ts",
-      "source_location": "L38",
+      "source_location": "L44",
       "_origin": "ast",
       "id": "frontend_src_stores_themestore_usethemestore",
       "community": 90,
@@ -12556,8 +12567,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_ai_tools",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 173,
+      "community_name": "networkPolicy.go",
       "norm_label": "tools.go"
     },
     {
@@ -12567,8 +12578,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "ai_tool",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 173,
+      "community_name": "networkPolicy.go",
       "norm_label": "tool"
     },
     {
@@ -12578,8 +12589,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "internal_ai_tools_toapitool",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 173,
+      "community_name": "networkPolicy.go",
       "norm_label": "toapitool()"
     },
     {
@@ -12589,8 +12600,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "internal_ai_tools_buildapitools",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 173,
+      "community_name": "networkPolicy.go",
       "norm_label": "buildapitools()"
     },
     {
@@ -12600,8 +12611,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "tools",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 173,
+      "community_name": "networkPolicy.go",
       "norm_label": "tools"
     },
     {
@@ -12765,8 +12776,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_appinfo",
-      "community": 184,
-      "community_name": "AppInfo",
+      "community": 150,
+      "community_name": "runChecks",
       "norm_label": "appinfo.go"
     },
     {
@@ -12776,8 +12787,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "internal_business_appinfo_getappinfo",
-      "community": 184,
-      "community_name": "AppInfo",
+      "community": 150,
+      "community_name": "runChecks",
       "norm_label": "getappinfo()"
     },
     {
@@ -12787,8 +12798,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_applyyaml",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 140,
+      "community_name": "messages.go",
       "norm_label": "applyyaml.go"
     },
     {
@@ -12798,8 +12809,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "internal_business_applyyaml_applyyaml",
-      "community": 49,
-      "community_name": "Community 49",
+      "community": 140,
+      "community_name": "messages.go",
       "norm_label": "applyyaml()"
     },
     {
@@ -12864,8 +12875,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_cluster",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "cluster.go"
     },
     {
@@ -12875,8 +12886,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "internal_business_cluster_init",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "init()"
     },
     {
@@ -12897,8 +12908,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "internal_business_cluster_listclusters",
-      "community": 102,
-      "community_name": "Community 102",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "listclusters()"
     },
     {
@@ -12908,8 +12919,8 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "internal_business_cluster_clusterfile",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "clusterfile()"
     },
     {
@@ -12919,8 +12930,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "internal_business_cluster_savecluster",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "savecluster()"
     },
     {
@@ -12930,8 +12941,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "internal_business_cluster_getclustercontent",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "getclustercontent()"
     },
     {
@@ -12941,8 +12952,8 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "internal_business_cluster_deletecluster",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "deletecluster()"
     },
     {
@@ -12952,8 +12963,8 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "internal_business_cluster_setactivecluster",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "setactivecluster()"
     },
     {
@@ -12963,8 +12974,8 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "internal_business_cluster_getactivecluster",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "getactivecluster()"
     },
     {
@@ -12974,8 +12985,8 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "internal_business_cluster_checkclusterconnection",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "checkclusterconnection()"
     },
     {
@@ -12985,8 +12996,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_clustercounts",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 177,
+      "community_name": "build_merge Replace-on-Re-extract",
       "norm_label": "clustercounts.go"
     },
     {
@@ -12996,8 +13007,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "internal_business_clustercounts_getclustercounts",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 177,
+      "community_name": "build_merge Replace-on-Re-extract",
       "norm_label": "getclustercounts()"
     },
     {
@@ -13161,8 +13172,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_cronjob",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 190,
+      "community_name": "ingress.go",
       "norm_label": "cronjob.go"
     },
     {
@@ -13183,8 +13194,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_cronjob_deletecronjob",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 190,
+      "community_name": "ingress.go",
       "norm_label": "deletecronjob()"
     },
     {
@@ -13194,8 +13205,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_cronjob_getcronjobyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 190,
+      "community_name": "ingress.go",
       "norm_label": "getcronjobyaml()"
     },
     {
@@ -13205,8 +13216,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_cronjob_updatecronjobyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 190,
+      "community_name": "ingress.go",
       "norm_label": "updatecronjobyaml()"
     },
     {
@@ -13227,8 +13238,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_daemonset_getdaemonsets",
-      "community": 54,
-      "community_name": "Community 54",
+      "community": 220,
+      "community_name": "daemonSet.go",
       "norm_label": "getdaemonsets()"
     },
     {
@@ -13326,8 +13337,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_diagnostics",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "diagnostics.go"
     },
     {
@@ -13337,8 +13348,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "internal_business_diagnostics_getdiagnostics",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "getdiagnostics()"
     },
     {
@@ -13348,8 +13359,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "internal_business_diagnostics_logfileinfos",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "logfileinfos()"
     },
     {
@@ -13359,8 +13370,8 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "internal_business_diagnostics_osrelease",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "osrelease()"
     },
     {
@@ -13370,8 +13381,8 @@
       "source_location": "L115",
       "_origin": "ast",
       "id": "internal_business_diagnostics_taillogs",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 144,
+      "community_name": "Community 144",
       "norm_label": "taillogs()"
     },
     {
@@ -13381,8 +13392,8 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "internal_business_diagnostics_tologentry",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 144,
+      "community_name": "Community 144",
       "norm_label": "tologentry()"
     },
     {
@@ -13392,8 +13403,8 @@
       "source_location": "L165",
       "_origin": "ast",
       "id": "internal_business_diagnostics_setloglevel",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "setloglevel()"
     },
     {
@@ -13403,8 +13414,8 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "internal_business_diagnostics_getloglevel",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "getloglevel()"
     },
     {
@@ -13414,8 +13425,8 @@
       "source_location": "L167",
       "_origin": "ast",
       "id": "internal_business_diagnostics_logdir",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 108,
+      "community_name": "Community 108",
       "norm_label": "logdir()"
     },
     {
@@ -13447,8 +13458,8 @@
       "source_location": "L193",
       "_origin": "ast",
       "id": "internal_business_diagnostics_runhealthchecks",
-      "community": 151,
-      "community_name": "LogViewerPanel.tsx",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "runhealthchecks()"
     },
     {
@@ -13458,8 +13469,8 @@
       "source_location": "L197",
       "_origin": "ast",
       "id": "internal_business_diagnostics_runchecks",
-      "community": 151,
-      "community_name": "LogViewerPanel.tsx",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "runchecks()"
     },
     {
@@ -13491,8 +13502,8 @@
       "source_location": "L272",
       "_origin": "ast",
       "id": "internal_business_diagnostics_checklogsize",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "checklogsize()"
     },
     {
@@ -13513,8 +13524,8 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "internal_business_diagnostics_checktrivydb",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "checktrivydb()"
     },
     {
@@ -13568,8 +13579,8 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "internal_business_diagnostics_humanbytes",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "humanbytes()"
     },
     {
@@ -13579,8 +13590,8 @@
       "source_location": "L400",
       "_origin": "ast",
       "id": "internal_business_diagnostics_renderdiagnosticstext",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "renderdiagnosticstext()"
     },
     {
@@ -13590,8 +13601,8 @@
       "source_location": "L450",
       "_origin": "ast",
       "id": "internal_business_diagnostics_ordash",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "ordash()"
     },
     {
@@ -13601,8 +13612,8 @@
       "source_location": "L462",
       "_origin": "ast",
       "id": "internal_business_diagnostics_exportdiagnosticszip",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "exportdiagnosticszip()"
     },
     {
@@ -13612,8 +13623,8 @@
       "source_location": "L517",
       "_origin": "ast",
       "id": "internal_business_diagnostics_addziptext",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "addziptext()"
     },
     {
@@ -13623,8 +13634,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_business_diagnostics_go_writer",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "writer"
     },
     {
@@ -13634,8 +13645,8 @@
       "source_location": "L532",
       "_origin": "ast",
       "id": "internal_business_diagnostics_addziplogfile",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "addziplogfile()"
     },
     {
@@ -13788,8 +13799,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_event",
-      "community": 72,
-      "community_name": "Community 72",
+      "community": 49,
+      "community_name": "Community 49",
       "norm_label": "event.go"
     },
     {
@@ -13799,8 +13810,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_event_getevents",
-      "community": 72,
-      "community_name": "Community 72",
+      "community": 49,
+      "community_name": "Community 49",
       "norm_label": "getevents()"
     },
     {
@@ -13810,8 +13821,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_ingress",
-      "community": 245,
-      "community_name": "ingress.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "ingress.go"
     },
     {
@@ -13821,8 +13832,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_ingress_getingresses",
-      "community": 245,
-      "community_name": "ingress.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getingresses()"
     },
     {
@@ -13832,8 +13843,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_ingress_deleteingress",
-      "community": 245,
-      "community_name": "ingress.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deleteingress()"
     },
     {
@@ -13843,8 +13854,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_ingress_getingressyaml",
-      "community": 245,
-      "community_name": "ingress.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getingressyaml()"
     },
     {
@@ -13854,8 +13865,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_ingress_updateingressyaml",
-      "community": 245,
-      "community_name": "ingress.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updateingressyaml()"
     },
     {
@@ -13865,8 +13876,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_ingressclass",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 215,
+      "community_name": ".GetInstances",
       "norm_label": "ingressclass.go"
     },
     {
@@ -13876,8 +13887,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_ingressclass_getingressclasses",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 215,
+      "community_name": ".GetInstances",
       "norm_label": "getingressclasses()"
     },
     {
@@ -13887,8 +13898,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_ingressclass_updateingressclassyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 215,
+      "community_name": ".GetInstances",
       "norm_label": "updateingressclassyaml()"
     },
     {
@@ -13898,8 +13909,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_ingressclass_getingressclassyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 215,
+      "community_name": ".GetInstances",
       "norm_label": "getingressclassyaml()"
     },
     {
@@ -13964,8 +13975,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_limitrange",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 183,
+      "community_name": "main.tsx",
       "norm_label": "limitrange.go"
     },
     {
@@ -13975,8 +13986,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_limitrange_getlimitranges",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 183,
+      "community_name": "main.tsx",
       "norm_label": "getlimitranges()"
     },
     {
@@ -13986,8 +13997,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_limitrange_deletelimitrange",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 183,
+      "community_name": "main.tsx",
       "norm_label": "deletelimitrange()"
     },
     {
@@ -13997,8 +14008,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_limitrange_getlimitrangeyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 183,
+      "community_name": "main.tsx",
       "norm_label": "getlimitrangeyaml()"
     },
     {
@@ -14008,8 +14019,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_limitrange_updatelimitrangeyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 183,
+      "community_name": "main.tsx",
       "norm_label": "updatelimitrangeyaml()"
     },
     {
@@ -14140,8 +14151,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_metrics",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 186,
+      "community_name": "ingressClass.go",
       "norm_label": "metrics.go"
     },
     {
@@ -14151,8 +14162,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_metrics_getmetricssnapshot",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 186,
+      "community_name": "ingressClass.go",
       "norm_label": "getmetricssnapshot()"
     },
     {
@@ -14162,8 +14173,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_namespace",
-      "community": 97,
-      "community_name": "Community 97",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "namespace.go"
     },
     {
@@ -14173,8 +14184,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_namespace_createnamespace",
-      "community": 97,
-      "community_name": "Community 97",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "createnamespace()"
     },
     {
@@ -14184,8 +14195,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "internal_business_namespace_deletenamespace",
-      "community": 97,
-      "community_name": "Community 97",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deletenamespace()"
     },
     {
@@ -14195,8 +14206,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "internal_business_namespace_getnamespaceyaml",
-      "community": 97,
-      "community_name": "Community 97",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getnamespaceyaml()"
     },
     {
@@ -14206,8 +14217,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "internal_business_namespace_getnamespaces",
-      "community": 97,
-      "community_name": "Community 97",
+      "community": 81,
+      "community_name": "Community 81",
       "norm_label": "getnamespaces()"
     },
     {
@@ -14217,8 +14228,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_networkpolicy",
-      "community": 12,
-      "community_name": "Network Policy Stack",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "networkpolicy.go"
     },
     {
@@ -14239,8 +14250,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_deletenetworkpolicy",
-      "community": 12,
-      "community_name": "Network Policy Stack",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "deletenetworkpolicy()"
     },
     {
@@ -14250,8 +14261,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_getnetworkpolicyyaml",
-      "community": 12,
-      "community_name": "Network Policy Stack",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "getnetworkpolicyyaml()"
     },
     {
@@ -14261,8 +14272,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_updatenetworkpolicyyaml",
-      "community": 12,
-      "community_name": "Network Policy Stack",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "updatenetworkpolicyyaml()"
     },
     {
@@ -14272,8 +14283,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_parsenetworkpolicyyaml",
-      "community": 12,
-      "community_name": "Network Policy Stack",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "parsenetworkpolicyyaml()"
     },
     {
@@ -14283,8 +14294,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "internal_business_networkpolicy_getnetworkpolicydetail",
-      "community": 12,
-      "community_name": "Network Policy Stack",
+      "community": 131,
+      "community_name": "Community 131",
       "norm_label": "getnetworkpolicydetail()"
     },
     {
@@ -14294,8 +14305,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_node",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 137,
+      "community_name": "Incremental --update Flow",
       "norm_label": "node.go"
     },
     {
@@ -14305,8 +14316,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "internal_business_node_getnodeyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 137,
+      "community_name": "Incremental --update Flow",
       "norm_label": "getnodeyaml()"
     },
     {
@@ -14316,8 +14327,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "internal_business_node_updatenodeyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 137,
+      "community_name": "Incremental --update Flow",
       "norm_label": "updatenodeyaml()"
     },
     {
@@ -14327,8 +14338,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "internal_business_node_cordonnode",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 137,
+      "community_name": "Incremental --update Flow",
       "norm_label": "cordonnode()"
     },
     {
@@ -14338,8 +14349,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "internal_business_node_uncordonnode",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 137,
+      "community_name": "Incremental --update Flow",
       "norm_label": "uncordonnode()"
     },
     {
@@ -14349,8 +14360,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "internal_business_node_drainnode",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 137,
+      "community_name": "Incremental --update Flow",
       "norm_label": "drainnode()"
     },
     {
@@ -14437,8 +14448,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_persistentvolume",
-      "community": 221,
-      "community_name": "persistentVolume.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "persistentvolume.go"
     },
     {
@@ -14448,8 +14459,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_persistentvolume_getpersistentvolumes",
-      "community": 221,
-      "community_name": "persistentVolume.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getpersistentvolumes()"
     },
     {
@@ -14459,8 +14470,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_persistentvolume_updatepersistentvolumeyaml",
-      "community": 221,
-      "community_name": "persistentVolume.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updatepersistentvolumeyaml()"
     },
     {
@@ -14470,8 +14481,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_persistentvolume_getpersistentvolumeyaml",
-      "community": 221,
-      "community_name": "persistentVolume.go",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getpersistentvolumeyaml()"
     },
     {
@@ -14723,8 +14734,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "internal_business_redact_redact",
-      "community": 102,
-      "community_name": "Community 102",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "redact()"
     },
     {
@@ -14899,8 +14910,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_replicaset",
-      "community": 65,
-      "community_name": "Community 65",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "replicaset.go"
     },
     {
@@ -14921,8 +14932,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_replicaset_deletereplicaset",
-      "community": 65,
-      "community_name": "Community 65",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deletereplicaset()"
     },
     {
@@ -14932,8 +14943,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_replicaset_getreplicasetyaml",
-      "community": 65,
-      "community_name": "Community 65",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getreplicasetyaml()"
     },
     {
@@ -14943,8 +14954,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_replicaset_updatereplicasetyaml",
-      "community": 65,
-      "community_name": "Community 65",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updatereplicasetyaml()"
     },
     {
@@ -15383,8 +15394,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_service",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 184,
+      "community_name": "AppInfo",
       "norm_label": "service.go"
     },
     {
@@ -15394,8 +15405,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_service_getservices",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 184,
+      "community_name": "AppInfo",
       "norm_label": "getservices()"
     },
     {
@@ -15405,8 +15416,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_service_deleteservice",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 184,
+      "community_name": "AppInfo",
       "norm_label": "deleteservice()"
     },
     {
@@ -15416,8 +15427,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_service_getserviceyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 184,
+      "community_name": "AppInfo",
       "norm_label": "getserviceyaml()"
     },
     {
@@ -15427,8 +15438,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_service_updateserviceyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 184,
+      "community_name": "AppInfo",
       "norm_label": "updateserviceyaml()"
     },
     {
@@ -15438,8 +15449,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_serviceaccount",
-      "community": 183,
-      "community_name": "main.tsx",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "serviceaccount.go"
     },
     {
@@ -15460,8 +15471,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_getserviceaccountyaml",
-      "community": 183,
-      "community_name": "main.tsx",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getserviceaccountyaml()"
     },
     {
@@ -15471,8 +15482,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_updateserviceaccountyaml",
-      "community": 183,
-      "community_name": "main.tsx",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updateserviceaccountyaml()"
     },
     {
@@ -15482,8 +15493,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_deleteserviceaccount",
-      "community": 183,
-      "community_name": "main.tsx",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deleteserviceaccount()"
     },
     {
@@ -15493,8 +15504,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "internal_business_serviceaccount_updateserviceaccount",
-      "community": 183,
-      "community_name": "main.tsx",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updateserviceaccount()"
     },
     {
@@ -15537,8 +15548,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_statefulset",
-      "community": 58,
-      "community_name": "Community 58",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "statefulset.go"
     },
     {
@@ -15559,8 +15570,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_statefulset_deletestatefulset",
-      "community": 58,
-      "community_name": "Community 58",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "deletestatefulset()"
     },
     {
@@ -15570,8 +15581,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_statefulset_getstatefulsetyaml",
-      "community": 58,
-      "community_name": "Community 58",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "getstatefulsetyaml()"
     },
     {
@@ -15581,8 +15592,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "internal_business_statefulset_updatestatefulsetyaml",
-      "community": 58,
-      "community_name": "Community 58",
+      "community": 25,
+      "community_name": "Log Streaming Business Layer",
       "norm_label": "updatestatefulsetyaml()"
     },
     {
@@ -15592,8 +15603,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_business_storageclass",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 221,
+      "community_name": "persistentVolume.go",
       "norm_label": "storageclass.go"
     },
     {
@@ -15603,8 +15614,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "internal_business_storageclass_getstorageclasses",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 221,
+      "community_name": "persistentVolume.go",
       "norm_label": "getstorageclasses()"
     },
     {
@@ -15614,8 +15625,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "internal_business_storageclass_updatestorageclassyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 221,
+      "community_name": "persistentVolume.go",
       "norm_label": "updatestorageclassyaml()"
     },
     {
@@ -15625,8 +15636,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "internal_business_storageclass_getstorageclassyaml",
-      "community": 25,
-      "community_name": "Log Streaming Business Layer",
+      "community": 221,
+      "community_name": "persistentVolume.go",
       "norm_label": "getstorageclassyaml()"
     },
     {
@@ -16362,8 +16373,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "controller_app_getappinfo",
-      "community": 184,
-      "community_name": "AppInfo",
+      "community": 150,
+      "community_name": "runChecks",
       "norm_label": ".getappinfo()"
     },
     {
@@ -16461,8 +16472,8 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "controller_app_getclustercounts",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 177,
+      "community_name": "build_merge Replace-on-Re-extract",
       "norm_label": ".getclustercounts()"
     },
     {
@@ -18331,8 +18342,8 @@
       "source_location": "L1016",
       "_origin": "ast",
       "id": "controller_app_startaichat",
-      "community": 87,
-      "community_name": "Community 87",
+      "community": 140,
+      "community_name": "messages.go",
       "norm_label": ".startaichat()"
     },
     {
@@ -18408,8 +18419,8 @@
       "source_location": "L1159",
       "_origin": "ast",
       "id": "controller_app_taillogs",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 144,
+      "community_name": "Community 144",
       "norm_label": ".taillogs()"
     },
     {
@@ -18441,8 +18452,8 @@
       "source_location": "L1170",
       "_origin": "ast",
       "id": "controller_app_getlogdir",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 108,
+      "community_name": "Community 108",
       "norm_label": ".getlogdir()"
     },
     {
@@ -18969,8 +18980,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "internal_controller_sessions_newcancelregistry",
-      "community": 140,
-      "community_name": "messages.go",
+      "community": 165,
+      "community_name": "AppInfo",
       "norm_label": "newcancelregistry()"
     },
     {
@@ -19024,8 +19035,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_controller_sessions_test",
-      "community": 140,
-      "community_name": "messages.go",
+      "community": 165,
+      "community_name": "AppInfo",
       "norm_label": "sessions_test.go"
     },
     {
@@ -19035,8 +19046,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "internal_controller_sessions_test_testcancelregistrydonekeepsnewersession",
-      "community": 140,
-      "community_name": "messages.go",
+      "community": 165,
+      "community_name": "AppInfo",
       "norm_label": "testcancelregistrydonekeepsnewersession()"
     },
     {
@@ -19046,8 +19057,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_controller_sessions_test_go_t",
-      "community": 140,
-      "community_name": "messages.go",
+      "community": 165,
+      "community_name": "AppInfo",
       "norm_label": "t"
     },
     {
@@ -19057,8 +19068,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "internal_controller_sessions_test_testcancelregistrycancelunknownkeyisnoop",
-      "community": 140,
-      "community_name": "messages.go",
+      "community": 165,
+      "community_name": "AppInfo",
       "norm_label": "testcancelregistrycancelunknownkeyisnoop()"
     },
     {
@@ -19068,8 +19079,8 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "internal_controller_sessions_test_testcancelregistryconcurrentrestarts",
-      "community": 140,
-      "community_name": "messages.go",
+      "community": 165,
+      "community_name": "AppInfo",
       "norm_label": "testcancelregistryconcurrentrestarts()"
     },
     {
@@ -20300,8 +20311,8 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "internal_logging_logging_l",
-      "community": 110,
-      "community_name": "Community 110",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "l()"
     },
     {
@@ -20311,8 +20322,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "logger",
-      "community": 110,
-      "community_name": "Community 110",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "logger"
     },
     {
@@ -20322,8 +20333,8 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "internal_logging_logging_with",
-      "community": 110,
-      "community_name": "Community 110",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "with()"
     },
     {
@@ -20443,8 +20454,8 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "internal_logging_logging_files",
-      "community": 108,
-      "community_name": "Community 108",
+      "community": 88,
+      "community_name": "Community 88",
       "norm_label": "files()"
     },
     {
@@ -20685,8 +20696,8 @@
       "source_location": "L544",
       "_origin": "ast",
       "id": "internal_logging_logging_test_testnoopbeforeinit",
-      "community": 110,
-      "community_name": "Community 110",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "testnoopbeforeinit()"
     },
     {
@@ -20696,8 +20707,8 @@
       "source_location": "L581",
       "_origin": "ast",
       "id": "internal_logging_logging_test_testtailfilters",
-      "community": 144,
-      "community_name": "Community 144",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "testtailfilters()"
     },
     {
@@ -21037,8 +21048,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_models_appinfo",
-      "community": 184,
-      "community_name": "AppInfo",
+      "community": 150,
+      "community_name": "runChecks",
       "norm_label": "appinfo.go"
     },
     {
@@ -21048,8 +21059,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "models_dependencyinfo",
-      "community": 184,
-      "community_name": "AppInfo",
+      "community": 150,
+      "community_name": "runChecks",
       "norm_label": "dependencyinfo"
     },
     {
@@ -21059,8 +21070,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "models_appinfo",
-      "community": 184,
-      "community_name": "AppInfo",
+      "community": 150,
+      "community_name": "runChecks",
       "norm_label": "appinfo"
     },
     {
@@ -21070,8 +21081,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_models_clustercountsinfo",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 177,
+      "community_name": "build_merge Replace-on-Re-extract",
       "norm_label": "clustercountsinfo.go"
     },
     {
@@ -21081,8 +21092,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "models_clustercounts",
-      "community": 111,
-      "community_name": "Community 111",
+      "community": 177,
+      "community_name": "build_merge Replace-on-Re-extract",
       "norm_label": "clustercounts"
     },
     {
@@ -21312,8 +21323,8 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "models_logentry",
-      "community": 42,
-      "community_name": "Community 42",
+      "community": 144,
+      "community_name": "Community 144",
       "norm_label": "logentry"
     },
     {
@@ -22302,8 +22313,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_validateclustername",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 231,
+      "community_name": "TestClusterConfigPath",
       "norm_label": "validateclustername()"
     },
     {
@@ -22313,8 +22324,8 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_clusterconfigpath",
-      "community": 1,
-      "community_name": "Cluster & CRD Business Layer",
+      "community": 231,
+      "community_name": "TestClusterConfigPath",
       "norm_label": "clusterconfigpath()"
     },
     {
@@ -22346,8 +22357,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "internal_repository_k8sclient_setactivekubeconfig",
-      "community": 173,
-      "community_name": "networkPolicy.go",
+      "community": 35,
+      "community_name": "Multi-Instance Tab Transfer",
       "norm_label": "setactivekubeconfig()"
     },
     {
@@ -26009,8 +26020,8 @@
       "source_location": "L548",
       "_origin": "ast",
       "id": "services_pflogwriter",
-      "community": 110,
-      "community_name": "Community 110",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": "pflogwriter"
     },
     {
@@ -26020,8 +26031,8 @@
       "source_location": "L550",
       "_origin": "ast",
       "id": "services_pflogwriter_write",
-      "community": 110,
-      "community_name": "Community 110",
+      "community": 21,
+      "community_name": "CRD List & Shared List View",
       "norm_label": ".write()"
     },
     {
@@ -29254,8 +29265,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_tui_clusters",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": "clusters.go"
     },
     {
@@ -29265,8 +29276,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "internal_tui_clusters_go_tui_app",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": "app"
     },
     {
@@ -29276,8 +29287,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tui_app_showclusters",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": ".showclusters()"
     },
     {
@@ -29287,8 +29298,8 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "tui_app_showaddcluster",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": ".showaddcluster()"
     },
     {
@@ -29298,8 +29309,8 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "internal_tui_clusters_expandhome",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": "expandhome()"
     },
     {
@@ -29309,8 +29320,8 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "internal_tui_clusters_headercell",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": "headercell()"
     },
     {
@@ -29320,8 +29331,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "tablecell",
-      "community": 115,
-      "community_name": "Community 115",
+      "community": 84,
+      "community_name": "Community 84",
       "norm_label": "tablecell"
     },
     {
@@ -29826,8 +29837,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "internal_tui_monitoring_go_tui_app",
-      "community": 52,
-      "community_name": "Community 52",
+      "community": 11,
+      "community_name": "TUI Describe & Metrics Render",
       "norm_label": "app"
     },
     {
@@ -29837,8 +29848,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tui_app_loadmonitoring",
-      "community": 52,
-      "community_name": "Community 52",
+      "community": 11,
+      "community_name": "TUI Describe & Metrics Render",
       "norm_label": ".loadmonitoring()"
     },
     {
@@ -30189,8 +30200,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_tui_run",
-      "community": 123,
-      "community_name": "Community 123",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "run.go"
     },
     {
@@ -30200,8 +30211,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "internal_tui_run_run",
-      "community": 123,
-      "community_name": "Community 123",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "run()"
     },
     {
@@ -30211,8 +30222,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_tui_run_go_context",
-      "community": 123,
-      "community_name": "Community 123",
+      "community": 115,
+      "community_name": "Community 115",
       "norm_label": "context"
     },
     {
@@ -33314,9 +33325,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 95,
       "norm_label": "services layer (kubernetes api calls)",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 95",
       "id": "claude_services_layer"
     },
     {
@@ -33343,9 +33354,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 95,
       "norm_label": "models layer (frontend serialization structs)",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 95",
       "id": "claude_models_layer"
     },
     {
@@ -33894,9 +33905,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 95,
       "norm_label": "frontend/dist/.gitkeep embed bootstrap cycle",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 95",
       "id": "claude_frontend_dist_gitkeep"
     },
     {
@@ -33908,9 +33919,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 95,
       "norm_label": "generated wails typescript bindings",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 95",
       "id": "claude_wails_bindings"
     },
     {
@@ -34028,9 +34039,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "graphify knowledge graph integration (project rules)",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "claude_graphify_integration"
     },
     {
@@ -34042,9 +34053,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "graphify skill trigger declaration",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "_claude_claude_graphify_trigger"
     },
     {
@@ -34132,9 +34143,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 36,
       "norm_label": "semantic extraction cache",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 36",
       "id": "_claude_skills_graphify_skill_extraction_cache"
     },
     {
@@ -34146,9 +34157,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "community detection and cohesion scoring",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_skill_community_clustering"
     },
     {
@@ -34161,9 +34172,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "god nodes and surprising connections",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_skill_god_nodes"
     },
     {
@@ -34266,9 +34277,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 36,
       "norm_label": "verbatim source_file rule",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 36",
       "id": "_claude_skills_graphify_references_extraction_spec_source_file_rule"
     },
     {
@@ -34444,9 +34455,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 42,
       "norm_label": "incremental --update flow",
-      "community_name": "Community 50",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_update_incremental_update"
     },
     {
@@ -34459,9 +34470,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 177,
+      "community": 36,
       "norm_label": "build_merge replace-on-re-extract",
-      "community_name": "build_merge Replace-on-Re-extract",
+      "community_name": "Community 36",
       "id": "_claude_skills_graphify_references_update_build_merge"
     },
     {
@@ -34474,9 +34485,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 107,
       "norm_label": "code-only update fast path",
-      "community_name": "Community 50",
+      "community_name": "Community 107",
       "id": "_claude_skills_graphify_references_update_code_only_fast_path"
     },
     {
@@ -34489,9 +34500,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "--cluster-only reclustering",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_update_cluster_only"
     },
     {
@@ -34504,9 +34515,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 42,
       "norm_label": "portable relative manifest",
-      "community_name": "Community 50",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_update_manifest"
     },
     {
@@ -34549,9 +34560,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "agent-crawlable wiki export",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_exports_wiki_export"
     },
     {
@@ -34594,9 +34605,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 107,
       "norm_label": "post-commit auto-rebuild hook",
-      "community_name": "Community 50",
+      "community_name": "Community 107",
       "id": "_claude_skills_graphify_references_hooks_post_commit_hook"
     },
     {
@@ -34609,9 +34620,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 36,
+      "community": 42,
       "norm_label": "native claude.md integration",
-      "community_name": "Community 36",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_hooks_claude_md_integration"
     },
     {
@@ -34624,9 +34635,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 42,
       "norm_label": "url ingest (/graphify add)",
-      "community_name": "Community 50",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_add_watch_url_ingest"
     },
     {
@@ -34639,9 +34650,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 107,
       "norm_label": "folder watcher (--watch)",
-      "community_name": "Community 50",
+      "community_name": "Community 107",
       "id": "_claude_skills_graphify_references_add_watch_folder_watcher"
     },
     {
@@ -34654,9 +34665,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 50,
+      "community": 42,
       "norm_label": "whisper video/audio transcription",
-      "community_name": "Community 50",
+      "community_name": "Community 42",
       "id": "_claude_skills_graphify_references_transcribe_whisper_transcription"
     },
     {
@@ -59252,11 +59263,22 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/stores/themeStore.ts",
-      "source_location": "L17",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast",
       "source": "frontend_src_stores_themestore",
       "target": "frontend_src_stores_themestore_applytheme",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/stores/themeStore.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "frontend_src_stores_themestore",
+      "target": "frontend_src_stores_themestore_coercetheme",
       "confidence_score": 1.0
     },
     {
@@ -59285,7 +59307,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/stores/themeStore.ts",
-      "source_location": "L33",
+      "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
       "source": "frontend_src_stores_themestore",
@@ -59296,12 +59318,24 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/stores/themeStore.ts",
-      "source_location": "L38",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast",
       "source": "frontend_src_stores_themestore",
       "target": "frontend_src_stores_themestore_usethemestore",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/src/stores/themeStore.ts",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "frontend_src_stores_themestore_coercetheme",
+      "target": "frontend_src_stores_themestore_themes"
     },
     {
       "relation": "contains",

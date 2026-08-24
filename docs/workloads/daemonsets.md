@@ -1,5 +1,5 @@
 ---
-description: View, edit YAML for, and delete Kubernetes DaemonSets in Kube Inspector, with rollout and per-node status at a glance.
+description: View, restart, describe, edit YAML for and delete Kubernetes DaemonSets in Kube Inspector, with per-node rollout status at a glance.
 ---
 
 # DaemonSets
@@ -18,6 +18,29 @@ DaemonSets ensure that a copy of a pod runs on every (or a subset of) nodes in t
 | Age | Time since creation |
 
 ## Actions
+
+Per-row actions live in the **⋮** menu at the end of the row: Describe and
+Rollout restart. There is **no Scale** — a DaemonSet has no replica count; it
+runs one pod per matching node, so change `spec.template.spec.nodeSelector` or
+the node labels instead.
+
+### Rollout restart
+
+**⋮ → Rollout restart.** Confirms, then rolls every DaemonSet pod one generation
+forward using the same `kubectl.kubernetes.io/restartedAt` annotation
+`kubectl rollout restart` writes.
+
+This restarts the agent on **every node the DaemonSet covers**, governed by the
+DaemonSet's `updateStrategy` — `RollingUpdate` with `maxUnavailable: 1` walks
+the cluster one node at a time, while `OnDelete` will not restart anything until
+the pods are deleted. For a log collector or a CNI plugin, that is a
+cluster-wide operation: check the strategy before confirming.
+
+### Describe
+
+**⋮ → Describe.** Opens `kubectl describe` output — desired/current/ready counts
+per node, the update strategy, and the object's recent events. See
+[Describe](../workspace/describe.md).
 
 ### View / Edit YAML
 

@@ -44,9 +44,23 @@ CronJobs create Jobs on a schedule defined by a cron expression.
 
 ### Actions
 
+Per-row actions live in the **⋮** menu at the end of the row: Describe, and
+Suspend or Resume.
+
 ### Suspend / Resume
 
-Click the **Suspend** button to prevent the CronJob from creating new Jobs. Click **Resume** to re-enable scheduling. The current status is reflected in the Status column.
+**⋮ → Suspend** sets `spec.suspend: true`, which stops the CronJob creating new
+Jobs. **⋮ → Resume** clears it. Both ask for confirmation, and the Status column
+reflects the current state.
+
+Suspending does **not** stop a Job that is already running, and missed schedules
+are not made up when you resume — the next run is simply the next one due.
+
+### Describe
+
+**⋮ → Describe** opens `kubectl describe` output for the CronJob, including its
+schedule, last-scheduled time, active Jobs and recent events. See
+[Describe](../workspace/describe.md).
 
 ### View / Edit YAML
 

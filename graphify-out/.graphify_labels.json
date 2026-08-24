@@ -235,5 +235,10 @@
   "233": "eslint.config.js",
   "234": "vitest.config.ts",
   "235": "dockview-react",
-  "238": "@fontsource/jetbrains-mono"
+  "236": "namespace.go",
+  "237": "replicaSet.go",
+  "238": "@fontsource/jetbrains-mono",
+  "239": "role.go",
+  "240": "serviceAccount.go",
+  "241": "persistentVolume.go"
 }

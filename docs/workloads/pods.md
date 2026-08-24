@@ -22,6 +22,23 @@ The Pods screen lists all pods across all namespaces in the active cluster.
 
 ## Actions
 
+Per-row actions live in the **⋮** menu at the end of the row: **Describe** and
+**Port forward**.
+
+### Describe
+
+**⋮ → Describe.** Opens `kubectl describe` output for the pod — container
+states, conditions, volumes and, at the bottom, the pod's **events**, which is
+where image-pull, scheduling and probe failures explain themselves. See
+[Describe](../workspace/describe.md).
+
+### Port forward
+
+**⋮ → Port forward.** Tunnels a container port to `127.0.0.1`. A forward pinned
+to a Pod does not follow the workload if that pod is replaced — forward the
+Deployment or Service instead if you want it to survive a restart. See
+[Port forwarding](../workspace/port-forwarding.md).
+
 ### View Logs
 
 Click the **Logs** button on a pod row to open the [Log Viewer](../workspace/log-viewer.md) for that pod. Logs stream in real time.

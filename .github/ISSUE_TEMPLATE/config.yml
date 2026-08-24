@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Troubleshooting guide
+    url: https://kubeinspector.com/troubleshooting/
+    about: Cluster will not connect, empty lists, missing metrics, port-forward and update problems.
+  - name: Known limitations
+    url: https://kubeinspector.com/known-limitations/
+    about: Behaviour that is deliberate — unsigned builds, Apple Silicon only, no update rollback, machine-translated languages.
+  - name: FAQ
+    url: https://kubeinspector.com/faq/
+    about: Permissions, kubectl, multiple clusters, telemetry, update channels.
+  - name: Report a security vulnerability
+    url: https://github.com/opensourcemonkeys/kube-in-go/security/advisories/new
+    about: Please report vulnerabilities privately, never as a public issue.

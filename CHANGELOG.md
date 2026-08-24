@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v0.16.0-beta] - 2026-08-25
+
+The first beta. Alongside the actions that were missing — describe, scale, rollout restart, port forwarding — this release is mostly about the app telling you the truth: when a call fails it says so instead of showing an empty table, it writes a log file you can attach to a bug report, and the local network surfaces it opens are now authenticated.
+
+### Breaking
+- **Apply YAML now applies to the cluster the panel belongs to.** It previously wrote to whichever cluster was globally selected, so applying from a tab pinned to `staging` could land in `prod`. It also no longer shells out to `kubectl` — the manifest is applied through the Kubernetes API with **server-side apply**, which means Apply YAML works on a machine with no `kubectl` installed. (It never could before: the app does not ship `kubectl` and did not declare it as a dependency.)
+- **Resource lists now report failures instead of returning an empty list.** An RBAC denial, an unreachable API server and a genuinely empty namespace used to produce the same "No pods found" screen. They are now three different things on screen — see *Added* below. If you script against the app's API surface, the list calls can now reject.
+- **Multi-instance discovery requires a shared token.** The instance hub on `localhost:34200` is authenticated, with no unauthenticated fallback. A v0.16 instance and an older one running side by side will not see each other and cannot transfer tabs between themselves; upgrade both.
+
+### Added
+- **Describe** — `kubectl describe` output for any object, events included, in a read-only panel next to the list you opened it from. It is rendered in-process with the same describer library `kubectl` uses, so no `kubectl` binary is involved. Refresh keeps your scroll position, and the whole output can be copied in one click. Available from every resource list, and from the CRD explorer and the Security Role Map.
+- **Scale** — Deployments, StatefulSets and ReplicaSets. Set the replica count with a slider or an exact number. It uses the `scale` subresource rather than a full object update, so it cannot clobber a concurrent change. The dialog warns you when a HorizontalPodAutoscaler targets the workload (naming it, with its min/max) and when you ask for zero, and lets you proceed in both cases.
+- **Rollout restart** — Deployments, StatefulSets and DaemonSets, using the same `kubectl.kubernetes.io/restartedAt` annotation `kubectl rollout restart` writes, so the workload's own update strategy governs how it rolls.
+- **Suspend and resume CronJobs** from the row menu.
+- **Port forwarding** — pick a target's port **by name** from a dropdown of what it actually declares, accept a suggested free local port, and get a tunnel on `127.0.0.1`. A forward against a Deployment, StatefulSet, ReplicaSet or Service **re-resolves its pod and reconnects**, so it survives a rolling restart; one pinned to a Pod deliberately does not. Tunnels are owned by the process, not by the panel — closing the tab does not stop them. A Port Forwards panel lists every tunnel across all clusters with copy-address, open-in-browser, restart and stop, and a title-bar pill keeps the count visible while the panel is closed.
+- **Create a namespace** from the Namespaces screen, with labels.
+- **Errors are visible and actionable.** A failed call now shows a banner carrying the API server's own message, with **Retry** and **Copy diagnostics**. When a refresh fails, the rows you were reading stay on screen and are marked stale instead of being blanked. Panels that crash show a card with a copyable diagnostic instead of an empty rectangle.
+- **Diagnostics** (Help ▸ Diagnostics) — an Overview tab with environment details and health checks (API reachable, can list pods, metrics-server present — per cluster — plus the log directory, the update manifest and the Trivy database), a Logs tab with search, role filter, follow and a live log-level control, and an Export tab that copies a report, saves a zip, or opens the log folder.
+- **Local log files.** Every process — backend, terminal UI and the Electron shell — appends to one daily file in `~/.kube-ins/logs/`, kept for 7 days. Nothing is ever uploaded. Everything the app contributes to a report is redacted first: home paths, cluster names, secrets, base64 blobs and API server addresses.
+- **Six languages** — English, Türkçe, Deutsch, Русский, 中文, 日本語 — selectable from **Open ▸ Language**, applied without a restart. Turkish was reviewed by a native speaker; German, Russian, Chinese and Japanese are **machine-translated**, the app says so where you pick the language, and [corrections are welcome](https://kubeinspector.com/contributing/translations/).
+- **An update channel selector** (Open ▸ Update channel), a **Check for updates** entry in the Help menu, and an "you are up to date" state — previously the update dialog only existed when there was something to install, which is exactly when you would not need to change channel. Below 1.0 the default channel is **beta**.
+- **Failed updates are reported.** When an update is handed to an installer and the app comes back on the old version anyway, the next launch says so rather than silently pretending nothing happened.
+- **Every release now publishes a `SHA256SUMS-<version>`** covering all artifacts, in addition to the per-file `.sha256` sidecars, and the GitHub release carries a second independently hosted copy.
+- **Missing actions filled in** — delete for ServiceAccounts, Roles, RoleBindings, LimitRanges, Endpoints, IngressClasses, PersistentVolumes and StorageClasses; YAML editing for Jobs, IngressClasses, Endpoints, PersistentVolumes, VolumeClaims and StorageClasses; and the Resource Quotas screen is now backed by its own endpoint instead of one request per namespace.
+- **The terminal UI keeps pace.** Describe (`Enter`), scale (`S`), rollout restart (`R`), port forwarding (`F`) with a Port Forwards view (`X` to stop), CronJob pause/unpause and every new delete and edit are all available in `kube-inspector-cli` too.
+
+### Changed
+- **The app starts noticeably faster.** The entry bundle went from 6.3 MB to 853 KB (242 KB gzipped): every panel is now loaded on demand, and the Monaco editor — by far the heaviest piece — arrives with the first YAML tab instead of being parsed at every launch.
+- **Background tabs stop polling.** A list panel that is not visible no longer refreshes, so ten open tabs no longer mean ten request loops.
+- **Themes now reskin everything.** The last 180 hardcoded colours in the UI are gone; charts, graphs and terminals repaint when you switch theme instead of keeping the old palette.
+- **`kube-inspector-cli` installs to `/usr/bin`** instead of `/usr/local/bin`. Package managers handle this on upgrade.
+- **Desktop icons** are shipped at eight sizes, so the launcher entry looks right at every scale.
+
+### Fixed
+- **Sessions no longer leak or cross-talk.** A shell that exited on its own, a pod that died, or a stream that broke used to leave the panel silently unresponsive and the process behind it unreaped. Sessions now clean up after themselves and say when they ended. Reopening a terminal, an exec session, a log stream or an AI chat while the previous one was still closing could also strand the live session or hang the AI tool-approval dialog forever — both are fixed.
+- **A freshly opened terminal no longer reports "[shell exited]"** and ignores input.
+- **A cluster name can no longer escape `~/.kube-ins/`**, and a failed client construction no longer panics the request.
+- **Requests have timeouts**, so an unreachable API server fails instead of hanging a panel.
+- **Filter dropdowns and tables stopped churning** — lists whose data had not actually changed were re-rendering every poll, which made multi-select filters rebuild themselves every two seconds.
+- **The Windows CLI build never reached the download page** — it was renamed in place and so was never checksummed, never uploaded, and 404'd from a link the site advertised. The CLI `.deb` was also published under the wrong name.
+
+### Security
+- **The instance hub is authenticated** — a shared `0600` token plus an origin check that only accepts a request with no `Origin` header, which no browser can produce. Any web page you visited could previously connect to `localhost:34200`, list your instances and inject a panel.
+- **The backend's RPC token is injected into the page rather than the URL**, so a cross-origin page cannot read it, and both the HTTP endpoint and the event socket check `Origin`.
+- **Port forwards bind `127.0.0.1` exclusively**, enforced in code with no setting to change it.
+- **Every update download is verified against its published checksum before it is installed** — on Linux the file is handed to the package manager as root, so this check is not optional.
+- **Nothing is collected.** No telemetry, no analytics, no crash reporting; the full list of outbound requests is documented at [kubeinspector.com/privacy](https://kubeinspector.com/privacy/).
+
+### Internal
+- **CI now runs on every push and pull request**, not only on a tag: Go build, `vet`, `golangci-lint` and tests; frontend typecheck, lint, locale-parity check, unit tests and build; and a `--strict` docs build. Release tags are filtered to `v*` so an unrelated tag can no longer trigger a full release.
+- Every goroutine goes through a panic-recovering helper, and the logging package deliberately avoids `slog.SetDefault` — the global the bundled Trivy library takes over, which had been swallowing every log line in the binary.
+- The documentation site gained troubleshooting, FAQ, known-limitations, privacy, support, uninstall, unsigned-builds, describe, port-forwarding, language and translation pages, and the repository gained contributing, security, code-of-conduct, issue-template and Dependabot files.
+
+---
+
 ## [v0.15.0-alpha] - 2026-07-26
 
 ### Added

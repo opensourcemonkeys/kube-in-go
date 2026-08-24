@@ -1,0 +1,101 @@
+name: Bug report
+description: Something in Kube Inspector does not work the way it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this.
+
+        **Two things worth checking first**, because they resolve most reports:
+
+        - [Known limitations](https://kubeinspector.com/known-limitations/) — some behaviour is deliberate and documented.
+        - [Troubleshooting](https://kubeinspector.com/troubleshooting/) — cluster connection, empty lists (RBAC), missing metrics, port forwards.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you got instead.
+      placeholder: |
+        I opened the Deployments panel against my staging cluster and …
+        I expected … but instead …
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Click …
+        3. See …
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics blob
+      description: |
+        **Required.** It carries the version, platform, shell, health checks and — when copied from an error banner — the failing call itself. Without it almost every report starts with a round-trip asking for it.
+
+        **How to get it:**
+        - From the red error banner you are looking at → **Copy diagnostics** (best: it includes the failure), or
+        - **Help ▸ Diagnostics ▸ Export ▸ Copy report**.
+
+        Everything is redacted before it reaches your clipboard — home paths, cluster names, secrets, base64 blobs and API server addresses. The error message and any UI crash stack are added client-side and are *not* redacted, so give it a quick read before posting.
+      render: text
+      placeholder: |
+        Kube Inspector diagnostics
+        generated       …
+        version         …
+        platform        …
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did it happen?
+      options:
+        - Desktop app (GUI)
+        - Terminal UI (kube-inspector-cli)
+        - CLI Mode inside the desktop app
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: k8s
+    attributes:
+      label: Kubernetes distribution and version
+      description: "`kubectl version --short`, plus the distribution (EKS, GKE, AKS, k3s, kind, kubeadm …)."
+      placeholder: "v1.31.2 on EKS"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log lines
+      description: |
+        Optional but very helpful. **Help ▸ Diagnostics ▸ Logs** has a search box and a level control — set the level to `debug`, reproduce, then copy the lines around the failure.
+
+        For anything long, use **Export ▸ Save zip** and attach the file rather than pasting thousands of lines.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked [Known limitations](https://kubeinspector.com/known-limitations/) and this is not one of them.
+          required: true
+        - label: I searched the existing issues.
+          required: true
+        - label: This is not a security vulnerability (those go through [private reporting](https://github.com/opensourcemonkeys/kube-in-go/security/advisories/new)).
+          required: true

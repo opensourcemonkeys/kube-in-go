@@ -20,6 +20,23 @@ The Services screen lists all `Service` resources across namespaces in the activ
 
 ## Actions
 
+Per-row actions live in the **⋮** menu at the end of the row: **Describe** and
+**Port forward**.
+
+### Port forward
+
+**⋮ → Port forward.** The dialog lists the service's declared ports by name, so
+a `ClusterIP` service with no external address becomes reachable at
+`127.0.0.1:<port>`. The tunnel re-resolves and reconnects when the pod behind it
+is replaced. See [Port forwarding](../workspace/port-forwarding.md).
+
+### Describe
+
+**⋮ → Describe.** Shows the selector, endpoints, ports and session affinity as
+`kubectl describe service` prints them — the fastest way to confirm a service is
+actually selecting the pods you think it is. See
+[Describe](../workspace/describe.md).
+
 ### View / Edit YAML
 
 Double-click a row to open the service manifest. Apply changes from the editor to update the service.

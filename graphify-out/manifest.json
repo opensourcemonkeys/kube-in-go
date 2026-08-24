@@ -1275,8 +1275,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1787603710.8936489,
-    "ast_hash": "71ae4fd723fb66390e23948682317078",
+    "mtime": 1787607387.7077842,
+    "ast_hash": "846cc7591b2760de3527c662478487e6",
     "semantic_hash": ""
   },
   "docs/changelog.md": {
@@ -1370,9 +1370,9 @@
     "semantic_hash": "d003710a6a1f5932a54fa569bf8102c0"
   },
   "docs/networking/services.md": {
-    "mtime": 1783863874.2834969,
-    "ast_hash": "f69b7e267bb6639d3b7d18f44aa382cd",
-    "semantic_hash": "f69b7e267bb6639d3b7d18f44aa382cd"
+    "mtime": 1787607950.0264575,
+    "ast_hash": "cae1faa3ce73e4f2f1a794830f960ab1",
+    "semantic_hash": ""
   },
   "docs/robots.txt": {
     "mtime": 1783863599.387683,
@@ -1415,14 +1415,14 @@
     "semantic_hash": "445de90e601331496e2a6fc9c955079f"
   },
   "docs/workloads/daemonsets.md": {
-    "mtime": 1783863874.2837715,
-    "ast_hash": "48d9bb81c65aa64e601a367b602f7458",
-    "semantic_hash": "48d9bb81c65aa64e601a367b602f7458"
+    "mtime": 1787607927.6551974,
+    "ast_hash": "390888ef8351806bda836835532cea8b",
+    "semantic_hash": ""
   },
   "docs/workloads/deployments.md": {
-    "mtime": 1783863874.2837992,
-    "ast_hash": "85a9f647b475593e7723770a02c87641",
-    "semantic_hash": "85a9f647b475593e7723770a02c87641"
+    "mtime": 1787607899.4039264,
+    "ast_hash": "560d4dcbdd0699162f6d2af2ec57fbc7",
+    "semantic_hash": ""
   },
   "docs/workloads/index.md": {
     "mtime": 1783863874.283832,
@@ -1430,19 +1430,19 @@
     "semantic_hash": "5e14fc5483ba0ca3053769e9d9da23b3"
   },
   "docs/workloads/jobs-cronjobs.md": {
-    "mtime": 1783863874.283861,
-    "ast_hash": "43f1b780d4d3cf9a4290bb99b17a0333",
-    "semantic_hash": "43f1b780d4d3cf9a4290bb99b17a0333"
+    "mtime": 1787607950.0262492,
+    "ast_hash": "65a63c0e46a680119f6702b104fd10ce",
+    "semantic_hash": ""
   },
   "docs/workloads/pods.md": {
-    "mtime": 1783863874.2838895,
-    "ast_hash": "0dfeca3144cd4680b40bc4a5aeaf817f",
-    "semantic_hash": "0dfeca3144cd4680b40bc4a5aeaf817f"
+    "mtime": 1787607950.0263906,
+    "ast_hash": "39dcac12be2f4836543986c09c501862",
+    "semantic_hash": ""
   },
   "docs/workloads/statefulsets-replicasets.md": {
-    "mtime": 1783863874.2839196,
-    "ast_hash": "c158d92c83df49296b68e7dccb5637f7",
-    "semantic_hash": "c158d92c83df49296b68e7dccb5637f7"
+    "mtime": 1787607917.4887795,
+    "ast_hash": "5dc9a871d8e712b149caa18088b6756d",
+    "semantic_hash": ""
   },
   "docs/workspace/cluster-graph.md": {
     "mtime": 1783863874.283947,
@@ -1485,8 +1485,8 @@
     "semantic_hash": "4e3d9becbf87c0341298fadf87ae4d36"
   },
   "mkdocs.yml": {
-    "mtime": 1787603710.896744,
-    "ast_hash": "348a184be644a4613940914891ec9fcd",
+    "mtime": 1787607963.3988624,
+    "ast_hash": "40e66db131b2a9697b29d201dade3ed4",
     "semantic_hash": ""
   },
   "overrides/home.html": {
@@ -1675,8 +1675,8 @@
     "semantic_hash": ""
   },
   "beta-plan.md": {
-    "mtime": 1787603930.9032266,
-    "ast_hash": "3e04507952d1390c38a9a885bda9731d",
+    "mtime": 1787608271.6793723,
+    "ast_hash": "20a7fe3f020c33789dc1a643831c8c48",
     "semantic_hash": ""
   },
   "internal/repository/k8sClient_test.go": {
@@ -2307,6 +2307,106 @@
   "frontend/src/components/workspace/yamlPanelSeed.test.tsx": {
     "mtime": 1787606291.1400478,
     "ast_hash": "5f686c5290feebc2f88399c779ad2fe7",
+    "semantic_hash": ""
+  },
+  ".github/CODE_OF_CONDUCT.md": {
+    "mtime": 1787608098.272339,
+    "ast_hash": "9ca5bf1120d69b835c47ae5807f69103",
+    "semantic_hash": ""
+  },
+  ".github/CONTRIBUTING.md": {
+    "mtime": 1787608046.1013677,
+    "ast_hash": "a278c02720aa1d124923b647a0bb5fcc",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/bug_report.yml": {
+    "mtime": 1787608114.6911523,
+    "ast_hash": "fffb5415080bf9e753801b743ac28316",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/config.yml": {
+    "mtime": 1787608152.5458548,
+    "ast_hash": "a24c580f7ae20295aaa97859a6a8fd8d",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/feature_request.yml": {
+    "mtime": 1787608124.7270381,
+    "ast_hash": "9414ec08b793bb970e4ee35a190a3833",
+    "semantic_hash": ""
+  },
+  ".github/ISSUE_TEMPLATE/translation_fix.yml": {
+    "mtime": 1787608134.7267976,
+    "ast_hash": "059e43c8bb42aa7d72a7347eff219e1d",
+    "semantic_hash": ""
+  },
+  ".github/PULL_REQUEST_TEMPLATE.md": {
+    "mtime": 1787608152.5464625,
+    "ast_hash": "585c9169e4b3f29cff96a3862052f25e",
+    "semantic_hash": ""
+  },
+  ".github/SECURITY.md": {
+    "mtime": 1787608073.800301,
+    "ast_hash": "8c0d491b56cd31dae349eccc9a9186ef",
+    "semantic_hash": ""
+  },
+  ".github/dependabot.yml": {
+    "mtime": 1787608152.5467215,
+    "ast_hash": "c53eede29fadf5ee8c392033fc310a27",
+    "semantic_hash": ""
+  },
+  "docs/contributing/translations.md": {
+    "mtime": 1787607868.3729553,
+    "ast_hash": "b2912186646b19d190e6cc9cb871311f",
+    "semantic_hash": ""
+  },
+  "docs/faq.md": {
+    "mtime": 1787607745.207041,
+    "ast_hash": "aaf8099d52f3cd02ddb5e92746cc8008",
+    "semantic_hash": ""
+  },
+  "docs/getting-started/unsigned-builds.md": {
+    "mtime": 1787607426.7387059,
+    "ast_hash": "ccf75b84f7d5941c75d9c9ba9142a8bb",
+    "semantic_hash": ""
+  },
+  "docs/known-limitations.md": {
+    "mtime": 1787607565.0525432,
+    "ast_hash": "dfa93e38c30bf7b8f4ad8f869f213749",
+    "semantic_hash": ""
+  },
+  "docs/privacy.md": {
+    "mtime": 1787607607.292607,
+    "ast_hash": "82bb0c9cf27fe6c749995ce5c7d06747",
+    "semantic_hash": ""
+  },
+  "docs/settings/language.md": {
+    "mtime": 1787607844.2080812,
+    "ast_hash": "47f04dd5320ff6fbfb377ab619177de6",
+    "semantic_hash": ""
+  },
+  "docs/support.md": {
+    "mtime": 1787607693.5659444,
+    "ast_hash": "396c9d868bffc062b94501cb6a680160",
+    "semantic_hash": ""
+  },
+  "docs/troubleshooting.md": {
+    "mtime": 1787608237.3692913,
+    "ast_hash": "f1d55caa2fbcad3e75f94fdbb35457ce",
+    "semantic_hash": ""
+  },
+  "docs/uninstall.md": {
+    "mtime": 1787607655.891373,
+    "ast_hash": "d0ed8ddb798cd7be10f258a8bf4a7d34",
+    "semantic_hash": ""
+  },
+  "docs/workspace/describe.md": {
+    "mtime": 1787607777.4539897,
+    "ast_hash": "8db284d1f7133c47a335d2afcf498e6e",
+    "semantic_hash": ""
+  },
+  "docs/workspace/port-forwarding.md": {
+    "mtime": 1787607823.8554618,
+    "ast_hash": "57da7f8d1de871357d44586387dfc465",
     "semantic_hash": ""
   }
 }

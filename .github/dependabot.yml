@@ -1,0 +1,54 @@
+# Weekly dependency updates. Minor and patch bumps are grouped into one PR per
+# ecosystem so routine churn does not arrive as a dozen separate reviews; major
+# bumps stay separate, because those are the ones that need reading.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      go-minor-and-patch:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "deps(go)"
+
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      frontend-minor-and-patch:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "deps(frontend)"
+
+  # The Electron shell is a separate npm project: electron and electron-builder
+  # live here, and they set what the shipped packages are built from.
+  - package-ecosystem: npm
+    directory: "/electron"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      electron-minor-and-patch:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "deps(electron)"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      actions-minor-and-patch:
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "deps(ci)"

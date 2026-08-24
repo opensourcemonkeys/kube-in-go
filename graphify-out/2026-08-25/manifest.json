@@ -475,9 +475,9 @@
     "semantic_hash": "8f967ca50a3df610f8f7f0dfda7323c1"
   },
   "frontend/src/stores/themeStore.ts": {
-    "mtime": 1781946578.2760684,
-    "ast_hash": "5b4481357833f10e3cd2e424fa8fa2ba",
-    "semantic_hash": "5b4481357833f10e3cd2e424fa8fa2ba"
+    "mtime": 1787607064.7389789,
+    "ast_hash": "36403377ac4c741cd7df683fc9f0162e",
+    "semantic_hash": ""
   },
   "frontend/src/vite-env.d.ts": {
     "mtime": 1777815930.7063491,
@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1787514587.8036623,
-    "ast_hash": "c5526557b08a82dbda4161f2d4ff0f9b",
+    "mtime": 1787607078.7015336,
+    "ast_hash": "2208ff04463a055326823b2c224f59b5",
     "semantic_hash": ""
   },
   "README.md": {
@@ -1685,8 +1685,8 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/clusterColors.ts": {
-    "mtime": 1786199207.4000978,
-    "ast_hash": "2dd4ff72d0ccee3a8d02adbc33b9a8c4",
+    "mtime": 1787607078.7010963,
+    "ast_hash": "5ddab941ead9908beb6c7a1384143eac",
     "semantic_hash": ""
   },
   "frontend/src/stores/clusterColorStore.ts": {
@@ -2210,8 +2210,8 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/themeColors.ts": {
-    "mtime": 1787514204.1959045,
-    "ast_hash": "5373d00e10d0cf97ad9e192b15bc8ed0",
+    "mtime": 1787607078.7012508,
+    "ast_hash": "f76593f1d6ba877ba41fa0d4393c67b8",
     "semantic_hash": ""
   },
   "frontend/src/lib/useDocumentVisible.ts": {

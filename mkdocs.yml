@@ -69,6 +69,7 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Verifying Downloads: getting-started/verifying-downloads.md
+    - Unsigned Builds: getting-started/unsigned-builds.md
     - Adding Clusters: getting-started/cluster-setup.md
   - Downloads: downloads.md
   - CLI:
@@ -112,9 +113,21 @@ nav:
       - Limit Ranges: cluster/limit-ranges.md
     - Workspace:
       - YAML Editor: workspace/yaml-editor.md
+      - Describe: workspace/describe.md
       - Terminal: workspace/terminal.md
       - Log Viewer: workspace/log-viewer.md
+      - Port Forwarding: workspace/port-forwarding.md
       - Cluster Graph: workspace/cluster-graph.md
+    - Settings:
+      - Language: settings/language.md
+  - Help:
+    - FAQ: faq.md
+    - Troubleshooting: troubleshooting.md
+    - Known Limitations: known-limitations.md
+    - Uninstall: uninstall.md
+    - Support: support.md
+    - Privacy: privacy.md
+    - Translations: contributing/translations.md
 
 extra_css:
   - stylesheets/extra.css
