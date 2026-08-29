@@ -41,14 +41,20 @@ func parseDayFileName(name string) (time.Time, bool) {
 // different things, and only the second one is a bug.
 var sweepWG sync.WaitGroup
 
-func sweepAsync(dir string) {
+// now is passed in rather than read here because dayWriter owns an injectable
+// clock and the sweep it triggers at rollover must agree with it. Reading
+// time.Now() instead made retention silently disagree with the writer: a test
+// rolling over a fake midnight had its two brand-new day files judged against
+// the real date and deleted underneath it, once the real date had drifted more
+// than retainDays past the fake one. In production both clocks are the same.
+func sweepAsync(dir string, now time.Time) {
 	sweepWG.Add(1)
 	go func() {
 		defer sweepWG.Done()
 		// logging cannot import safego — safego logs through this package — so
 		// the panic guard is inline.
 		defer func() { _ = recover() }()
-		_ = sweep(dir, time.Now())
+		_ = sweep(dir, now)
 	}()
 }
 

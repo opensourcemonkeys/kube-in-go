@@ -129,7 +129,7 @@ func (w *dayWriter) roll(now time.Time) {
 		return
 	}
 	_ = old.Close()
-	sweepAsync(w.dir)
+	sweepAsync(w.dir, now)
 }
 
 func (w *dayWriter) Close() error {

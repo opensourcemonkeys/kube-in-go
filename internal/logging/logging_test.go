@@ -273,6 +273,15 @@ func TestRollover(t *testing.T) {
 	}
 	second := w.Path()
 
+	// roll() kicks off a retention sweep. Wait for it instead of racing it:
+	// this assertion is precisely that the sweep judges the files by the
+	// writer's clock, and letting the goroutine finish first is what makes that
+	// deterministic. With the sweep on time.Now() the two files below were
+	// deleted between the write and the read — and only once the real date had
+	// drifted more than retainDays past the fake one, so the test passed for
+	// two weeks before it started flaking in CI.
+	sweepWG.Wait()
+
 	if first == second {
 		t.Fatal("writer did not roll over at midnight")
 	}

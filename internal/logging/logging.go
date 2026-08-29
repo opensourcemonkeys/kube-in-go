@@ -142,7 +142,7 @@ func doInit(role, version string) error {
 	st.Store(s)
 	root.Store(loggerFor(s, ""))
 
-	sweepAsync(dir)
+	sweepAsync(dir, time.Now())
 	With("logging").Info("logger started", "level", Level(), "file", w.Path())
 	return nil
 }
