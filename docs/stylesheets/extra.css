@@ -186,29 +186,6 @@
   margin-bottom: 1.6rem;
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
 }
-/* Site-wide alpha notice — full-width strip below the navigation/menu bar */
-.ki-alpha-strip {
-  background: rgba(226, 168, 90, 0.10);
-  border-bottom: 1px solid rgba(226, 168, 90, 0.28);
-  color: #e2a85a;
-  font-size: 0.72rem;
-}
-.ki-alpha-strip__inner {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0.8rem;
-}
-.ki-alpha-strip__tag {
-  flex: none;
-  padding: 0.05rem 0.45rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--ki-app);
-  background: #e2a85a;
-  border-radius: 4px;
-}
 .ki-hero__title {
   margin: 0;
   font-size: 3.5rem;

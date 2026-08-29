@@ -43,14 +43,3 @@
   }
   </script>
 {% endblock %}
-
-<!-- Alpha notice — full-width strip in the header, just below the navigation/menu bar. -->
-{% block tabs %}
-  {{ super() }}
-  <div class="ki-alpha-strip">
-    <div class="ki-alpha-strip__inner md-grid">
-      <span class="ki-alpha-strip__tag">Alpha</span>
-      Kube Inspector is under active development — expect bugs and breaking changes.
-    </div>
-  </div>
-{% endblock %}
