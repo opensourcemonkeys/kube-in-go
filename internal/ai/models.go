@@ -33,13 +33,16 @@ var curatedModels = []models.OllamaModelInfo{
 	{Name: "nomic-embed-text", Description: "Embeddings model (not for chat)."},
 }
 
-// IsAvailable reports whether an Ollama server is reachable at host.
-func IsAvailable(host string) bool {
+// IsAvailable reports whether an Ollama server is reachable at host. It takes a
+// context so a caller that already has a deadline — the diagnostics panel runs
+// its health checks under one — is not made to wait out the 2s probe after it
+// has given up.
+func IsAvailable(ctx context.Context, host string) bool {
 	client, err := newClient(host)
 	if err != nil {
 		return false
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	return client.Heartbeat(ctx) == nil
 }

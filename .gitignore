@@ -12,6 +12,11 @@ frontend/wailsjs/go
 # re-include a file whose parent directory is excluded — which silently defeated
 # the !frontend/dist/.gitkeep rule above.
 /dist
+# mkdocs-material's social plugin writes its rendered card cache here
+# (.cache/plugin/social). It only appears in CI, because the plugin is gated
+# `enabled: !ENV [CI, false]` — which is why ci.yml's clean-tree assertion after
+# `make docs-build` failed while every local docs build looked fine.
+.cache/
 site
 build/windows/*.pfx
 build/windows/*.key

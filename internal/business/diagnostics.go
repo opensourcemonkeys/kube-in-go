@@ -323,11 +323,11 @@ func checkTrivyDB(context.Context) (string, string) {
 		humanBytes(fi.Size()), fi.ModTime().Format(time.RFC3339))
 }
 
-func checkOllama(_ context.Context, host string) (string, string) {
+func checkOllama(ctx context.Context, host string) (string, string) {
 	if host == "" {
 		return models.HealthSkip, "no host configured"
 	}
-	if !ai.IsAvailable(host) {
+	if !ai.IsAvailable(ctx, host) {
 		return models.HealthWarn, "no Ollama server at " + host + " — the AI assistant is unavailable"
 	}
 	return models.HealthOK, host

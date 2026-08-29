@@ -17,7 +17,7 @@ func ListAiModels(host string) ([]string, error) {
 
 // AiAvailable reports whether an Ollama server is reachable at host.
 func AiAvailable(host string) bool {
-	return ai.IsAvailable(host)
+	return ai.IsAvailable(context.Background(), host)
 }
 
 // ListAiModelCatalog returns downloadable + installed models for the model manager.

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -701,9 +702,12 @@ func scaleAction(kind string) rowAction {
 	return rowAction{
 		key: 'S', label: "scale", promptLabel: "Replicas",
 		runArg: func(cluster, name, namespace, arg string) error {
-			replicas, err := strconv.Atoi(arg)
+			// ParseInt with bitSize 32 rather than Atoi: the API field is an
+			// int32, and Atoi parses into a 64-bit int that the conversion then
+			// wraps — 2147483648 would have been sent as -2147483648.
+			replicas, err := strconv.ParseInt(arg, 10, 32)
 			if err != nil {
-				return fmt.Errorf("replicas must be a number, got %q", arg)
+				return fmt.Errorf("replicas must be a whole number in 0..%d, got %q", math.MaxInt32, arg)
 			}
 			if replicas < 0 {
 				return fmt.Errorf("replicas must be >= 0, got %d", replicas)

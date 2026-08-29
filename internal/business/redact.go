@@ -71,12 +71,6 @@ var urlKeep = map[string]bool{
 	"::1":                   true,
 }
 
-// redact applies every rule using the cluster names currently configured.
-func redact(s string) string {
-	clusters, _ := ListClusters()
-	return redactorFor(clusters)(s)
-}
-
 // redactorFor builds a reusable redactor. Use it when redacting many lines —
 // the cluster table is built once instead of per line.
 //

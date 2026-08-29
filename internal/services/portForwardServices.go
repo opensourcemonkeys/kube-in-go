@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"k8s.io/apimachinery/pkg/util/httpstream"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
+	"k8s.io/streaming/pkg/httpstream"
 
 	"kube-ins/internal/logging"
 	"kube-ins/internal/models"
@@ -406,7 +406,7 @@ func (s *pfSession) runOnce(t forwardTarget, localPort int, onReady func()) erro
 	readyCh := make(chan struct{})
 	out := pfLogWriter{id: s.id}
 
-	fw, err := portforward.NewOnAddresses(
+	fw, err := portforward.NewOnAddressesForStreaming(
 		dialer,
 		[]string{pfLoopbackAddress},
 		[]string{fmt.Sprintf("%d:%d", localPort, t.targetPort)},
@@ -455,20 +455,30 @@ func (s *pfSession) runOnce(t forwardTarget, localPort int, onReady func()) erro
 // over WebSocket first, raw SPDY as the fallback. The plain SPDY upgrade is on
 // its way out and some proxies already refuse it, while older API servers do
 // not speak the WebSocket variant at all — only trying both works everywhere.
+//
+// Every constructor here is the ...ForStreaming variant, and that is what makes
+// the fallback work at all. k8s.io/apimachinery/pkg/util/httpstream is a
+// deprecated copy of k8s.io/streaming/pkg/httpstream, with its own
+// UpgradeFailureError — a *distinct type*, not an alias. The websocket round
+// tripper this path dials through raises the streaming package's error and
+// passes it up unwrapped, so apimachinery's IsUpgradeFailure could never match
+// it: shouldFallback returned false for exactly the failure it exists to catch,
+// and an API server too old for the WebSocket variant got no SPDY retry.
+// Keep both sides on k8s.io/streaming.
 func newPortForwardDialer(cfg *rest.Config, u *url.URL) (httpstream.Dialer, error) {
 	transport, upgrader, err := spdy.RoundTripperFor(cfg)
 	if err != nil {
 		return nil, err
 	}
-	spdyDialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", u)
+	spdyDialer := spdy.NewDialerForStreaming(upgrader, &http.Client{Transport: transport}, "POST", u)
 
-	wsDialer, err := portforward.NewSPDYOverWebsocketDialer(u, cfg)
+	wsDialer, err := portforward.NewSPDYOverWebsocketDialerForStreaming(u, cfg)
 	if err != nil {
 		// Losing the preferred transport is not worth failing the forward over.
 		logging.With("portforward").Debug("websocket dialer unavailable, using SPDY", "err", err.Error())
 		return spdyDialer, nil
 	}
-	return portforward.NewFallbackDialer(wsDialer, spdyDialer, func(err error) bool {
+	return portforward.NewFallbackDialerForStreaming(wsDialer, spdyDialer, func(err error) bool {
 		return httpstream.IsUpgradeFailure(err) || httpstream.IsHTTPSProxyError(err)
 	}), nil
 }

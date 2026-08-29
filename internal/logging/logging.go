@@ -309,8 +309,16 @@ func Level() string { return levelName(lvl.Level()) }
 // Dir returns ~/.kube-ins/logs, creating it 0700 to match the rest of
 // ~/.kube-ins. KUBE_INS_LOG_DIR overrides it; that is a test hook, not a
 // supported configuration.
+//
+// The Clean below is normalisation, not a security boundary, and gosec's G703
+// taint warning here is noise: the value comes from this process's own
+// environment, so anyone who can set it can already run code as this user. It
+// is deliberately not validated any further (an absolute-path requirement, say)
+// because electron/logfile.cjs reads the same variable and the two must agree
+// on what it means.
 func Dir() (string, error) {
 	if d := os.Getenv(envLogDir); d != "" {
+		d = filepath.Clean(d)
 		if err := os.MkdirAll(d, 0700); err != nil {
 			return "", err
 		}
