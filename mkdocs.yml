@@ -3,11 +3,22 @@ site_description: A visual desktop client for managing Kubernetes clusters
 site_author: Kube Inspector contributors
 site_url: https://kubeinspector.com
 
+# Open-source repository — rendered as the GitHub link in the header (top right)
+# and inside the drawer on small screens. Material also fetches the star/fork
+# counts from the GitHub API and shows them under the repo name.
+repo_url: https://github.com/opensourcemonkeys/kube-in-go
+repo_name: kube-in-go
+# No "edit this page" links (content.action.edit is not enabled), so keep the
+# default edit_uri from pointing at a branch that doesn't exist.
+edit_uri: edit/main/docs/
+
 theme:
   name: material
   custom_dir: overrides
   logo: assets/logo.png
   favicon: assets/logo.png
+  icon:
+    repo: fontawesome/brands/github
   palette:
     # Dark only — matches the desktop app's "monolith" theme (no light toggle)
     scheme: slate
@@ -139,8 +150,14 @@ extra_javascript:
   - javascripts/reveal.js
   - javascripts/changelog.js
   - javascripts/version-chip.js
+  - javascripts/sponsor-chip.js
 
 extra:
+  # Sponsor link, shown as a pill beside the GitHub one in the header (and in
+  # the drawer on small screens) by javascripts/sponsor-chip.js. Reaches the
+  # page as a <meta> tag via overrides/main.html — change the URL here only.
+  sponsor_url: https://github.com/sponsors/opensourcemonkeys
+  sponsor_label: Sponsor
   analytics:
     provider: google
     property: G-707GCW6202

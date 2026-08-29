@@ -1,0 +1,4 @@
+# Adds the "Sponsor" button to the GitHub repository page, pointing at the same
+# destination as the Sponsor pill on kubeinspector.com (mkdocs.yml
+# extra.sponsor_url). Keep the two in sync.
+github: [opensourcemonkeys]

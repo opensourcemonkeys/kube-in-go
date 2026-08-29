@@ -7,6 +7,12 @@
   <meta name="ki-app-version" content="{{ config.extra.app_version }}">
   {% endif %}
 
+  <!-- Sponsor link for the header pill (sponsor-chip.js). -->
+  {% if config.extra.sponsor_url %}
+  <meta name="ki-sponsor-url" content="{{ config.extra.sponsor_url }}">
+  <meta name="ki-sponsor-label" content="{{ config.extra.sponsor_label | d('Sponsor', true) }}">
+  {% endif %}
+
   <!-- Structured data (JSON-LD) — helps Google rich results and gives LLM search
        clean, machine-readable facts about the app. -->
   <script type="application/ld+json">
