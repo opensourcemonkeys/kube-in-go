@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sync"
 	"time"
 )
 
@@ -34,8 +35,16 @@ func parseDayFileName(name string) (time.Time, bool) {
 	return d, true
 }
 
+// sweepWG tracks in-flight sweeps so Close can wait for them. The sweep is
+// fire-and-forget by design — Init must not pay for a directory scan — but
+// "detached" and "still running after the caller thinks it is done" are
+// different things, and only the second one is a bug.
+var sweepWG sync.WaitGroup
+
 func sweepAsync(dir string) {
+	sweepWG.Add(1)
 	go func() {
+		defer sweepWG.Done()
 		// logging cannot import safego — safego logs through this package — so
 		// the panic guard is inline.
 		defer func() { _ = recover() }()

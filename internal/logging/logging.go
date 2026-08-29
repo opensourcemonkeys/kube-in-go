@@ -377,6 +377,13 @@ func CurrentFile() (string, error) {
 // buffered, so every record has already reached the kernel by the time it
 // returns. That is why the os.Exit(1) paths in main.go are safe to leave alone.
 func Close() error {
+	// Wait for the retention sweep Init started. It touches .retention in the
+	// log directory when it finishes, so without this the directory keeps
+	// changing after Close returned — which is how an arbitrary test in this
+	// package kept failing with "TempDir RemoveAll cleanup: directory not
+	// empty": t.TempDir()'s removal raced the marker write. Waiting first also
+	// means a sweep's own Debug line lands before the writer shuts.
+	sweepWG.Wait()
 	if w := writer.Load(); w != nil {
 		return w.Close()
 	}
