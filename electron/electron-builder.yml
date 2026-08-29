@@ -19,10 +19,11 @@ files:
   - package.json
 
 # The Go binary IS the application. Built by `make build-sidecar` (or the
-# cross-compile inside pkg-windows / pkg-mac) into build/bin/.
-extraResources:
-  - from: ../build/bin/kube-inspector
-    to: kube-inspector
+# cross-compile inside pkg-windows / pkg-mac) into build/bin/, and declared
+# per-platform below because Windows needs the .exe name. Platform
+# extraResources are *added* to a top-level list, not substituted for it, so a
+# shared entry here would leave every Windows build warning about the missing
+# unix-named binary.
 
 compression: maximum
 
@@ -40,9 +41,23 @@ linux:
   target: [dir]
   category: Development
   icon: ../build/appicon.png
+  extraResources:
+    - from: ../build/bin/kube-inspector
+      to: kube-inspector
 
 win:
   target: [nsis]
+  # Explicit, because buildResources (../build) has no icon.ico at its root and
+  # electron-builder's fallback is build/icons/ — which exists, but holds the
+  # hicolor tree nfpm installs on Linux, not a flat icon set. Without this the
+  # Windows/mac builds die in CollectIcons ("doesn't contain icons").
+  icon: ../build/windows/icon.ico
+  # pkg-windows cross-compiles to kube-inspector.exe, which is the name
+  # main.cjs looks for under resourcesPath. Getting this wrong is only a
+  # warning, so the installer would ship without its backend rather than fail.
+  extraResources:
+    - from: ../build/bin/kube-inspector.exe
+      to: kube-inspector.exe
 
 # Both are electron-builder defaults, but the in-app updater depends on them:
 # it runs the installer with /S and quits without waiting, so NSIS itself has to
@@ -52,8 +67,14 @@ nsis:
   runAfterFinish: true
 
 mac:
+  # 512x512 source; electron-builder converts it to icns. Same reason as the
+  # win icon above — there is no icon.icns in buildResources.
+  icon: ../build/appicon.png
   # Deliberately NOT a universal build: the Go binary is ~262MB (Trivy), so a
   # universal dmg would embed two of them. Ship per-arch instead.
   target:
     - target: dmg
       arch: [arm64]
+  extraResources:
+    - from: ../build/bin/kube-inspector
+      to: kube-inspector
